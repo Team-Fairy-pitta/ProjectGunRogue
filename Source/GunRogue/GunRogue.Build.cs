@@ -7,8 +7,20 @@ public class GunRogue : ModuleRules
 	public GunRogue(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+
+		PublicIncludePaths.AddRange(new string[] {
+			"GunRogue"
+		});
+
+		PublicDependencyModuleNames.AddRange(new string[] {
+			// Base
+			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
+
+			// Gameplay
+			"GameplayTags",
+			"GameplayTasks",
+			"GameplayAbilities",
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
