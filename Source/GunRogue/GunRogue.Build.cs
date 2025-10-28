@@ -16,6 +16,9 @@ public class GunRogue : ModuleRules
 			// Base
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
 
+			// Widget
+			"UMG", "Slate", "SlateCore",
+
 			// Gameplay
 			"GameplayTags",
 			"GameplayTasks",

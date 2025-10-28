@@ -25,7 +25,16 @@ public class GRTest : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				// Base
+				"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
+
+				// Widget
+				"UMG", "Slate", "SlateCore",
+
+				// Gameplay
+				"GameplayTags",
+				"GameplayTasks",
+				"GameplayAbilities",
 
 				// 게임 모듈
 				"GunRogue",
