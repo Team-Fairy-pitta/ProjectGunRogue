@@ -26,6 +26,10 @@ public class GRTest : ModuleRules
 			new string[]
 			{
 				"Core",
+
+				// 게임 모듈
+				"GunRogue",
+
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
