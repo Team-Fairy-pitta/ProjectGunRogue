@@ -8,4 +8,6 @@ class GUNROGUE_API AGRGameMode : public AGameMode
 {
 	GENERATED_BODY()
 	
+public:
+	AGRGameMode();
 };
