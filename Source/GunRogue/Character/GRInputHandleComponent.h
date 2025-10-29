@@ -13,6 +13,8 @@ namespace GunRogue::InputTag
 	GUNROGUE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Move);
 	GUNROGUE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Look_Mouse);
 	GUNROGUE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Crouch);
+
+	GUNROGUE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_InputBlocked);
 }
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

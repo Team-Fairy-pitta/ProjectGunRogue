@@ -3,6 +3,7 @@
 #include "Character/GRPawnData.h"
 #include "Input/GRInputComponent.h"
 #include "Input/GRInputConfig.h"
+#include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "EnhancedInputSubsystems.h"
 
@@ -12,6 +13,8 @@ namespace GunRogue::InputTag
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Move, "InputTag.Move", "");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Look_Mouse, "InputTag.Look_Mouse", "");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Crouch, "InputTag.Crouch", "");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_InputBlocked, "Ability.InputBlocked", "");
 }
 
 UGRInputHandleComponent::UGRInputHandleComponent()
@@ -72,10 +75,36 @@ void UGRInputHandleComponent::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 void UGRInputHandleComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)
 {
+	AGRCharacter* GRCharacter = GetOwningCharacter();
+	if (!IsValid(GRCharacter))
+	{
+		return;
+	}
+	
+	UGRAbilitySystemComponent* ASC = GRCharacter->GetGRAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
+	
+	ASC->AbilityInputTagPressed(InputTag);
 }
 
 void UGRInputHandleComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
 {
+	AGRCharacter* GRCharacter = GetOwningCharacter();
+	if (!IsValid(GRCharacter))
+	{
+		return;
+	}
+
+	UGRAbilitySystemComponent* ASC = GRCharacter->GetGRAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
+
+	ASC->AbilityInputTagReleased(InputTag);
 }
 
 void UGRInputHandleComponent::Input_Move(const FInputActionValue& InputActionValue)
