@@ -14,7 +14,7 @@ class GUNROGUE_API UGRKeyMappingSlot : public UUserWidget
 	
 public:
 	UGRKeyMappingSlot(const FObjectInitializer& ObjectInitializer);
-	void Init(const FName& ActionName, const FName& KeyName, UGRKeyMappingWidget* Parent);
+	void Init(const FName& InActionName, const FName& InKeyName, UGRKeyMappingWidget* Parent);
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
@@ -22,6 +22,8 @@ public:
 	void UnfocusChangeButton();
 
 protected:
+	FName SlotActionName;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> ActionNameText;
 

@@ -28,9 +28,24 @@ void ATestKeyMappingPC::InitKeyMappings()
 	UGRKeyMappingWidget* MappingWidget = Cast<UGRKeyMappingWidget>(TargetWidget);
 	if (IsValid(MappingWidget))
 	{
-		MappingWidget->InitKeyMappings(Mappings);
+		MappingWidget->InitKeyMappings(CachedUserSetting, Mappings);
 	}
 }
+
+
+void ATestKeyMappingPC::ApplyKeyMappings()
+{
+	ULocalPlayer* LP = GetLocalPlayer();
+	check(LP);
+
+	UWidget* TargetWidget = TestWidgetClassInstance->GetWidgetFromName(FName(TEXT("KeyMappings")));
+	UGRKeyMappingWidget* MappingWidget = Cast<UGRKeyMappingWidget>(TargetWidget);
+	if (IsValid(MappingWidget))
+	{
+		MappingWidget->ApplyKeyMappings(LP, DefaultMappingContext);
+	}
+}
+
 
 void ATestKeyMappingPC::ClearMappingWidget()
 {

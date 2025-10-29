@@ -1,14 +1,18 @@
 #include "UI/KeyMapping/GRKeyMappingWidget.h"
 #include "UI/KeyMapping/GRKeyMappingSlot.h"
 #include "Components/Scrollbox.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputLibrary.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 
-void UGRKeyMappingWidget::InitKeyMappings(TMap<FName, FPlayerKeyMapping>& Mappings)
+void UGRKeyMappingWidget::InitKeyMappings(TObjectPtr<UEnhancedInputUserSettings> UserSetting, TMap<FName, FPlayerKeyMapping>& Mappings)
 {
 	if (!ScrollBox)
 	{
 		return;
 	}
+
+	CachedUserSetting = UserSetting;
 
 	for (auto& MappingPair : Mappings)
 	{
@@ -27,6 +31,22 @@ void UGRKeyMappingWidget::InitKeyMappings(TMap<FName, FPlayerKeyMapping>& Mappin
 	}
 }
 
+void UGRKeyMappingWidget::ApplyKeyMappings(ULocalPlayer* InLocalPlayer, UInputMappingContext* MappingContext)
+{
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = InLocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	check(Subsystem);
+
+	if (!MappingContext)
+	{
+		return;
+	}
+
+	int32 MappingPriority = 0;
+	Subsystem->AddMappingContext(MappingContext, MappingPriority);
+	CachedUserSetting->RegisterInputMappingContext(MappingContext);
+	UEnhancedInputLibrary::RequestRebuildControlMappingsUsingContext(MappingContext, true);
+}
+
 void UGRKeyMappingWidget::ClearWidgets()
 {
 	if (!ScrollBox)
@@ -41,6 +61,22 @@ void UGRKeyMappingWidget::StartChange(UGRKeyMappingSlot* Current)
 {
 	isChanging = true;
 	CurrentChangingSlot = Current;
+}
+
+void UGRKeyMappingWidget::ChangeKeyMapping(const FName& InActionName, const FKey& NewKey)
+{
+	check(CachedUserSetting);
+
+	FMapPlayerKeyArgs Args = {};
+	Args.MappingName = InActionName;
+	Args.Slot = EPlayerMappableKeySlot::First;
+	Args.NewKey = NewKey;
+
+	FGameplayTagContainer FailureReason;
+
+	CachedUserSetting->MapPlayerKey(Args, FailureReason);
+	CachedUserSetting->ApplySettings();
+	CachedUserSetting->SaveSettings();
 }
 
 void UGRKeyMappingWidget::EndChange()

@@ -38,14 +38,4 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> LeftInputAction;
 
-private:
-	// 전부 테스트용 함수
-	void RegisterInputMappingContext(UEnhancedInputUserSettings* UserSettings, UInputMappingContext* MappingContext);
-	void GetAllSavedKeyProfiles(UEnhancedInputUserSettings* UserSettings);
-	
-	UEnhancedInputUserSettings* LoadOrCreateUserSettings(ULocalPlayer* LocalPlayer);
-	void SaveInputUserSettings(UEnhancedInputUserSettings* UserSettings);
-
-
-	void RandomMappingTest(UEnhancedInputUserSettings* UserSettings);
 };

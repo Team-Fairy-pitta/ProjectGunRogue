@@ -8,17 +8,18 @@ UGRKeyMappingSlot::UGRKeyMappingSlot(const FObjectInitializer& ObjectInitializer
 {
 }
 
-void UGRKeyMappingSlot::Init(const FName& ActionName, const FName& KeyName, UGRKeyMappingWidget* Parent)
+void UGRKeyMappingSlot::Init(const FName& InActionName, const FName& InKeyName, UGRKeyMappingWidget* Parent)
 {
 	ParentWidget = Parent;
+	SlotActionName = InActionName;
 
 	if (ActionNameText)
 	{
-		ActionNameText->SetText(FText::FromName(ActionName));
+		ActionNameText->SetText(FText::FromName(InActionName));
 	}
 	if (KeyNameText)
 	{
-		KeyNameText->SetText(FText::FromName(KeyName));
+		KeyNameText->SetText(FText::FromName(InKeyName));
 	}
 	if (MappingChangeButton)
 	{
@@ -33,8 +34,16 @@ FReply UGRKeyMappingSlot::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
 
 	if (ParentWidget->IsChanging())
 	{
+		const FKey& NewKey = InKeyEvent.GetKey();
+		ParentWidget->ChangeKeyMapping(SlotActionName, NewKey);
 		ParentWidget->EndChange();
 		UnfocusChangeButton();
+
+		if (KeyNameText)
+		{
+			KeyNameText->SetText(FText::FromName(NewKey.GetFName()));
+		}
+
 		return FReply::Handled();
 	}
 	else

@@ -34,19 +34,13 @@ void ATestKeyMappingCharacter::SetupPlayerInputComponent(UInputComponent* Player
 
 	Subsystem->ClearAllMappings();
 
-	UEnhancedInputUserSettings* UserSettings = LoadOrCreateUserSettings(LocalPlayer);
+	UEnhancedInputUserSettings* UserSettings = UEnhancedInputUserSettings::LoadOrCreateSettings(LocalPlayer);
 	check(UserSettings);
-
-	//RegisterInputMappingContext(UserSettings, DefaultMappingContext);
-
-	//GetAllSavedKeyProfiles(UserSettings);
-
-	//RandomMappingTest(UserSettings);
-
-	//SaveInputUserSettings(UserSettings);
 
 	if (DefaultMappingContext)
 	{
+		UserSettings->RegisterInputMappingContext(DefaultMappingContext);
+
 		float Priority = 0.0f;
 		Subsystem->AddMappingContext(DefaultMappingContext, Priority);
 	}
@@ -87,101 +81,3 @@ void ATestKeyMappingCharacter::OnInputMove(const FInputActionValue& InputActionV
 		}
 	}
 }
-
-void ATestKeyMappingCharacter::RegisterInputMappingContext(UEnhancedInputUserSettings* UserSettings, UInputMappingContext* MappingContext)
-{
-	check(UserSettings);
-
-	if (DefaultMappingContext)
-	{
-		UserSettings->RegisterInputMappingContext(DefaultMappingContext);
-	}
-}
-
-void ATestKeyMappingCharacter::GetAllSavedKeyProfiles(UEnhancedInputUserSettings* UserSettings)
-{
-	check(UserSettings);
-
-	for (auto& ProfilePair : UserSettings->GetAllSavedKeyProfiles())
-	{
-		const FGameplayTag& ProfileName = ProfilePair.Key;
-		const TObjectPtr<UEnhancedPlayerMappableKeyProfile>& Profile = ProfilePair.Value;
-
-		for (auto& RowPair : Profile->GetPlayerMappingRows())
-		{
-			const FName& RowName = RowPair.Key;
-			const FKeyMappingRow& MappingRow = RowPair.Value;
-
-			for (const FPlayerKeyMapping& KeyMapping : MappingRow.Mappings)
-			{
-				FString TagString = ProfileName.ToString();
-				FString RowString = RowName.ToString();
-				FString MappingString = KeyMapping.ToString();
-				UE_LOG(LogTemp, Display, TEXT("%s - %s - %s"), *TagString, *RowString, *MappingString);
-			}
-		}
-	}
-}
-
-UEnhancedInputUserSettings* ATestKeyMappingCharacter::LoadOrCreateUserSettings(ULocalPlayer * LocalPlayer)
-{
-	return UEnhancedInputUserSettings::LoadOrCreateSettings(LocalPlayer);
-}
-
-void ATestKeyMappingCharacter::SaveInputUserSettings(UEnhancedInputUserSettings* UserSettings)
-{
-	check(UserSettings);
-	UserSettings->SaveSettings();
-}
-
-void ATestKeyMappingCharacter::RandomMappingTest(UEnhancedInputUserSettings* UserSettings)
-{
-	check(UserSettings);
-
-	for (auto& ProfilePair : UserSettings->GetAllSavedKeyProfiles())
-	{
-		const FGameplayTag& ProfileName = ProfilePair.Key;
-		const TObjectPtr<UEnhancedPlayerMappableKeyProfile>& Profile = ProfilePair.Value;
-
-		for (auto& RowPair : Profile->GetPlayerMappingRows())
-		{
-			const FName& RowName = RowPair.Key;
-			const FKeyMappingRow& MappingRow = RowPair.Value;
-
-			for (const FPlayerKeyMapping& KeyMapping : MappingRow.Mappings)
-			{
-				FString TagString = ProfileName.ToString();
-				FString RowString = RowName.ToString();
-				FString MappingString = KeyMapping.ToString();
-				
-				if (RowName.IsEqual(FName(TEXT("Right"))))
-				{
-					FMapPlayerKeyArgs Args = {};
-					Args.MappingName = RowName;
-					Args.Slot = EPlayerMappableKeySlot::First;
-
-					int32 RandomNumber = FMath::RandRange(0, 9);
-					switch (RandomNumber)
-					{
-					case 1: Args.NewKey = EKeys::One; break;
-					case 2: Args.NewKey = EKeys::Two; break;
-					case 3: Args.NewKey = EKeys::Three; break;
-					case 4: Args.NewKey = EKeys::Four; break;
-					case 5: Args.NewKey = EKeys::Five; break;
-					case 6: Args.NewKey = EKeys::Six; break;
-					case 7: Args.NewKey = EKeys::Seven; break;
-					case 8: Args.NewKey = EKeys::Eight; break;
-					case 9: Args.NewKey = EKeys::Nine; break;
-					case 0: Args.NewKey = EKeys::Zero; break;
-					default: Args.NewKey = EKeys::D; break;
-					}
-					FGameplayTagContainer FailureReason;
-					UserSettings->MapPlayerKey(Args, FailureReason);
-				}
-			}
-		}
-	}
-}
-
-
-

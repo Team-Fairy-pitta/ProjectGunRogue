@@ -3,8 +3,11 @@
 #include "Blueprint/UserWidget.h"
 #include "GRKeyMappingWidget.generated.h"
 
+class ULocalPlayer;
+class UInputMappingContext;
 class UScrollBox;
 class UGRKeyMappingSlot;
+class UEnhancedInputUserSettings;
 struct FPlayerKeyMapping;
 
 UCLASS()
@@ -16,10 +19,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGRKeyMappingSlot> SlotClass;
 
-	void InitKeyMappings(TMap<FName, FPlayerKeyMapping>& Mappings);
+	void InitKeyMappings(TObjectPtr<UEnhancedInputUserSettings> UserSetting, TMap<FName, FPlayerKeyMapping>& Mappings);
+	void ApplyKeyMappings(ULocalPlayer* InLocalPlayer, UInputMappingContext* MappingContext);
 	void ClearWidgets();
 
 	void StartChange(UGRKeyMappingSlot* Current);
+	void ChangeKeyMapping(const FName& InActionName, const FKey& NewKey);
 	void EndChange();
 	bool IsChanging();
 
@@ -29,6 +34,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UGRKeyMappingSlot> CurrentChangingSlot = nullptr;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UEnhancedInputUserSettings> CachedUserSetting;
 
 	bool isChanging;
 };

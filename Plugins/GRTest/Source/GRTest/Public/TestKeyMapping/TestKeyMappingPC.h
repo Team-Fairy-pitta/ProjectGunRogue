@@ -26,9 +26,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
-	// UI 초기화 관련 함수
+	// UI 관련 함수
 	UFUNCTION(BlueprintCallable)
 	void InitKeyMappings();
+
+	UFUNCTION(BlueprintCallable)
+	void ApplyKeyMappings();
 
 	UFUNCTION(BlueprintCallable)
 	void ClearMappingWidget();
@@ -50,5 +53,5 @@ public:
 
 private:
 	UPROPERTY()
-	UEnhancedInputUserSettings* CachedUserSetting;
+	TObjectPtr<UEnhancedInputUserSettings> CachedUserSetting;
 };
