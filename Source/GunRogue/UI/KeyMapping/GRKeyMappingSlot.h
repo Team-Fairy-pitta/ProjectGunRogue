@@ -5,6 +5,7 @@
 
 class UTextBlock;
 class UButton;
+class UGRKeyMappingWidget;
 
 UCLASS()
 class GUNROGUE_API UGRKeyMappingSlot : public UUserWidget
@@ -12,7 +13,13 @@ class GUNROGUE_API UGRKeyMappingSlot : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	void Init(const FName& ActionName, const FName& KeyName);
+	UGRKeyMappingSlot(const FObjectInitializer& ObjectInitializer);
+	void Init(const FName& ActionName, const FName& KeyName, UGRKeyMappingWidget* Parent);
+
+	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+
+	void FocusChangeButton();
+	void UnfocusChangeButton();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -23,4 +30,10 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> MappingChangeButton;
+
+	UPROPERTY()
+	TObjectPtr<UGRKeyMappingWidget> ParentWidget;
+
+	UFUNCTION()
+	void OnChangeButtonClicked();
 };

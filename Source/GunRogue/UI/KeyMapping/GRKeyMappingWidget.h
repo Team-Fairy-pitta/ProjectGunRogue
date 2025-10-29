@@ -19,7 +19,16 @@ public:
 	void InitKeyMappings(TMap<FName, FPlayerKeyMapping>& Mappings);
 	void ClearWidgets();
 
+	void StartChange(UGRKeyMappingSlot* Current);
+	void EndChange();
+	bool IsChanging();
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UScrollBox> ScrollBox;
+
+	UPROPERTY()
+	TObjectPtr<UGRKeyMappingSlot> CurrentChangingSlot = nullptr;
+
+	bool isChanging;
 };

@@ -20,7 +20,7 @@ void UGRKeyMappingWidget::InitKeyMappings(TMap<FName, FPlayerKeyMapping>& Mappin
 
 		if (NewSlot)
 		{
-			NewSlot->Init(ActionName, KeyName);
+			NewSlot->Init(ActionName, KeyName, this);
 			ScrollBox->AddChild(NewSlot);
 		}
 
@@ -35,4 +35,26 @@ void UGRKeyMappingWidget::ClearWidgets()
 	}
 
 	ScrollBox->ClearChildren();
+}
+
+void UGRKeyMappingWidget::StartChange(UGRKeyMappingSlot* Current)
+{
+	isChanging = true;
+	CurrentChangingSlot = Current;
+}
+
+void UGRKeyMappingWidget::EndChange()
+{
+	isChanging = false;
+	if (CurrentChangingSlot)
+	{
+		CurrentChangingSlot->UnfocusChangeButton();
+	}
+	CurrentChangingSlot = nullptr;
+}
+
+
+bool UGRKeyMappingWidget::IsChanging()
+{
+	return isChanging;
 }
