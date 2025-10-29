@@ -37,13 +37,13 @@ void ATestKeyMappingCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	UEnhancedInputUserSettings* UserSettings = LoadOrCreateUserSettings(LocalPlayer);
 	check(UserSettings);
 
-	RegisterInputMappingContext(UserSettings, DefaultMappingContext);
+	//RegisterInputMappingContext(UserSettings, DefaultMappingContext);
 
-	GetAllSavedKeyProfiles(UserSettings);
+	//GetAllSavedKeyProfiles(UserSettings);
 
-	RandomMappingTest(UserSettings);
+	//RandomMappingTest(UserSettings);
 
-	SaveInputUserSettings(UserSettings);
+	//SaveInputUserSettings(UserSettings);
 
 	if (DefaultMappingContext)
 	{

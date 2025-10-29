@@ -39,8 +39,7 @@ public:
 	TObjectPtr<UInputAction> LeftInputAction;
 
 private:
-	// 재활용 가능하도록 만든 함수
-	// 테스트 후, 아래 함수를 적극 재활용 할 예정
+	// 전부 테스트용 함수
 	void RegisterInputMappingContext(UEnhancedInputUserSettings* UserSettings, UInputMappingContext* MappingContext);
 	void GetAllSavedKeyProfiles(UEnhancedInputUserSettings* UserSettings);
 	

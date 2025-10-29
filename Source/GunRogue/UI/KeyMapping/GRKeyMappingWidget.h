@@ -5,6 +5,7 @@
 
 class UScrollBox;
 class UGRKeyMappingSlot;
+struct FPlayerKeyMapping;
 
 UCLASS()
 class GUNROGUE_API UGRKeyMappingWidget : public UUserWidget
@@ -15,6 +16,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGRKeyMappingSlot> SlotClass;
 
+	void InitKeyMappings(TMap<FName, FPlayerKeyMapping>& Mappings);
+	void ClearWidgets();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
