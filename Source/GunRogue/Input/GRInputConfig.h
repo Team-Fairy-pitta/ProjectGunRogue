@@ -20,6 +20,7 @@ public:
 	int32 Priority = 0;
 };
 
+// [InputAction, GameplayTag 묶음]
 USTRUCT(BlueprintType)
 struct FInputActionWithTag
 {
