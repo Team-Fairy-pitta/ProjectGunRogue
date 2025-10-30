@@ -2,6 +2,7 @@
 
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
+#include "AbilitySystem/GRAbilitySet.h"
 #include "GRPlayerState.generated.h"
 
 class AGRPlayerController;
@@ -31,4 +32,12 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
 	TObjectPtr<UGRAbilitySystemComponent> AbilitySystemComponent;
+
+	FGRAbilitySet_GrantedHandles GrantedHandles;
+
+private:
+	UFUNCTION()
+	void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
+
+	void InitAbilitySystemComponent();
 };
