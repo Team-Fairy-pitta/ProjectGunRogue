@@ -75,7 +75,7 @@ void UGRInputHandleComponent::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 void UGRInputHandleComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	AGRCharacter* GRCharacter = GetOwningCharacter();
+	AGRCharacter* GRCharacter = GetOwnerCharacter();
 	if (!IsValid(GRCharacter))
 	{
 		return;
@@ -92,7 +92,7 @@ void UGRInputHandleComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag
 
 void UGRInputHandleComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	AGRCharacter* GRCharacter = GetOwningCharacter();
+	AGRCharacter* GRCharacter = GetOwnerCharacter();
 	if (!IsValid(GRCharacter))
 	{
 		return;
@@ -109,17 +109,64 @@ void UGRInputHandleComponent::Input_AbilityInputTagReleased(FGameplayTag InputTa
 
 void UGRInputHandleComponent::Input_Move(const FInputActionValue& InputActionValue)
 {
+	ACharacter* Character = GetOwnerCharacter();
+	AController* Controller = Character ? Character->GetController() : nullptr;
+
+	if (IsValid(Controller))
+	{
+		const FVector2D Value = InputActionValue.Get<FVector2D>();
+		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+
+		if (!FMath::IsNearlyZero(Value.X))
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+			Character->AddMovementInput(MovementDirection, Value.X);
+		}
+		if (!FMath::IsNearlyZero(Value.Y))
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+			Character->AddMovementInput(MovementDirection, Value.Y);
+		}
+	}
 }
 
 void UGRInputHandleComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
 {
+	ACharacter* Character = GetOwnerCharacter();
+
+	if (IsValid(Character))
+	{
+		const FVector2D Value = InputActionValue.Get<FVector2D>();
+
+		if (!FMath::IsNearlyZero(Value.X))
+		{
+			Character->AddControllerYawInput(Value.X);
+		}
+		if (!FMath::IsNearlyZero(Value.Y))
+		{
+			Character->AddControllerPitchInput(Value.Y);
+		}
+	}
 }
 
 void UGRInputHandleComponent::Input_Crouch(const FInputActionValue& InputActionValue)
 {
+	ACharacter* Character = GetOwnerCharacter();
+
+	if (IsValid(Character))
+	{
+		if (Character->bIsCrouched)
+		{
+			Character->UnCrouch();
+		}
+		else
+		{
+			Character->Crouch();
+		}
+	}
 }
 
-AGRCharacter* UGRInputHandleComponent::GetOwningCharacter()
+AGRCharacter* UGRInputHandleComponent::GetOwnerCharacter()
 {
 	return GetOwner<AGRCharacter>();
 }

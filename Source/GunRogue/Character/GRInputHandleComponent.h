@@ -36,5 +36,5 @@ public:
 
 
 protected:
-	AGRCharacter* GetOwningCharacter();
+	AGRCharacter* GetOwnerCharacter();
 };
