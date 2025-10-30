@@ -83,7 +83,7 @@ protected:
 };
 
 
-UCLASS()
+UCLASS(BlueprintType, Const)
 class GUNROGUE_API UGRAbilitySet : public UDataAsset
 {
 	GENERATED_BODY()

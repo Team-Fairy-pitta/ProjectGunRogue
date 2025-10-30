@@ -81,7 +81,6 @@ void UGRAbilitySet::GiveToAbilitySystem(UGRAbilitySystemComponent* ASC, FGRAbili
 	GrantGameplayEffects(ASC, OutGrantedHandles);
 }
 
-
 void UGRAbilitySet::GrantAbilities(UGRAbilitySystemComponent* ASC, FGRAbilitySet_GrantedHandles* OutGrantedHandles, UObject* SourceObject) const
 {
 	for (int32 AbilityIndex = 0; AbilityIndex < GrantedGameplayAbilities.Num(); AbilityIndex++)
