@@ -56,8 +56,6 @@ void UGRAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGameP
 		return;
 	}
 
-	AbilitiesToActivate.Reset();
-
 	// 키를 누르고 있을 때 발동하는 Ability 처리
 	// TODO: 아직 구현하지 않음. 이 기능이 필요할 때 구현할 예정입니다.
 	for (const FGameplayAbilitySpecHandle& SpecHandle : InputHeldSpecHandles)
@@ -79,15 +77,10 @@ void UGRAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGameP
 				}
 				else
 				{
-					AbilitiesToActivate.AddUnique(AbilitySpec->Handle);
+					TryActivateAbility(AbilitySpec->Handle);
 				}
 			}
 		}
-	}
-
-	for (const FGameplayAbilitySpecHandle& AbilitySpecToActivate : AbilitiesToActivate)
-	{
-		TryActivateAbility(AbilitySpecToActivate);
 	}
 
 	// 키를 떼었을 때 Ability 처리

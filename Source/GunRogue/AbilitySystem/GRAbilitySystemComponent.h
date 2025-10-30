@@ -30,7 +30,4 @@ protected:
 
 	// 누르고 있을 때(Held) 처리할 Ability의 Handle 목록
 	TArray<FGameplayAbilitySpecHandle> InputHeldSpecHandles;
-
-private:
-	TArray<FGameplayAbilitySpecHandle> AbilitiesToActivate;
 };
