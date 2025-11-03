@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Character/GRCharacter.h"
 #include "InputActionValue.h"
 #include "TestGRCharacter_Cheat.generated.h"

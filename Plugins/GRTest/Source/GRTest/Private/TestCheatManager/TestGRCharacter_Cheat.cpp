@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "TestCheatManager/TestGRCharacter_Cheat.h"
 
 #include "EnhancedInputSubsystems.h"

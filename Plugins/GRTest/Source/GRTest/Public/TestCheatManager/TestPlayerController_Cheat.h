@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Player/GRPlayerController.h"
 #include "TestPlayerController_Cheat.generated.h"
 
