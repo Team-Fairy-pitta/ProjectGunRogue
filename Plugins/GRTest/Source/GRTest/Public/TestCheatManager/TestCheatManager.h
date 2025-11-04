@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameFramework/CheatManager.h"
+#include "Editor.h"
 #include "TestCheatManager.generated.h"
 
 
@@ -36,16 +37,19 @@ protected:
 	void Walking();
 
 	UFUNCTION(exec)
-	void SelfDamage(float DamageAmount);
+	void SelfDamage(const float DamageAmount);
 
 	UFUNCTION(exec)
-	void SelfHeal(float HealAmount);
+	void SelfHeal(const float HealAmount);
 
 	UFUNCTION(exec)
-	void SpawnItem(FString ItemName, float Distance);
+	void SpawnItem(const FString ItemName, const float Distance);
 
 	UFUNCTION(exec)
-	void TP(FString LocationName);
+	void TP(const FString LocationName);
+
+	UFUNCTION(exec)
+	void SaveCurrentLocation(FName LocationName);
 
 #pragma endregion
 

@@ -6,6 +6,14 @@
 #include "TestCheatManager/TestItemDataAsset_Cheat.h"
 #include "TestCheatManager/TestLocationDataAsset.h"
 
+#if WITH_EDITOR
+#include "PackageTools.h"
+#include "ObjectTools.h"
+#include "Editor.h"
+#include "Misc/PackageName.h"
+#include "UObject/SavePackage.h"
+#endif
+
 
 void UTestCheatManager::Flying()
 {
@@ -128,4 +136,64 @@ void UTestCheatManager::TP(FString LocationName)
 			Pawn->SetActorLocationAndRotation(Found->Location, Found->Rotation);
 		}
 	}
+}
+
+void UTestCheatManager::SaveCurrentLocation(FName LocationName)
+{
+	if (!LocationDataAsset)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LocationDataAsset not assigned!"));
+		return;
+	}
+
+	APlayerController* PC = GetOuterAPlayerController();
+	if (!PC) return;
+
+	APawn* Pawn = PC->GetPawn();
+	if (!Pawn) return;
+
+	FVector CurrentLocation = Pawn->GetActorLocation();
+	FRotator CurrentRotation = FRotator(0.0f, 0.0f, 0.0f); //Pawn->GetActorRotation();
+
+	if (LocationDataAsset->Locations.ContainsByPredicate([&](const FNamedLocation& Loc) { return Loc.LocationName == LocationName; }))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Location with this name already exists!"));
+		return;
+	}
+
+	FNamedLocation NewLocation;
+	NewLocation.LocationName = LocationName;
+	NewLocation.Location = CurrentLocation;
+	NewLocation.Rotation = CurrentRotation;
+
+	LocationDataAsset->Locations.Add(NewLocation);
+	LocationDataAsset->MarkPackageDirty();
+
+#if WITH_EDITOR
+	UPackage* Package = LocationDataAsset->GetOutermost();
+	if (Package)
+	{
+		FString PackageFileName = FPackageName::LongPackageNameToFilename(
+			Package->GetName(),
+			FPackageName::GetAssetPackageExtension()
+		);
+
+		FSavePackageArgs SaveArgs;
+		SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+		SaveArgs.SaveFlags = SAVE_NoError;
+		SaveArgs.Error = GError;
+		SaveArgs.bForceByteSwapping = false;
+		SaveArgs.bWarnOfLongFilename = true;
+
+		bool bSaved = UPackage::SavePackage(Package, LocationDataAsset, *PackageFileName, SaveArgs);
+		if (bSaved)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Saved LocationDataAsset to %s"), *PackageFileName);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to save LocationDataAsset!"));
+		}
+	}
+#endif
 }
