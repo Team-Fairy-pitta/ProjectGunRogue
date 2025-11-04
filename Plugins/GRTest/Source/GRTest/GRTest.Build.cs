@@ -29,6 +29,9 @@ public class GRTest : ModuleRules
 
 				// 게임 모듈
 				"GunRogue",
+				
+				//UMG
+				"UMG",
 
 				// ... add other public dependencies that you statically link with here ...
 			}
