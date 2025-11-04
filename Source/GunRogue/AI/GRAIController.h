@@ -31,6 +31,8 @@ protected:
 private:
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+
+	void UpdateClosestPlayer();
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category="AI")
@@ -46,4 +48,7 @@ private:
 	TObjectPtr<UAIPerceptionComponent> AIPerceptionComp;
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
+
+	static const FName TargetPlayerKey;
+	static const FName IsPlayerDetectedKey;
 };

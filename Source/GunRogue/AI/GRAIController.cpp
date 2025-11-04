@@ -6,6 +6,10 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "Character/GRCharacter.h"
+
+const FName AGRAIController::TargetPlayerKey="TargetPlayer";
+const FName AGRAIController::IsPlayerDetectedKey="IsPlayerDetected";
 
 AGRAIController::AGRAIController()
 	:BehaviorTreeAsset(nullptr)
@@ -23,8 +27,8 @@ AGRAIController::AGRAIController()
 	SightConfig->LoseSightRadius = 2200.f;
 	SightConfig->PeripheralVisionAngleDegrees = 60.f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
-	SightConfig->DetectionByAffiliation.bDetectNeutrals = false;
-	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
+	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 
 	AIPerceptionComp->ConfigureSense(*SightConfig);
 }
@@ -56,5 +60,60 @@ void AGRAIController::OnPossess(APawn* InPawn)
 
 void AGRAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	AGRCharacter* TargetPlayer=Cast<AGRCharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
+	
+	if (Stimulus.WasSuccessfullySensed())
+	{
+		if (TargetPlayer)	return;
 
+		AGRCharacter* NewPlayer=Cast<AGRCharacter>(Actor);
+		if (NewPlayer)
+		{
+			BlackboardComp->SetValueAsObject(TargetPlayerKey, NewPlayer);
+			BlackboardComp->SetValueAsBool(IsPlayerDetectedKey, true);
+		}
+	}
+	else
+	{
+		if (TargetPlayer==Actor)
+		{
+			UpdateClosestPlayer();	
+		}
+	}
+}
+
+void AGRAIController::UpdateClosestPlayer()
+{
+	TArray<AActor*> PerceivedActors;
+	AIPerceptionComp->GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), PerceivedActors);
+
+	float BestDistSq = FLT_MAX;
+	AActor* BestActor = nullptr;
+
+	APawn* MyPawn = GetPawn();
+	if (!MyPawn) return;
+	
+	for (AActor* PerceivedActor : PerceivedActors)
+	{
+		AGRCharacter* PerceivedPlayer=Cast<AGRCharacter>(PerceivedActor);
+		if (!PerceivedPlayer)	continue;
+
+		float DistSq = FVector::DistSquared(MyPawn->GetActorLocation(), PerceivedPlayer->GetActorLocation());
+		if (DistSq < BestDistSq)
+		{
+			BestDistSq = DistSq;
+			BestActor = PerceivedPlayer;
+		}
+	}
+
+	if (IsValid(BestActor))
+	{
+		BlackboardComp->SetValueAsObject(TargetPlayerKey, BestActor);
+		BlackboardComp->SetValueAsBool(IsPlayerDetectedKey, true);
+	}
+	else
+	{
+		BlackboardComp->SetValueAsObject(TargetPlayerKey, nullptr);
+		BlackboardComp->SetValueAsBool(IsPlayerDetectedKey, false);
+	}
 }
