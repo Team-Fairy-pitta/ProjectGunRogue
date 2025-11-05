@@ -21,7 +21,6 @@ public class GunRogue : ModuleRules
 			"GameplayTasks",
 			"GameplayAbilities",
 
-			"GRTest",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

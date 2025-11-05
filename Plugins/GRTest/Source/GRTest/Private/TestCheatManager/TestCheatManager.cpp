@@ -18,10 +18,16 @@
 void UTestCheatManager::Flying()
 {
 	ACharacter* MyCharacter = Cast<ACharacter>(GetOuterAPlayerController()->GetPawn());
-	if (!MyCharacter) return;
+	if (!MyCharacter)
+	{
+		return;
+	}
 
 	UCharacterMovementComponent* MoveComp = MyCharacter->GetCharacterMovement();
-	if (!MoveComp) return;
+	if (!MoveComp)
+	{
+		return;
+	}
 
 	if (MoveComp->MovementMode != MOVE_Flying)
 	{
@@ -40,10 +46,16 @@ void UTestCheatManager::Flying()
 void UTestCheatManager::Walking()
 {
 	ACharacter* MyCharacter = Cast<ACharacter>(GetOuterAPlayerController()->GetPawn());
-	if (!MyCharacter) return;
+	if (!MyCharacter)
+	{
+		return;
+	}
 
 	UCharacterMovementComponent* MoveComp = MyCharacter->GetCharacterMovement();
-	if (!MoveComp) return;
+	if (!MoveComp)
+	{
+		return;
+	}
 
 	if (MoveComp->MovementMode != MOVE_Walking)
 	{
@@ -76,7 +88,7 @@ void UTestCheatManager::SelfHeal(float HealAmount)
 	//}
 }
 
-void UTestCheatManager::SpawnItem(FString ItemName, float Distance)
+void UTestCheatManager::SpawnItem(const FString& ItemName, float Distance)
 {
 	if (!ItemDataAsset)
 	{
@@ -85,10 +97,16 @@ void UTestCheatManager::SpawnItem(FString ItemName, float Distance)
 	}
 
 	APlayerController* PC = GetOuterAPlayerController();
-	if (!PC) return;
+	if (!PC)
+	{
+		return;
+	}
 
 	APawn* MyPawn = PC->GetPawn();
-	if (!MyPawn) return;
+	if (!MyPawn)
+	{
+		return;
+	}
 
 	FName SearchName(*ItemName);
 
@@ -108,6 +126,11 @@ void UTestCheatManager::SpawnItem(FString ItemName, float Distance)
 			}
 
 			UWorld* World = MyPawn->GetWorld();
+			if (!World)
+			{
+				return;
+			}
+
 			const FVector Forward = MyPawn->GetActorForwardVector();
 			const FVector SpawnLoc = MyPawn->GetActorLocation() + Forward * Distance * 100;
 			const FRotator SpawnRot = MyPawn->GetActorRotation();
@@ -117,6 +140,7 @@ void UTestCheatManager::SpawnItem(FString ItemName, float Distance)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[Cheat]: Spawned item '%s' at %s"), *ItemName, *SpawnLoc.ToString());
 			}
+
 			return;
 		}
 	}
@@ -124,7 +148,7 @@ void UTestCheatManager::SpawnItem(FString ItemName, float Distance)
 	UE_LOG(LogTemp, Warning, TEXT("[Cheat]: Item '%s' not found in DataAsset!"), *ItemName);
 }
 
-void UTestCheatManager::TP(FString LocationName)
+void UTestCheatManager::LocationTeleport(const FString& LocationName)
 {
 	const FNamedLocation* Found = LocationDataAsset->Locations.FindByPredicate(
 		[&](const FNamedLocation& Loc) { return Loc.LocationName == LocationName; });
@@ -147,10 +171,16 @@ void UTestCheatManager::SaveCurrentLocation(FName LocationName)
 	}
 
 	APlayerController* PC = GetOuterAPlayerController();
-	if (!PC) return;
+	if (!PC)
+	{
+		return;
+	}
 
 	APawn* Pawn = PC->GetPawn();
-	if (!Pawn) return;
+	if (!Pawn)
+	{
+		return;
+	}
 
 	FVector CurrentLocation = Pawn->GetActorLocation();
 	FRotator CurrentRotation = FRotator(0.0f, 0.0f, 0.0f); //Pawn->GetActorRotation();

@@ -37,19 +37,31 @@ protected:
 	void Walking();
 
 	UFUNCTION(exec)
-	void SelfDamage(const float DamageAmount);
+	void SelfDamage(float DamageAmount);
 
 	UFUNCTION(exec)
-	void SelfHeal(const float HealAmount);
+	void SelfHeal(float HealAmount);
 
 	UFUNCTION(exec)
-	void SpawnItem(const FString ItemName, const float Distance);
+	void SpawnItem(const FString& ItemName, float Distance);
 
 	UFUNCTION(exec)
-	void TP(const FString LocationName);
+	void SI(const FString& ItemName, float Distance)
+	{
+		SpawnItem(ItemName, Distance);
+	}
 
 	UFUNCTION(exec)
-	void SaveCurrentLocation(FName LocationName);
+	void LocationTeleport(const FString& LocationName);
+
+	UFUNCTION(exec)
+	void TP(const FString& LocationName)
+	{
+		LocationTeleport(LocationName);
+	}
+
+	UFUNCTION(exec)
+	void SaveCurrentLocation(const FName LocationName);
 
 #pragma endregion
 
