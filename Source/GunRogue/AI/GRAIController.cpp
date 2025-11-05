@@ -60,18 +60,17 @@ void AGRAIController::OnPossess(APawn* InPawn)
 
 void AGRAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	AGRCharacter* NewPlayer=Cast<AGRCharacter>(Actor);
+	if (!NewPlayer)	return;
+	
 	AGRCharacter* TargetPlayer=Cast<AGRCharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
 	
 	if (Stimulus.WasSuccessfullySensed())
 	{
 		if (TargetPlayer)	return;
 
-		AGRCharacter* NewPlayer=Cast<AGRCharacter>(Actor);
-		if (NewPlayer)
-		{
-			BlackboardComp->SetValueAsObject(TargetPlayerKey, NewPlayer);
-			BlackboardComp->SetValueAsBool(IsPlayerDetectedKey, true);
-		}
+		BlackboardComp->SetValueAsObject(TargetPlayerKey, NewPlayer);
+		BlackboardComp->SetValueAsBool(IsPlayerDetectedKey, true);
 	}
 	else
 	{

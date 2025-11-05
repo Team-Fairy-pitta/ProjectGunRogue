@@ -4,8 +4,10 @@
 #include "AI/BT/GRBTService_UpdateDistance.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
+#include "AI/GRAIController.h"
 
 const FName UGRBTService_UpdateDistance::IsInAttackRangeKey="IsInAttackRange";
+const FName UGRBTService_UpdateDistance::LastPlayerLocationKey="LastPlayerLocation";
 
 UGRBTService_UpdateDistance::UGRBTService_UpdateDistance()
 	:AttackRange(300.0f)
@@ -29,16 +31,18 @@ void UGRBTService_UpdateDistance::TickNode(UBehaviorTreeComponent& OwnerComp, ui
 	APawn* AIPawn = AIController->GetPawn();
 	if (!AIPawn) return;
 
-	UObject* TargetObj = BlackboardComp->GetValueAsObject(TEXT("TargetActor"));
-	AActor* TargetActor = Cast<AActor>(TargetObj);
-	if (!TargetActor)
+	UObject* TargetPlayerObj = BlackboardComp->GetValueAsObject(AGRAIController::TargetPlayerKey);
+	AActor* TargetPlayerActor = Cast<AActor>(TargetPlayerObj);
+	if (!TargetPlayerActor)
 	{
-		BlackboardComp->SetValueAsBool(TEXT("IsInAttackRange"), false);
+		BlackboardComp->SetValueAsBool(IsInAttackRangeKey, false);
 		return;
 	}
 
-	float DistanceSq = FVector::DistSquared(AIPawn->GetActorLocation(), TargetActor->GetActorLocation());
+	BlackboardComp->SetValueAsVector(LastPlayerLocationKey, TargetPlayerActor->GetActorLocation());
+	
+	float DistanceSq = FVector::DistSquared(AIPawn->GetActorLocation(), TargetPlayerActor->GetActorLocation());
 	bool bInRange = DistanceSq <= (AttackRange * AttackRange);
 
-	BlackboardComp->SetValueAsBool(TEXT("IsInAttackRange"), bInRange);
+	BlackboardComp->SetValueAsBool(IsInAttackRangeKey, bInRange);
 }
