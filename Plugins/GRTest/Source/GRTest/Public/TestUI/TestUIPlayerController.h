@@ -7,6 +7,8 @@
 #include "TestUIPlayerController.generated.h"
 
 class UGRBattleHUDWidget;
+class UInputMappingContext;
+class UInputAction;
 /**
  * 
  */
@@ -17,6 +19,12 @@ class GRTEST_API ATestUIPlayerController : public APlayerController
 
 public:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
+	UInputMappingContext* InputMappingContext = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
+	UInputAction* MoveAction = nullptr;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")

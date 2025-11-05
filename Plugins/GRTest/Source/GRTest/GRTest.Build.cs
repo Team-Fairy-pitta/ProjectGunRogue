@@ -32,6 +32,10 @@ public class GRTest : ModuleRules
 				
 				//UMG
 				"UMG",
+				
+				//input
+				"InputCore",
+				"EnhancedInput",
 
 				// ... add other public dependencies that you statically link with here ...
 			}
