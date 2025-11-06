@@ -12,6 +12,15 @@
     GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
     GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+DECLARE_MULTICAST_DELEGATE_SixParams(
+	FGRAttributeEvent,
+	AActor* /*EffectInstigator*/,
+	AActor* /*EffectCauser*/,
+	const FGameplayEffectSpec* /*EffectSpec*/,
+	float /*EffectMagnitude*/,
+	float /*OldValue*/,
+	float /*NewValue*/
+);
 
 UCLASS()
 class GUNROGUE_API UGRHealthAttributeSet : public UAttributeSet
@@ -22,8 +31,9 @@ public:
 	UGRHealthAttributeSet();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual bool PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 
 	// ========== 생존 관련 Attributes ==========
 
@@ -51,13 +61,23 @@ public:
 
 	// 받는 피해 (임시 계산용)
 	UPROPERTY(BlueprintReadOnly, Category = "Health|Meta")
-	FGameplayAttributeData Damage;
-	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, Damage);
+	FGameplayAttributeData GainDamage;
+	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, GainDamage);
 
 	// 받는 치유 (임시 계산용)
 	UPROPERTY(BlueprintReadOnly, Category = "Health|Meta")
-	FGameplayAttributeData Healing;
-	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, Healing);
+	FGameplayAttributeData GainHealing;
+	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, GainHealing);
+
+	// ========== Delegates ==========
+
+	FGRAttributeEvent OnHealthChanged;
+	FGRAttributeEvent OnMaxHealthChanged;
+	FGRAttributeEvent OnShieldChanged;
+	FGRAttributeEvent OnMaxShieldChanged;
+
+	FGRAttributeEvent OnOutOfHealth;  // 사망
+	FGRAttributeEvent OnShieldBroken; // Shield 파괴 (무적 효과용)
 
 protected:
 	UFUNCTION()
@@ -73,9 +93,17 @@ protected:
 	void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield);
 
 private:
+	// Before 값 저장 (델리게이트용)
+	float BeforeHealth;
+	float BeforeMaxHealth;
+	float BeforeShield;
+	float BeforeMaxShield;
+
 	void AdjustAttributeForMaxChange(const FGameplayAttributeData& AffectedAttribute,
 		const FGameplayAttributeData& MaxAttribute,
 		float NewMaxValue,
 		const FGameplayAttribute& AffectedAttributeProperty) const;
 
+	// 실제 피해량 반환 (흡혈, 통계, 증강용)
+	float ApplyDamageAndReturnRealDealtAmount(float InDamage);
 };
