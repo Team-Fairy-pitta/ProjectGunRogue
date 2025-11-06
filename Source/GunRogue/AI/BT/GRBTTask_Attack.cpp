@@ -20,7 +20,10 @@ EBTNodeResult::Type UGRBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	MyMemory->StartTime = OwnerComp.GetWorld()->GetTimeSeconds();
 
 	AAIController* AICon = OwnerComp.GetAIOwner();
-	if (!AICon)		return EBTNodeResult::Failed;
+	if (!AICon)
+	{
+		return EBTNodeResult::Failed;
+	}
 
 	AGRAIController* GRAICon = Cast<AGRAIController>(AICon);
 	
@@ -67,14 +70,10 @@ void UGRBTTask_Attack::StopMovement(AAIController* AIController)
 		{
 			if (UCharacterMovementComponent* MoveComp = Pawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
-				UE_LOG(LogTemp,Warning,TEXT("Stopping Movement"));
+				UE_LOG(LogTemp,Warning,TEXT("AI Attack : Stopping Movement"));
 				
 				MoveComp->StopMovementImmediately();
 				MoveComp->DisableMovement();
-			}
-			else
-			{
-				AIController->StopMovement();
 			}
 		}
 	}
@@ -89,7 +88,7 @@ void UGRBTTask_Attack::ResumeMovement(AAIController* AIController)
 		{
 			if (UCharacterMovementComponent* MoveComp = Pawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
-				UE_LOG(LogTemp,Warning,TEXT("Resuming Movement"));
+				UE_LOG(LogTemp,Warning,TEXT("AI Attack : Resuming Movement"));
 				
 				MoveComp->SetMovementMode(MOVE_Walking);
 				MoveComp->Activate();

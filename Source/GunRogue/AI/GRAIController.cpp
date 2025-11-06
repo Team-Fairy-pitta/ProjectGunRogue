@@ -10,6 +10,7 @@
 
 const FName AGRAIController::TargetPlayerKey="TargetPlayer";
 const FName AGRAIController::IsPlayerDetectedKey="IsPlayerDetected";
+const FName AGRAIController::LastPlayerLocationKey="LastPlayerLocation";
 
 AGRAIController::AGRAIController()
 	:BehaviorTreeAsset(nullptr)
@@ -60,22 +61,29 @@ void AGRAIController::OnPossess(APawn* InPawn)
 
 void AGRAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	AGRCharacter* NewPlayer=Cast<AGRCharacter>(Actor);
-	if (!NewPlayer)	return;
+	//AGRCharacter* NewPlayer=Cast<AGRCharacter>(Actor);
+	ACharacter* NewPlayer=Cast<ACharacter>(Actor);
+	if (!NewPlayer)
+	{
+		return;
+	}
 	
-	AGRCharacter* TargetPlayer=Cast<AGRCharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
+	//AGRCharacter* TargetPlayer=Cast<AGRCharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
+	ACharacter* TargetPlayer=Cast<ACharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
 	
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		if (TargetPlayer)	return;
-
-		BlackboardComp->SetValueAsObject(TargetPlayerKey, NewPlayer);
-		BlackboardComp->SetValueAsBool(IsPlayerDetectedKey, true);
+		if (!TargetPlayer)
+		{
+			BlackboardComp->SetValueAsObject(TargetPlayerKey, NewPlayer);
+			BlackboardComp->SetValueAsBool(IsPlayerDetectedKey, true);	
+		}
 	}
 	else
 	{
-		if (TargetPlayer==Actor)
+		if (TargetPlayer && TargetPlayer==Actor)
 		{
+			BlackboardComp->SetValueAsVector(LastPlayerLocationKey, TargetPlayer->GetActorLocation());
 			UpdateClosestPlayer();	
 		}
 	}
@@ -90,12 +98,19 @@ void AGRAIController::UpdateClosestPlayer()
 	AActor* BestActor = nullptr;
 
 	APawn* MyPawn = GetPawn();
-	if (!MyPawn) return;
+	if (!MyPawn)
+	{
+		return;
+	}
 	
 	for (AActor* PerceivedActor : PerceivedActors)
 	{
-		AGRCharacter* PerceivedPlayer=Cast<AGRCharacter>(PerceivedActor);
-		if (!PerceivedPlayer)	continue;
+		//AGRCharacter* PerceivedPlayer=Cast<AGRCharacter>(PerceivedActor);
+		ACharacter* PerceivedPlayer=Cast<ACharacter>(PerceivedActor);
+		if (!PerceivedPlayer)
+		{
+			continue;
+		}
 
 		float DistSq = FVector::DistSquared(MyPawn->GetActorLocation(), PerceivedPlayer->GetActorLocation());
 		if (DistSq < BestDistSq)

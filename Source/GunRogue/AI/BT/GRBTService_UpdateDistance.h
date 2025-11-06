@@ -25,5 +25,4 @@ private:
 	float AttackRange;
 
 	static const FName IsInAttackRangeKey;
-	static const FName LastPlayerLocationKey;
 };

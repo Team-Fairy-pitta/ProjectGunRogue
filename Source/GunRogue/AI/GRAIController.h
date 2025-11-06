@@ -37,6 +37,7 @@ private:
 public:
 	static const FName TargetPlayerKey;
 	static const FName IsPlayerDetectedKey;
+	static const FName LastPlayerLocationKey;
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category="AI")

@@ -18,18 +18,30 @@ UGRBTTask_FindPatrolLocation::UGRBTTask_FindPatrolLocation()
 EBTNodeResult::Type UGRBTTask_FindPatrolLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackboardComp) return EBTNodeResult::Failed;
+	if (!BlackboardComp)
+	{
+		return EBTNodeResult::Failed;
+	}
 
 	AAIController* AICon = OwnerComp.GetAIOwner();
-	if (!AICon) return EBTNodeResult::Failed;
+	if (!AICon)
+	{
+		return EBTNodeResult::Failed;
+	}
 
 	APawn* AIPawn = AICon->GetPawn();
-	if (!AIPawn) return EBTNodeResult::Failed;
+	if (!AIPawn)
+	{
+		return EBTNodeResult::Failed;
+	}
 
 	FVector Origin = AIPawn->GetActorLocation();
 	
 	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(AIPawn->GetWorld());
-	if (!NavSys) return EBTNodeResult::Failed;
+	if (!NavSys)
+	{
+		return EBTNodeResult::Failed;
+	}
 	
 	FVector RandomPoint;
 	bool bFound = false;
