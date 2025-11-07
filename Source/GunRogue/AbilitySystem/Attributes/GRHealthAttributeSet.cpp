@@ -15,6 +15,7 @@ UGRHealthAttributeSet::UGRHealthAttributeSet()
 
 	InitGainDamage(0.0f);
 	InitGainHealing(0.0f);
+	InitGainShield(0.0f);
 }
 
 void UGRHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -93,6 +94,22 @@ void UGRHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 		}
 	}
 
+	if (Data.EvaluatedData.Attribute == GetGainShieldAttribute())
+	{
+		const float LocalShieldGain = GetGainShield();
+		SetGainShield(0.0f);
+
+		if (LocalShieldGain > 0.0f)
+		{
+			const float OldShield = GetShield();
+			const float NewShield = FMath::Clamp(OldShield + LocalShieldGain, 0.0f, GetMaxShield());
+			SetShield(NewShield);
+
+			UE_LOG(LogTemp, Log, TEXT("[Health] Shield Restored: %.1f -> %.1f (+%.1f)"),
+				OldShield, NewShield, LocalShieldGain);
+		}
+	}
+
 	// Health/Shield Clamping
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
@@ -153,12 +170,12 @@ float UGRHealthAttributeSet::ApplyDamageAndReturnRealDealtAmount(float InDamage)
 	{
 		if (RemainDamage >= OldShield)
 		{
-			// Shield 파괴 - 남은 데미지는 무효화 (디자인 명세)
+			// Shield 파괴 - 남은 데미지는 무효화
 			SetShield(0.0f);
 			DealtAmount = OldShield;
-			RemainDamage = 0.0f;
+			UE_LOG(LogTemp, Warning, TEXT("[Health] Shield Broken! (Absorbed: %.1f)"), RemainDamage - DealtAmount);
 
-			UE_LOG(LogTemp, Warning, TEXT("[Health] Shield Broken! (Absorbed: %.1f)"), DealtAmount);
+			RemainDamage = 0.0f;
 		}
 		else
 		{
@@ -220,6 +237,7 @@ void UGRHealthAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMax
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, MaxHealth, OldMaxHealth);
 
+	// 클라이언트에서도 델리게이트 브로드캐스트
 	float OldValue = OldMaxHealth.GetCurrentValue();
 	float NewValue = GetMaxHealth();
 	OnMaxHealthChanged.Broadcast(nullptr, nullptr, nullptr, NewValue - OldValue, OldValue, NewValue);
@@ -229,6 +247,7 @@ void UGRHealthAttributeSet::OnRep_Shield(const FGameplayAttributeData& OldShield
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, Shield, OldShield);
 
+	// 클라이언트에서도 델리게이트 브로드캐스트
 	float OldValue = OldShield.GetCurrentValue();
 	float NewValue = GetShield();
 	OnShieldChanged.Broadcast(nullptr, nullptr, nullptr, NewValue - OldValue, OldValue, NewValue);
@@ -243,6 +262,7 @@ void UGRHealthAttributeSet::OnRep_MaxShield(const FGameplayAttributeData& OldMax
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, MaxShield, OldMaxShield);
 
+	// 클라이언트에서도 델리게이트 브로드캐스트
 	float OldValue = OldMaxShield.GetCurrentValue();
 	float NewValue = GetMaxShield();
 	OnMaxShieldChanged.Broadcast(nullptr, nullptr, nullptr, NewValue - OldValue, OldValue, NewValue);

@@ -55,7 +55,7 @@ void ATestTurret::FireProjectile()
 
 	if (Projectile)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[Turret] Fired projectile"));
+		// UE_LOG(LogTemp, Log, TEXT("[Turret] Fired projectile"));
 	}
 }
 
