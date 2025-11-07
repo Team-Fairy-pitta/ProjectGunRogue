@@ -1,23 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/BT/GRBTService_UpdateDistance.h"
+#include "AI/BT/GRBTService_CheckInAttackRange.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "AI/GRAIController.h"
 
-const FName UGRBTService_UpdateDistance::IsInAttackRangeKey="IsInAttackRange";
+const FName UGRBTService_CheckInAttackRange::IsInAttackRangeKey="IsInAttackRange";
 
-UGRBTService_UpdateDistance::UGRBTService_UpdateDistance()
+UGRBTService_CheckInAttackRange::UGRBTService_CheckInAttackRange()
 	:AttackRange(300.0f)
 {
-	NodeName=TEXT("UpdateDistance");
+	NodeName = TEXT("UpdateDistance");
 
-	Interval=0.5f;
+	Interval = 0.5f;
 	RandomDeviation = 0.2f;
 }
 
-void UGRBTService_UpdateDistance::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+void UGRBTService_CheckInAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
@@ -48,7 +48,7 @@ void UGRBTService_UpdateDistance::TickNode(UBehaviorTreeComponent& OwnerComp, ui
 	}
 	
 	float DistanceSq = FVector::DistSquared(AIPawn->GetActorLocation(), TargetPlayerActor->GetActorLocation());
-	bool bInRange =false;
+	bool bInRange = false;
 	if (DistanceSq <= (AttackRange * AttackRange))
 	{
 		bInRange = true;

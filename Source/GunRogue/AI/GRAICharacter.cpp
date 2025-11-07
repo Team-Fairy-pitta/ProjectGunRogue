@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/GRAICharacter.h"
+#include "AI/GRAICharacter.h"
 #include "AI/GRAIController.h"
 
 AGRAICharacter::AGRAICharacter()

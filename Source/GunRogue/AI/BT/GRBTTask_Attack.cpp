@@ -6,7 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 UGRBTTask_Attack::UGRBTTask_Attack()
-	:PauseDuration(2.0f)
+	:AttackDuration(2.0f)
 {
 	NodeName=TEXT("Attack");
 
@@ -43,7 +43,7 @@ void UGRBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	}
 
 	float CurrentTime = OwnerComp.GetWorld()->GetTimeSeconds();
-	if (CurrentTime - MyMemory->StartTime >= PauseDuration)
+	if (CurrentTime - MyMemory->StartTime >= AttackDuration)
 	{
 		AAIController* AICon = OwnerComp.GetAIOwner();
 		if (AICon)
@@ -65,10 +65,10 @@ void UGRBTTask_Attack::StopMovement(AAIController* AIController)
 {
 	if (AIController)
 	{
-		APawn* Pawn = AIController->GetPawn();
-		if (Pawn)
+		APawn* AIPawn = AIController->GetPawn();
+		if (AIPawn)
 		{
-			if (UCharacterMovementComponent* MoveComp = Pawn->FindComponentByClass<UCharacterMovementComponent>())
+			if (UCharacterMovementComponent* MoveComp = AIPawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
 				UE_LOG(LogTemp,Warning,TEXT("AI Attack : Stopping Movement"));
 				
@@ -83,10 +83,10 @@ void UGRBTTask_Attack::ResumeMovement(AAIController* AIController)
 {
 	if (AIController)
 	{
-		APawn* Pawn = AIController->GetPawn();
-		if (Pawn)
+		APawn* AIPawn = AIController->GetPawn();
+		if (AIPawn)
 		{
-			if (UCharacterMovementComponent* MoveComp = Pawn->FindComponentByClass<UCharacterMovementComponent>())
+			if (UCharacterMovementComponent* MoveComp = AIPawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
 				UE_LOG(LogTemp,Warning,TEXT("AI Attack : Resuming Movement"));
 				

@@ -1,21 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/BT/GRBTTask_FindPatrolLocation.h"
+#include "AI/BT/GRBTTask_FindRandomLocation.h"
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
-const FName UGRBTTask_FindPatrolLocation::PatrolRandomLocationKey="PatrolRandomLocation";
+const FName UGRBTTask_FindRandomLocation::PatrolRandomLocationKey="PatrolRandomLocation";
 
-UGRBTTask_FindPatrolLocation::UGRBTTask_FindPatrolLocation()
+UGRBTTask_FindRandomLocation::UGRBTTask_FindRandomLocation()
 	:MinRadius(300.0f)
 	,MaxRadius(1000.0f)
 {
 	NodeName=TEXT("Find Patrol Location");
 }
 
-EBTNodeResult::Type UGRBTTask_FindPatrolLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UGRBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 	if (!BlackboardComp)
@@ -43,8 +43,7 @@ EBTNodeResult::Type UGRBTTask_FindPatrolLocation::ExecuteTask(UBehaviorTreeCompo
 		return EBTNodeResult::Failed;
 	}
 	
-	FVector RandomPoint;
-	bool bFound = false;
+	FVector RandomPoint=Origin;
 	
 	const int32 MaxAttempts = 3;
 	for (int32 i = 0; i < MaxAttempts; ++i)
@@ -56,15 +55,9 @@ EBTNodeResult::Type UGRBTTask_FindPatrolLocation::ExecuteTask(UBehaviorTreeCompo
 			if (DistSq >= FMath::Square(MinRadius))
 			{
 				RandomPoint = Tentative;
-				bFound = true;
 				break;
 			}
 		}
-	}
-
-	if (!bFound)
-	{
-		RandomPoint = Origin;
 	}
 	
 	BlackboardComp->SetValueAsVector(PatrolRandomLocationKey, RandomPoint);

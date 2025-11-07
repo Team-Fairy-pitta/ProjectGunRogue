@@ -42,15 +42,19 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	TObjectPtr<UBehaviorTree> BehaviorTreeAsset;
+	
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	TObjectPtr<UBlackboardData> BlackboardAsset;
+	
 	UPROPERTY()
 	TObjectPtr<UBehaviorTreeComponent> BehaviorComp;
+	
 	UPROPERTY()
 	UBlackboardComponent* BlackboardComp;
 	
 	UPROPERTY(VisibleAnywhere, Category = "AI")
 	TObjectPtr<UAIPerceptionComponent> AIPerceptionComp;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
 };

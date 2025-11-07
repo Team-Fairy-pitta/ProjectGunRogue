@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
-#include "GRBTService_UpdateDistance.generated.h"
+#include "GRBTService_CheckInAttackRange.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUNROGUE_API UGRBTService_UpdateDistance : public UBTService
+class GUNROGUE_API UGRBTService_CheckInAttackRange : public UBTService
 {
 	GENERATED_BODY()
 
 public:
-	UGRBTService_UpdateDistance();
+	UGRBTService_CheckInAttackRange();
 
 protected:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;

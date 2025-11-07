@@ -18,23 +18,20 @@ public:
 
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-	virtual void TickTask(
-		UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
-
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	virtual uint16 GetInstanceMemorySize() const override;
-	
+
 private:
-	UPROPERTY(EditAnywhere, Category="Task")
-	float PauseDuration;
-	
 	void StopMovement(AAIController* AIController);
-	
 	void ResumeMovement(AAIController* AIController);
 	
+private:
 	struct FPauseMemory
 	{
 		float StartTime = 0.f;
 		bool bPaused = false;
 	};
+	
+	UPROPERTY(EditAnywhere, Category="Task")
+	float AttackDuration;
 };

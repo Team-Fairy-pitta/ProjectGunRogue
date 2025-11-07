@@ -2,6 +2,8 @@
 
 
 #include "AI/GRAIController.h"
+
+#include "GRAICharacter.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -61,15 +63,29 @@ void AGRAIController::OnPossess(APawn* InPawn)
 
 void AGRAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	//AGRCharacter* NewPlayer=Cast<AGRCharacter>(Actor);
-	ACharacter* NewPlayer=Cast<ACharacter>(Actor);
-	if (!NewPlayer)
+	////Note : AI끼리 서로 인지될 수 있으므로 예외처리. 추후 삭제.
+	AGRAICharacter* AICharacter = Cast<AGRAICharacter>(Actor);
+	if (AICharacter)
 	{
 		return;
 	}
 	
+	//NOTE : 테스트를 위해 ThirdPersonCharacter도 판별을 하기 위해 AGRCharacter에서 ACharacter로 변경.추후 변경.
+	//AGRCharacter* NewPlayer = Cast<AGRCharacter>(Actor);
+	ACharacter* NewPlayer = Cast<ACharacter>(Actor);
+	if (!NewPlayer)
+	{
+		return;
+	}
+
+	if (!BlackboardComp)
+	{
+		return;
+	}
+	
+	//NOTE : 테스트를 위해 ThirdPersonCharacter도 판별을 하기 위해 AGRCharacter에서 ACharacter로 변경. 추후 변경.
 	//AGRCharacter* TargetPlayer=Cast<AGRCharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
-	ACharacter* TargetPlayer=Cast<ACharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
+	ACharacter* TargetPlayer = Cast<ACharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
 	
 	if (Stimulus.WasSuccessfullySensed())
 	{
@@ -97,14 +113,22 @@ void AGRAIController::UpdateClosestPlayer()
 	float BestDistSq = FLT_MAX;
 	AActor* BestActor = nullptr;
 
-	APawn* MyPawn = GetPawn();
-	if (!MyPawn)
+	APawn* AIPawn = GetPawn();
+	if (!AIPawn)
 	{
 		return;
 	}
 	
 	for (AActor* PerceivedActor : PerceivedActors)
 	{
+		////Note : AI끼리 서로 인지될 수 있으므로 예외처리. 추후 삭제.
+		AGRAICharacter* AICharacter = Cast<AGRAICharacter>(PerceivedActor);
+		if (AICharacter)
+		{
+			continue;
+		}
+		
+		//NOTE : 테스트를 위해 ThirdPersonCharacter도 판별을 하기 위해 AGRCharacter에서 ACharacter로 변경. 추후 변경
 		//AGRCharacter* PerceivedPlayer=Cast<AGRCharacter>(PerceivedActor);
 		ACharacter* PerceivedPlayer=Cast<ACharacter>(PerceivedActor);
 		if (!PerceivedPlayer)
@@ -112,7 +136,7 @@ void AGRAIController::UpdateClosestPlayer()
 			continue;
 		}
 
-		float DistSq = FVector::DistSquared(MyPawn->GetActorLocation(), PerceivedPlayer->GetActorLocation());
+		float DistSq = FVector::DistSquared(AIPawn->GetActorLocation(), PerceivedPlayer->GetActorLocation());
 		if (DistSq < BestDistSq)
 		{
 			BestDistSq = DistSq;
@@ -120,6 +144,11 @@ void AGRAIController::UpdateClosestPlayer()
 		}
 	}
 
+	if (!BlackboardComp)
+	{
+		return;
+	}
+	
 	if (IsValid(BestActor))
 	{
 		BlackboardComp->SetValueAsObject(TargetPlayerKey, BestActor);
