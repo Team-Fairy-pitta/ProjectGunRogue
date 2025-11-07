@@ -26,10 +26,31 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
 	UInputAction* MoveAction = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
+	UInputAction* SkillAction_Q = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
+	UInputAction* SkillAction_E = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
+	UInputAction* SkillAction_Shift = nullptr;
+
+	UFUNCTION()
+	void HandleSkillInput(FName SkillKey);
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UGRBattleHUDWidget> BattleHUDClass;
 
 	UPROPERTY()
 	UGRBattleHUDWidget* BattleHUDWidget;
+
+private:
+	FTimerHandle PlayingTimeHandle;
+
+	FTimerHandle CooldownTimerHandle;
+
+	int32 PlayingTimeSeconds = 0;
+	
+	void UpdatePlayingTime();
 };

@@ -31,5 +31,13 @@ public:
 protected:
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
-	
+
+	UFUNCTION()
+	void Skill_Q(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void Skill_E(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void Skill_Shift(const FInputActionValue& Value);
 };

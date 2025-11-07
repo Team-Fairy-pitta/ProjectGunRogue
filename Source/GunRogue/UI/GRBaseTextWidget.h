@@ -16,11 +16,9 @@ class GUNROGUE_API UGRBaseTextWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UGRBaseTextWidget(const FObjectInitializer& ObjectInitializer);
-	
 	UFUNCTION(BlueprintCallable, Category="Text")
-	void UpdateTextAndFont(const FText& InText, const FSlateFontInfo& InFontInfo, const FSlateColor& InTextColor);
-
+	void SetTextAndColor(const FText& InText, const FSlateColor& InTextColor);
+	
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* TextBox;

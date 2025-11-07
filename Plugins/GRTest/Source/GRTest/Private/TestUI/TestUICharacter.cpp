@@ -45,6 +45,36 @@ void ATestUICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					&ATestUICharacter::Move
 				);
 			}
+
+			if (PC->SkillAction_Q)
+			{
+				EnhancedInput->BindAction(
+					PC->SkillAction_Q,
+					ETriggerEvent::Triggered,
+					this,
+					&ATestUICharacter::Skill_Q
+				);
+			}
+
+			if (PC->SkillAction_E)
+			{
+				EnhancedInput->BindAction(
+					PC->SkillAction_E,
+					ETriggerEvent::Triggered,
+					this,
+					&ATestUICharacter::Skill_E
+				);
+			}
+
+			if (PC->SkillAction_Shift)
+			{
+				EnhancedInput->BindAction(
+					PC->SkillAction_Shift,
+					ETriggerEvent::Triggered,
+					this,
+					&ATestUICharacter::Skill_Shift
+				);
+			}
 		}
 	}
 }
@@ -65,4 +95,29 @@ void ATestUICharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(GetActorRightVector(), MoveInput.Y);
 	}
 }
+
+void ATestUICharacter::Skill_Q(const FInputActionValue& Value)
+{
+	if (ATestUIPlayerController* PC = Cast<ATestUIPlayerController>(GetController()))
+	{
+		PC->HandleSkillInput("Q");
+	}
+}
+
+void ATestUICharacter::Skill_E(const FInputActionValue& Value)
+{
+	if (ATestUIPlayerController* PC = Cast<ATestUIPlayerController>(GetController()))
+	{
+		PC->HandleSkillInput("E");
+	}
+}
+
+void ATestUICharacter::Skill_Shift(const FInputActionValue& Value)
+{
+	if (ATestUIPlayerController* PC = Cast<ATestUIPlayerController>(GetController()))
+	{
+		PC->HandleSkillInput("Shift");
+	}
+}
+
 

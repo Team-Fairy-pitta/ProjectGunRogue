@@ -3,33 +3,37 @@
 
 #include "UI/GRBaseTextWidget.h"
 #include "Components/TextBlock.h"
-
-UGRBaseTextWidget::UGRBaseTextWidget(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
-	Text = FText::FromString(TEXT("TEXT"));
-
-	FontInfo = FSlateFontInfo();
-	FontInfo.FontObject = nullptr;
-	FontInfo.TypefaceFontName = FName("Bold");
-	FontInfo.Size = 32;
-	
-	TextColor = FSlateColor(FLinearColor::White);
-}
-
-void UGRBaseTextWidget::UpdateTextAndFont(const FText& InText, const FSlateFontInfo& InFontInfo,
-                                          const FSlateColor& InTextColor)
-{
-	Text = InText;
-	FontInfo = InFontInfo;
-	TextColor = InTextColor;
-
-	SyncTextAndFont();
-}
+#include "Engine/Engine.h"
+#include "Engine/Font.h"
 
 void UGRBaseTextWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	if (Text.IsEmpty())
+	{
+		Text = FText::FromString(TEXT("TEXT"));
+	}
+
+	if (!FontInfo.FontObject)
+	{
+		FontInfo.FontObject = GEngine->GetSmallFont();
+		FontInfo.TypefaceFontName = FName("Bold");
+		FontInfo.Size = 32;	
+	}
+
+	if (!TextColor.IsColorSpecified())
+	{
+		TextColor = FSlateColor(FLinearColor::White);
+	}
+
+	SyncTextAndFont();
+}
+
+void UGRBaseTextWidget::SetTextAndColor(const FText& InText, const FSlateColor& InTextColor)
+{
+	Text = InText;
+	TextColor = InTextColor;
 
 	SyncTextAndFont();
 }
