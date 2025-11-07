@@ -30,13 +30,4 @@ void UGRKeySettingWidget::SetupUserSetting()
 		UE_LOG(LogTemp, Error, TEXT("CachedUserSetting (UEnhancedInputUserSettings) is INVALID."));
 		return;
 	}
-
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-	if (!Subsystem)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Subsystem (UEnhancedInputLocalPlayerSubsystem) is INVALID."));
-		return;
-	}
-
-	//CachedUserSetting->RegisterInputMappingContext();
 }

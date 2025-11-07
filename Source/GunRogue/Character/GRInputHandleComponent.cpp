@@ -6,6 +6,7 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "EnhancedInputSubsystems.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 
 
 namespace GunRogue::InputTag
@@ -46,6 +47,13 @@ void UGRInputHandleComponent::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 	Subsystem->ClearAllMappings();
 
+	UEnhancedInputUserSettings* UsetSettings = UEnhancedInputUserSettings::LoadOrCreateSettings(LocalPlayer);
+	if (!UsetSettings)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UsetSettings (UEnhancedInputUserSettings) is INVALID."));
+		return;
+	}
+
 	const UGRPawnData* PawnData = GRCharacter->GetPawnData();
 	if (!PawnData)
 	{
@@ -60,10 +68,17 @@ void UGRInputHandleComponent::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 	for (const FInputMappintContextAndPriority& Mapping : InputConfig->InputMappings)
 	{
-		FModifyContextOptions Options = {};
-		Options.bIgnoreAllPressedKeysUntilRelease = false;
-		Subsystem->AddMappingContext(Mapping.InputMappingContext, Mapping.Priority, Options);
+		if (Mapping.InputMappingContext)
+		{
+			UsetSettings->RegisterInputMappingContext(Mapping.InputMappingContext);
+
+			FModifyContextOptions Options = {};
+			Options.bIgnoreAllPressedKeysUntilRelease = false;
+			Subsystem->AddMappingContext(Mapping.InputMappingContext, Mapping.Priority, Options);
+		}
 	}
+
+	UsetSettings->SaveSettings();
 
 	TArray<uint32> OutBindHandles;
 	GRInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, OutBindHandles);
