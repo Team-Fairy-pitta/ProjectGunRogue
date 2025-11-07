@@ -20,9 +20,13 @@ public class GunRogue : ModuleRules
 			"GameplayTags",
 			"GameplayTasks",
 			"GameplayAbilities",
-			
+
 			// UMG
 			"UMG",
+
+			//AI
+			"AIModule", "NavigationSystem",
+
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
