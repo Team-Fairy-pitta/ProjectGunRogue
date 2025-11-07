@@ -35,6 +35,9 @@ public class GRTest : ModuleRules
 				// 게임 모듈
 				"GunRogue",
 
+				//AI
+				"AIModule","NavigationSystem",
+				
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
