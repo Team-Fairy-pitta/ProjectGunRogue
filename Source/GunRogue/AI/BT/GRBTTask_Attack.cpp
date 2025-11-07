@@ -6,7 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 UGRBTTask_Attack::UGRBTTask_Attack()
-	:AttackDuration(2.0f)
+	:AttackDelay(2.0f)
 {
 	NodeName=TEXT("Attack");
 
@@ -43,7 +43,7 @@ void UGRBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	}
 
 	float CurrentTime = OwnerComp.GetWorld()->GetTimeSeconds();
-	if (CurrentTime - MyMemory->StartTime >= AttackDuration)
+	if (CurrentTime - MyMemory->StartTime >= AttackDelay)
 	{
 		AAIController* AICon = OwnerComp.GetAIOwner();
 		if (AICon)

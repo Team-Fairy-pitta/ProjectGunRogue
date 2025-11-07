@@ -33,5 +33,5 @@ private:
 	};
 	
 	UPROPERTY(EditAnywhere, Category="Task")
-	float AttackDuration;
+	float AttackDelay;
 };

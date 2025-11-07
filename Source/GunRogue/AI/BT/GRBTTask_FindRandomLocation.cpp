@@ -12,7 +12,7 @@ UGRBTTask_FindRandomLocation::UGRBTTask_FindRandomLocation()
 	:MinRadius(300.0f)
 	,MaxRadius(1000.0f)
 {
-	NodeName=TEXT("Find Patrol Location");
+	NodeName=TEXT("Patrol Random Location");
 }
 
 EBTNodeResult::Type UGRBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

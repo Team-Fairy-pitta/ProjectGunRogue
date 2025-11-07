@@ -11,7 +11,7 @@ const FName UGRBTService_CheckInAttackRange::IsInAttackRangeKey="IsInAttackRange
 UGRBTService_CheckInAttackRange::UGRBTService_CheckInAttackRange()
 	:AttackRange(300.0f)
 {
-	NodeName = TEXT("UpdateDistance");
+	NodeName = TEXT("Check In Attack Range");
 
 	Interval = 0.5f;
 	RandomDeviation = 0.2f;
