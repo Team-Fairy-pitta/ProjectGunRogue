@@ -2,16 +2,16 @@
 
 
 #include "TestUI/TestUIPlayerController.h"
-#include "UI/GRBattleHUDWidget.h"
-#include "UI/GRLevelStatusWidget.h"
-#include "UI/GRNotifyMessageWidget.h"
-#include "UI/GRGoodsTextWidget.h"
+#include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRLevelStatusWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRNotifyMessageWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRGoodsTextWidget.h"
 #include "EnhancedInputSubsystems.h"
-#include "UI/GRPlayerStatusWidget.h"
-#include "UI/GRSkillListWidget.h"
-#include "UI/GRSkillSlotWidget.h"
-#include "UI/GRTeamStatusListWidget.h"
-#include "UI/GRWeaponListWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRSkillListWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRSkillSlotWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRWeaponListWidget.h"
 
 
 void ATestUIPlayerController::BeginPlay()
@@ -84,12 +84,6 @@ void ATestUIPlayerController::BeginPlay()
 					ThirdSkillSlotWidget->SetSkillCountText(0);
 				}
 			}
-
-			if (UGRWeaponListWidget* WeaponListWidget = BattleHUDWidget->GetWeaponListWidget())
-			{
-				WeaponListWidget->SetSelectedWeapon(2);
-				WeaponListWidget->UpdateBulletCount(2, 8, 8);
-			}
 		}
 	}
 
@@ -132,8 +126,29 @@ void ATestUIPlayerController::HandleSkillInput(FName SkillKey)
 				TargetSlot->SetSkillCountText(NewCount);
 			}
 
-			TargetSlot->StartCooldown(5.0f, FLinearColor::Red);
+			TargetSlot->StartCooldown(5.0f);
 		}
+	}
+}
+
+void ATestUIPlayerController::SelectWeaponSlot(int32 Index)
+{
+	if (!BattleHUDWidget) return;
+	
+	if (UGRWeaponListWidget* WeaponListWidget = BattleHUDWidget->GetWeaponListWidget())
+	{
+		WeaponListWidget->SetSelectedWeapon(Index);
+		WeaponListWidget->UpdateBulletCount(Index, 8, 8);
+	}
+}
+
+void ATestUIPlayerController::CreateBuffIconInWrapBox()
+{
+	if (!BattleHUDWidget) return;
+
+	if (UGRPlayerStatusWidget* PlayerStatusWidget = BattleHUDWidget->GetPlayerStatusWidget())
+	{
+		PlayerStatusWidget->CreateBuffIcon();
 	}
 }
 

@@ -38,6 +38,12 @@ public:
 	UFUNCTION()
 	void HandleSkillInput(FName SkillKey);
 
+	UFUNCTION(BlueprintCallable)
+	void SelectWeaponSlot(int32 Index);
+
+	UFUNCTION(BlueprintCallable)
+	void CreateBuffIconInWrapBox();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UGRBattleHUDWidget> BattleHUDClass;
