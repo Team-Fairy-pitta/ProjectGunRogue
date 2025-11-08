@@ -1,33 +1,122 @@
 #include "UI/KeySetting/GRKeySettingWidget.h"
+#include "UI/KeySetting/GRKeySettingCategory.h"
+#include "Player/GRPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
-#include "GameFramework/PlayerController.h"
+#include "Components/VerticalBox.h"
 
 void UGRKeySettingWidget::InitKeyMappings()
 {
-	SetupUserSetting();
-}
-
-void UGRKeySettingWidget::SetupUserSetting()
-{
-	APlayerController* PlayerController = GetOwningPlayer();
-	if (!IsValid(PlayerController))
+	if (!CategoryWidgetClass)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Widget Owner(Player Controller) is INVALID."));
+		UE_LOG(LogTemp, Error, TEXT("CategoryWidgetClass (TSubclassOf<UGRKeySettingCategory>) is INVALID."));
 		return;
 	}
 
-	ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
-	if (!LocalPlayer)
+	if (!CategoriesVerticalBox)
 	{
-		UE_LOG(LogTemp, Error, TEXT("LocalPlayer (PlayerController->GetLocalPlayer()) is INVALID."));
+		UE_LOG(LogTemp, Error, TEXT("CategoriesVerticalBox (UVerticalBox) is INVALID."));
 		return;
 	}
 
-	CachedUserSetting = UEnhancedInputUserSettings::LoadOrCreateSettings(LocalPlayer);
+	CategoriesVerticalBox->ClearChildren();
+
+	CachedUserSetting = LoadUserSetting();
 	if (!CachedUserSetting)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CachedUserSetting (UEnhancedInputUserSettings) is INVALID."));
 		return;
+	}
+
+	TMap<FString, FKeyMappingCategory> Categories;
+	GetKeyMappings(Categories);
+
+	for (const auto& Pair : Categories)
+	{
+		const FText& CategoryText = Pair.Value.CategoryText;
+		const TArray<FPlayerKeyMapping>& Mappings = Pair.Value.Mappings;
+
+		UGRKeySettingCategory* NewCategory = CreateWidget<UGRKeySettingCategory>(GetOwningPlayer(), CategoryWidgetClass);
+		if (NewCategory)
+		{
+			NewCategory->SetCategoryText(CategoryText);
+			NewCategory->AddMappings(Mappings, this /*ParentWidget*/);
+			CategoriesVerticalBox->AddChild(NewCategory);
+		}
+	}
+}
+
+void UGRKeySettingWidget::UpdateMappings(const FName& InMappingName, const FKey& NewKey)
+{
+	FMapPlayerKeyArgs Args = {};
+	Args.MappingName = InMappingName;
+	Args.Slot = EPlayerMappableKeySlot::First;
+	Args.NewKey = NewKey;
+
+	FGameplayTagContainer FailureReason;
+
+	CachedUserSetting->MapPlayerKey(Args, FailureReason);
+	CachedUserSetting->ApplySettings();
+	CachedUserSetting->SaveSettings();
+}
+
+UEnhancedInputUserSettings* UGRKeySettingWidget::LoadUserSetting()
+{
+	AGRPlayerController* GRPlayerController = GetOwningPlayer<AGRPlayerController>();
+	if (!IsValid(GRPlayerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Widget Owner(Player Controller) is INVALID."));
+		return nullptr;
+	}
+
+	ULocalPlayer* LocalPlayer = GRPlayerController->GetLocalPlayer();
+	if (!LocalPlayer)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LocalPlayer (PlayerController->GetLocalPlayer()) is INVALID."));
+		return nullptr;
+	}
+
+	UEnhancedInputUserSettings* Settings = UEnhancedInputUserSettings::LoadOrCreateSettings(LocalPlayer);
+	if (!Settings)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Settings (UEnhancedInputUserSettings::LoadOrCreateSettings()) is INVALID."));
+		return nullptr;
+	}
+
+	for (UInputMappingContext* MappableContext : GRPlayerController->MappableMappingContexts)
+	{
+		Settings->RegisterInputMappingContext(MappableContext);
+	}
+
+	return Settings;
+}
+
+void UGRKeySettingWidget::GetKeyMappings(TMap<FString, FKeyMappingCategory>& OutMappings)
+{
+	for (auto& ProfilePair : CachedUserSetting->GetAllSavedKeyProfiles())
+	{
+		const FGameplayTag& ProfileName = ProfilePair.Key;
+		const TObjectPtr<UEnhancedPlayerMappableKeyProfile>& Profile = ProfilePair.Value;
+
+		for (auto& RowPair : Profile->GetPlayerMappingRows())
+		{
+			const FName& RowName = RowPair.Key;
+			const FKeyMappingRow& MappingRow = RowPair.Value;
+
+			for (const FPlayerKeyMapping& KeyMapping : MappingRow.Mappings)
+			{
+				const FText& CategoryText = KeyMapping.GetDisplayCategory();
+				FString CategoryString = CategoryText.ToString();
+				if (!OutMappings.Contains(CategoryString))
+				{
+					OutMappings.Add(CategoryString);
+				}
+				OutMappings[CategoryString].CategoryText = CategoryText;
+				OutMappings[CategoryString].Mappings.Add(KeyMapping);
+
+				// NOTE: 현재 키 세팅은 1개만 지원함
+				break;
+			}
+		}
 	}
 }

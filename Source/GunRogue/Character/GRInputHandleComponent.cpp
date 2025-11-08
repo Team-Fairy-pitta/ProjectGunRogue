@@ -1,10 +1,10 @@
 #include "Character/GRInputHandleComponent.h"
 #include "Character/GRCharacter.h"
 #include "Character/GRPawnData.h"
+#include "Player/GRPlayerController.h"
 #include "Input/GRInputComponent.h"
 #include "Input/GRInputConfig.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
-#include "GameFramework/PlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 
@@ -36,10 +36,10 @@ void UGRInputHandleComponent::SetupPlayerInputComponent(UInputComponent* PlayerI
 	AGRCharacter* GRCharacter = GetOwner<AGRCharacter>();
 	check(GRCharacter);
 	
-	APlayerController* PlayerController = GRCharacter->GetController<APlayerController>();
-	check(PlayerController);
+	AGRPlayerController* GRPlayerController = GRCharacter->GetController<AGRPlayerController>();
+	check(GRPlayerController);
 
-	ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+	ULocalPlayer* LocalPlayer = GRPlayerController->GetLocalPlayer();
 	check(LocalPlayer);
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
@@ -47,11 +47,16 @@ void UGRInputHandleComponent::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 	Subsystem->ClearAllMappings();
 
-	UEnhancedInputUserSettings* UsetSettings = UEnhancedInputUserSettings::LoadOrCreateSettings(LocalPlayer);
-	if (!UsetSettings)
+	UEnhancedInputUserSettings* UserSettings = UEnhancedInputUserSettings::LoadOrCreateSettings(LocalPlayer);
+	if (!UserSettings)
 	{
 		UE_LOG(LogTemp, Error, TEXT("UsetSettings (UEnhancedInputUserSettings) is INVALID."));
 		return;
+	}
+
+	for (UInputMappingContext* MappableContext : GRPlayerController->MappableMappingContexts)
+	{
+		UserSettings->RegisterInputMappingContext(MappableContext);
 	}
 
 	const UGRPawnData* PawnData = GRCharacter->GetPawnData();
@@ -59,6 +64,7 @@ void UGRInputHandleComponent::SetupPlayerInputComponent(UInputComponent* PlayerI
 	{
 		return;
 	}
+
 
 	const UGRInputConfig* InputConfig = PawnData->InputConfig;
 	if (!InputConfig)
@@ -70,15 +76,13 @@ void UGRInputHandleComponent::SetupPlayerInputComponent(UInputComponent* PlayerI
 	{
 		if (Mapping.InputMappingContext)
 		{
-			UsetSettings->RegisterInputMappingContext(Mapping.InputMappingContext);
-
 			FModifyContextOptions Options = {};
 			Options.bIgnoreAllPressedKeysUntilRelease = false;
 			Subsystem->AddMappingContext(Mapping.InputMappingContext, Mapping.Priority, Options);
 		}
 	}
 
-	UsetSettings->SaveSettings();
+	UserSettings->SaveSettings();
 
 	TArray<uint32> OutBindHandles;
 	GRInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, OutBindHandles);

@@ -21,6 +21,9 @@ public class GunRogue : ModuleRules
 			"GameplayTasks",
 			"GameplayAbilities",
 
+			//UMG
+			"Slate", "SlateCore",
+
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
