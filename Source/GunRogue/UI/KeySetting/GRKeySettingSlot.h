@@ -2,12 +2,14 @@
 
 #include "Blueprint/UserWidget.h"
 #include "InputCoreTypes.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 #include "GRKeySettingSlot.generated.h"
 
 class UButton;
 class UTextBlock;
 class UInputKeySelector;
 class UGRKeySettingWidget;
+struct FPlayerKeyMapping;
 
 UCLASS()
 class GUNROGUE_API UGRKeySettingSlot : public UUserWidget
@@ -17,12 +19,18 @@ class GUNROGUE_API UGRKeySettingSlot : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	void SetMappingName(const FName& InName);
-	void SetActionText(const FText& InText);
-	void SetKey(const FKey& InKey);
+	void SetKeyMapping(const FPlayerKeyMapping& InMapping);
 	void SetParrentWidget(UGRKeySettingWidget* InParrentWidget);
 
 protected:
+	void SetMappingName(const FName& InName);
+	void SetActionText(const FText& InText);
+	void SetKey(const FKey& InKey);
+	void SetDefaultButtonVisibility(const FKey& InCurrentKey);
+
+	void NotifyToParent(const FKey& NewKey);
+
+	FPlayerKeyMapping Mapping;
 	FName MappingName;
 
 	UPROPERTY(meta = (BindWidget))
@@ -45,6 +53,12 @@ private:
 
 	UFUNCTION()
 	void OnIsSelectingKeyChanged();
+
+	UFUNCTION()
+	void OnDefaultButtonClicked();
+
+	UFUNCTION()
+	void OnClearButtonClicked();
 
 	bool bIsKeyChanged;
 };

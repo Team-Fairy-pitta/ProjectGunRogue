@@ -35,9 +35,7 @@ void UGRKeySettingCategory::AddMappings(const TArray<FPlayerKeyMapping>& InMappi
 		UGRKeySettingSlot* NewSlot = CreateWidget<UGRKeySettingSlot>(GetOwningPlayer(), SlotWidgetClass);
 		if (NewSlot)
 		{
-			NewSlot->SetMappingName(Mapping.GetMappingName());
-			NewSlot->SetActionText(Mapping.GetDisplayName());
-			NewSlot->SetKey(Mapping.GetCurrentKey());
+			NewSlot->SetKeyMapping(Mapping);
 			NewSlot->SetParrentWidget(InParentWidget);
 
 			MappingsVerticalBox->AddChild(NewSlot);

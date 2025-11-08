@@ -21,6 +21,8 @@ class GUNROGUE_API UGRKeySettingWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
+
 	UFUNCTION(BlueprintCallable)
 	void InitKeyMappings();
 
@@ -39,6 +41,10 @@ protected:
 private:
 	UEnhancedInputUserSettings* LoadUserSetting();
 	void GetKeyMappings(TMap<FString, FKeyMappingCategory>& OutMappings);
+	void AddKeyCategories(TMap<FString, FKeyMappingCategory>& InCategories);
+
+	UFUNCTION()
+	void OnResetButtonClicked();
 
 	UPROPERTY()
 	TObjectPtr<UEnhancedInputUserSettings> CachedUserSetting;
