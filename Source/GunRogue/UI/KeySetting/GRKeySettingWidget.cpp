@@ -76,7 +76,14 @@ UEnhancedInputUserSettings* UGRKeySettingWidget::LoadUserSetting()
 		return nullptr;
 	}
 
-	UEnhancedInputUserSettings* Settings = UEnhancedInputUserSettings::LoadOrCreateSettings(LocalPlayer);
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (!Subsystem)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Subsystem (UEnhancedInputLocalPlayerSubsystem) is INVALID."));
+		return nullptr;
+	}
+
+	UEnhancedInputUserSettings* Settings = Subsystem->GetUserSettings();
 	if (!Settings)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Settings (UEnhancedInputUserSettings::LoadOrCreateSettings()) is INVALID."));
