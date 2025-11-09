@@ -56,8 +56,8 @@ void ATestUIPlayerController::BeginPlay()
 
 			if (UGRTeamStatusListWidget* TeamStatusListWidget = BattleHUDWidget->GetTeamStatusListWidget())
 			{
-				TeamStatusListWidget->SetTeamShieldBar(50.0f, 100.0f);
-				TeamStatusListWidget->SetTeamHPBar(70.0f, 100.0f);
+				TeamStatusListWidget->SetTeamShieldBar(0,50.0f, 100.0f);
+				TeamStatusListWidget->SetTeamHPBar(0, 70.0f, 100.0f);
 			}
 
 			if (UGRPlayerStatusWidget* PlayerStatusWidget = BattleHUDWidget->GetPlayerStatusWidget())
@@ -149,6 +149,16 @@ void ATestUIPlayerController::CreateBuffIconInWrapBox()
 	if (UGRPlayerStatusWidget* PlayerStatusWidget = BattleHUDWidget->GetPlayerStatusWidget())
 	{
 		PlayerStatusWidget->CreateBuffIcon();
+	}
+}
+
+void ATestUIPlayerController::CreateTeamStatusInVerticalBox()
+{
+	if (!BattleHUDWidget) return;
+
+	if (UGRTeamStatusListWidget* TeamStatusListWidget = BattleHUDWidget->GetTeamStatusListWidget())
+	{
+		TeamStatusListWidget->CreateTeamStatus();
 	}
 }
 

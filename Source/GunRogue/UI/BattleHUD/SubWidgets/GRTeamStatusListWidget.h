@@ -7,6 +7,7 @@
 #include "GRTeamStatusListWidget.generated.h"
 
 class UGRTeamStatusWidget;
+class UVerticalBox;
 /**
  * 
  */
@@ -15,15 +16,21 @@ class GUNROGUE_API UGRTeamStatusListWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-public:
-	UGRTeamStatusWidget* GetTeamStatusWidget() const { return TeamStatus; }
-	
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRTeamStatusWidget* TeamStatus;
+	UVerticalBox* TeamStatusContainer;
+	
+	UPROPERTY(EditDefaultsOnly, Category="TeamStatus")
+	TSubclassOf<UGRTeamStatusWidget> TeamStatusClass;
+
+	UPROPERTY()
+	TArray<UGRTeamStatusWidget*> TeamStatusArray;
 
 public:
-	void SetTeamShieldBar(float CurrentShield, float MaxShield);
+	void SetTeamShieldBar(int32 Index, float CurrentShield, float MaxShield);
 
-	void SetTeamHPBar(float CurrentHP, float MaxHP);
+	void SetTeamHPBar(int32 Index, float CurrentHP, float MaxHP);
+
+	UFUNCTION(BlueprintCallable)
+	void CreateTeamStatus();
 };

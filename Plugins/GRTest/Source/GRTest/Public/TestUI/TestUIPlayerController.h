@@ -44,6 +44,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CreateBuffIconInWrapBox();
 
+	UFUNCTION(BlueprintCallable)
+	void CreateTeamStatusInVerticalBox();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UGRBattleHUDWidget> BattleHUDClass;
