@@ -23,11 +23,12 @@ void UGRWeaponListWidget::NativeConstruct()
 
 void UGRWeaponListWidget::SetSelectedWeapon(int32 WeaponIndex)
 {
-	for (int32 i=0; i<WeaponSlots.Num(); i++)
+	for (int32 i=0; i < WeaponSlots.Num(); i++)
 	{
 		if (WeaponSlots[i])
 		{
-			WeaponSlots[i]->SetSelected( i == WeaponIndex);
+			bool bIsSelected = i == WeaponIndex;
+			WeaponSlots[i]->SetSelected(bIsSelected);
 		}
 	}
 }
