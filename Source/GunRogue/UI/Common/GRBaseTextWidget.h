@@ -35,7 +35,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Text")
 	FSlateColor TextColor;
 
-	virtual void NativeConstruct() override;
+	virtual void NativePreConstruct() override;
 
 private:
 	void SyncTextAndFont();

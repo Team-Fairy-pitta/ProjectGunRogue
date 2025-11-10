@@ -6,9 +6,9 @@
 #include "Engine/Engine.h"
 #include "Engine/Font.h"
 
-void UGRBaseTextWidget::NativeConstruct()
+void UGRBaseTextWidget::NativePreConstruct()
 {
-	Super::NativeConstruct();
+	Super::NativePreConstruct();
 
 	if (Text.IsEmpty())
 	{

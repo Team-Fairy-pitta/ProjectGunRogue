@@ -7,6 +7,7 @@
 #include "TestUIPlayerController.generated.h"
 
 class UGRBattleHUDWidget;
+class UGRTitleHUDWidget;
 class UInputMappingContext;
 class UInputAction;
 /**
@@ -51,8 +52,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UGRBattleHUDWidget> BattleHUDClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UGRTitleHUDWidget> TitleHUDClass;
+	
 	UPROPERTY()
 	UGRBattleHUDWidget* BattleHUDWidget;
+
+	UPROPERTY()
+	UGRTitleHUDWidget* TitleHUDWidget;
 
 private:
 	FTimerHandle PlayingTimeHandle;
