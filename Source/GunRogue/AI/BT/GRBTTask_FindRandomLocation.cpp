@@ -6,13 +6,15 @@
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
-const FName UGRBTTask_FindRandomLocation::PatrolRandomLocationKey="PatrolRandomLocation";
+const FName UGRBTTask_FindRandomLocation::FindRandomLocationKey="FindRandomLocation";
+const FName UGRBTTask_FindRandomLocation::IsExistPatrolEndLocationKey="IsExistPatrolEndLocation";
+const FName UGRBTTask_FindRandomLocation::PatrolEndLocationKey="PatrolEndLocation";
 
 UGRBTTask_FindRandomLocation::UGRBTTask_FindRandomLocation()
 	:MinRadius(300.0f)
 	,MaxRadius(1000.0f)
 {
-	NodeName=TEXT("Patrol Random Location");
+	NodeName=TEXT("Find Random Location");
 }
 
 EBTNodeResult::Type UGRBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -45,7 +47,7 @@ EBTNodeResult::Type UGRBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeCompo
 	
 	FVector RandomPoint=Origin;
 	
-	const int32 MaxAttempts = 3;
+	const int32 MaxAttempts = 10;
 	for (int32 i = 0; i < MaxAttempts; ++i)
 	{
 		FNavLocation Tentative;
@@ -60,7 +62,10 @@ EBTNodeResult::Type UGRBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeCompo
 		}
 	}
 	
-	BlackboardComp->SetValueAsVector(PatrolRandomLocationKey, RandomPoint);
+	BlackboardComp->SetValueAsVector(FindRandomLocationKey, RandomPoint);
+
+	BlackboardComp->SetValueAsBool(IsExistPatrolEndLocationKey,true);
+	BlackboardComp->SetValueAsVector(PatrolEndLocationKey, RandomPoint);
 
 	return EBTNodeResult::Succeeded;
 }
