@@ -1,5 +1,6 @@
 #include "System/GRNextMapLoader.h"
 
+#include "Components/ArrowComponent.h"
 #include "GameModes/GRGameState.h"
 #include "Components/BoxComponent.h"
 #include "Engine/LevelStreamingDynamic.h"
@@ -14,6 +15,9 @@ AGRNextMapLoader::AGRNextMapLoader()
 	Trigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Trigger->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Trigger->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	Arrow = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
+	Arrow->SetupAttachment(Trigger);
 }
 
 void AGRNextMapLoader::BeginPlay()
@@ -43,9 +47,9 @@ void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 	}
 	
 	FVector LoadLocation = FVector::ZeroVector;
-	if (Trigger)
+	if (Arrow)
 	{
-		LoadLocation = Trigger->GetComponentLocation();
+		LoadLocation = Arrow->GetComponentLocation();
 	}
 	ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
 		this,

@@ -3,6 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "GRNextMapLoader.generated.h"
 
+class UArrowComponent;
 class UBoxComponent;
 
 UCLASS()
@@ -19,6 +20,9 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UBoxComponent> Trigger;
+
+	UPROPERTY(EditDefaultsOnly)
+	UArrowComponent* Arrow;
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
