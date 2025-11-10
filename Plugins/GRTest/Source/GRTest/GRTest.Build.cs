@@ -26,10 +26,18 @@ public class GRTest : ModuleRules
 			new string[]
 			{
 				"Core",
-
+				"Engine", 
+				"InputCore", 
+				"EnhancedInput",
+				"GameplayTags",
+				"GameplayTasks",
+				"GameplayAbilities",
 				// 게임 모듈
 				"GunRogue",
 
+				//AI
+				"AIModule","NavigationSystem",
+				
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -42,6 +50,8 @@ public class GRTest : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"InputCore", 
+				"EnhancedInput",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
