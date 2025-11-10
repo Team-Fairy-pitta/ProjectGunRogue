@@ -3,6 +3,8 @@
 #include "GameFramework/Actor.h"
 #include "GRNextMapLoader.generated.h"
 
+class UBoxComponent;
+
 UCLASS()
 class GUNROGUE_API AGRNextMapLoader : public AActor
 {
@@ -11,4 +13,19 @@ class GUNROGUE_API AGRNextMapLoader : public AActor
 public:
 	AGRNextMapLoader();
 	virtual void BeginPlay() override;
+	
+	void MapLoad(TSoftObjectPtr<UWorld> LevelAsset);
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UBoxComponent> Trigger;
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY()
+	bool bHasOverlap = false;
+
+	UPROPERTY(EditAnywhere, Category = "Level Streaming")
+	TSoftObjectPtr<UWorld> LoadLevel;
 };
