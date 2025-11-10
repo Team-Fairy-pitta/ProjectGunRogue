@@ -14,7 +14,7 @@ public:
 	AGRPreviousMapUnloader();
 	virtual void BeginPlay() override;
 
-	void MapUnload();
+	void UnloadMap();
 
 protected:
 	UPROPERTY(EditDefaultsOnly)

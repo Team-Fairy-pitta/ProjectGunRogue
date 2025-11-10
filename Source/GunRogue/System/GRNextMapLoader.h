@@ -14,7 +14,7 @@ public:
 	AGRNextMapLoader();
 	virtual void BeginPlay() override;
 	
-	void MapLoad(TSoftObjectPtr<UWorld> LevelAsset);
+	void LoadMap(TSoftObjectPtr<UWorld> LevelAsset);
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
@@ -27,5 +27,5 @@ protected:
 	bool bHasOverlap = false;
 
 	UPROPERTY(EditAnywhere, Category = "Level Streaming")
-	TSoftObjectPtr<UWorld> LoadLevel;
+	TSoftObjectPtr<UWorld> LevelToLoad;
 };

@@ -26,7 +26,7 @@ void AGRNextMapLoader::BeginPlay()
 	}
 }
 
-void AGRNextMapLoader::MapLoad(TSoftObjectPtr<UWorld> LevelAsset)
+void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 {
 	bool bLoadSuccessful = false;
 	
@@ -37,30 +37,24 @@ void AGRNextMapLoader::MapLoad(TSoftObjectPtr<UWorld> LevelAsset)
 	}
 		
 	AGRGameState* GS = Cast<AGRGameState>(CurrentGameState);
-
-	FString InstanceName = FString::Printf(TEXT("LevelInst_%d"), GS->GetCurrentLevel());
+	if (!GS)
+	{
+		return;
+	}
+	
 	FVector LoadLocation = FVector::ZeroVector;
 	if (Trigger)
 	{
 		LoadLocation = Trigger->GetComponentLocation();
 	}
-	
 	ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
 		this,
 		LevelAsset,
 		LoadLocation,
 		FRotator::ZeroRotator,
 		bLoadSuccessful,
-		InstanceName
+		GS->GetNextLevelName()
 		);
-
-	if (bLoadSuccessful)
-	{
-		if (GS)
-		{
-			GS->SetCurrentLevel(GS->GetCurrentLevel() + 1);
-		}
-	}
 }
 
 void AGRNextMapLoader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -74,6 +68,6 @@ void AGRNextMapLoader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActo
 	if (OtherActor && OtherActor->IsA(APawn::StaticClass()))
 	{
 		bHasOverlap = true;
-		MapLoad(LoadLevel);
+		LoadMap(LevelToLoad);
 	}
 }

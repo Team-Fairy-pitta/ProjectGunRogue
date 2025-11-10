@@ -26,7 +26,7 @@ void AGRPreviousMapUnloader::BeginPlay()
 	}
 }
 
-void AGRPreviousMapUnloader::MapUnload()
+void AGRPreviousMapUnloader::UnloadMap()
 {
 	UWorld* World = GetWorld();
 	if (!World)
@@ -48,11 +48,9 @@ void AGRPreviousMapUnloader::MapUnload()
 	AGRGameState* GS = Cast<AGRGameState>(CurrentGameState);
 	if (GS)
 	{
-		int32 UnloadLevelNumber = GS->GetCurrentLevel() - 2;
-		FString LevelNameString = FString::Printf(TEXT("LevelInst_%d"), UnloadLevelNumber);
 		UGameplayStatics::UnloadStreamLevel(
 			World,
-			FName(*LevelNameString),
+			GS->GetPreviousLevelName(),
 			LatentInfo,
 			false);
 	}
@@ -72,6 +70,6 @@ void AGRPreviousMapUnloader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 	if (OtherActor && OtherActor->IsA(APawn::StaticClass()))
 	{
 		bHasOverlap = true;
-		MapUnload();
+		UnloadMap();
 	}
 }
