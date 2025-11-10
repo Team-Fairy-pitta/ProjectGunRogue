@@ -58,7 +58,7 @@ EBTNodeResult::Type UGRBTTask_SwapPatrolPointsIfClose::ExecuteTask(UBehaviorTree
 		PathLengthToPatrolEnd = PathToPatrolEnd->GetPathLength();
 	}
 	
-	if (PathLengthToPatrolEnd>PathLengthToPatrolStart)
+	if (PathLengthToPatrolEnd<PathLengthToPatrolStart)
 	{
 		BlackboardComp->SetValueAsVector(AGRAIController::PatrolStartLocationKey,PatrolEndLocation);
 		BlackboardComp->SetValueAsVector(UGRBTTask_FindRandomLocation::PatrolEndLocationKey,PatrolStartLocation);
