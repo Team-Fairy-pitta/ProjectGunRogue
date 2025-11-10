@@ -20,14 +20,20 @@ void UGRTeamStatusWidget::NativeConstruct()
 
 void UGRTeamStatusWidget::SetTeamShieldBar(float CurrentShield, float MaxShield)
 {
-	if (!TeamHPBar) return;
+	if (!TeamHPBar)
+	{
+		return;
+	}
 
 	TeamHPBar->SetShieldBar(CurrentShield, MaxShield);
 }
 
 void UGRTeamStatusWidget::SetTeamHPBar(float CurrentHP, float MaxHP)
 {
-	if (!TeamHPBar) return;
+	if (!TeamHPBar)
+	{
+		return;
+	}
 	
 	TeamHPBar->SetHPBar(CurrentHP, MaxHP);
 }

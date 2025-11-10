@@ -7,7 +7,10 @@
 
 void UGRBuffIconWidget::SetBuffIcon(UTexture2D* NewIcon)
 {
-	if (!BuffIconImage || !NewIcon) return;
+	if (!BuffIconImage || !NewIcon)
+	{
+		return;
+	}
 
 	BuffIconImage->SetBrushFromTexture(NewIcon);
 }

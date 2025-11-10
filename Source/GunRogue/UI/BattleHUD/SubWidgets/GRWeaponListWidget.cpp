@@ -15,7 +15,7 @@ void UGRWeaponListWidget::NativeConstruct()
 	{
 		if (WeaponSlots[i])
 		{
-			WeaponSlots[i]->SetWeaponIndex(i+1);
+			WeaponSlots[i]->SetWeaponIndex(i + 1);
 			WeaponSlots[i]->SetSelected(false);
 		}
 	}
@@ -27,18 +27,18 @@ void UGRWeaponListWidget::SetSelectedWeapon(int32 WeaponIndex)
 	{
 		if (WeaponSlots[i])
 		{
-			WeaponSlots[i]->SetSelected((i+1) == WeaponIndex);
+			WeaponSlots[i]->SetSelected( i == WeaponIndex);
 		}
 	}
 }
 
 void UGRWeaponListWidget::UpdateBulletCount(int32 WeaponIndex, int32 CurrentBullets, int32 MaxBullets)
 {
-	if (WeaponSlots.IsValidIndex(WeaponIndex - 1))
+	if (WeaponSlots.IsValidIndex(WeaponIndex))
 	{
-		if (WeaponSlots[WeaponIndex - 1])
+		if (WeaponSlots[WeaponIndex])
 		{
-			WeaponSlots[WeaponIndex -1]->SetBulletCount(CurrentBullets, MaxBullets);
+			WeaponSlots[WeaponIndex]->SetBulletCount(CurrentBullets, MaxBullets);
 		}
 	}
 }

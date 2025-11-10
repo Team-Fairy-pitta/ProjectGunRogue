@@ -8,7 +8,10 @@
 
 void UGRTeamStatusListWidget::SetTeamShieldBar(int32 Index, float CurrentShield, float MaxShield)
 {
-	if (!TeamStatusArray.IsValidIndex(Index)) return;
+	if (!TeamStatusArray.IsValidIndex(Index))
+	{
+		return;
+	}
 
 	if (UGRTeamStatusWidget* TeamStatus = TeamStatusArray[Index])
 	{
@@ -18,7 +21,10 @@ void UGRTeamStatusListWidget::SetTeamShieldBar(int32 Index, float CurrentShield,
 
 void UGRTeamStatusListWidget::SetTeamHPBar(int32 Index, float CurrentHP, float MaxHP)
 {
-	if (!TeamStatusArray.IsValidIndex(Index)) return;
+	if (!TeamStatusArray.IsValidIndex(Index))
+	{
+		return;
+	}
 
 	if (UGRTeamStatusWidget* TeamStatus = TeamStatusArray[Index])
 	{
@@ -28,18 +34,23 @@ void UGRTeamStatusListWidget::SetTeamHPBar(int32 Index, float CurrentHP, float M
 
 void UGRTeamStatusListWidget::CreateTeamStatus()
 {
-	if (!TeamStatusClass || !TeamStatusContainer) return;
-
-	UWorld* World = GetWorld();
-	if (!World) return;
+	if (!TeamStatusClass || !TeamStatusContainer)
+	{
+		return;
+	}
 	
-	UGRTeamStatusWidget* NewTeamStatus = CreateWidget<UGRTeamStatusWidget>(World, TeamStatusClass);
-	if (!NewTeamStatus) return;
-
-	FWidgetTransform WidgetTransform;
-	WidgetTransform.Angle = 180.0f;
-	NewTeamStatus->SetRenderTransform(WidgetTransform);
-
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+	{
+		return;
+	}
+	
+	UGRTeamStatusWidget* NewTeamStatus = CreateWidget<UGRTeamStatusWidget>(PC, TeamStatusClass);
+	if (!NewTeamStatus)
+	{
+		return;
+	}
+	
 	if (UVerticalBoxSlot* VerticalBoxSlot = TeamStatusContainer->AddChildToVerticalBox(NewTeamStatus))
 	{
 		VerticalBoxSlot->SetPadding(FMargin(0,0,0,2.0f));

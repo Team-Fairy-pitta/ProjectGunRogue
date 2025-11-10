@@ -11,21 +11,30 @@ void UGRLevelStatusWidget::NativeConstruct()
 
 void UGRLevelStatusWidget::SetCurrentLocText(const FText& InText)
 {
-	if (!CurrentLocText) return;
+	if (!CurrentLocText)
+	{
+		return;
+	}
 
 	CurrentLocText->SetText(InText);
 }
 
 void UGRLevelStatusWidget::SetDifficultyText(const FText& InText)
 {
-	if (!DifficultyText) return;
+	if (!DifficultyText)
+	{
+		return;
+	}
 
 	DifficultyText->SetText(InText);
 }
 
 void UGRLevelStatusWidget::SetPlayingTime(int32 InSeconds)
 {
-	if (!PlayingTimeText) return;
+	if (!PlayingTimeText)
+	{
+		return;
+	}
 	
 	int32 Minutes = InSeconds / 60;
 	int32 Seconds = InSeconds % 60;

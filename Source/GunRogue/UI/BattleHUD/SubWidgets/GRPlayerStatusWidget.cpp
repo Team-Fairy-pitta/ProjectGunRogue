@@ -10,28 +10,42 @@
 
 void UGRPlayerStatusWidget::SetPlayerShieldBar(float CurrentShield, float MaxShield)
 {
-	if (!PlayerHPBar) return;
+	if (!PlayerHPBar)
+	{
+		return;
+	}
 
 	PlayerHPBar->SetShieldBar(CurrentShield, MaxShield);
 }
 
 void UGRPlayerStatusWidget::SetPlayerHPBar(float CurrentHP, float MaxHP)
 {
-	if (!PlayerHPBar) return;
+	if (!PlayerHPBar)
+	{
+		return;
+	}
 
 	PlayerHPBar->SetHPBar(CurrentHP, MaxHP);
 }
 
 void UGRPlayerStatusWidget::CreateBuffIcon()
 {
-	if (!BuffIconClass || !BuffIconContainer) return;
-
+	if (!BuffIconClass || !BuffIconContainer)
+	{
+		return;
+	}
 	
-	UWorld* World = GetWorld();
-	if (!World) return;
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+	{
+		return;
+	}
 	
-	UGRBuffIconWidget* NewBuffIcon = CreateWidget<UGRBuffIconWidget>(World, BuffIconClass);
-	if (!NewBuffIcon) return;
+	UGRBuffIconWidget* NewBuffIcon = CreateWidget<UGRBuffIconWidget>(PC, BuffIconClass);
+	if (!NewBuffIcon)
+	{
+		return;
+	}
 
 	if (UWrapBoxSlot* WrapBoxSlot = BuffIconContainer->AddChildToWrapBox(NewBuffIcon))
 	{

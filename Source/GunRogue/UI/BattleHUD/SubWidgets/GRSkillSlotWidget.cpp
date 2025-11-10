@@ -8,7 +8,10 @@
 
 void UGRSkillSlotWidget::SetSkillCountText(int32 InCount)
 {
-	if (!SkillCountText) return;
+	if (!SkillCountText)
+	{
+		return;
+	}
 
 	CurrentSkillCount = InCount;
 	
@@ -27,7 +30,15 @@ void UGRSkillSlotWidget::SetSkillCountText(int32 InCount)
 
 void UGRSkillSlotWidget::SetCooldown(float RemainingTime, float MaxTime)
 {
-	if (!SkillCooldown || !SkillCooldownText) return;
+	if (!SkillCooldown || !SkillCooldownText)
+	{
+		return;
+	}
+
+	if (MaxTime <= 0)
+	{
+		return;
+	}
 
 	float CooldownPercent = FMath::Clamp(RemainingTime / MaxTime, 0.0f, 1.0f);
 	SkillCooldown->SetPercent(CooldownPercent);
@@ -45,7 +56,15 @@ void UGRSkillSlotWidget::SetCooldown(float RemainingTime, float MaxTime)
 
 void UGRSkillSlotWidget::SetCharge(float CurrentCharge, float MaxCharge)
 {
-	if (!SkillCooldown || !SkillCooldownText) return;
+	if (!SkillCooldown || !SkillCooldownText)
+	{
+		return;
+	}
+
+	if (MaxCharge <= 0)
+	{
+		return;
+	}
 
 	float ChargePercent = FMath::Clamp(CurrentCharge / MaxCharge, 0.0f, 1.0f);
 	SkillCooldown->SetPercent(ChargePercent);
@@ -55,14 +74,20 @@ void UGRSkillSlotWidget::SetCharge(float CurrentCharge, float MaxCharge)
 
 void UGRSkillSlotWidget::SetSkillKey(const FText& InText)
 {
-	if (!SkillKeyText) return;
+	if (!SkillKeyText)
+	{
+		return;
+	}
 
 	SkillKeyText->SetText(InText);
 }
 
 void UGRSkillSlotWidget::StartCooldown(float MaxTime)
 {
-	if (!GetWorld()) return;
+	if (!GetWorld())
+	{
+		return;
+	}
 
 	CooldownRemainingTime = MaxTime;
 	CooldownMaxTime = MaxTime;

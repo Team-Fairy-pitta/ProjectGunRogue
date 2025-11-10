@@ -6,14 +6,20 @@
 
 void UGRGoodsTextWidget::SetGoodsNameText(const FText& InText)
 {
-	if (!GoodsNameText) return;
+	if (!GoodsNameText)
+	{
+		return;
+	}
 
 	GoodsNameText->SetText(InText);
 }
 
 void UGRGoodsTextWidget::SetGoodsCountText(int32 InCount)
 {
-	if (!GoodsCountText) return;
+	if (!GoodsCountText)
+	{
+		return;
+	}
 
 	FString CountString = FString::Printf(TEXT("%d"), InCount);
 	

@@ -98,7 +98,10 @@ void ATestUIPlayerController::BeginPlay()
 
 void ATestUIPlayerController::HandleSkillInput(FName SkillKey)
 {
-	if (!BattleHUDWidget) return;
+	if (!BattleHUDWidget)
+	{
+		return;
+	}
 
 	if (UGRSkillListWidget* SkillListWidget = BattleHUDWidget->GetSkillListWidget())
 	{
@@ -133,7 +136,10 @@ void ATestUIPlayerController::HandleSkillInput(FName SkillKey)
 
 void ATestUIPlayerController::SelectWeaponSlot(int32 Index)
 {
-	if (!BattleHUDWidget) return;
+	if (!BattleHUDWidget)
+	{
+		return;
+	}
 	
 	if (UGRWeaponListWidget* WeaponListWidget = BattleHUDWidget->GetWeaponListWidget())
 	{
@@ -144,7 +150,10 @@ void ATestUIPlayerController::SelectWeaponSlot(int32 Index)
 
 void ATestUIPlayerController::CreateBuffIconInWrapBox()
 {
-	if (!BattleHUDWidget) return;
+	if (!BattleHUDWidget)
+	{
+		return;
+	}
 
 	if (UGRPlayerStatusWidget* PlayerStatusWidget = BattleHUDWidget->GetPlayerStatusWidget())
 	{
@@ -154,7 +163,10 @@ void ATestUIPlayerController::CreateBuffIconInWrapBox()
 
 void ATestUIPlayerController::CreateTeamStatusInVerticalBox()
 {
-	if (!BattleHUDWidget) return;
+	if (!BattleHUDWidget)
+	{
+		return;
+	}
 
 	if (UGRTeamStatusListWidget* TeamStatusListWidget = BattleHUDWidget->GetTeamStatusListWidget())
 	{

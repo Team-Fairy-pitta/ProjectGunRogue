@@ -7,18 +7,33 @@
 
 void UGRWeaponSlotWidget::SetSelected(bool bSelected)
 {
-	if (!BulletCountText || !WeaponSlotBorder) return;
+	if (!BulletCountText || !WeaponSlotBorder)
+	{
+		return;
+	}
 	
 	bIsSelected = bSelected;
+	
+	FVector2D NewScale = FVector2D::One();
+	ESlateVisibility NewVisibility = ESlateVisibility::Collapsed;
 
-	WeaponSlotBorder->SetRenderScale(bIsSelected ? FVector2D(1.2f, 1.2f) : FVector2D(1.f, 1.f));
+	if (bIsSelected)
+	{
+		float SelectedScale = 1.2f;
+		NewScale *= SelectedScale;
+		NewVisibility = ESlateVisibility::Visible;
+	}
 
-	BulletCountText->SetVisibility(bIsSelected ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	WeaponSlotBorder->SetRenderScale(NewScale);
+	BulletCountText->SetVisibility(NewVisibility);
 }
 
 void UGRWeaponSlotWidget::SetBulletCount(int32 CurrentBullets, int32 MaxBullets)
 {
-	if (!BulletCountText) return;
+	if (!BulletCountText)
+	{
+		return;
+	}
 
 	const FString BulletsText = FString::Printf(TEXT("%d / %d"), CurrentBullets, MaxBullets);
 
@@ -27,7 +42,10 @@ void UGRWeaponSlotWidget::SetBulletCount(int32 CurrentBullets, int32 MaxBullets)
 
 void UGRWeaponSlotWidget::SetWeaponIndex(int32 Index)
 {
-	if (!GunIndexText) return;
+	if (!GunIndexText)
+	{
+		return;
+	}
 
 	GunIndexText->SetText(FText::AsNumber(Index));
 }
