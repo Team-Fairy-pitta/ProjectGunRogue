@@ -8,6 +8,7 @@
 
 class UGRBattleHUDWidget;
 class UGRTitleHUDWidget;
+class UGRInvitationHUDWidget;
 class UInputMappingContext;
 class UInputAction;
 /**
@@ -48,18 +49,27 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CreateTeamStatusInVerticalBox();
 
+	UFUNCTION(BlueprintCallable)
+	void CreateInvitationSlotInScrollBox();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UGRBattleHUDWidget> BattleHUDClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UGRTitleHUDWidget> TitleHUDClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UGRInvitationHUDWidget> InvitationHUDClass;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UGRBattleHUDWidget* BattleHUDWidget;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UGRTitleHUDWidget* TitleHUDWidget;
+
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UGRInvitationHUDWidget* InvitationHUDWidget;
 
 private:
 	FTimerHandle PlayingTimeHandle;

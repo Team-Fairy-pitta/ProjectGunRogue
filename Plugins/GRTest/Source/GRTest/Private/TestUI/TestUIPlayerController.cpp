@@ -14,6 +14,8 @@
 #include "UI/BattleHUD/SubWidgets/GRWeaponListWidget.h"
 
 #include "UI/TitleHUD/GRTitleHUDWidget.h"
+#include "UI/TitleHUD/GRInvitationHUDWidget.h"
+#include "UI/TitleHUD/SubWidgets/GRInvitationListWidget.h"
 
 
 void ATestUIPlayerController::BeginPlay()
@@ -30,20 +32,7 @@ void ATestUIPlayerController::BeginPlay()
 			}
 		}
 	}
-
-	if (TitleHUDClass)
-	{
-		TitleHUDWidget = CreateWidget<UGRTitleHUDWidget>(this, TitleHUDClass);
-		if (TitleHUDWidget)
-		{
-			TitleHUDWidget->AddToViewport();
-		}
-
-		FInputModeUIOnly UIMode;
-		SetInputMode(UIMode);
-		bShowMouseCursor = true;
-	}
-
+	
 	// if (BattleHUDClass)
 	// {
 	// 	BattleHUDWidget = CreateWidget<UGRBattleHUDWidget>(this, BattleHUDClass);
@@ -100,9 +89,9 @@ void ATestUIPlayerController::BeginPlay()
 	// 			}
 	// 		}
 	// 	}
-	// FInputModeGameOnly GameMode;
-	// SetInputMode(GameMode);
-	// bShowMouseCursor = false;
+	// 	FInputModeGameOnly GameMode;
+	// 	SetInputMode(GameMode);
+	// 	bShowMouseCursor = false;
 	// }
 
 	GetWorldTimerManager().SetTimer(
@@ -189,6 +178,19 @@ void ATestUIPlayerController::CreateTeamStatusInVerticalBox()
 	if (UGRTeamStatusListWidget* TeamStatusListWidget = BattleHUDWidget->GetTeamStatusListWidget())
 	{
 		TeamStatusListWidget->CreateTeamStatus();
+	}
+}
+
+void ATestUIPlayerController::CreateInvitationSlotInScrollBox()
+{
+	if (!InvitationHUDWidget)
+	{
+		return;
+	}
+
+	if (UGRInvitationListWidget* InvitationListWidget = InvitationHUDWidget->GetInvitationListWidget())
+	{
+		InvitationListWidget->CreateInvitationSlot();
 	}
 }
 
