@@ -38,6 +38,7 @@ public:
 	static const FName TargetPlayerKey;
 	static const FName IsPlayerDetectedKey;
 	static const FName LastPlayerLocationKey;
+	static const FName PatrolStartLocationKey;
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category="AI")
