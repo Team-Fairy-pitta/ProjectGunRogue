@@ -1,7 +1,7 @@
-#include "Character/GRInteractionComponent.h"
+#include "Character/Interaction/GRInteractionComponent.h"
+#include "Character/Interaction/GRInteractableActor.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Character/GRInteractableActor.h"
 
 UGRInteractionComponent::UGRInteractionComponent()
 {

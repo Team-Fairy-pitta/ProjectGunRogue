@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "Character/GRInteractableActor.h"
+#include "Character/Interaction/GRInteractableActor.h"
 #include "GRItemActor.generated.h"
 
 // Item Actor

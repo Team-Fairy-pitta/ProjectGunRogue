@@ -1,6 +1,6 @@
 #include "Character/GRCharacter.h"
 #include "Character/GRInputHandleComponent.h"
-#include "Character/GRInteractionComponent.h"
+#include "Character/Interaction/GRInteractionComponent.h"
 #include "Player/GRPlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
