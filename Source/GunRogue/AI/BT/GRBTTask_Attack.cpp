@@ -4,6 +4,8 @@
 #include "AI/BT/GRBTTask_Attack.h"
 #include "AI/GRAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/Character.h"
 
 UGRBTTask_Attack::UGRBTTask_Attack()
 	:AttackDelay(2.0f)
@@ -26,8 +28,44 @@ EBTNodeResult::Type UGRBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	}
 
 	AGRAIController* GRAICon = Cast<AGRAIController>(AICon);
-	
+	if (!GRAICon)
+	{
+		return EBTNodeResult::Failed;
+	}
+
+	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	if (!IsValid(BlackboardComp))
+	{
+		return EBTNodeResult::Failed;
+	}
+
+	APawn* AIPawn = GRAICon->GetPawn();
+	if (!IsValid(AIPawn))
+	{
+		return EBTNodeResult::Failed;
+	}
+
+	UObject* TargetObj = BlackboardComp->GetValueAsObject(AGRAIController::TargetPlayerKey);
+	if (!IsValid(TargetObj))
+	{
+		return EBTNodeResult::Failed;
+	}
+
+	ACharacter* TargetChar = Cast<ACharacter>(TargetObj);
+	if (!IsValid(TargetChar))
+	{
+		return EBTNodeResult::Failed;
+	}
+
 	StopMovement(GRAICon);
+
+	//Note : 공격 시 회전되도록 - 미완성
+	// AIPawn->bUseControllerRotationYaw = true;
+	//
+	// FVector AILocation = AIPawn->GetActorLocation();
+	// FVector TargetLocation = TargetChar->GetActorLocation();
+	// FRotator LookAtRot = (TargetLocation - AILocation).Rotation();
+	// GRAICon->SetControlRotation(LookAtRot);
 	
 	return EBTNodeResult::InProgress;
 }
@@ -72,8 +110,11 @@ void UGRBTTask_Attack::StopMovement(AAIController* AIController)
 			{
 				UE_LOG(LogTemp,Warning,TEXT("AI Attack : Stopping Movement"));
 				
-				MoveComp->StopMovementImmediately();
-				MoveComp->DisableMovement();
+				//MoveComp->StopMovementImmediately();
+				//MoveComp->DisableMovement();
+
+				// NOTE : 이것도 회전이 적용되지 않는지 아직 의문.
+				MoveComp->SetMovementMode(MOVE_None);
 			}
 		}
 	}
@@ -96,3 +137,4 @@ void UGRBTTask_Attack::ResumeMovement(AAIController* AIController)
 		}
 	}
 }
+

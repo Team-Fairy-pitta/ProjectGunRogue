@@ -3,12 +3,26 @@
 
 #include "AI/GRAICharacter.h"
 #include "AI/GRAIController.h"
+#include "GameFramework/CharacterMovementComponent.h" 
 
 AGRAICharacter::AGRAICharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; 
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+	if (MoveComp)
+	{
+		MoveComp->bUseControllerDesiredRotation = true;
+		MoveComp->bOrientRotationToMovement = false;
+
+		MoveComp->bUseRVOAvoidance = true;
+		MoveComp->AvoidanceConsiderationRadius = 100.f;
+		MoveComp->AvoidanceWeight = 0.5f;
+	}
+	bUseControllerRotationYaw = false;
+
 }
 
 
@@ -22,6 +36,7 @@ void AGRAICharacter::BeginPlay()
 	{
 		UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
 	}
+	
 }
 
 

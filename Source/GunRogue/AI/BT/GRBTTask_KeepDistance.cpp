@@ -25,19 +25,19 @@ UGRBTTask_KeepDistance::UGRBTTask_KeepDistance()
 EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackboardComp)
+	if (!IsValid(BlackboardComp))
 	{
 		return EBTNodeResult::Failed;
 	}
 
 	AAIController* AICon = OwnerComp.GetAIOwner();
-	if (!AICon)
+	if (!IsValid(AICon))
 	{
 		return EBTNodeResult::Failed;
 	}
 
 	APawn* AIPawn = AICon->GetPawn();
-	if (!AIPawn)
+	if (!IsValid(AIPawn))
 	{
 		return EBTNodeResult::Failed;
 	}
@@ -45,13 +45,19 @@ EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& 
 	FVector AILocation = AIPawn->GetActorLocation();
 
 	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(AIPawn->GetWorld());
-	if (!NavSys)
+	if (!IsValid(NavSys))
+	{
+		return EBTNodeResult::Failed;
+	}
+
+	UObject* TargetObj = BlackboardComp->GetValueAsObject(AGRAIController::TargetPlayerKey);
+	if (!IsValid(TargetObj))
 	{
 		return EBTNodeResult::Failed;
 	}
 	
-	AActor* TargetPlayer = Cast<AActor>(BlackboardComp->GetValueAsObject(AGRAIController::TargetPlayerKey));
-	if (!TargetPlayer)
+	AActor* TargetPlayer = Cast<AActor>(TargetObj);
+	if (!IsValid(TargetPlayer))
 	{
 		return EBTNodeResult::Failed;
 	}
@@ -64,27 +70,38 @@ EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& 
 	{
 		return EBTNodeResult::Failed;
 	}
-	
-	//FRotator LookAtRot = (TargetLocation - AILocation).Rotation();
-	//AIPawn->SetActorRotation(LookAtRot);
 
 	FVector AwayDir = (AILocation - TargetLocation).GetSafeNormal();
 	FVector DesiredLocation = AILocation + AwayDir * (MaintainDistance - CurrentDistance);
-	//FVector DesiredLocation = TargetLocation + AwayDir * MaintainDistance;
 		
-	if (NavSys)
+	FNavLocation ProjectedLoc;
+	if (NavSys->ProjectPointToNavigation(DesiredLocation, ProjectedLoc, FVector(SearchRadius, SearchRadius, SearchRadius)))
 	{
-		FNavLocation ProjectedLoc;
-		if (NavSys->ProjectPointToNavigation(DesiredLocation, ProjectedLoc, FVector(SearchRadius, SearchRadius, SearchRadius)))
-		{
-			DesiredLocation = ProjectedLoc.Location;
-		}
-		else
-		{
-			DesiredLocation = AILocation;;
-		}
+		DesiredLocation = ProjectedLoc.Location;
+	}
+	else
+	{
+		DesiredLocation = AILocation;;
 	}
 
+	ACharacter* AICharacter = Cast<ACharacter>(AIPawn);
+	if (!IsValid(AICharacter))
+	{
+		return EBTNodeResult::Failed;
+	}
+
+	UCharacterMovementComponent* MoveComp = AICharacter->GetCharacterMovement();
+	if (!IsValid(MoveComp))
+	{
+		return EBTNodeResult::Failed;
+	}
+	
+	MoveComp->bOrientRotationToMovement = false;
+	MoveComp->bUseControllerDesiredRotation = false; 
+	AIPawn->bUseControllerRotationYaw = true;
+
+	AICon->SetFocus(TargetPlayer);
+	
 	EPathFollowingRequestResult::Type MoveResult = AICon->MoveToLocation(DesiredLocation, AcceptanceRadius, true, true, true, false, nullptr, true);
 	if (MoveResult == EPathFollowingRequestResult::Failed || MoveResult == EPathFollowingRequestResult::AlreadyAtGoal)
 	{
@@ -92,25 +109,8 @@ EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& 
 	}
 
 	bIsMoving = true;
-
-	ACharacter* AICharacter = Cast<ACharacter>(AIPawn);
-	if (!AICharacter)
-	{
-		return EBTNodeResult::Failed;
-	}
-
-	UCharacterMovementComponent* MoveComp = AICharacter->GetCharacterMovement();
-	if (!MoveComp)
-	{
-		return EBTNodeResult::Failed;
-	}
-	
-	MoveComp->bOrientRotationToMovement = false;
-	MoveComp->bUseControllerDesiredRotation = false; 
-	AIPawn->bUseControllerRotationYaw = false;
 	
 	return EBTNodeResult::InProgress;
-	
 }
 
 void UGRBTTask_KeepDistance::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
@@ -124,38 +124,39 @@ void UGRBTTask_KeepDistance::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
 	}
 	
 	AAIController* AICon = OwnerComp.GetAIOwner();
-	if (!AICon)
+	if (!IsValid(AICon))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 	
 	APawn* AIPawn = AICon->GetPawn();
-	if (!AIPawn)
+	if (!IsValid(AIPawn))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 	
 	UBlackboardComponent* BB = OwnerComp.GetBlackboardComponent();
-	if (!BB)
+	if (!IsValid(BB))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 	
-	AActor* TargetPlayer = Cast<AActor>( BB->GetValueAsObject( AGRAIController::TargetPlayerKey ) );
-	if (!TargetPlayer)
+	UObject* TargetObj = BB->GetValueAsObject(AGRAIController::TargetPlayerKey);
+	if (!IsValid(TargetObj))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
-
-	FVector AILoc = AIPawn->GetActorLocation();
-	FVector TargetLoc = TargetPlayer->GetActorLocation();
-	FRotator LookAtRot = (TargetLoc - AILoc).Rotation();
-	AICon->SetControlRotation(LookAtRot);
-	//AIPawn->SetActorRotation(LookAtRot);
+	
+	AActor* TargetPlayer = Cast<AActor>(TargetObj);
+	if (!IsValid(TargetPlayer))
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
 	
 	EPathFollowingStatus::Type Status = AICon->GetMoveStatus();
 	if (Status == EPathFollowingStatus::Idle || Status == EPathFollowingStatus::Waiting)
@@ -170,25 +171,25 @@ void UGRBTTask_KeepDistance::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, u
 	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
 	
 	AAIController* AICon = OwnerComp.GetAIOwner();
-	if (!AICon)
+	if (!IsValid(AICon))
 	{
 		return;
 	}
 
 	APawn* AIPawn = AICon->GetPawn();
-	if (!AIPawn)
+	if (!IsValid(AIPawn))
 	{
 		return;
 	}
 
 	ACharacter* AICharacter = Cast<ACharacter>(AIPawn);
-	if (!AICharacter)
+	if (!IsValid(AICharacter))
 	{
 		return;
 	}
 
 	UCharacterMovementComponent* MoveComp = AICharacter->GetCharacterMovement();
-	if (!MoveComp)
+	if (!IsValid(MoveComp))
 	{
 		return;
 	}
@@ -196,4 +197,7 @@ void UGRBTTask_KeepDistance::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, u
 	MoveComp->bOrientRotationToMovement = false;
 	MoveComp->bUseControllerDesiredRotation = true; 
 	AIPawn->bUseControllerRotationYaw = false;
+
+	AICon->ClearFocus(EAIFocusPriority::Gameplay);
+
 }

@@ -34,5 +34,4 @@ private:
 	float AcceptanceRadius ;
 	
 	bool bIsMoving;
-	FAIRequestID MoveRequestID;
 };
