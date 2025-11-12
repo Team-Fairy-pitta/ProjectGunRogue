@@ -21,7 +21,8 @@ AActor* ATestEnemySpawnManager::SpawnRandomEnemy()
 		if (UClass* ActualClass = SelectedRow->EnemyClass.Get())
 		{
 			FVector SpawnLocation = GetRandomPointOnNavMesh();
-			return SpawnEnemy(ActualClass, SpawnLocation);
+			SpawnLocation = AdjustSpawnToGround(SpawnLocation);
+			SpawnEnemy(ActualClass, SpawnLocation);
 		}
 	}
 
@@ -120,3 +121,19 @@ FVector ATestEnemySpawnManager::GetRandomPointOnNavMesh() const
 
 }
 
+FVector ATestEnemySpawnManager::AdjustSpawnToGround(const FVector& StartLocation) const
+{
+	FHitResult Hit;
+	FVector Start = StartLocation + FVector(0.f, 0.f, 500.f); 
+	FVector End = StartLocation - FVector(0.f, 0.f, 2000.f); 
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+	{
+		return Hit.ImpactPoint; 
+	}
+
+	return StartLocation;
+}

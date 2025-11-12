@@ -14,4 +14,8 @@ class GRTEST_API ATestEnemySpawnGameMode : public AGameMode
 	
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	void Spawn();
+
 };

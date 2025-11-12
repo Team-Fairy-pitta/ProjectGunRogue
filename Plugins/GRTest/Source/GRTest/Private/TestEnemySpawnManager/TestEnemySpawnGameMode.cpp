@@ -2,14 +2,24 @@
 
 #include "TestEnemySpawnManager/TestEnemySpawnManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "NavigationSystem.h"
 
 void ATestEnemySpawnGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	if (NavSys)
+	{
+		NavSys->Build();
+	}
+
+}
+
+void ATestEnemySpawnGameMode::Spawn()
+{
 	TArray<AActor*> FoundVolumes;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATestEnemySpawnManager::StaticClass(), FoundVolumes);
-
 
 	const int32 ItemToSpawn = 50;
 
@@ -25,3 +35,5 @@ void ATestEnemySpawnGameMode::BeginPlay()
 		}
 	}
 }
+
+

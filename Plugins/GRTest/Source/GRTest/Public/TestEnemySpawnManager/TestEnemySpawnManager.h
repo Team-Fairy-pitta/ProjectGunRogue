@@ -30,5 +30,7 @@ protected:
 
 	FVector GetRandomPointOnNavMesh() const;
 
+	FVector AdjustSpawnToGround(const FVector& StartLocation) const;
+
 
 };
