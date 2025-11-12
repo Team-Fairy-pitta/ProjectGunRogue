@@ -1,5 +1,6 @@
 #include "GRGameplayAbility_Attack.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
@@ -82,13 +83,41 @@ void UGRGameplayAbility_Attack::FireLineTrace()
 		AActor* HitActor = HitResult.GetActor();
 		UE_LOG(LogTemp, Warning, TEXT("[Fire] Hit: %s"), *HitActor->GetName());
 
-		// AbilitySystemComponent 가져오기
-		IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(HitActor);
-		if (ASI)
+		// 피해량 공식 적용
+		// 타겟의 ASC 가져오기
+		IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(HitActor);
+		if (TargetASI)
 		{
-			UAbilitySystemComponent* TargetASC = ASI->GetAbilitySystemComponent();
-			if (TargetASC && DamageEffect)
+			UAbilitySystemComponent* TargetASC = TargetASI->GetAbilitySystemComponent();
+
+			// 공격자의 ASC 가져오기
+			IAbilitySystemInterface* SourceASI = Cast<IAbilitySystemInterface>(Character);
+			UAbilitySystemComponent* SourceASC = SourceASI ? SourceASI->GetAbilitySystemComponent() : nullptr;
+
+			if (TargetASC && SourceASC && DamageEffect)
 			{
+				// 1. 공격자의 CombatAttributeSet 가져오기
+				const UGRCombatAttributeSet* CombatSet = SourceASC->GetSet<UGRCombatAttributeSet>();
+				const UGRCombatAttributeSet* TargetCombatSet = TargetASC->GetSet<UGRCombatAttributeSet>();
+
+				float TargetReduction = TargetCombatSet ? TargetCombatSet->GetDamageReduction() : 0.0f;
+
+				// 2. 약점 판정 (임시: 10% 확률 - 향후 헤드샷 등으로 변경)
+				bool bIsCritical = FMath::RandRange(0.0f, 1.0f) < 0.1f;
+
+				// 3. 최종 피해량 계산
+				float CalculatedDamage = Damage;  // 기본값 (폴백)
+
+				if (CombatSet)
+				{
+					// 피해량 공식 적용
+					CalculatedDamage = CombatSet->CalculateFinalDamage(bIsCritical, TargetReduction);
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[Fire] No CombatAttributeSet - Using base damage: %.1f"), Damage);
+				}
+
 				// GameplayEffect 적용
 				FGameplayEffectContextHandle EffectContext = TargetASC->MakeEffectContext();
 				EffectContext.AddSourceObject(Character);
@@ -99,13 +128,30 @@ void UGRGameplayAbility_Attack::FireLineTrace()
 
 				if (SpecHandle.IsValid())
 				{
-					// Damage 값 설정
+					// 계산된 Damage 값 설정
 					SpecHandle.Data->SetSetByCallerMagnitude(
-						FGameplayTag::RequestGameplayTag(FName("Attribute.Data.Damage")), Damage);
+						FGameplayTag::RequestGameplayTag(FName("Attribute.Data.Damage")),
+						CalculatedDamage);
 
 					TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
-					UE_LOG(LogTemp, Log, TEXT("[Fire] Damage Applied: %.1f"), Damage);
+					// 로그 출력
+					UE_LOG(LogTemp, Log, TEXT("[Fire] Damage Applied: %.1f (Critical: %s, Target Reduction: %.2f)"),
+						CalculatedDamage,
+						bIsCritical ? TEXT("YES") : TEXT("NO"),
+						TargetReduction);
+
+					// 화면 출력
+					if (GEngine)
+					{
+						FString Message = FString::Printf(
+							TEXT("Damage: %.1f %s"),
+							CalculatedDamage,
+							bIsCritical ? TEXT("[CRITICAL!]") : TEXT("")
+						);
+						FColor Color = bIsCritical ? FColor::Yellow : FColor::White;
+						GEngine->AddOnScreenDebugMessage(-1, 2.0f, Color, Message);
+					}
 				}
 			}
 			else
