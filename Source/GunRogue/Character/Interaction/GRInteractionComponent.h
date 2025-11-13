@@ -13,9 +13,10 @@ class GUNROGUE_API UGRInteractionComponent : public UActorComponent
 public:
 	UGRInteractionComponent();
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
+	AActor* TraceForInteractable();
 
 protected:
-	void TraceForInteractable();
+	void FindInteractableActor();
 	void AddOutline(AActor* InActor);
 	void RemoveOutline(AActor* InActor);
 

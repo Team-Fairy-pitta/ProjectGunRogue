@@ -21,40 +21,24 @@ void UGRInteractionComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 
 	if (OwnerPawn->IsLocallyControlled())
 	{
-		TraceForInteractable();
+		FindInteractableActor();
 	}
 }
 
-void UGRInteractionComponent::TraceForInteractable()
+void UGRInteractionComponent::FindInteractableActor()
 {
-	AActor* Owner = GetOwner();
-	APawn* OwnerPawn = Cast<APawn>(Owner);
-	if (!IsValid(OwnerPawn))
+	AActor* HitActor = TraceForInteractable();
+	if (!IsValid(HitActor))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Owner of Component is NOT Pawn"));
+		if (FocusedActor)
+		{
+			RemoveOutline(FocusedActor);
+			FocusedActor = nullptr;
+		}
 		return;
 	}
 
-	AController* OwnerController = OwnerPawn->GetController();
-	if (!IsValid(OwnerController))
-	{
-		UE_LOG(LogTemp, Error, TEXT("OwnerController is INVALID"));
-		return;
-	}
-
-	FVector StartLocation;
-	FRotator CameraRotation;
-	OwnerController->GetPlayerViewPoint(StartLocation, CameraRotation);
-	FVector EndLocation = StartLocation + CameraRotation.Vector() * InteractionDistance;
-
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(Owner);
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
-	AActor* HitActor = bHit ? HitResult.GetActor() : nullptr;
 	IGRInteractableActor* InteractableActor = Cast<IGRInteractableActor>(HitActor);
-
 	if (InteractableActor)
 	{
 		if (HitActor != FocusedActor)
@@ -70,8 +54,7 @@ void UGRInteractionComponent::TraceForInteractable()
 			}
 		}
 	}
-
-	if (!bHit)
+	else
 	{
 		if (FocusedActor)
 		{
@@ -79,11 +62,37 @@ void UGRInteractionComponent::TraceForInteractable()
 			FocusedActor = nullptr;
 		}
 	}
+}
 
-#if WITH_EDITOR
-	FColor LineColor = bHit ? FColor::Green : FColor::Red;
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, LineColor, false, 0.1f, 0, 1.f);
-#endif
+AActor* UGRInteractionComponent::TraceForInteractable()
+{
+	AActor* Owner = GetOwner();
+	APawn* OwnerPawn = Cast<APawn>(Owner);
+	if (!IsValid(OwnerPawn))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Owner of Component is NOT Pawn"));
+		return nullptr;
+	}
+
+	AController* OwnerController = OwnerPawn->GetController();
+	if (!IsValid(OwnerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("OwnerController is INVALID"));
+		return nullptr;
+	}
+
+	FVector StartLocation;
+	FRotator CameraRotation;
+	OwnerController->GetPlayerViewPoint(StartLocation, CameraRotation);
+	FVector EndLocation = StartLocation + CameraRotation.Vector() * InteractionDistance;
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(Owner);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
+	AActor* HitActor = bHit ? HitResult.GetActor() : nullptr;
+	return HitActor;
 }
 
 void UGRInteractionComponent::AddOutline(AActor* InActor)
