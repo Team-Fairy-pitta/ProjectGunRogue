@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GRTitleHUDWidget.generated.h"
 
-class UGRTitleNavigationWidget;
+class UGRTitleMenuButtonWidget;
 /**
  * 
  */
@@ -17,5 +17,29 @@ class GUNROGUE_API UGRTitleHUDWidget : public UUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRTitleNavigationWidget* TitleNavigation;
+	UGRTitleMenuButtonWidget* StartGameButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UGRTitleMenuButtonWidget* CheckInvitationButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UGRTitleMenuButtonWidget* SetGameButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UGRTitleMenuButtonWidget* ExitGameButton;
+
+	virtual void NativeConstruct() override;
+
+private:
+	UFUNCTION()
+	void OnStartGameClicked();
+
+	UFUNCTION()
+	void OnCheckInvitationClicked();
+
+	UFUNCTION()
+	void OnSetGameClicked();
+
+	UFUNCTION()
+	void OnExitGameClicked();
 };

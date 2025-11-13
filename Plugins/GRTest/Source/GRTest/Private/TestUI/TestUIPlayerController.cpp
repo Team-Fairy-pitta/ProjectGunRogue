@@ -16,7 +16,8 @@
 #include "UI/TitleHUD/GRTitleHUDWidget.h"
 #include "UI/TitleHUD/GRInvitationHUDWidget.h"
 #include "UI/TitleHUD/SubWidgets/GRInvitationListWidget.h"
-
+#include "UI/TitleHUD/GRLobbyHUDWidget.h"
+#include "UI/TitleHUD/SubWidgets/GRLobbyPlayerListWidget.h"
 
 void ATestUIPlayerController::BeginPlay()
 {
@@ -33,67 +34,6 @@ void ATestUIPlayerController::BeginPlay()
 		}
 	}
 	
-	// if (BattleHUDClass)
-	// {
-	// 	BattleHUDWidget = CreateWidget<UGRBattleHUDWidget>(this, BattleHUDClass);
-	// 	if (BattleHUDWidget)
-	// 	{
-	// 		BattleHUDWidget->AddToViewport();
-	//
-	// 		if (UGRLevelStatusWidget* LevelStatusWidget = BattleHUDWidget->GetLevelStatusWidget())
-	// 		{
-	// 			LevelStatusWidget->SetCurrentLocText(FText::FromString(TEXT("구역 1-1")));
-	// 			LevelStatusWidget->SetDifficultyText(FText::FromString(TEXT("어려움")));
-	// 			LevelStatusWidget->SetPlayingTime(PlayingTimeSeconds);
-	// 		}
-	//
-	// 		if (UGRNotifyMessageWidget* NotifyMessageWidget = BattleHUDWidget->GetNotifyMessageWidget())
-	// 		{
-	// 			NotifyMessageWidget->SetNotifyMessage(FText::FromString(TEXT("Notify Message Part")));
-	// 		}
-	//
-	// 		if (UGRGoodsTextWidget* GoodsTextWidget = BattleHUDWidget->GetGoodsTextWidget())
-	// 		{
-	// 			GoodsTextWidget->SetGoodsNameText(FText::FromString(TEXT("Gold: ")));
-	// 			GoodsTextWidget->SetGoodsCountText(9900);
-	// 		}
-	//
-	// 		if (UGRTeamStatusListWidget* TeamStatusListWidget = BattleHUDWidget->GetTeamStatusListWidget())
-	// 		{
-	// 			TeamStatusListWidget->SetTeamShieldBar(0,50.0f, 100.0f);
-	// 			TeamStatusListWidget->SetTeamHPBar(0, 70.0f, 100.0f);
-	// 		}
-	//
-	// 		if (UGRPlayerStatusWidget* PlayerStatusWidget = BattleHUDWidget->GetPlayerStatusWidget())
-	// 		{
-	// 			PlayerStatusWidget->SetPlayerShieldBar(30.0f, 100.0f);
-	// 			PlayerStatusWidget->SetPlayerHPBar(70.0f, 100.0f);
-	// 		}
-	//
-	// 		if (UGRSkillListWidget* SkillListWidget = BattleHUDWidget->GetSkillListWidget())
-	// 		{
-	// 			if (UGRSkillSlotWidget* FirstSKillSlotWidget = SkillListWidget->GetFirstSkillSlot())
-	// 			{
-	// 				FirstSKillSlotWidget->SetSkillKey(FText::FromString("Q"));
-	// 				FirstSKillSlotWidget->SetSkillCountText(3);
-	// 			}
-	// 			if (UGRSkillSlotWidget* SecondSKillSlotWidget = SkillListWidget->GetSecondSkillSlot())
-	// 			{
-	// 				SecondSKillSlotWidget->SetSkillKey(FText::FromString("E"));
-	// 				SecondSKillSlotWidget->SetSkillCountText(5);
-	// 			}
-	// 			if (UGRSkillSlotWidget* ThirdSkillSlotWidget = SkillListWidget->GetThirdSkillSlot())
-	// 			{
-	// 				ThirdSkillSlotWidget->SetSkillKey(FText::FromString("Shift"));
-	// 				ThirdSkillSlotWidget->SetSkillCountText(0);
-	// 			}
-	// 		}
-	// 	}
-	// 	FInputModeGameOnly GameMode;
-	// 	SetInputMode(GameMode);
-	// 	bShowMouseCursor = false;
-	// }
-
 	GetWorldTimerManager().SetTimer(
 		PlayingTimeHandle,
 		this,
@@ -101,6 +41,67 @@ void ATestUIPlayerController::BeginPlay()
 		1.0f,
 		true
 	);
+}
+
+void ATestUIPlayerController::SetDefaultValueInBattleHUDWidget()
+{
+	if (!BattleHUDWidget)
+	{
+		return;
+	}
+	
+	if (UGRLevelStatusWidget* LevelStatusWidget = BattleHUDWidget->GetLevelStatusWidget())
+	{
+		LevelStatusWidget->SetCurrentLocText(FText::FromString(TEXT("구역 1-1")));
+		LevelStatusWidget->SetDifficultyText(FText::FromString(TEXT("어려움")));
+		LevelStatusWidget->SetPlayingTime(PlayingTimeSeconds);
+	}
+
+	if (UGRNotifyMessageWidget* NotifyMessageWidget = BattleHUDWidget->GetNotifyMessageWidget())
+	{
+		NotifyMessageWidget->SetNotifyMessage(FText::FromString(TEXT("Notify Message Part")));
+	}
+
+	if (UGRGoodsTextWidget* GoodsTextWidget = BattleHUDWidget->GetGoodsTextWidget())
+	{
+		GoodsTextWidget->SetGoodsNameText(FText::FromString(TEXT("Gold: ")));
+		GoodsTextWidget->SetGoodsCountText(9900);
+	}
+
+	if (UGRTeamStatusListWidget* TeamStatusListWidget = BattleHUDWidget->GetTeamStatusListWidget())
+	{
+		TeamStatusListWidget->SetTeamShieldBar(0,50.0f, 100.0f);
+		TeamStatusListWidget->SetTeamHPBar(0, 70.0f, 100.0f);
+	}
+
+	if (UGRPlayerStatusWidget* PlayerStatusWidget = BattleHUDWidget->GetPlayerStatusWidget())
+	{
+		PlayerStatusWidget->SetPlayerShieldBar(30.0f, 100.0f);
+		PlayerStatusWidget->SetPlayerHPBar(70.0f, 100.0f);
+	}
+
+	if (UGRSkillListWidget* SkillListWidget = BattleHUDWidget->GetSkillListWidget())
+	{
+		if (UGRSkillSlotWidget* FirstSKillSlotWidget = SkillListWidget->GetFirstSkillSlot())
+		{
+			FirstSKillSlotWidget->SetSkillKey(FText::FromString("Q"));
+			FirstSKillSlotWidget->SetSkillCountText(3);
+		}
+		if (UGRSkillSlotWidget* SecondSKillSlotWidget = SkillListWidget->GetSecondSkillSlot())
+		{
+			SecondSKillSlotWidget->SetSkillKey(FText::FromString("E"));
+			SecondSKillSlotWidget->SetSkillCountText(5);
+		}
+		if (UGRSkillSlotWidget* ThirdSkillSlotWidget = SkillListWidget->GetThirdSkillSlot())
+		{
+			ThirdSkillSlotWidget->SetSkillKey(FText::FromString("Shift"));
+			ThirdSkillSlotWidget->SetSkillCountText(0);
+		}
+	}
+	
+	FInputModeGameOnly GameMode;
+	SetInputMode(GameMode);
+	bShowMouseCursor = false;
 }
 
 void ATestUIPlayerController::HandleSkillInput(FName SkillKey)
@@ -191,6 +192,19 @@ void ATestUIPlayerController::CreateInvitationSlotInScrollBox()
 	if (UGRInvitationListWidget* InvitationListWidget = InvitationHUDWidget->GetInvitationListWidget())
 	{
 		InvitationListWidget->CreateInvitationSlot();
+	}
+}
+
+void ATestUIPlayerController::CreateLobbyPlayerSlotInVerticalBox()
+{
+	if (!LobbyHUDWidget)
+	{
+		return;
+	}
+
+	if (UGRLobbyPlayerListWidget* LobbyPlayerListWidget = LobbyHUDWidget->GetLobbyPlayerListWidget())
+	{
+		LobbyPlayerListWidget->CreateLobbyPlayerSlot();
 	}
 }
 

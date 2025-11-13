@@ -9,6 +9,7 @@
 class UGRBattleHUDWidget;
 class UGRTitleHUDWidget;
 class UGRInvitationHUDWidget;
+class UGRLobbyHUDWidget;
 class UInputMappingContext;
 class UInputAction;
 /**
@@ -37,12 +38,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
 	UInputAction* SkillAction_Shift = nullptr;
 
+	UFUNCTION(BlueprintCallable)
+	void SetDefaultValueInBattleHUDWidget();
+
 	UFUNCTION()
 	void HandleSkillInput(FName SkillKey);
 
 	UFUNCTION(BlueprintCallable)
 	void SelectWeaponSlot(int32 Index);
-
+	
 	UFUNCTION(BlueprintCallable)
 	void CreateBuffIconInWrapBox();
 
@@ -51,6 +55,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void CreateInvitationSlotInScrollBox();
+
+	UFUNCTION(BlueprintCallable)
+	void CreateLobbyPlayerSlotInVerticalBox();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
@@ -61,6 +68,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UGRInvitationHUDWidget> InvitationHUDClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UGRLobbyHUDWidget> LobbyHUDClass;
 	
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UGRBattleHUDWidget* BattleHUDWidget;
@@ -70,6 +80,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UGRInvitationHUDWidget* InvitationHUDWidget;
+
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UGRLobbyHUDWidget* LobbyHUDWidget;
 
 private:
 	FTimerHandle PlayingTimeHandle;
