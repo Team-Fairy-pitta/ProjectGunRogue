@@ -2,7 +2,6 @@
 
 
 #include "AI/GRAICharacter.h"
-#include "AI/GRAIController.h"
 #include "GameFramework/CharacterMovementComponent.h" 
 
 AGRAICharacter::AGRAICharacter()
@@ -29,13 +28,6 @@ AGRAICharacter::AGRAICharacter()
 void AGRAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	AGRAIController* AIController = Cast<AGRAIController>(GetController());
-    
-	if (AIController)
-	{
-		UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
-	}
 	
 }
 

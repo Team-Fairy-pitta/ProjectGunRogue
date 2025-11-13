@@ -59,9 +59,9 @@ EBTNodeResult::Type UGRBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 
 	StopMovement(GRAICon);
 
-	//Note : 공격 시 회전되도록 - 미완성
+	//NOTE : 실행이 제대로 안됨 추후 수정 또는 다른 방법 찾아보기
+	//TODO : 공격을 시작할 때 플레이어를 바라보도록 회전하게 하기
 	// AIPawn->bUseControllerRotationYaw = true;
-	//
 	// FVector AILocation = AIPawn->GetActorLocation();
 	// FVector TargetLocation = TargetChar->GetActorLocation();
 	// FRotator LookAtRot = (TargetLocation - AILocation).Rotation();
@@ -108,12 +108,12 @@ void UGRBTTask_Attack::StopMovement(AAIController* AIController)
 		{
 			if (UCharacterMovementComponent* MoveComp = AIPawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
-				UE_LOG(LogTemp,Warning,TEXT("AI Attack : Stopping Movement"));
-				
+				UE_LOG(LogTemp, Warning, TEXT("AI Attack : Stopping Movement"));
+
+				// NOTE : 둘 중 어느 것을 써야할지 아직 못 정함.
+				// TODO : 동작을 멈출 경우 회전도 같이 못하게 막혀있는 것인지, 확인해보기
 				//MoveComp->StopMovementImmediately();
 				//MoveComp->DisableMovement();
-
-				// NOTE : 이것도 회전이 적용되지 않는지 아직 의문.
 				MoveComp->SetMovementMode(MOVE_None);
 			}
 		}
@@ -129,7 +129,7 @@ void UGRBTTask_Attack::ResumeMovement(AAIController* AIController)
 		{
 			if (UCharacterMovementComponent* MoveComp = AIPawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
-				UE_LOG(LogTemp,Warning,TEXT("AI Attack : Resuming Movement"));
+				UE_LOG(LogTemp, Warning, TEXT("AI Attack : Resuming Movement"));
 				
 				MoveComp->SetMovementMode(MOVE_Walking);
 				MoveComp->Activate();

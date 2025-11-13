@@ -17,7 +17,7 @@ UGRBTTask_KeepDistance::UGRBTTask_KeepDistance()
 {
 	NodeName=TEXT("Keep Distance");
 
-	bNotifyTick = true;    
+	bNotifyTick = true;
 	bCreateNodeInstance = true;
 	bNotifyTaskFinished = true;
 }
@@ -81,7 +81,7 @@ EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& 
 	}
 	else
 	{
-		DesiredLocation = AILocation;;
+		DesiredLocation = AILocation;
 	}
 
 	ACharacter* AICharacter = Cast<ACharacter>(AIPawn);
