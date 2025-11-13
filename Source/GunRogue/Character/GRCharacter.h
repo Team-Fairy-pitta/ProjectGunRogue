@@ -51,4 +51,25 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> CameraComponent;
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
+	void SpectateNextPlayer();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
+	void SpectatePreviousPlayer();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
+	void ResetSpectatePlayer();
+	
+	UFUNCTION(BlueprintCallable, Category = "Spectate")
+	void CallSpectateNextPlayer();
+	
+	UFUNCTION(BlueprintCallable, Category = "Spectate")
+	void CallSpectatePreviousPlayer();
+	
+	UFUNCTION(BlueprintCallable, Category = "Spectate")
+	void CallResetSpectatePlayer();
+
+	UFUNCTION(BlueprintCallable, Category = "Spectate")
+	bool IsTargetDead(ACharacter* TargetCharacter) const;
 };
