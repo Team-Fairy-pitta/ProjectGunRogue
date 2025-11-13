@@ -4,6 +4,7 @@
 #include "TestEnemySpawnRow.h"
 #include "TestEnemySpawnManager.generated.h"
 
+class UBoxComponent;
 
 UCLASS()
 class GRTEST_API ATestEnemySpawnManager : public AActor
@@ -18,6 +19,13 @@ public:
 
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
+	USceneComponent* Scene;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
+	UBoxComponent* SpawningBox;
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
 	UDataTable* EnemyDataTable;
 
@@ -26,11 +34,10 @@ protected:
 
 	FTestEnemySpawnRow* GetRandomEnemy() const;
 
-	AActor* SpawnEnemy(TSubclassOf<AActor> EnemyClass, const FVector& Location);
+	AActor* SpawnEnemy(TSubclassOf<AActor> EnemyClass);
 
-	FVector GetRandomPointOnNavMesh() const;
+	FVector GetRandomPointInVolume() const;
 
 	FVector AdjustSpawnToGround(const FVector& StartLocation) const;
-
 
 };
