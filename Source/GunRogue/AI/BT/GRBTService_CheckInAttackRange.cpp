@@ -14,7 +14,7 @@ UGRBTService_CheckInAttackRange::UGRBTService_CheckInAttackRange()
 	NodeName = TEXT("Check In Attack Range");
 
 	Interval = 0.5f;
-	RandomDeviation = 0.2f;
+	RandomDeviation = 0.0f;
 }
 
 void UGRBTService_CheckInAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
