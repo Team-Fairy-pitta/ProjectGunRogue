@@ -37,4 +37,25 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UGRInputHandleComponent> InputHandleComponent;
+
+	// 블루프린트 구현 전용
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
+	void SpectateNextPlayer();
+	// 블루프린트 구현 전용
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
+	void SpectatePreviousPlayer();
+	// 블루프린트 구현 전용
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
+	void ResetSpectatePlayer();
+	
+	// 테스트용 함수
+	UFUNCTION(BlueprintCallable, Category = "Spectate")
+	void CallSpectateNextPlayer();
+	// 테스트용 함수
+	UFUNCTION(BlueprintCallable, Category = "Spectate")
+	void CallSpectatePreviousPlayer();
+	// 테스트용 함수
+	UFUNCTION(BlueprintCallable, Category = "Spectate")
+	void CallResetSpectatePlayer();
+	
 };

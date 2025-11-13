@@ -54,3 +54,18 @@ UAbilitySystemComponent* AGRCharacter::GetAbilitySystemComponent() const
 		return nullptr;
 	}
 }
+
+void AGRCharacter::CallSpectateNextPlayer()
+{
+	SpectateNextPlayer();
+}
+
+void AGRCharacter::CallSpectatePreviousPlayer()
+{
+	SpectatePreviousPlayer();
+}
+
+void AGRCharacter::CallResetSpectatePlayer()
+{
+	ResetSpectatePlayer();
+}
