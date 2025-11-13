@@ -2,7 +2,7 @@
 
 
 #include "GRGoodsTextWidget.h"
-#include "UI/Common/GRBaseTextWidget.h"
+#include "Components/TextBlock.h"
 
 void UGRGoodsTextWidget::SetGoodsNameText(const FText& InText)
 {

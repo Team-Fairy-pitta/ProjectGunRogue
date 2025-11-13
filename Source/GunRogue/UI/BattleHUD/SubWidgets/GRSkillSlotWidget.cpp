@@ -4,7 +4,7 @@
 #include "GRSkillSlotWidget.h"
 
 #include "Components/ProgressBar.h"
-#include "UI/Common/GRBaseTextWidget.h"
+#include "Components/TextBlock.h"
 
 void UGRSkillSlotWidget::SetSkillCountText(int32 InCount)
 {
