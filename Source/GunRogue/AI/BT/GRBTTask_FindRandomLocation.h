@@ -20,9 +20,12 @@ public:
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
+public:
+	static const FName FindRandomLocationKey;
+	static const FName IsExistPatrolEndLocationKey;
+	static const FName PatrolEndLocationKey;
+
 private:
-	static const FName PatrolRandomLocationKey;
-	
 	UPROPERTY(EditAnywhere, Category = "Patrol",meta=(AllowPrivateAccess="true"))
 	float MinRadius;
 

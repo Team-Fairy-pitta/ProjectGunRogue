@@ -13,6 +13,7 @@
 const FName AGRAIController::TargetPlayerKey="TargetPlayer";
 const FName AGRAIController::IsPlayerDetectedKey="IsPlayerDetected";
 const FName AGRAIController::LastPlayerLocationKey="LastPlayerLocation";
+const FName AGRAIController::PatrolStartLocationKey="PatrolStartLocation";
 
 AGRAIController::AGRAIController()
 	:BehaviorTreeAsset(nullptr)
@@ -58,6 +59,11 @@ void AGRAIController::OnPossess(APawn* InPawn)
 			BlackboardComp->InitializeBlackboard(*BlackboardAsset);
 		}
 		RunBehaviorTree(BehaviorTreeAsset);
+	}
+
+	if (BlackboardComp)
+	{
+		BlackboardComp->SetValueAsVector(PatrolStartLocationKey,InPawn->GetActorLocation());
 	}
 }
 
