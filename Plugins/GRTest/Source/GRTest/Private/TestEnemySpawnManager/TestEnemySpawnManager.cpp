@@ -1,132 +1,71 @@
 #include "TestEnemySpawnManager/TestEnemySpawnManager.h"
 
-#include "Components/BoxComponent.h"
-
-
-
+#include "TestEnemySpawnManager/TestEnemySpawner.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
 
 ATestEnemySpawnManager::ATestEnemySpawnManager()
 {
- 	
 	PrimaryActorTick.bCanEverTick = false;
-
-	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
-	SetRootComponent(Scene);
-
-	SpawningBox = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawningBox"));
-	SpawningBox->SetupAttachment(Scene);
-
-
-	EnemyDataTable = nullptr;
-}
-
-AActor* ATestEnemySpawnManager::SpawnRandomEnemy()
-{
-	if (FTestEnemySpawnRow* SelectedRow = GetRandomEnemy())
-	{
-		if (UClass* ActualClass = SelectedRow->EnemyClass.Get())
-		{
-			return SpawnEnemy(ActualClass);
-
-		}
-	}
-
-	return nullptr;
-
 }
 
 void ATestEnemySpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (bAutoFindSpawners)
+	{
+		FindAllSpawners();
+	}
+
+	SpawnAllEnemies();
+}
+
+void ATestEnemySpawnManager::SpawnAllEnemies()
+{
+	for (const FSpawnInfo& Info : Spawners)
+	{
+		if (!IsValid(Info.Spawner))
+		{
+			continue;
+		}
+
+		for (int32 i = 0; i < Info.SpawnCount; ++i)
+		{
+			AActor* SpawnedEnemy = Info.Spawner->SpawnRandomEnemy();
+		}
+	}
 	
 }
 
-FTestEnemySpawnRow* ATestEnemySpawnManager::GetRandomEnemy() const
+void ATestEnemySpawnManager::FindAllSpawners()
 {
-	if (!EnemyDataTable)
-	{
-		return nullptr;
-	}
+	TArray<AActor*> FoundSpawners;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATestEnemySpawner::StaticClass(), FoundSpawners);
 
-	TArray<FTestEnemySpawnRow*> AllRows;
-	static const FString ContextString(TEXT("EnemySpawnContext"));
-	EnemyDataTable->GetAllRows(ContextString, AllRows);
-
-	if (AllRows.IsEmpty())
+	TSet<ATestEnemySpawner*> ExistingSpawners;
+	for (const FSpawnInfo& Info : Spawners)
 	{
-		return nullptr;
-	}
-
-	float TotalChance = 0.0f; 
-	for (const FTestEnemySpawnRow* Row : AllRows) 
-	{
-		if (Row) 
+		if (IsValid(Info.Spawner))
 		{
-			TotalChance += Row->SpawnChance; 
+			ExistingSpawners.Add(Info.Spawner);
 		}
 	}
 
-
-	const float RandValue = FMath::FRandRange(0.0f, TotalChance);
-	float AccumulateChance = 0.0f;
-
-	for (FTestEnemySpawnRow* Row : AllRows)
+	for (AActor* Actor : FoundSpawners)
 	{
-		AccumulateChance += Row->SpawnChance;
-		if (RandValue <= AccumulateChance)
+		ATestEnemySpawner* Spawner = Cast<ATestEnemySpawner>(Actor);
+		if (Spawner && !ExistingSpawners.Contains(Spawner))
 		{
-			return Row;
+			FSpawnInfo Info;
+			Info.Spawner = Spawner;
+			Info.SpawnCount = 5; 
+			Spawners.Add(Info);
 		}
 	}
-
-
-	return nullptr;
-}
-
-AActor* ATestEnemySpawnManager::SpawnEnemy(TSubclassOf<AActor> EnemyClass)
-{
-	if (!EnemyClass)
-	{
-		return nullptr;
-	}
-
-	AActor* SpwanedActor = GetWorld()->SpawnActor<AActor>(
-		EnemyClass,
-		AdjustSpawnToGround(GetRandomPointInVolume()),
-		FRotator::ZeroRotator
-	);
-
-	return SpwanedActor;
-
-
-}
-
-FVector ATestEnemySpawnManager::GetRandomPointInVolume() const
-{
-	FVector BoxExtent = SpawningBox->GetScaledBoxExtent();
-	FVector BoxOrigin = SpawningBox->GetComponentLocation();
-
-	return BoxOrigin + FVector(
-		FMath::FRandRange(-BoxExtent.X, BoxExtent.X),
-		FMath::FRandRange(-BoxExtent.Y, BoxExtent.Y),
-		BoxExtent.Z
-	);
 }
 
 
-FVector ATestEnemySpawnManager::AdjustSpawnToGround(const FVector& StartLocation) const
-{
-	FHitResult Hit;
-	FVector Start = StartLocation + FVector(0.f, 0.f, 500.f); 
-	FVector End = StartLocation - FVector(0.f, 0.f, 2000.f); 
 
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
 
-	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
-	{
-		return Hit.ImpactPoint; 
-	}
 
-	return StartLocation;
-}

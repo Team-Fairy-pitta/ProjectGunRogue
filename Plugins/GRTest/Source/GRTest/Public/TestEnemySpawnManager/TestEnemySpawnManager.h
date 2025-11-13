@@ -1,10 +1,19 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "TestEnemySpawnRow.h"
 #include "TestEnemySpawnManager.generated.h"
 
-class UBoxComponent;
+USTRUCT(BlueprintType)
+struct FSpawnInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+	class ATestEnemySpawner* Spawner = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+	int32 SpawnCount = 1;
+};
 
 UCLASS()
 class GRTEST_API ATestEnemySpawnManager : public AActor
@@ -14,30 +23,19 @@ class GRTEST_API ATestEnemySpawnManager : public AActor
 public:	
 	ATestEnemySpawnManager();
 
-	UFUNCTION(BlueprintCallable, Category = "Spawning")
-	AActor* SpawnRandomEnemy();
+	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	void SpawnAllEnemies();
 
-
-public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
-	USceneComponent* Scene;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
-	UBoxComponent* SpawningBox;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
-	UDataTable* EnemyDataTable;
+	void FindAllSpawners();
 
 protected:
 	virtual void BeginPlay() override;
 
-	FTestEnemySpawnRow* GetRandomEnemy() const;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+	TArray<FSpawnInfo> Spawners;
 
-	AActor* SpawnEnemy(TSubclassOf<AActor> EnemyClass);
-
-	FVector GetRandomPointInVolume() const;
-
-	FVector AdjustSpawnToGround(const FVector& StartLocation) const;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+	bool bAutoFindSpawners = true;
 
 };

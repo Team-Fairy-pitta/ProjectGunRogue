@@ -1,6 +1,6 @@
 #include "TestEnemySpawnManager/TestEnemySpawnGameMode.h"
 
-#include "TestEnemySpawnManager/TestEnemySpawnManager.h"
+#include "TestEnemySpawnManager/TestEnemySpawner.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavigationSystem.h"
 
@@ -19,7 +19,7 @@ void ATestEnemySpawnGameMode::BeginPlay()
 void ATestEnemySpawnGameMode::Spawn()
 {
 	TArray<AActor*> FoundVolumes;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATestEnemySpawnManager::StaticClass(), FoundVolumes);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATestEnemySpawner::StaticClass(), FoundVolumes);
 
 	const int32 ItemToSpawn = 50;
 
@@ -27,7 +27,7 @@ void ATestEnemySpawnGameMode::Spawn()
 	{
 		if (FoundVolumes.Num() > 0)
 		{
-			ATestEnemySpawnManager* SpawnVolume = Cast<ATestEnemySpawnManager>(FoundVolumes[0]);
+			ATestEnemySpawner* SpawnVolume = Cast<ATestEnemySpawner>(FoundVolumes[0]);
 			if (SpawnVolume)
 			{
 				AActor* SpawnedActor = SpawnVolume->SpawnRandomEnemy();

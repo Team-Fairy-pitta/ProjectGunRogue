@@ -1,11 +1,9 @@
-#include "TestEnemySpawnManager/TestEnemySpawnManager.h"
+#include "TestEnemySpawnManager/TestEnemySpawner.h"
 
 #include "Components/BoxComponent.h"
 
 
-
-
-ATestEnemySpawnManager::ATestEnemySpawnManager()
+ATestEnemySpawner::ATestEnemySpawner()
 {
  	
 	PrimaryActorTick.bCanEverTick = false;
@@ -20,12 +18,13 @@ ATestEnemySpawnManager::ATestEnemySpawnManager()
 	EnemyDataTable = nullptr;
 }
 
-AActor* ATestEnemySpawnManager::SpawnRandomEnemy()
+AActor* ATestEnemySpawner::SpawnRandomEnemy()
 {
-	if (FTestEnemySpawnRow* SelectedRow = GetRandomEnemy())
+ 	if (FTestEnemySpawnRow* SelectedRow = GetRandomEnemy())
 	{
 		if (UClass* ActualClass = SelectedRow->EnemyClass.Get())
 		{
+			UE_LOG(LogTemp, Error, TEXT("EnemySpawn"));
 			return SpawnEnemy(ActualClass);
 
 		}
@@ -35,13 +34,7 @@ AActor* ATestEnemySpawnManager::SpawnRandomEnemy()
 
 }
 
-void ATestEnemySpawnManager::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-FTestEnemySpawnRow* ATestEnemySpawnManager::GetRandomEnemy() const
+FTestEnemySpawnRow* ATestEnemySpawner::GetRandomEnemy() const
 {
 	if (!EnemyDataTable)
 	{
@@ -83,7 +76,7 @@ FTestEnemySpawnRow* ATestEnemySpawnManager::GetRandomEnemy() const
 	return nullptr;
 }
 
-AActor* ATestEnemySpawnManager::SpawnEnemy(TSubclassOf<AActor> EnemyClass)
+AActor* ATestEnemySpawner::SpawnEnemy(TSubclassOf<AActor> EnemyClass)
 {
 	if (!EnemyClass)
 	{
@@ -101,7 +94,7 @@ AActor* ATestEnemySpawnManager::SpawnEnemy(TSubclassOf<AActor> EnemyClass)
 
 }
 
-FVector ATestEnemySpawnManager::GetRandomPointInVolume() const
+FVector ATestEnemySpawner::GetRandomPointInVolume() const
 {
 	FVector BoxExtent = SpawningBox->GetScaledBoxExtent();
 	FVector BoxOrigin = SpawningBox->GetComponentLocation();
@@ -114,7 +107,7 @@ FVector ATestEnemySpawnManager::GetRandomPointInVolume() const
 }
 
 
-FVector ATestEnemySpawnManager::AdjustSpawnToGround(const FVector& StartLocation) const
+FVector ATestEnemySpawner::AdjustSpawnToGround(const FVector& StartLocation) const
 {
 	FHitResult Hit;
 	FVector Start = StartLocation + FVector(0.f, 0.f, 500.f); 
