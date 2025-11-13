@@ -2,16 +2,16 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/GRGameplayAbility.h"
-#include "GRGameplayAbility_Attack.generated.h"
+#include "GRGameplayAbility_HitscanAttack.generated.h"
 
 class UGameplayEffect;
 
 UCLASS()
-class GUNROGUE_API UGRGameplayAbility_Attack : public UGRGameplayAbility
+class GUNROGUE_API UGRGameplayAbility_HitscanAttack : public UGRGameplayAbility
 {
 	GENERATED_BODY()
 
-	UGRGameplayAbility_Attack();
+	UGRGameplayAbility_HitscanAttack();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,

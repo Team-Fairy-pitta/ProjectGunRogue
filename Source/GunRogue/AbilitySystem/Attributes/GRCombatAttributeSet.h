@@ -23,56 +23,56 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// 무기 기본 공격력
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon", ReplicatedUsing = OnRep_WeaponBaseDamage)
-	FGameplayAttributeData WeaponBaseDamage;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponBaseDamage)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|WeaponDamage", ReplicatedUsing = OnRep_WeaponDamage_Base)
+	FGameplayAttributeData WeaponDamage_Base;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponDamage_Base)
 
 	// 무기 공격력 증가 (Flat Addition)
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon", ReplicatedUsing = OnRep_WeaponDamageIncrease)
-	FGameplayAttributeData WeaponDamageIncrease;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponDamageIncrease)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|WeaponDamage", ReplicatedUsing = OnRep_WeaponDamage_Additive)
+	FGameplayAttributeData WeaponDamage_Additive;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponDamage_Additive)
 
 	// 무기 공격력 증폭 (Multiplier)
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon", ReplicatedUsing = OnRep_WeaponDamageMultiplier)
-	FGameplayAttributeData WeaponDamageMultiplier;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponDamageMultiplier)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|WeaponDamage", ReplicatedUsing = OnRep_WeaponDamage_Multiplicative)
+	FGameplayAttributeData WeaponDamage_Multiplicative;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponDamage_Multiplicative)
 
 
 	// 기본 약점 배율
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_BaseCriticalMultiplier)
-	FGameplayAttributeData BaseCriticalMultiplier;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, BaseCriticalMultiplier)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_WeaponCriticalMultiplier_Base)
+	FGameplayAttributeData WeaponCriticalMultiplier_Base;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponCriticalMultiplier_Base)
 
 	// 약점 배율 증폭
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_CriticalMultiplierAmplify)
-	FGameplayAttributeData CriticalMultiplierAmplify;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, CriticalMultiplierAmplify)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_WeaponCriticalMultiplier_Multiplicative)
+	FGameplayAttributeData WeaponCriticalMultiplier_Multiplicative;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponCriticalMultiplier_Multiplicative)
 
 	// 약점 배율 추가 증가
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_CriticalMultiplierAdditional)
-	FGameplayAttributeData CriticalMultiplierAdditional;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, CriticalMultiplierAdditional)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_WeaponCriticalMultiplier_Bonus)
+	FGameplayAttributeData WeaponCriticalMultiplier_Bonus;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponCriticalMultiplier_Bonus)
 
 	// 일반 배율 (약점이 아닐 때)
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_NormalMultiplier)
-	FGameplayAttributeData NormalMultiplier;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, NormalMultiplier)
+		UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_WeaponNormalMultiplier_Multiplicative)
+	FGameplayAttributeData WeaponNormalMultiplier_Multiplicative;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponNormalMultiplier_Multiplicative)
 
 
 	// 최종 피해 배율 증가
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|FinalDamage", ReplicatedUsing = OnRep_FinalDamageIncrease)
-	FGameplayAttributeData FinalDamageIncrease;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, FinalDamageIncrease)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|FinalDamage", ReplicatedUsing = OnRep_FinalDamage_Additive)
+	FGameplayAttributeData FinalDamage_Additive;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, FinalDamage_Additive)
 
 	// 최종 피해 배율 증폭
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|FinalDamage", ReplicatedUsing = OnRep_FinalDamageMultiplier)
-	FGameplayAttributeData FinalDamageMultiplier;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, FinalDamageMultiplier)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|FinalDamage", ReplicatedUsing = OnRep_FinalDamage_Multiplicative)
+	FGameplayAttributeData FinalDamage_Multiplicative;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, FinalDamage_Multiplicative)
 
 	// 최종 피해 배율 추가 증가
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|FinalDamage", ReplicatedUsing = OnRep_FinalDamageAdditional)
-	FGameplayAttributeData FinalDamageAdditional;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, FinalDamageAdditional)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|FinalDamage", ReplicatedUsing = OnRep_FinalDamage_Bonus)
+	FGameplayAttributeData FinalDamage_Bonus;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, FinalDamage_Bonus)
 
 
 	// 피해 감소 배율 (적용 시)
@@ -86,39 +86,49 @@ public:
 	FGameplayAttributeData IsCriticalHit;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, IsCriticalHit)
 
-	// 최종 피해 계산
-	float CalculateFinalDamage(bool bIsCritical, float TargetDamageReduction) const;
+
+	// 무기 데미지 계산 (무기 공격력만)
+	float CalculateWeaponDamage() const;
+
+	// 약점 배율 계산
+	float CalculateCriticalMultiplier(bool bIsCritical) const;
+
+	// 최종 피해 배율 계산
+	float CalculateFinalDamageMultiplier() const;
+
+	// 최종 데미지 계산 (모든 요소 통합)
+	float CalculateFinalWeaponDamage(bool bIsCritical, float TargetDamageReduction) const;
 
 protected:
 	UFUNCTION()
-	virtual void OnRep_WeaponBaseDamage(const FGameplayAttributeData& OldWeaponBaseDamage);
+	virtual void OnRep_WeaponDamage_Base(const FGameplayAttributeData& OldWeaponDamageBase);
 
 	UFUNCTION()
-	virtual void OnRep_WeaponDamageIncrease(const FGameplayAttributeData& OldWeaponDamageIncrease);
+	virtual void OnRep_WeaponDamage_Additive(const FGameplayAttributeData& OldWeaponDamageAdditive);
 
 	UFUNCTION()
-	virtual void OnRep_WeaponDamageMultiplier(const FGameplayAttributeData& OldWeaponDamageMultiplier);
+	virtual void OnRep_WeaponDamage_Multiplicative(const FGameplayAttributeData& OldWeaponDamageMultiplicative);
 
 	UFUNCTION()
-	virtual void OnRep_BaseCriticalMultiplier(const FGameplayAttributeData& OldBaseCriticalMultiplier);
+	virtual void OnRep_WeaponCriticalMultiplier_Base(const FGameplayAttributeData& OldWeaponCriticalMultiplierBase);
 
 	UFUNCTION()
-	virtual void OnRep_CriticalMultiplierAmplify(const FGameplayAttributeData& OldCriticalMultiplierAmplify);
+	virtual void OnRep_WeaponCriticalMultiplier_Multiplicative(const FGameplayAttributeData& OldWeaponCriticalMultiplierMultiplicative);
 
 	UFUNCTION()
-	virtual void OnRep_CriticalMultiplierAdditional(const FGameplayAttributeData& OldCriticalMultiplierAdditional);
+	virtual void OnRep_WeaponCriticalMultiplier_Bonus(const FGameplayAttributeData& OldWeaponCriticalMultiplierBonus);
 
 	UFUNCTION()
-	virtual void OnRep_NormalMultiplier(const FGameplayAttributeData& OldNormalMultiplier);
+	virtual void OnRep_WeaponNormalMultiplier_Multiplicative(const FGameplayAttributeData& OldWeaponNormalMultiplierMultiplicative);
 
 	UFUNCTION()
-	virtual void OnRep_FinalDamageIncrease(const FGameplayAttributeData& OldFinalDamageIncrease);
+	virtual void OnRep_FinalDamage_Additive(const FGameplayAttributeData& OldFinalDamageAdditive);
 
 	UFUNCTION()
-	virtual void OnRep_FinalDamageMultiplier(const FGameplayAttributeData& OldFinalDamageMultiplier);
+	virtual void OnRep_FinalDamage_Multiplicative(const FGameplayAttributeData& OldFinalDamageMultiplicative);
 
 	UFUNCTION()
-	virtual void OnRep_FinalDamageAdditional(const FGameplayAttributeData& OldFinalDamageAdditional);
+	virtual void OnRep_FinalDamage_Bonus(const FGameplayAttributeData& OldFinalDamageBonus);
 
 	UFUNCTION()
 	virtual void OnRep_DamageReduction(const FGameplayAttributeData& OldDamageReduction);
