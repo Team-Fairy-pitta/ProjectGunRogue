@@ -21,18 +21,36 @@ void UGRInteractionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	{
 		if (!CommitAbility(Handle, OwnerInfo, ActivationInfo))
 		{
+			EndAbility(Handle, OwnerInfo, ActivationInfo, true, false);
 			return;
 		}
+
+		if (!OwnerInfo)
+		{
+			UE_LOG(LogTemp, Error, TEXT("OwnerInfo is INVALID"));
+			EndAbility(Handle, OwnerInfo, ActivationInfo, true, false);
+			return;
+		}
+
+		if (!OwnerInfo->AvatarActor.IsValid())
+		{
+			UE_LOG(LogTemp, Error, TEXT("OwnerInfo->AvatarActor is INVALID"));
+			EndAbility(Handle, OwnerInfo, ActivationInfo, true, false);
+			return;
+		}
+
+		AActor* Avartar = OwnerInfo->AvatarActor.Get();
 		
 		AActor* HitActor = TraceForInteractable(OwnerInfo);
 		IGRInteractableActor* InteractableActor = Cast<IGRInteractableActor>(HitActor);
 		if (!InteractableActor)
 		{
 			UE_LOG(LogTemp, Error, TEXT("HitActor is NOT IGRInteractableActor"));
+			EndAbility(Handle, OwnerInfo, ActivationInfo, true, false);
 			return;
 		}
 
-		HitActor->Destroy();
+		InteractableActor->InteractWith(Avartar);
 
 		EndAbility(Handle, OwnerInfo, ActivationInfo, true, false);
 	}

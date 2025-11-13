@@ -15,4 +15,5 @@ class IGRInteractableActor
 
 public:
 	virtual TArray<TObjectPtr<UStaticMeshComponent>> GetMeshComponents() = 0;
+	virtual void InteractWith(AActor* OtherActor) = 0;
 };
