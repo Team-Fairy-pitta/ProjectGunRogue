@@ -3,6 +3,8 @@
 #include "Player/GRPlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 AGRCharacter::AGRCharacter()
 {
@@ -68,4 +70,30 @@ void AGRCharacter::CallSpectatePreviousPlayer()
 void AGRCharacter::CallResetSpectatePlayer()
 {
 	ResetSpectatePlayer();
+}
+
+bool AGRCharacter::CheckTargetDeath(ACharacter* TargetCharacter) const
+{
+	if (!IsValid(TargetCharacter))
+	{
+		return false;
+	}
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(TargetCharacter);
+	const UAbilitySystemComponent* TargetASC = nullptr;
+
+	if (ASCInterface)
+	{
+		TargetASC = ASCInterface->GetAbilitySystemComponent();
+	}
+
+	if (const UAbilitySystemComponent* TargetASC = TargetCharacter->GetAbilitySystemComponent())
+	{
+		if (const UGRHealthAttributeSet* HealthSet = Cast<UGRHealthAttributeSet>(TargetASC->GetAttributeSet(UGRHealthAttributeSet::StaticClass())))
+		{
+			return HealthSet->GetHealth() <= 0.0f;
+		}
+	}
+
+	
+	return false;
 }

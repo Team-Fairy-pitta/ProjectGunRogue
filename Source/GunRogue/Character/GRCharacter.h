@@ -57,5 +57,8 @@ public:
 	// 테스트용 함수
 	UFUNCTION(BlueprintCallable, Category = "Spectate")
 	void CallResetSpectatePlayer();
+
+	UFUNCTION(BlueprintCallable, Category = "Spectate")
+	bool CheckTargetDeath(ACharacter* TargetCharacter) const;
 	
 };
