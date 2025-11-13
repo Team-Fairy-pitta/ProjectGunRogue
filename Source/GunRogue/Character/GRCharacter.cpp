@@ -1,21 +1,38 @@
 #include "Character/GRCharacter.h"
 #include "Character/GRInputHandleComponent.h"
+#include "Character/Interaction/GRInteractionComponent.h"
 #include "Player/GRPlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
+
 
 AGRCharacter::AGRCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	InputHandleComponent = CreateDefaultSubobject<UGRInputHandleComponent>(TEXT("InputHandleComponent"));
+	InteractionComponent = CreateDefaultSubobject<UGRInteractionComponent>(TEXT("GRInteractionComponent"));
+
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	SpringArmComponent->SetupAttachment(RootComponent);
+	SpringArmComponent->bUsePawnControlRotation = true;
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	CameraComponent->SetupAttachment(SpringArmComponent);
 }
 
 void AGRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AGRCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
 }
 
 void AGRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
