@@ -72,7 +72,7 @@ void AGRCharacter::CallResetSpectatePlayer()
 	ResetSpectatePlayer();
 }
 
-bool AGRCharacter::CheckTargetDeath(ACharacter* TargetCharacter) const
+bool AGRCharacter::IsTargetDead(ACharacter* TargetCharacter) const
 {
 	if (!IsValid(TargetCharacter))
 	{
