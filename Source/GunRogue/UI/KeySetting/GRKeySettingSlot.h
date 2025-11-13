@@ -20,7 +20,7 @@ public:
 	virtual void NativeConstruct() override;
 
 	void SetKeyMapping(const FPlayerKeyMapping& InMapping);
-	void SetParrentWidget(UGRKeySettingWidget* InParrentWidget);
+	void SetParentWidget(UGRKeySettingWidget* InParentWidget);
 
 protected:
 	void SetMappingName(const FName& InName);
@@ -45,7 +45,7 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> ClearButton;
 
-	TWeakObjectPtr<UGRKeySettingWidget> ParrentWidget;
+	TWeakObjectPtr<UGRKeySettingWidget> ParentWidget;
 
 private:
 	UFUNCTION()

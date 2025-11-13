@@ -36,7 +36,7 @@ void UGRKeySettingCategory::AddMappings(const TArray<FPlayerKeyMapping>& InMappi
 		if (NewSlot)
 		{
 			NewSlot->SetKeyMapping(Mapping);
-			NewSlot->SetParrentWidget(InParentWidget);
+			NewSlot->SetParentWidget(InParentWidget);
 
 			MappingsVerticalBox->AddChild(NewSlot);
 		}

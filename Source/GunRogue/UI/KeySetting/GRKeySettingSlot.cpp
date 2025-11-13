@@ -41,9 +41,9 @@ void UGRKeySettingSlot::SetKeyMapping(const FPlayerKeyMapping& InMapping)
 	SetDefaultButtonVisibility(Mapping.GetCurrentKey());
 }
 
-void UGRKeySettingSlot::SetParrentWidget(UGRKeySettingWidget* InParrentWidget)
+void UGRKeySettingSlot::SetParentWidget(UGRKeySettingWidget* InParentWidget)
 {
-	ParrentWidget = InParrentWidget;
+	ParentWidget = InParentWidget;
 }
 
 void UGRKeySettingSlot::SetMappingName(const FName& InName)
@@ -93,9 +93,9 @@ void UGRKeySettingSlot::SetDefaultButtonVisibility(const FKey& InCurrentKey)
 
 void UGRKeySettingSlot::NotifyToParent(const FKey& NewKey)
 {
-	if (ParrentWidget.IsValid())
+	if (ParentWidget.IsValid())
 	{
-		UGRKeySettingWidget* Parent = ParrentWidget.Get();
+		UGRKeySettingWidget* Parent = ParentWidget.Get();
 		Parent->UpdateMappings(MappingName, NewKey);
 	}
 }
