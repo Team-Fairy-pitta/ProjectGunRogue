@@ -86,7 +86,7 @@ bool AGRCharacter::CheckTargetDeath(ACharacter* TargetCharacter) const
 		TargetASC = ASCInterface->GetAbilitySystemComponent();
 	}
 
-	if (const UAbilitySystemComponent* TargetASC = TargetCharacter->GetAbilitySystemComponent())
+	if (TargetASC)
 	{
 		if (const UGRHealthAttributeSet* HealthSet = Cast<UGRHealthAttributeSet>(TargetASC->GetAttributeSet(UGRHealthAttributeSet::StaticClass())))
 		{
