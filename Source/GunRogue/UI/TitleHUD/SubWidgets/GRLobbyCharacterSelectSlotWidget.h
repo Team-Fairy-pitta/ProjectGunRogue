@@ -9,6 +9,7 @@
 class UButton;
 class UGRBaseTextWidget;
 class UBorder;
+class USizeBox;
 /**
  * 
  */
@@ -22,6 +23,8 @@ class GUNROGUE_API UGRLobbyCharacterSelectSlotWidget : public UUserWidget
 public:
 	UBorder* GetBorder() const { return CharSelectButtonBorder; }
 
+	USizeBox* GetSizeBox() const { return CharSelectSizeBox; }
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UButton* CharSelectButton;
@@ -31,6 +34,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UBorder* CharSelectButtonBorder;
+
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* CharSelectSizeBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Text")
 	FText DefaultText;

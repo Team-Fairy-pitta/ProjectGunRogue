@@ -6,6 +6,7 @@
 #include "Components/Border.h"
 #include "SubWidgets/GRLobbyBaseButtonWidget.h"
 #include "UI/TitleHUD/SubWidgets/GRLobbyCharacterSelectSlotWidget.h"
+#include "Components/SizeBox.h"
 
 void UGRLobbyHUDWidget::NativeConstruct()
 {
@@ -90,12 +91,12 @@ void UGRLobbyHUDWidget::OnCharacterSelected(int32 SelectedIndex)
 
 	if (CurrentClickedSlot && CurrentClickedSlot != ClickedSlot)
 	{
-		CurrentClickedSlot->SetRenderOpacity(0.5f);
+		CurrentClickedSlot->GetSizeBox()->SetRenderOpacity(0.5f);
 		CurrentClickedSlot->GetBorder()->SetBrushColor(FLinearColor::White);
 		CurrentClickedSlot->bIsClicked = false;
 	}
 
-	ClickedSlot->SetRenderOpacity(1.0f);
+	ClickedSlot->GetSizeBox()->SetRenderOpacity(1.0f);
 	ClickedSlot->GetBorder()->SetBrushColor(FLinearColor::Green);
 	ClickedSlot->bIsClicked = true;
 	CurrentClickedSlot = ClickedSlot;
