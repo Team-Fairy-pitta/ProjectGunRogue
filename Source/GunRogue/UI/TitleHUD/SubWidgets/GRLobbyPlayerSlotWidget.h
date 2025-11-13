@@ -7,7 +7,7 @@
 #include "GRLobbyPlayerSlotWidget.generated.h"
 
 class UImage;
-class UGRBaseTextWidget;
+class UTextBlock;
 /**
  * 
  */
@@ -21,7 +21,7 @@ protected:
 	UImage* PlayerIcon;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* PlayerNameText;
+	UTextBlock* PlayerNameText;
 
 public:
 	void SetPlayerNameText(const FText& InText);

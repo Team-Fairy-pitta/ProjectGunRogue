@@ -4,7 +4,7 @@
 #include "UI/TitleHUD/SubWidgets/GRLobbyCharacterSelectSlotWidget.h"
 
 #include "Components/Button.h"
-#include "UI/Common/GRBaseTextWidget.h"
+#include "Components/TextBlock.h"
 
 void UGRLobbyCharacterSelectSlotWidget::NativePreConstruct()
 {

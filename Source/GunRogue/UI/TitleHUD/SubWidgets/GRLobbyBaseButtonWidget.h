@@ -7,7 +7,7 @@
 #include "GRLobbyBaseButtonWidget.generated.h"
 
 class UButton;
-class UGRBaseTextWidget;
+class UTextBlock;
 class UBorder;
 class UImage;
 /**
@@ -25,7 +25,7 @@ protected:
 	UButton* BaseButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* BaseButtonText;
+	UTextBlock* BaseButtonText;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* BottomBar;

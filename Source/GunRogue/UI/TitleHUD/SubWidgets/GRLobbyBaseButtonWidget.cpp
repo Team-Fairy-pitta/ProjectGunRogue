@@ -4,7 +4,7 @@
 #include "UI/TitleHUD/SubWidgets/GRLobbyBaseButtonWidget.h"
 
 #include "Components/Image.h"
-#include "UI/Common/GRBaseTextWidget.h"
+#include "Components/TextBlock.h"
 #include "Components/Button.h"
 
 void UGRLobbyBaseButtonWidget::NativePreConstruct()

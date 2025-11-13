@@ -3,7 +3,7 @@
 
 #include "UI/TitleHUD/SubWidgets/GRInvitationSlotWidget.h"
 #include "Components/Button.h"
-#include "UI/Common/GRBaseTextWidget.h"
+#include "Components/TextBlock.h"
 
 void UGRInvitationSlotWidget::NativeConstruct()
 {

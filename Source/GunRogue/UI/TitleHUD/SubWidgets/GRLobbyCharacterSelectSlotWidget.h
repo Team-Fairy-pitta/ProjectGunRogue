@@ -7,7 +7,7 @@
 #include "GRLobbyCharacterSelectSlotWidget.generated.h"
 
 class UButton;
-class UGRBaseTextWidget;
+class UTextBlock;
 class UBorder;
 class USizeBox;
 /**
@@ -30,7 +30,7 @@ protected:
 	UButton* CharSelectButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* CharNameText;
+	UTextBlock* CharNameText;
 
 	UPROPERTY(meta = (BindWidget))
 	UBorder* CharSelectButtonBorder;

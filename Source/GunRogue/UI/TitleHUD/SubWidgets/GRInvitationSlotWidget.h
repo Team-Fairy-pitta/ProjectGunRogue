@@ -7,7 +7,7 @@
 #include "GRInvitationSlotWidget.generated.h"
 
 class UButton;
-class UGRBaseTextWidget;
+class UTextBlock;
 /**
  * 
  */
@@ -21,7 +21,7 @@ protected:
 	UButton* InvitationButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* InvitationText;
+	UTextBlock* InvitationText;
 	
 	virtual void NativeConstruct() override;
 
