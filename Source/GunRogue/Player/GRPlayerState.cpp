@@ -4,6 +4,7 @@
 #include "Character/GRPawnData.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/GRAbilitySet.h"
+#include "AbilitySystem/GRGameplayEffect.h"
 #include "Net/UnrealNetwork.h"
 #include "Item/GRItemActor.h"
 
@@ -163,7 +164,9 @@ void AGRPlayerState::InitAbilitySystemComponent()
 	{
 		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
 	}
+
 }
+
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)
 {

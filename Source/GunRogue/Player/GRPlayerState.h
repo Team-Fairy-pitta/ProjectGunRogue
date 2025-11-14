@@ -9,6 +9,7 @@
 class AGRPlayerController;
 class AGRCharacter;
 class UGRAbilitySystemComponent;
+struct FGameplayEffectSpec;
 
 UCLASS()
 class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemInterface
@@ -66,6 +67,7 @@ private:
 	void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
 
 	void InitAbilitySystemComponent();
+	void OnDurationEffectApplied(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle Handle);
 
 	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
 	void PlaceActorOnGround(AActor* SpawnedActor);
