@@ -30,6 +30,6 @@ protected:
 	UPROPERTY()
 	bool bHasOverlap = false;
 
-	UPROPERTY(EditAnywhere, Category = "Level Streaming")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Streaming")
 	TSoftObjectPtr<UWorld> LevelToLoad;
 };
