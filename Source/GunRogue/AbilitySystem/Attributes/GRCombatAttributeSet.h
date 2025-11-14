@@ -54,7 +54,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponCriticalMultiplier_Bonus)
 
 	// 일반 배율 (약점이 아닐 때)
-		UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_WeaponNormalMultiplier_Multiplicative)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Critical", ReplicatedUsing = OnRep_WeaponNormalMultiplier_Multiplicative)
 	FGameplayAttributeData WeaponNormalMultiplier_Multiplicative;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, WeaponNormalMultiplier_Multiplicative)
 

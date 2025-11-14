@@ -150,11 +150,11 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	}
 
 	// GameplayEffect 적용
-	FGameplayEffectContextHandle EffectContext = TargetASC->MakeEffectContext();
-	EffectContext.AddSourceObject(Character);
+	FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
+	EffectContext.AddSourceObject(Character);  // Source = Attacker
 	EffectContext.AddHitResult(HitResult);
 
-	FGameplayEffectSpecHandle SpecHandle = TargetASC->MakeOutgoingSpec(
+	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(
 		DamageEffect, 1.0f, EffectContext);
 
 	if (!SpecHandle.IsValid())
@@ -167,7 +167,7 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		FGameplayTag::RequestGameplayTag(FName("Attribute.Data.Damage")),
 		CalculatedDamage);
 
-	TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 
 	UE_LOG(LogTemp, Log, TEXT("[Fire] Damage Applied: %.1f (Critical: %s, Target Reduction: %.2f)"),
 		CalculatedDamage,
