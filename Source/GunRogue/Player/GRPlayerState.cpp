@@ -128,6 +128,7 @@ void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
 	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(AGRItemActor::StaticClass(), DropLocation, DropRotator, SpawnParam);
 	if (ItemActor)
 	{
+		PlaceActorOnGround(ItemActor);
 		ItemActor->MulticastRPC_InitItem(RemovedItemDefinition);
 	}
 }
@@ -162,4 +163,46 @@ void AGRPlayerState::InitAbilitySystemComponent()
 	{
 		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
 	}
+}
+
+FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)
+{
+	if (!SpawnedActor)
+	{
+		return FVector::ZeroVector;
+	}
+	if (!GetWorld())
+	{
+		return SpawnedActor->GetActorLocation();
+	}
+
+	static const FVector FallDirection = FVector(0, 0, -1.0f);
+	static const float CheckDistance = 1000.0f;
+	FVector Start = SpawnedActor->GetActorLocation();
+	FVector Result = Start;
+	FVector End = Start + FallDirection * (CheckDistance);
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(SpawnedActor);
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+	{
+		Result.Z = HitResult.ImpactPoint.Z;
+	}
+
+	return Result;
+}
+
+void AGRPlayerState::PlaceActorOnGround(AActor* SpawnedActor)
+{
+	if (!SpawnedActor)
+	{
+		return;
+	}
+
+	FVector BoxOrigin;
+	FVector BoxExtent;
+	SpawnedActor->GetActorBounds(true, BoxOrigin, BoxExtent);
+	FVector NewLocation = GetGroundPointUsingLineTrace(SpawnedActor);
+	NewLocation.Z += BoxExtent.Z;
+	SpawnedActor->SetActorLocation(NewLocation);
 }

@@ -66,4 +66,7 @@ private:
 	void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
 
 	void InitAbilitySystemComponent();
+
+	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
+	void PlaceActorOnGround(AActor* SpawnedActor);
 };
