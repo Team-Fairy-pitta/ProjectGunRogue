@@ -4,6 +4,7 @@
 #include "Character/GRPawnData.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/GRAbilitySet.h"
+#include "Net/UnrealNetwork.h"
 #include "Item/GRItemActor.h"
 
 AGRPlayerState::AGRPlayerState()
@@ -20,6 +21,13 @@ AGRPlayerState::AGRPlayerState()
 
 void AGRPlayerState::BeginPlay()
 {
+}
+
+void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, ItemHandles);
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
@@ -47,30 +55,14 @@ bool AGRPlayerState::HasItem(UGRItemDefinition* ItemDefinition)
 	return ItemDefinitionSet.Contains(ItemDefinition);
 }
 
-void AGRPlayerState::EquipItem(UGRItemDefinition* ItemDefinition)
+void AGRPlayerState::TryEquipItem(UGRItemDefinition* ItemDefinition, AActor* ItemActor)
 {
-	FGRItemHandle& NewItemHandle = ItemHandles.AddDefaulted_GetRef();
-	NewItemHandle.EquipItem(AbilitySystemComponent, ItemDefinition);
-
-	ItemDefinitionSet.Add(ItemDefinition);
+	ServerRPC_EquipItemActor(ItemDefinition, ItemActor);
 }
 
 void AGRPlayerState::UnequipItem(int32 ItemIndex)
 {
-	if (!ItemHandles.IsValidIndex(ItemIndex))
-	{
-		return;
-	}
-
-	FGRItemHandle& ItemHandle = ItemHandles[ItemIndex];
-	ItemHandle.UnequipItem();
-
-	UGRItemDefinition* RemovedItemDefinition = ItemHandle.ItemDefinition;
-	ItemDefinitionSet.Remove(RemovedItemDefinition);
-	
-	ItemHandles.RemoveAt(ItemIndex);
-
-	ServerRPC_DropItemActor(RemovedItemDefinition);
+	ServerRPC_UnequipItemActor(ItemIndex);
 }
 
 int32 AGRPlayerState::GetItemNum()
@@ -78,9 +70,29 @@ int32 AGRPlayerState::GetItemNum()
 	return ItemHandles.Num();
 }
 
-void AGRPlayerState::ServerRPC_DropItemActor_Implementation(UGRItemDefinition* ItemDefinition)
+void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* ItemDefinition, AActor* ItemActor)
+{
+	if (HasItem(ItemDefinition))
+	{
+		return;
+	}
+
+	FGRItemHandle& NewItemHandle = ItemHandles.AddDefaulted_GetRef();
+	NewItemHandle.EquipItem(AbilitySystemComponent, ItemDefinition);
+
+	ItemDefinitionSet.Add(ItemDefinition);
+
+	ItemActor->Destroy();
+}
+
+void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
 {
 	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!ItemHandles.IsValidIndex(ItemIndex))
 	{
 		return;
 	}
@@ -97,16 +109,26 @@ void AGRPlayerState::ServerRPC_DropItemActor_Implementation(UGRItemDefinition* I
 		return;
 	}
 
+	FGRItemHandle& ItemHandle = ItemHandles[ItemIndex];
+	ItemHandle.UnequipItem();
+
+	UGRItemDefinition* RemovedItemDefinition = ItemHandle.ItemDefinition;
+	ItemDefinitionSet.Remove(RemovedItemDefinition);
+
+	ItemHandles.RemoveAt(ItemIndex);
+
 	FVector DropLocation = Pawn->GetActorLocation();
 	FRotator DropRotator = Pawn->GetActorRotation();
+	FActorSpawnParameters SpawnParam;
+	SpawnParam.Owner = nullptr;
 
 	float DropDistance = 100.0f;
 	DropLocation = DropLocation + DropRotator.Vector() * DropDistance;
 
-	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(AGRItemActor::StaticClass(), DropLocation, DropRotator);
+	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(AGRItemActor::StaticClass(), DropLocation, DropRotator, SpawnParam);
 	if (ItemActor)
 	{
-		ItemActor->InitItem(ItemDefinition);
+		ItemActor->MulticastRPC_InitItem(RemovedItemDefinition);
 	}
 }
 

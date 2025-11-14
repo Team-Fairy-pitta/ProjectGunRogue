@@ -41,7 +41,8 @@ public:
 	AGRItemActor();
 	virtual void BeginPlay() override;
 
-	void InitItem(UGRItemDefinition* InItemDefinition);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_InitItem(UGRItemDefinition* InItemDefinition);
 
 	// IGRInteractableActor
 	virtual TArray<TObjectPtr<UStaticMeshComponent>> GetMeshComponents() override;

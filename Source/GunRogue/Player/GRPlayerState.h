@@ -18,6 +18,7 @@ class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemIn
 public:
 	AGRPlayerState();
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	UFUNCTION(BlueprintCallable, Category = "ITPlayerState")
 	AGRPlayerController* GetGRPlayerController() const;
@@ -34,7 +35,7 @@ public:
 	bool HasItem(UGRItemDefinition* ItemDefinition);
 
 	UFUNCTION(BlueprintCallable)
-	void EquipItem(UGRItemDefinition* ItemDefinition);
+	void TryEquipItem(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
 
 	UFUNCTION(BlueprintCallable)
 	void UnequipItem(int32 ItemIndex);
@@ -43,7 +44,10 @@ public:
 	int32 GetItemNum();
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_DropItemActor(UGRItemDefinition* ItemDefinition);
+	void ServerRPC_EquipItemActor(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_UnequipItemActor(int32 ItemIndex);
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
@@ -51,7 +55,7 @@ protected:
 
 	FGRAbilitySet_GrantedHandles GrantedHandles;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<FGRItemHandle> ItemHandles;
 
 	UPROPERTY()

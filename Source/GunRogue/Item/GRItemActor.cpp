@@ -45,6 +45,7 @@ AGRItemActor::AGRItemActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
+	bAlwaysRelevant = true;
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	SetRootComponent(StaticMeshComponent);
@@ -56,10 +57,9 @@ void AGRItemActor::BeginPlay()
 	
 }
 
-void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
+void AGRItemActor::MulticastRPC_InitItem_Implementation(UGRItemDefinition* InItemDefinition)
 {
 	ItemDefinition = InItemDefinition;
-
 	if (StaticMeshComponent && InItemDefinition)
 	{
 		StaticMeshComponent->SetStaticMesh(ItemDefinition->ItemMesh);
@@ -101,10 +101,5 @@ void AGRItemActor::InteractWith(AActor* OtherActor)
 		return;
 	}
 
-	bool bAlreadyHasSameItem = GRPlayerState->HasItem(ItemDefinition);
-	if (!bAlreadyHasSameItem)
-	{
-		GRPlayerState->EquipItem(ItemDefinition);
-		Destroy();
-	}
+	GRPlayerState->TryEquipItem(ItemDefinition, this);
 }
