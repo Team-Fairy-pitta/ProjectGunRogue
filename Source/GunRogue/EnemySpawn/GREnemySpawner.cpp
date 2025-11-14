@@ -20,7 +20,7 @@ AGREnemySpawner::AGREnemySpawner()
 
 AActor* AGREnemySpawner::SpawnRandomEnemy()
 {
- 	if (FGREnemySpawnRow* SelectedRow = GetRandomEnemy())
+ 	if (FGREnemySpawnRow* SelectedRow = GetRandomEnemyRow())
 	{
 		if (UClass* ActualClass = SelectedRow->EnemyClass.Get())
 		{
@@ -32,7 +32,7 @@ AActor* AGREnemySpawner::SpawnRandomEnemy()
 
 }
 
-FGREnemySpawnRow* AGREnemySpawner::GetRandomEnemy() const
+FGREnemySpawnRow* AGREnemySpawner::GetRandomEnemyRow() const
 {
 	if (!EnemyDataTable)
 	{
@@ -81,15 +81,12 @@ AActor* AGREnemySpawner::SpawnEnemy(TSubclassOf<AActor> EnemyClass)
 		return nullptr;
 	}
 
-	AActor* SpwanedActor = GetWorld()->SpawnActor<AActor>(
-		EnemyClass,
-		AdjustSpawnToGround(GetRandomPointInVolume()),
-		FRotator::ZeroRotator
-	);
+	FVector RandomLocation = GetRandomPointInVolume();
+	FVector GroundLocation = SnapSpawnPointToGround(RandomLocation);
+	AActor* SpwanedActor = GetWorld()->SpawnActor<AActor>(EnemyClass, GroundLocation, FRotator::ZeroRotator);
+
 
 	return SpwanedActor;
-
-
 }
 
 FVector AGREnemySpawner::GetRandomPointInVolume() const
@@ -105,7 +102,7 @@ FVector AGREnemySpawner::GetRandomPointInVolume() const
 }
 
 
-FVector AGREnemySpawner::AdjustSpawnToGround(const FVector& StartLocation) const
+FVector AGREnemySpawner::SnapSpawnPointToGround(const FVector& StartLocation) const
 {
 	FHitResult Hit;
 	FVector Start = StartLocation + FVector(0.f, 0.f, 500.f); 

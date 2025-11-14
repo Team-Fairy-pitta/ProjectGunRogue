@@ -31,12 +31,12 @@ public:
 
 protected:
 
-	FGREnemySpawnRow* GetRandomEnemy() const;
+	FGREnemySpawnRow* GetRandomEnemyRow() const;
 
 	AActor* SpawnEnemy(TSubclassOf<AActor> EnemyClass);
 
 	FVector GetRandomPointInVolume() const;
 
-	FVector AdjustSpawnToGround(const FVector& StartLocation) const;
+	FVector SnapSpawnPointToGround(const FVector& StartLocation) const;
 
 };

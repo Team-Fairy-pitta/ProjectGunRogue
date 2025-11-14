@@ -24,16 +24,16 @@ public:
 	AGREnemySpawnManager();
 
 	UFUNCTION(BlueprintCallable, Category = "Spawn")
-	void SpawnAllEnemies();
+	void SpawnEnemies();
 
-	void FindAllSpawners();
+	void FindAllSpawnersInWorld();
 
 protected:
 	virtual void BeginPlay() override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-	TArray<FSpawnInfo> Spawners;
+	TArray<FSpawnInfo> SpawnInfos;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
 	bool bAutoFindSpawners = true;

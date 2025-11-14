@@ -15,15 +15,15 @@ void AGREnemySpawnManager::BeginPlay()
 
 	if (bAutoFindSpawners)
 	{
-		FindAllSpawners();
+		FindAllSpawnersInWorld();
 	}
 
-	SpawnAllEnemies();
+	SpawnEnemies();
 }
 
-void AGREnemySpawnManager::SpawnAllEnemies()
+void AGREnemySpawnManager::SpawnEnemies()
 {
-	for (const FSpawnInfo& Info : Spawners)
+	for (const FSpawnInfo& Info : SpawnInfos)
 	{
 		if (!IsValid(Info.Spawner))
 		{
@@ -38,13 +38,13 @@ void AGREnemySpawnManager::SpawnAllEnemies()
 	
 }
 
-void AGREnemySpawnManager::FindAllSpawners()
+void AGREnemySpawnManager::FindAllSpawnersInWorld()
 {
 	TArray<AActor*> FoundSpawners;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGREnemySpawner::StaticClass(), FoundSpawners);
 
 	TSet<AGREnemySpawner*> ExistingSpawners;
-	for (const FSpawnInfo& Info : Spawners)
+	for (const FSpawnInfo& Info : SpawnInfos)
 	{
 		if (IsValid(Info.Spawner))
 		{
@@ -60,7 +60,7 @@ void AGREnemySpawnManager::FindAllSpawners()
 			FSpawnInfo Info;
 			Info.Spawner = Spawner;
 			Info.SpawnCount = AutoSpawnCount;
-			Spawners.Add(Info);
+			SpawnInfos.Add(Info);
 		}
 	}
 }
