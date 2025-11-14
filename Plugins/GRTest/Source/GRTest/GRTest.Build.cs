@@ -34,7 +34,17 @@ public class GRTest : ModuleRules
 				"GameplayAbilities",
 				// 게임 모듈
 				"GunRogue",
+				
+				//UMG
+				"UMG",
+				
+				//input
+				"InputCore",
+				"EnhancedInput",
 
+				//AI
+				"AIModule","NavigationSystem",
+				
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

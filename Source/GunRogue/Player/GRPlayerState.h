@@ -3,6 +3,7 @@
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/GRAbilitySet.h"
+#include "Item/GRItemActor.h"
 #include "GRPlayerState.generated.h"
 
 class AGRPlayerController;
@@ -29,11 +30,20 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	UFUNCTION(BlueprintCallable)
+	void EquipItem(UGRItemDefinition* ItemDefinition);
+
+	UFUNCTION(BlueprintCallable)
+	void UnequipItem(int32 ItemIndex);
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
 	TObjectPtr<UGRAbilitySystemComponent> AbilitySystemComponent;
 
 	FGRAbilitySet_GrantedHandles GrantedHandles;
+
+	UPROPERTY()
+	TArray<FGRItemHandle> ItemHandles;
 
 private:
 	UFUNCTION()
