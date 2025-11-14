@@ -17,15 +17,17 @@ struct GUNROGUE_API FGRItemHandle
 	GENERATED_BODY()
 
 public:
-	void EquipItem(UGRAbilitySystemComponent* ASC, UGRItemDefinition* ItemDefinition);
+	void EquipItem(UGRAbilitySystemComponent* ASC, UGRItemDefinition* InItemDefinition);
 	void UnequipItem();
 
-protected:
 	UPROPERTY()
 	FGRAbilitySet_GrantedHandles GrantedHandles;
 
 	UPROPERTY()
 	UGRAbilitySystemComponent* CachedASC;
+
+	UPROPERTY()
+	UGRItemDefinition* ItemDefinition;
 };
 
 // Item Actor

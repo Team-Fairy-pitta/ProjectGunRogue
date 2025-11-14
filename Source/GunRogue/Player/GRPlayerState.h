@@ -31,6 +31,9 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	UFUNCTION(BlueprintCallable)
+	bool HasItem(UGRItemDefinition* ItemDefinition);
+
+	UFUNCTION(BlueprintCallable)
 	void EquipItem(UGRItemDefinition* ItemDefinition);
 
 	UFUNCTION(BlueprintCallable)
@@ -44,6 +47,9 @@ protected:
 
 	UPROPERTY()
 	TArray<FGRItemHandle> ItemHandles;
+
+	UPROPERTY()
+	TSet<UGRItemDefinition*> ItemDefinitionSet;
 
 private:
 	UFUNCTION()

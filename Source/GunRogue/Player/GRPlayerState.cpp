@@ -4,6 +4,7 @@
 #include "Character/GRPawnData.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/GRAbilitySet.h"
+#include "GRPlayerState.h"
 
 AGRPlayerState::AGRPlayerState()
 {
@@ -41,10 +42,17 @@ UAbilitySystemComponent* AGRPlayerState::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+bool AGRPlayerState::HasItem(UGRItemDefinition* ItemDefinition)
+{
+	return ItemDefinitionSet.Contains(ItemDefinition);
+}
+
 void AGRPlayerState::EquipItem(UGRItemDefinition* ItemDefinition)
 {
 	FGRItemHandle& NewItemHandle = ItemHandles.AddDefaulted_GetRef();
 	NewItemHandle.EquipItem(AbilitySystemComponent, ItemDefinition);
+
+	ItemDefinitionSet.Add(ItemDefinition);
 }
 
 void AGRPlayerState::UnequipItem(int32 ItemIndex)
@@ -56,6 +64,9 @@ void AGRPlayerState::UnequipItem(int32 ItemIndex)
 
 	FGRItemHandle& ItemHandle = ItemHandles[ItemIndex];
 	ItemHandle.UnequipItem();
+
+	ItemDefinitionSet.Remove(ItemHandle.ItemDefinition);
+
 	ItemHandles.RemoveAt(ItemIndex);
 }
 
