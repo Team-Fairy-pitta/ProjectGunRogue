@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GRLevelStatusWidget.generated.h"
 
-class UGRBaseTextWidget;
+class UTextBlock;
 /**
  * 
  */
@@ -17,13 +17,13 @@ class GUNROGUE_API UGRLevelStatusWidget : public UUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* CurrentLocText;
+	UTextBlock* CurrentLocText;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* DifficultyText;
+	UTextBlock* DifficultyText;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* PlayingTimeText;
+	UTextBlock* PlayingTimeText;
 
 	virtual void NativeConstruct() override;
 

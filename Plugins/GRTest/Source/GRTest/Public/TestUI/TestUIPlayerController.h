@@ -7,6 +7,9 @@
 #include "TestUIPlayerController.generated.h"
 
 class UGRBattleHUDWidget;
+class UGRTitleHUDWidget;
+class UGRInvitationHUDWidget;
+class UGRLobbyHUDWidget;
 class UInputMappingContext;
 class UInputAction;
 /**
@@ -35,24 +38,51 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
 	UInputAction* SkillAction_Shift = nullptr;
 
+	UFUNCTION(BlueprintCallable)
+	void SetDefaultValueInBattleHUDWidget();
+
 	UFUNCTION()
 	void HandleSkillInput(FName SkillKey);
 
 	UFUNCTION(BlueprintCallable)
 	void SelectWeaponSlot(int32 Index);
-
+	
 	UFUNCTION(BlueprintCallable)
 	void CreateBuffIconInWrapBox();
 
 	UFUNCTION(BlueprintCallable)
 	void CreateTeamStatusInVerticalBox();
 
+	UFUNCTION(BlueprintCallable)
+	void CreateInvitationSlotInScrollBox();
+
+	UFUNCTION(BlueprintCallable)
+	void CreateLobbyPlayerSlotInVerticalBox();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UGRBattleHUDWidget> BattleHUDClass;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UGRTitleHUDWidget> TitleHUDClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UGRInvitationHUDWidget> InvitationHUDClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UGRLobbyHUDWidget> LobbyHUDClass;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UGRBattleHUDWidget* BattleHUDWidget;
+
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UGRTitleHUDWidget* TitleHUDWidget;
+
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UGRInvitationHUDWidget* InvitationHUDWidget;
+
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UGRLobbyHUDWidget* LobbyHUDWidget;
 
 private:
 	FTimerHandle PlayingTimeHandle;

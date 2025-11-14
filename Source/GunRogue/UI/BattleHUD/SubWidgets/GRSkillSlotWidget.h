@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GRSkillSlotWidget.generated.h"
 
-class UGRBaseTextWidget;
+class UTextBlock;
 class UProgressBar;
 /**
  * 
@@ -21,16 +21,16 @@ public:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* SkillCountText;
+	UTextBlock* SkillCountText;
 
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* SkillCooldown;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* SkillCooldownText;
+	UTextBlock* SkillCooldownText;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* SkillKeyText;
+	UTextBlock* SkillKeyText;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Skill")
 	int32 CurrentSkillCount = 0;

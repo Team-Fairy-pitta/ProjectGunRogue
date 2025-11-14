@@ -2,7 +2,7 @@
 
 
 #include "GRLevelStatusWidget.h"
-#include "UI/Common/GRBaseTextWidget.h"
+#include "Components/TextBlock.h"
 
 void UGRLevelStatusWidget::NativeConstruct()
 {

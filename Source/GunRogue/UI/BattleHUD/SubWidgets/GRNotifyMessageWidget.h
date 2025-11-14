@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GRNotifyMessageWidget.generated.h"
 
-class UGRBaseTextWidget;
+class UTextBlock;
 /**
  * 
  */
@@ -17,7 +17,7 @@ class GUNROGUE_API UGRNotifyMessageWidget : public UUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* NotifyMessageText;
+	UTextBlock* NotifyMessageText;
 
 public:
 	void SetNotifyMessage(const FText& InText);

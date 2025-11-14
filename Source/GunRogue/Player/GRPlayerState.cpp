@@ -41,6 +41,24 @@ UAbilitySystemComponent* AGRPlayerState::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+void AGRPlayerState::EquipItem(UGRItemDefinition* ItemDefinition)
+{
+	FGRItemHandle& NewItemHandle = ItemHandles.AddDefaulted_GetRef();
+	NewItemHandle.EquipItem(AbilitySystemComponent, ItemDefinition);
+}
+
+void AGRPlayerState::UnequipItem(int32 ItemIndex)
+{
+	if (!ItemHandles.IsValidIndex(ItemIndex))
+	{
+		return;
+	}
+
+	FGRItemHandle& ItemHandle = ItemHandles[ItemIndex];
+	ItemHandle.UnequipItem();
+	ItemHandles.RemoveAt(ItemIndex);
+}
+
 void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)
 {
 	InitAbilitySystemComponent();

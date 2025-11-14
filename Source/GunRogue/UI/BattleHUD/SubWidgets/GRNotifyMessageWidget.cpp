@@ -2,7 +2,7 @@
 
 
 #include "GRNotifyMessageWidget.h"
-#include "UI/Common/GRBaseTextWidget.h"
+#include "Components/TextBlock.h"
 
 void UGRNotifyMessageWidget::SetNotifyMessage(const FText& InText)
 {
