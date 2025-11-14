@@ -1,9 +1,9 @@
-#include "TestEnemySpawnManager/TestEnemySpawner.h"
+#include "GREnemySpawner.h"
 
 #include "Components/BoxComponent.h"
 
 
-ATestEnemySpawner::ATestEnemySpawner()
+AGREnemySpawner::AGREnemySpawner()
 {
  	
 	PrimaryActorTick.bCanEverTick = false;
@@ -18,15 +18,13 @@ ATestEnemySpawner::ATestEnemySpawner()
 	EnemyDataTable = nullptr;
 }
 
-AActor* ATestEnemySpawner::SpawnRandomEnemy()
+AActor* AGREnemySpawner::SpawnRandomEnemy()
 {
- 	if (FTestEnemySpawnRow* SelectedRow = GetRandomEnemy())
+ 	if (FGREnemySpawnRow* SelectedRow = GetRandomEnemy())
 	{
 		if (UClass* ActualClass = SelectedRow->EnemyClass.Get())
 		{
-			UE_LOG(LogTemp, Error, TEXT("EnemySpawn"));
 			return SpawnEnemy(ActualClass);
-
 		}
 	}
 
@@ -34,14 +32,14 @@ AActor* ATestEnemySpawner::SpawnRandomEnemy()
 
 }
 
-FTestEnemySpawnRow* ATestEnemySpawner::GetRandomEnemy() const
+FGREnemySpawnRow* AGREnemySpawner::GetRandomEnemy() const
 {
 	if (!EnemyDataTable)
 	{
 		return nullptr;
 	}
 
-	TArray<FTestEnemySpawnRow*> AllRows;
+	TArray<FGREnemySpawnRow*> AllRows;
 	static const FString ContextString(TEXT("EnemySpawnContext"));
 	EnemyDataTable->GetAllRows(ContextString, AllRows);
 
@@ -51,7 +49,7 @@ FTestEnemySpawnRow* ATestEnemySpawner::GetRandomEnemy() const
 	}
 
 	float TotalChance = 0.0f; 
-	for (const FTestEnemySpawnRow* Row : AllRows) 
+	for (const FGREnemySpawnRow* Row : AllRows) 
 	{
 		if (Row) 
 		{
@@ -63,7 +61,7 @@ FTestEnemySpawnRow* ATestEnemySpawner::GetRandomEnemy() const
 	const float RandValue = FMath::FRandRange(0.0f, TotalChance);
 	float AccumulateChance = 0.0f;
 
-	for (FTestEnemySpawnRow* Row : AllRows)
+	for (FGREnemySpawnRow* Row : AllRows)
 	{
 		AccumulateChance += Row->SpawnChance;
 		if (RandValue <= AccumulateChance)
@@ -76,7 +74,7 @@ FTestEnemySpawnRow* ATestEnemySpawner::GetRandomEnemy() const
 	return nullptr;
 }
 
-AActor* ATestEnemySpawner::SpawnEnemy(TSubclassOf<AActor> EnemyClass)
+AActor* AGREnemySpawner::SpawnEnemy(TSubclassOf<AActor> EnemyClass)
 {
 	if (!EnemyClass)
 	{
@@ -94,7 +92,7 @@ AActor* ATestEnemySpawner::SpawnEnemy(TSubclassOf<AActor> EnemyClass)
 
 }
 
-FVector ATestEnemySpawner::GetRandomPointInVolume() const
+FVector AGREnemySpawner::GetRandomPointInVolume() const
 {
 	FVector BoxExtent = SpawningBox->GetScaledBoxExtent();
 	FVector BoxOrigin = SpawningBox->GetComponentLocation();
@@ -107,7 +105,7 @@ FVector ATestEnemySpawner::GetRandomPointInVolume() const
 }
 
 
-FVector ATestEnemySpawner::AdjustSpawnToGround(const FVector& StartLocation) const
+FVector AGREnemySpawner::AdjustSpawnToGround(const FVector& StartLocation) const
 {
 	FHitResult Hit;
 	FVector Start = StartLocation + FVector(0.f, 0.f, 500.f); 

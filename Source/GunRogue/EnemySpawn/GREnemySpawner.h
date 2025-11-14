@@ -1,18 +1,18 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "TestEnemySpawnRow.h"
-#include "TestEnemySpawner.generated.h"
+#include "GREnemySpawnRow.h"
+#include "GREnemySpawner.generated.h"
 
 class UBoxComponent;
 
 UCLASS()
-class GRTEST_API ATestEnemySpawner : public AActor
+class GUNROGUE_API AGREnemySpawner : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	ATestEnemySpawner();
+	AGREnemySpawner();
 
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
 	AActor* SpawnRandomEnemy();
@@ -31,7 +31,7 @@ public:
 
 protected:
 
-	FTestEnemySpawnRow* GetRandomEnemy() const;
+	FGREnemySpawnRow* GetRandomEnemy() const;
 
 	AActor* SpawnEnemy(TSubclassOf<AActor> EnemyClass);
 

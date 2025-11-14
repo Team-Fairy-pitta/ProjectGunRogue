@@ -1,15 +1,15 @@
-#include "TestEnemySpawnManager/TestEnemySpawnManager.h"
+#include "GREnemySpawnManager.h"
 
-#include "TestEnemySpawnManager/TestEnemySpawner.h"
+#include "GREnemySpawner.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 
-ATestEnemySpawnManager::ATestEnemySpawnManager()
+AGREnemySpawnManager::AGREnemySpawnManager()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void ATestEnemySpawnManager::BeginPlay()
+void AGREnemySpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -21,7 +21,7 @@ void ATestEnemySpawnManager::BeginPlay()
 	SpawnAllEnemies();
 }
 
-void ATestEnemySpawnManager::SpawnAllEnemies()
+void AGREnemySpawnManager::SpawnAllEnemies()
 {
 	for (const FSpawnInfo& Info : Spawners)
 	{
@@ -38,12 +38,12 @@ void ATestEnemySpawnManager::SpawnAllEnemies()
 	
 }
 
-void ATestEnemySpawnManager::FindAllSpawners()
+void AGREnemySpawnManager::FindAllSpawners()
 {
 	TArray<AActor*> FoundSpawners;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATestEnemySpawner::StaticClass(), FoundSpawners);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGREnemySpawner::StaticClass(), FoundSpawners);
 
-	TSet<ATestEnemySpawner*> ExistingSpawners;
+	TSet<AGREnemySpawner*> ExistingSpawners;
 	for (const FSpawnInfo& Info : Spawners)
 	{
 		if (IsValid(Info.Spawner))
@@ -54,7 +54,7 @@ void ATestEnemySpawnManager::FindAllSpawners()
 
 	for (AActor* Actor : FoundSpawners)
 	{
-		ATestEnemySpawner* Spawner = Cast<ATestEnemySpawner>(Actor);
+		AGREnemySpawner* Spawner = Cast<AGREnemySpawner>(Actor);
 		if (Spawner && !ExistingSpawners.Contains(Spawner))
 		{
 			FSpawnInfo Info;

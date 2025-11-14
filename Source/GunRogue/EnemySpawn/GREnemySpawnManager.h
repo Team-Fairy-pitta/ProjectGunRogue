@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "TestEnemySpawnManager.generated.h"
+#include "GREnemySpawnManager.generated.h"
 
 USTRUCT(BlueprintType)
 struct FSpawnInfo
@@ -9,19 +9,19 @@ struct FSpawnInfo
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-	class ATestEnemySpawner* Spawner = nullptr;
+	class AGREnemySpawner* Spawner = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
 	int32 SpawnCount = 1;
 };
 
 UCLASS()
-class GRTEST_API ATestEnemySpawnManager : public AActor
+class GUNROGUE_API AGREnemySpawnManager : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	ATestEnemySpawnManager();
+	AGREnemySpawnManager();
 
 	UFUNCTION(BlueprintCallable, Category = "Spawn")
 	void SpawnAllEnemies();

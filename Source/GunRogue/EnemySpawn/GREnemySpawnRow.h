@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Engine/DataTable.h"
-#include "TestEnemySpawnRow.generated.h"
+#include "GREnemySpawnRow.generated.h"
 
 /**
  * 
  */
 USTRUCT(BlueprintType)
-struct FTestEnemySpawnRow : public FTableRowBase
+struct FGREnemySpawnRow : public FTableRowBase
 {
 	GENERATED_BODY()
 	
