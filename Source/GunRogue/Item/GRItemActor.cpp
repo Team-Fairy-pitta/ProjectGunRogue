@@ -48,15 +48,22 @@ AGRItemActor::AGRItemActor()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	SetRootComponent(StaticMeshComponent);
-
-	InteractionBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBoxComponent"));
-	InteractionBoxComponent->SetupAttachment(StaticMeshComponent);
 }
 
 void AGRItemActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
+{
+	ItemDefinition = InItemDefinition;
+
+	if (StaticMeshComponent && InItemDefinition)
+	{
+		StaticMeshComponent->SetStaticMesh(ItemDefinition->ItemMesh);
+	}
 }
 
 TArray<TObjectPtr<UStaticMeshComponent>> AGRItemActor::GetMeshComponents()

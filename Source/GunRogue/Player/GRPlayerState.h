@@ -39,6 +39,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UnequipItem(int32 ItemIndex);
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetItemNum();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_DropItemActor(UGRItemDefinition* ItemDefinition);
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
 	TObjectPtr<UGRAbilitySystemComponent> AbilitySystemComponent;

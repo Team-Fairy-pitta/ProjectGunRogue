@@ -41,6 +41,8 @@ public:
 	AGRItemActor();
 	virtual void BeginPlay() override;
 
+	void InitItem(UGRItemDefinition* InItemDefinition);
+
 	// IGRInteractableActor
 	virtual TArray<TObjectPtr<UStaticMeshComponent>> GetMeshComponents() override;
 	virtual void InteractWith(AActor* OtherActor) override;
@@ -51,7 +53,4 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UBoxComponent> InteractionBoxComponent;
 };
