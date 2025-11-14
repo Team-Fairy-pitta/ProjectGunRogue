@@ -59,7 +59,7 @@ void AGREnemySpawnManager::FindAllSpawners()
 		{
 			FSpawnInfo Info;
 			Info.Spawner = Spawner;
-			Info.SpawnCount = 5; 
+			Info.SpawnCount = AutoSpawnCount;
 			Spawners.Add(Info);
 		}
 	}
