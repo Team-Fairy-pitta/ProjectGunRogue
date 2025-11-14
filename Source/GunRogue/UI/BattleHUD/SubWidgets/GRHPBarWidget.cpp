@@ -3,7 +3,7 @@
 
 #include "GRHPBarWidget.h"
 
-#include "UI/Common/GRBaseTextWidget.h"
+#include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 
 void UGRHPBarWidget::SetShieldBar(float CurrentShield, float MaxShield)
