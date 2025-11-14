@@ -21,19 +21,12 @@ public class GunRogue : ModuleRules
 			"GameplayTasks",
 			"GameplayAbilities",
 
-			// UMG
-			"UMG",
+			"UMG", "Slate", "SlateCore",
 
 			//AI
 			"AIModule", "NavigationSystem",
-
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {
-			//UMG
-			"Slate", "SlateCore",
-		});
-		
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 

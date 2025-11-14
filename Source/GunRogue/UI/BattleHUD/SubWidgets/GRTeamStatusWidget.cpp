@@ -3,7 +3,7 @@
 
 #include "GRTeamStatusWidget.h"
 
-#include "UI/Common/GRBaseTextWidget.h"
+#include "Components/TextBlock.h"
 #include "GRHPBarWidget.h"
 
 

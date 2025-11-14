@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GRWeaponSlotWidget.generated.h"
 
-class UGRBaseTextWidget;
+class UTextBlock;
 class UBorder;
 /**
  * 
@@ -18,10 +18,10 @@ class GUNROGUE_API UGRWeaponSlotWidget : public UUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* BulletCountText;
+	UTextBlock* BulletCountText;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* GunIndexText;
+	UTextBlock* GunIndexText;
 
 	UPROPERTY(meta = (BindWidget))
 	UBorder* WeaponSlotBorder;

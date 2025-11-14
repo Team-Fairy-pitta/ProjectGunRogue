@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GRGoodsTextWidget.generated.h"
 
-class UGRBaseTextWidget;
+class UTextBlock;
 /**
  * 
  */
@@ -17,10 +17,10 @@ class GUNROGUE_API UGRGoodsTextWidget : public UUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* GoodsNameText;
+	UTextBlock* GoodsNameText;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRBaseTextWidget* GoodsCountText;
+	UTextBlock* GoodsCountText;
 
 public:
 	void SetGoodsNameText(const FText& InText);
