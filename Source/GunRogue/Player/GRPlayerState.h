@@ -10,6 +10,8 @@ class AGRPlayerController;
 class AGRCharacter;
 class UGRAbilitySystemComponent;
 
+DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
+
 UCLASS()
 class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemInterface
 {
@@ -36,6 +38,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UnequipItem(int32 ItemIndex);
 
+	FOnAbilitySystemComponentInit OnAbilitySystemComponentInit;
+
+	bool IsAbilitySystemComponentInit() const { return bIsAbilitySystemComponentInit; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
 	TObjectPtr<UGRAbilitySystemComponent> AbilitySystemComponent;
@@ -50,4 +56,6 @@ private:
 	void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
 
 	void InitAbilitySystemComponent();
+
+	bool bIsAbilitySystemComponentInit = false;
 };

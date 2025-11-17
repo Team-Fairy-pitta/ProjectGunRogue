@@ -10,22 +10,50 @@
 
 void UGRPlayerStatusWidget::SetPlayerShieldBar(float CurrentShield, float MaxShield)
 {
-	if (!PlayerHPBar)
-	{
-		return;
-	}
-
-	PlayerHPBar->SetShieldBar(CurrentShield, MaxShield);
+	SetPlayerShield(CurrentShield);
+	SetPlayerMaxShield(MaxShield);
 }
 
 void UGRPlayerStatusWidget::SetPlayerHPBar(float CurrentHP, float MaxHP)
+{
+	SetPlayerHealth(CurrentHP);
+	SetPlayerMaxHealth(MaxHP);
+}
+
+void UGRPlayerStatusWidget::SetPlayerHealth(float Value)
 {
 	if (!PlayerHPBar)
 	{
 		return;
 	}
+	PlayerHPBar->SetHealth(Value);
+}
 
-	PlayerHPBar->SetHPBar(CurrentHP, MaxHP);
+void UGRPlayerStatusWidget::SetPlayerMaxHealth(float Value)
+{
+	if (!PlayerHPBar)
+	{
+		return;
+	}
+	PlayerHPBar->SetMaxHealth(Value);
+}
+
+void UGRPlayerStatusWidget::SetPlayerShield(float Value)
+{
+	if (!PlayerHPBar)
+	{
+		return;
+	}
+	PlayerHPBar->SetShield(Value);
+}
+
+void UGRPlayerStatusWidget::SetPlayerMaxShield(float Value)
+{
+	if (!PlayerHPBar)
+	{
+		return;
+	}
+	PlayerHPBar->SetMaxShield(Value);
 }
 
 void UGRPlayerStatusWidget::CreateBuffIcon()

@@ -61,11 +61,20 @@ void AGRPlayerState::UnequipItem(int32 ItemIndex)
 
 void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)
 {
-	InitAbilitySystemComponent();
+	if (IsValid(NewPawn))
+	{
+		InitAbilitySystemComponent();
+	}
 }
 
 void AGRPlayerState::InitAbilitySystemComponent()
 {
+	if (bIsAbilitySystemComponentInit)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AbilitySystemComponent Already Init..."));
+		return;
+	}
+
 	AGRCharacter* GRCharacter = GetGRCharacter();
 	if (!IsValid(GRCharacter))
 	{
@@ -89,4 +98,11 @@ void AGRPlayerState::InitAbilitySystemComponent()
 	{
 		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
 	}
+
+	if (OnAbilitySystemComponentInit.IsBound())
+	{
+		OnAbilitySystemComponentInit.Broadcast();
+	}
+
+	bIsAbilitySystemComponentInit = true;
 }

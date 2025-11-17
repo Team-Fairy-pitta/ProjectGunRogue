@@ -35,7 +35,17 @@ protected:
 	UTextBlock* HPBarText;
 
 public:
-	void SetShieldBar(float CurrentShield, float MaxShield);
-	
+	void SetShieldBar(float CurrentShield, float InMaxShield);
 	void SetHPBar(float CurrentHP, float MaxHP);
+
+	void SetHealth(float Value);
+	void SetMaxHealth(float Value);
+	void SetShield(float Value);
+	void SetMaxShield(float Value);
+
+private:
+	float Health;
+	float MaxHealth;
+	float Shield;
+	float MaxShield;
 };
