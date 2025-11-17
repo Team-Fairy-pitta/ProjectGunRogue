@@ -37,15 +37,12 @@ protected:
 
 	void CheckDoorOpenCondition();
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Loader")
-	class AGRNextMapLoader* MapLoader;
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Door")
+	class AGRStreamingDoor* TargetDoor;
 
 private:
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 };

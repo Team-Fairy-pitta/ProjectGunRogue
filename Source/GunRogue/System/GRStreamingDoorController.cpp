@@ -1,7 +1,8 @@
-
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "System/GRStreamingDoorController.h"
 
+#include "GRStreamingDoor.h"
 #include "Character/GRCharacter.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/GameModeBase.h"
@@ -31,7 +32,6 @@ void AGRStreamingDoorController::BeginPlay()
 	if (HasAuthority())
 	{
 		TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AGRStreamingDoorController::OnOverlapBegin);
-		TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AGRStreamingDoorController::OnOverlapEnd);
 	}
 	
 }
@@ -45,7 +45,10 @@ void AGRStreamingDoorController::GetLifetimeReplicatedProps(TArray<class FLifeti
 
 void AGRStreamingDoorController::OnRep_IsDoorOpen()
 {
-	
+	if (TargetDoor)
+	{
+		TargetDoor->ActivateDoor();
+	}
 }
 
 void AGRStreamingDoorController::CheckDoorOpenCondition()
@@ -92,22 +95,5 @@ void AGRStreamingDoorController::OnOverlapBegin(UPrimitiveComponent* OverlappedC
 		PlayersInArea.Add(Character->GetPlayerState());
 		CheckDoorOpenCondition();
 	}
-}
-
-void AGRStreamingDoorController::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (!HasAuthority())
-	{
-		return;
-	}
-
-	ACharacter* Character = Cast<ACharacter>(OtherActor);
-	if (Character && Character->GetPlayerState())
-	{
-		PlayersInArea.Remove(Character->GetPlayerState());
-		CheckDoorOpenCondition();
-	}
-	
 }
 
