@@ -5,6 +5,7 @@
 
 class UGRBattleHUDWidget;
 struct FGameplayEffectSpec;
+struct FOnAttributeChangeData;
 
 UCLASS()
 class GUNROGUE_API AGRBattlePlayerController : public AGRPlayerController
@@ -41,8 +42,8 @@ private:
 
 	void OnUpdateOtherPlayerStatus();
 
-	void OnHealthChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue);
-	void OnMaxHealthChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue);
-	void OnShieldChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue);
-	void OnMaxShieldChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue);
+	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
+	void OnShieldChanged(const FOnAttributeChangeData& Data);
+	void OnMaxShieldChanged(const FOnAttributeChangeData& Data);
 };

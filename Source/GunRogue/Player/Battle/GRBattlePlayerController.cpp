@@ -124,23 +124,30 @@ void AGRBattlePlayerController::InitBattleHUD()
 	}
 
 	const UAttributeSet* AttributeSet = ASC->GetAttributeSet(UGRHealthAttributeSet::StaticClass());
-	const UGRHealthAttributeSet* HealthSetConst = Cast<UGRHealthAttributeSet>(AttributeSet);
-	if (!IsValid(HealthSetConst))
+	const UGRHealthAttributeSet* HealthSet = Cast<UGRHealthAttributeSet>(AttributeSet);
+	if (!IsValid(HealthSet))
 	{
-		UE_LOG(LogTemp, Error, TEXT("HealthSetConst (UGRHealthAttributeSet) is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("HealthSet (UGRHealthAttributeSet) is INVALID"));
 		return;
 	}
 
-	UGRHealthAttributeSet* HealthSet = const_cast<UGRHealthAttributeSet*>(HealthSetConst);
-	HealthSet->OnHealthChanged.AddUObject(this, &AGRBattlePlayerController::OnHealthChanged);
-	HealthSet->OnMaxHealthChanged.AddUObject(this, &AGRBattlePlayerController::OnMaxHealthChanged);
-	HealthSet->OnShieldChanged.AddUObject(this, &AGRBattlePlayerController::OnShieldChanged);
-	HealthSet->OnMaxShieldChanged.AddUObject(this, &AGRBattlePlayerController::OnMaxShieldChanged);
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetHealthAttribute()).AddUObject(this, &ThisClass::OnHealthChanged);
 
-	float Health = HealthSetConst->GetHealth();
-	float MaxHealth = HealthSetConst->GetMaxHealth();
-	float Shield = HealthSetConst->GetShield();
-	float MaxShield = HealthSetConst->GetMaxShield();
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &ThisClass::OnMaxHealthChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetShieldAttribute()).AddUObject(this, &ThisClass::OnShieldChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetMaxShieldAttribute()).AddUObject(this, &ThisClass::OnMaxShieldChanged);
+
+
+	float Health = HealthSet->GetHealth();
+	float MaxHealth = HealthSet->GetMaxHealth();
+	float Shield = HealthSet->GetShield();
+	float MaxShield = HealthSet->GetMaxShield();
 
 	UpdatePlayerHealth(Health);
 	UpdatePlayerMaxHealth(MaxHealth);
@@ -150,22 +157,22 @@ void AGRBattlePlayerController::InitBattleHUD()
 	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
 }
 
-void AGRBattlePlayerController::OnHealthChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue)
+void AGRBattlePlayerController::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
-	UpdatePlayerHealth(NewValue);
+	UpdatePlayerHealth(Data.NewValue);
 }
 
-void AGRBattlePlayerController::OnMaxHealthChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue)
+void AGRBattlePlayerController::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
 {
-	UpdatePlayerMaxHealth(NewValue);
+	UpdatePlayerMaxHealth(Data.NewValue);
 }
 
-void AGRBattlePlayerController::OnShieldChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue)
+void AGRBattlePlayerController::OnShieldChanged(const FOnAttributeChangeData& Data)
 {
-	UpdatePlayerShield(NewValue);
+	UpdatePlayerShield(Data.NewValue);
 }
 
-void AGRBattlePlayerController::OnMaxShieldChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue)
+void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData& Data)
 {
-	UpdatePlayerMaxShield(NewValue);
+	UpdatePlayerMaxShield(Data.NewValue);
 }
