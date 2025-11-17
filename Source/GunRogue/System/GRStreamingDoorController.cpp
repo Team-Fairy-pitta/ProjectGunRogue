@@ -32,6 +32,7 @@ void AGRStreamingDoorController::BeginPlay()
 	if (HasAuthority())
 	{
 		TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AGRStreamingDoorController::OnOverlapBegin);
+		TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AGRStreamingDoorController::OnOverlapEnd);
 	}
 	
 }
@@ -94,6 +95,21 @@ void AGRStreamingDoorController::OnOverlapBegin(UPrimitiveComponent* OverlappedC
 	{
 		PlayersInArea.Add(Character->GetPlayerState());
 		CheckDoorOpenCondition();
+	}
+}
+
+void AGRStreamingDoorController::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!HasAuthority()) 
+	{
+		return;
+	}
+
+	ACharacter* Character = Cast<ACharacter>(OtherActor);
+	if (Character && Character->GetPlayerState())
+	{
+		PlayersInArea.Remove(Character->GetPlayerState()); 
 	}
 }
 

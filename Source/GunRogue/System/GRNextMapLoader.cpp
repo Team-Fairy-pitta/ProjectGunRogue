@@ -30,6 +30,7 @@ void AGRNextMapLoader::BeginPlay()
 	if (HasAuthority())
 	{
 		Trigger->OnComponentBeginOverlap.AddDynamic(this, &AGRNextMapLoader::OnOverlapBegin);
+		Trigger->OnComponentEndOverlap.AddDynamic(this, &AGRNextMapLoader::OnOverlapEnd);
 	}
 }
 
@@ -103,6 +104,26 @@ void AGRNextMapLoader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActo
 	{
 		PlayersInArea.Add(Character->GetPlayerState());
 		CheckMapLoaderCondition();
+	}
+}
+
+void AGRNextMapLoader::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!HasAuthority()) 
+	{
+		return;
+	}
+	
+	if (bHasOverlap)
+	{
+		return;
+	}
+
+	ACharacter* Character = Cast<ACharacter>(OtherActor);
+	if (Character && Character->GetPlayerState())
+	{
+		PlayersInArea.Remove(Character->GetPlayerState()); 
 	}
 }
 
