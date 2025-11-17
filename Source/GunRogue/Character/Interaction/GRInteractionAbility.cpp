@@ -45,7 +45,7 @@ void UGRInteractionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		IGRInteractableActor* InteractableActor = Cast<IGRInteractableActor>(HitActor);
 		if (!InteractableActor)
 		{
-			UE_LOG(LogTemp, Error, TEXT("HitActor is NOT IGRInteractableActor"));
+			UE_LOG(LogTemp, Display, TEXT("HitActor is NOT IGRInteractableActor"));
 			EndAbility(Handle, OwnerInfo, ActivationInfo, true, false);
 			return;
 		}

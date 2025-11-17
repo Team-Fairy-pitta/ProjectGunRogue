@@ -17,15 +17,17 @@ struct GUNROGUE_API FGRItemHandle
 	GENERATED_BODY()
 
 public:
-	void EquipItem(UGRAbilitySystemComponent* ASC, UGRItemDefinition* ItemDefinition);
+	void EquipItem(UGRAbilitySystemComponent* ASC, UGRItemDefinition* InItemDefinition);
 	void UnequipItem();
 
-protected:
 	UPROPERTY()
 	FGRAbilitySet_GrantedHandles GrantedHandles;
 
 	UPROPERTY()
 	UGRAbilitySystemComponent* CachedASC;
+
+	UPROPERTY()
+	UGRItemDefinition* ItemDefinition;
 };
 
 // Item Actor
@@ -39,6 +41,9 @@ public:
 	AGRItemActor();
 	virtual void BeginPlay() override;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_InitItem(UGRItemDefinition* InItemDefinition);
+
 	// IGRInteractableActor
 	virtual TArray<TObjectPtr<UStaticMeshComponent>> GetMeshComponents() override;
 	virtual void InteractWith(AActor* OtherActor) override;
@@ -49,7 +54,4 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UBoxComponent> InteractionBoxComponent;
 };

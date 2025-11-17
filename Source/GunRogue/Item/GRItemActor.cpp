@@ -6,25 +6,26 @@
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 
-void FGRItemHandle::EquipItem(UGRAbilitySystemComponent* ASC, UGRItemDefinition* ItemDefinition)
+void FGRItemHandle::EquipItem(UGRAbilitySystemComponent* ASC, UGRItemDefinition* InItemDefinition)
 {
 	if (!IsValid(ASC))
 	{
 		UE_LOG(LogTemp, Error, TEXT("ASC (UGRAbilitySystemComponent) is INVALID"));
 		return;
 	}
-	if (!IsValid(ItemDefinition))
+	if (!IsValid(InItemDefinition))
 	{
 		UE_LOG(LogTemp, Error, TEXT("ItemDefinition (UGRItemDefinition) is INVALID"));
 		return;
 	}
-	if (!IsValid(ItemDefinition->AbilitySet))
+	if (!IsValid(InItemDefinition->AbilitySet))
 	{
 		UE_LOG(LogTemp, Error, TEXT("ItemDefinition->AbilitySet (UGRAbilitySet) is INVALID"));
 		return;
 	}
 
 	CachedASC = ASC;
+	ItemDefinition = InItemDefinition;
 	ItemDefinition->AbilitySet->GiveToAbilitySystem(CachedASC, &GrantedHandles);
 }
 
@@ -47,15 +48,21 @@ AGRItemActor::AGRItemActor()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	SetRootComponent(StaticMeshComponent);
-
-	InteractionBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBoxComponent"));
-	InteractionBoxComponent->SetupAttachment(StaticMeshComponent);
 }
 
 void AGRItemActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void AGRItemActor::MulticastRPC_InitItem_Implementation(UGRItemDefinition* InItemDefinition)
+{
+	ItemDefinition = InItemDefinition;
+	if (StaticMeshComponent && InItemDefinition)
+	{
+		StaticMeshComponent->SetStaticMesh(ItemDefinition->ItemMesh);
+	}
 }
 
 TArray<TObjectPtr<UStaticMeshComponent>> AGRItemActor::GetMeshComponents()
@@ -93,6 +100,5 @@ void AGRItemActor::InteractWith(AActor* OtherActor)
 		return;
 	}
 
-	GRPlayerState->EquipItem(ItemDefinition);
-	Destroy();
+	GRPlayerState->TryEquipItem(ItemDefinition, this);
 }

@@ -92,6 +92,8 @@ public:
 	// DataAsset에 설정해놓은 Ability, Effect, Attribute를 ASC에 적용한다.
 	void GiveToAbilitySystem(UGRAbilitySystemComponent* ASC, FGRAbilitySet_GrantedHandles* OutGrantedHandles, UObject* SourceObject = nullptr) const;
 
+	const TArray<FGRAbilitySet_GameplayEffect>& GetGameplayEffects() { return GrantedGameplayEffects; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Abilities", meta = (TitleProperty = Ability))
 	TArray<FGRAbilitySet_GameplayAbility> GrantedGameplayAbilities;

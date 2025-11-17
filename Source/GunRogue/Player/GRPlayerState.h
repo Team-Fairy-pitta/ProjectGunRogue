@@ -9,6 +9,7 @@
 class AGRPlayerController;
 class AGRCharacter;
 class UGRAbilitySystemComponent;
+struct FGameplayEffectSpec;
 
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
@@ -20,6 +21,7 @@ class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemIn
 public:
 	AGRPlayerState();
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	UFUNCTION(BlueprintCallable, Category = "ITPlayerState")
 	AGRPlayerController* GetGRPlayerController() const;
@@ -32,15 +34,27 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	FOnAbilitySystemComponentInit OnAbilitySystemComponentInit;
+
+	bool IsAbilitySystemComponentInit() const { return bIsAbilitySystemComponentInit; }
+
 	UFUNCTION(BlueprintCallable)
-	void EquipItem(UGRItemDefinition* ItemDefinition);
+	bool HasItem(UGRItemDefinition* ItemDefinition);
+
+	UFUNCTION(BlueprintCallable)
+	void TryEquipItem(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
 
 	UFUNCTION(BlueprintCallable)
 	void UnequipItem(int32 ItemIndex);
 
-	FOnAbilitySystemComponentInit OnAbilitySystemComponentInit;
+	UFUNCTION(BlueprintCallable)
+	int32 GetItemNum();
 
-	bool IsAbilitySystemComponentInit() const { return bIsAbilitySystemComponentInit; }
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_EquipItemActor(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_UnequipItemActor(int32 ItemIndex);
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
@@ -48,14 +62,23 @@ protected:
 
 	FGRAbilitySet_GrantedHandles GrantedHandles;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<FGRItemHandle> ItemHandles;
+
+	UPROPERTY()
+	TSet<UGRItemDefinition*> ItemDefinitionSet;
 
 private:
 	UFUNCTION()
 	void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
 
 	void InitAbilitySystemComponent();
+
+	void OnEquipItem(UGRItemDefinition* ItemDefinition);
+	void OnUnequipItem(UGRItemDefinition* ItemDefinition);
+
+	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
+	void PlaceActorOnGround(AActor* SpawnedActor);
 
 	bool bIsAbilitySystemComponentInit = false;
 };
