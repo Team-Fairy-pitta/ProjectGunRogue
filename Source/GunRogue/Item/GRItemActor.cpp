@@ -45,7 +45,6 @@ AGRItemActor::AGRItemActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
-	bAlwaysRelevant = true;
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	SetRootComponent(StaticMeshComponent);
