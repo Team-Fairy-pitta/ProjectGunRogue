@@ -34,5 +34,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CreateTeamStatus();
 
+	void DestroyLastTeamStatus();
+
 	int32 GetTeamStatusWidgetCount() const;
 };

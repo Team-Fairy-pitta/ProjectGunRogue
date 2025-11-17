@@ -121,6 +121,10 @@ void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 	{
 		TeamStatusWidget->CreateTeamStatus();
 	}
+	while (TeamStatusWidget->GetTeamStatusWidgetCount() > OtherPlayerCount)
+	{
+		TeamStatusWidget->DestroyLastTeamStatus();
+	}
 
 	int32 PlayerIndex = 0;
 	for (APlayerState* OtherPlayerState : GRGameState->PlayerArray)
