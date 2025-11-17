@@ -7,6 +7,7 @@
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "Net/UnrealNetwork.h"
 #include "Item/GRItemActor.h"
+#include "Item/GRItemDefinition.h"
 
 AGRPlayerState::AGRPlayerState()
 {
@@ -73,6 +74,16 @@ int32 AGRPlayerState::GetItemNum()
 
 void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* ItemDefinition, AActor* ItemActor)
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!ItemDefinition)
+	{
+		return;
+	}
+
 	if (HasItem(ItemDefinition))
 	{
 		return;
@@ -84,6 +95,8 @@ void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* 
 	ItemDefinitionSet.Add(ItemDefinition);
 
 	ItemActor->Destroy();
+	
+	OnEquipItem(ItemDefinition);
 }
 
 void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
@@ -132,6 +145,8 @@ void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
 		PlaceActorOnGround(ItemActor);
 		ItemActor->MulticastRPC_InitItem(RemovedItemDefinition);
 	}
+
+	OnUnequipItem(RemovedItemDefinition);
 }
 
 void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)
@@ -164,9 +179,65 @@ void AGRPlayerState::InitAbilitySystemComponent()
 	{
 		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
 	}
-
 }
 
+void AGRPlayerState::OnEquipItem(UGRItemDefinition* ItemDefinition)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!ItemDefinition)
+	{
+		return;
+	}
+
+	AGRPlayerController* GRPlayerController = GetGRPlayerController();
+	if (!IsValid(GRPlayerController))
+	{
+		return;
+	}
+
+	if (!ItemDefinition->AbilitySet)
+	{
+		return;
+	}
+
+	for (const FGRAbilitySet_GameplayEffect& Effect : ItemDefinition->AbilitySet->GetGameplayEffects())
+	{
+		GRPlayerController->ClientRPC_OnActiveGameplayEffectAdded(Effect.GameplayEffect);
+	}
+}
+
+void AGRPlayerState::OnUnequipItem(UGRItemDefinition* ItemDefinition)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!ItemDefinition)
+	{
+		return;
+	}
+
+	AGRPlayerController* GRPlayerController = GetGRPlayerController();
+	if (!IsValid(GRPlayerController))
+	{
+		return;
+	}
+
+	if (!ItemDefinition->AbilitySet)
+	{
+		return;
+	}
+
+	for (const FGRAbilitySet_GameplayEffect& Effect : ItemDefinition->AbilitySet->GetGameplayEffects())
+	{
+		GRPlayerController->ClientRPC_OnActiveGameplayEffectRemoved(Effect.GameplayEffect);
+	}
+}
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)
 {

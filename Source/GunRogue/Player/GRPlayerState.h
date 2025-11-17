@@ -67,7 +67,9 @@ private:
 	void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
 
 	void InitAbilitySystemComponent();
-	void OnDurationEffectApplied(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle Handle);
+
+	void OnEquipItem(UGRItemDefinition* ItemDefinition);
+	void OnUnequipItem(UGRItemDefinition* ItemDefinition);
 
 	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
 	void PlaceActorOnGround(AActor* SpawnedActor);
