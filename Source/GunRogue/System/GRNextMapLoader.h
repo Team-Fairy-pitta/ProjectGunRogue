@@ -16,6 +16,9 @@ public:
 	virtual void BeginPlay() override;
 	
 	void LoadMap(TSoftObjectPtr<UWorld> LevelAsset);
+	
+	UFUNCTION()
+	void OnLevelLoadCompleted();
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
@@ -32,4 +35,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Streaming")
 	TSoftObjectPtr<UWorld> LevelToLoad;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Door")
+	class AGRStreamingDoor* TargetDoor;
+	
 };

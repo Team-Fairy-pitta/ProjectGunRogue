@@ -1,5 +1,6 @@
 #include "System/GRNextMapLoader.h"
 
+#include "GRStreamingDoor.h"
 #include "Components/ArrowComponent.h"
 #include "GameModes/GRGameState.h"
 #include "Components/BoxComponent.h"
@@ -51,7 +52,8 @@ void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 	{
 		LoadLocation = Arrow->GetComponentLocation();
 	}
-	ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
+	
+	ULevelStreamingDynamic* StreamedLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
 		this,
 		LevelAsset,
 		LoadLocation,
@@ -59,10 +61,24 @@ void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 		bLoadSuccessful,
 		GS->GetNextLevelName()
 		);
+
+	if (StreamedLevel && TargetDoor)
+	{
+		StreamedLevel->OnLevelLoaded.AddDynamic(this, &AGRNextMapLoader::OnLevelLoadCompleted);
+	}
+}
+
+void AGRNextMapLoader::OnLevelLoadCompleted()
+{
+	if (TargetDoor)
+	{
+		TargetDoor->ActivateDoor();
+	}
+	UE_LOG(LogTemp, Warning, TEXT("CallbackDebug On"));
 }
 
 void AGRNextMapLoader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                      UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (bHasOverlap)
 	{
