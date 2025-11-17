@@ -5,12 +5,14 @@
 #include "GameModes/GRGameState.h"
 #include "Components/BoxComponent.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 
 AGRNextMapLoader::AGRNextMapLoader()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
+	bReplicates = true;
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger"));
 	SetRootComponent(Trigger);
 	Trigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -25,7 +27,7 @@ void AGRNextMapLoader::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (Trigger)
+	if (HasAuthority())
 	{
 		Trigger->OnComponentBeginOverlap.AddDynamic(this, &AGRNextMapLoader::OnOverlapBegin);
 	}
@@ -33,7 +35,12 @@ void AGRNextMapLoader::BeginPlay()
 
 void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 {
+	if (bHasOverlap)
+	{
+		return;
+	}
 	bool bLoadSuccessful = false;
+	bHasOverlap = true;
 	
 	AGameStateBase* CurrentGameState = UGameplayStatics::GetGameState(GetWorld());
 	if (!CurrentGameState)
@@ -66,6 +73,7 @@ void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 	{
 		StreamedLevel->OnLevelLoaded.AddDynamic(this, &AGRNextMapLoader::OnLevelLoadCompleted);
 	}
+	
 }
 
 void AGRNextMapLoader::OnLevelLoadCompleted()
@@ -80,14 +88,62 @@ void AGRNextMapLoader::OnLevelLoadCompleted()
 void AGRNextMapLoader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+
 	if (bHasOverlap)
 	{
 		return;
 	}
 
-	if (OtherActor && OtherActor->IsA(APawn::StaticClass()))
+	ACharacter* Character = Cast<ACharacter>(OtherActor);
+	if (Character && Character->GetPlayerState())
 	{
-		bHasOverlap = true;
-		LoadMap(LevelToLoad);
+		PlayersInArea.Add(Character->GetPlayerState());
+		CheckMapLoaderCondition();
 	}
+}
+
+void AGRNextMapLoader::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGRNextMapLoader, bIsStream);
+}
+
+void AGRNextMapLoader::CheckMapLoaderCondition()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld());
+	if (!GameMode)
+	{
+		return;
+	}
+
+	int32 TotalPlayers = GameMode->GetNumPlayers();
+
+	int32 CurrentPlayers = PlayersInArea.Num();
+	
+	bool bShouldLoad = (CurrentPlayers >= TotalPlayers) && (TotalPlayers > 0);
+
+	if (bIsStream != bShouldLoad)
+	{
+		bIsStream = bShouldLoad;
+
+		OnRep_IsStream();
+	}
+	UE_LOG(LogTemp, Warning, TEXT("TotalPlayer: %d"), TotalPlayers);
+	UE_LOG(LogTemp, Warning, TEXT("PlayersInArea: %d"), CurrentPlayers);
+	UE_LOG(LogTemp, Warning, TEXT("Current bIsStream : %s"), bIsStream ? TEXT("OPEN") : TEXT("CLOSED"));
+}
+
+void AGRNextMapLoader::OnRep_IsStream()
+{
+	LoadMap(LevelToLoad);
 }

@@ -20,6 +20,8 @@ public:
 	UFUNCTION()
 	void OnLevelLoadCompleted();
 
+
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UBoxComponent> Trigger;
@@ -33,10 +35,24 @@ protected:
 	UPROPERTY()
 	bool bHasOverlap = false;
 
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Streaming")
 	TSoftObjectPtr<UWorld> LevelToLoad;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Door")
 	class AGRStreamingDoor* TargetDoor;
+
+	void CheckMapLoaderCondition();
+	
+	UPROPERTY()
+	TSet<APlayerState*> PlayersInArea;
+
+	UPROPERTY(ReplicatedUsing = OnRep_IsStream)
+	bool bIsStream;
+
+	UFUNCTION()
+	void OnRep_IsStream();
 	
 };
