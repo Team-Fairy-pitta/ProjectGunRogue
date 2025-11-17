@@ -1,5 +1,6 @@
 #include "Player/GRPlayerState.h"
 #include "Player/GRPlayerController.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 #include "Character/GRCharacter.h"
 #include "Character/GRPawnData.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
@@ -210,7 +211,8 @@ void AGRPlayerState::OnEquipItem(UGRItemDefinition* ItemDefinition)
 	}
 
 	AGRPlayerController* GRPlayerController = GetGRPlayerController();
-	if (!IsValid(GRPlayerController))
+	AGRBattlePlayerController* GRBattlePlayerController = Cast<AGRBattlePlayerController>(GRPlayerController);
+	if (!IsValid(GRBattlePlayerController))
 	{
 		return;
 	}
@@ -222,7 +224,7 @@ void AGRPlayerState::OnEquipItem(UGRItemDefinition* ItemDefinition)
 
 	for (const FGRAbilitySet_GameplayEffect& Effect : ItemDefinition->AbilitySet->GetGameplayEffects())
 	{
-		GRPlayerController->ClientRPC_OnActiveGameplayEffectAdded(Effect.GameplayEffect);
+		GRBattlePlayerController->ClientRPC_OnActiveGameplayEffectAdded(Effect.GameplayEffect);
 	}
 }
 
@@ -239,7 +241,8 @@ void AGRPlayerState::OnUnequipItem(UGRItemDefinition* ItemDefinition)
 	}
 
 	AGRPlayerController* GRPlayerController = GetGRPlayerController();
-	if (!IsValid(GRPlayerController))
+	AGRBattlePlayerController* GRBattlePlayerController = Cast<AGRBattlePlayerController>(GRPlayerController);
+	if (!IsValid(GRBattlePlayerController))
 	{
 		return;
 	}
@@ -251,7 +254,7 @@ void AGRPlayerState::OnUnequipItem(UGRItemDefinition* ItemDefinition)
 
 	for (const FGRAbilitySet_GameplayEffect& Effect : ItemDefinition->AbilitySet->GetGameplayEffects())
 	{
-		GRPlayerController->ClientRPC_OnActiveGameplayEffectRemoved(Effect.GameplayEffect);
+		GRBattlePlayerController->ClientRPC_OnActiveGameplayEffectRemoved(Effect.GameplayEffect);
 	}
 }
 

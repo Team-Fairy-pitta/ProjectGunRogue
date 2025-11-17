@@ -18,6 +18,14 @@ public:
 	virtual void EndPlay(EEndPlayReason::Type EndPlayResaon) override;
 	virtual void OnRep_PlayerState() override;
 
+	// Duration이 있는 (무제한 포함) Effect가 추가 되었을 때 호출됨 (Instance는 호출되지 않음)
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_OnActiveGameplayEffectAdded(TSubclassOf<UGameplayEffect> EffectClass);
+
+	// Duration이 있는 (무제한 포함) Effect가 제거 되었을 때 호출됨 (Instance는 호출되지 않음)
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_OnActiveGameplayEffectRemoved(TSubclassOf<UGameplayEffect> EffectClass);
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UGRBattleHUDWidget> HUDWidgetInstance;
