@@ -59,3 +59,8 @@ void UGRTeamStatusListWidget::CreateTeamStatus()
 
 	TeamStatusArray.Add(NewTeamStatus);
 }
+
+int32 UGRTeamStatusListWidget::GetTeamStatusWidgetCount() const
+{
+	return TeamStatusArray.Num();
+}

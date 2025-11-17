@@ -33,6 +33,16 @@ void AGRBattlePlayerController::BeginPlay()
 	}
 }
 
+void AGRBattlePlayerController::EndPlay(EEndPlayReason::Type EndPlayResaon)
+{
+	Super::EndPlay(EndPlayResaon);
+
+	if (OtherPlayerStatusUpdateTimer.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(OtherPlayerStatusUpdateTimer);
+	}
+}
+
 void AGRBattlePlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
@@ -117,7 +127,7 @@ void AGRBattlePlayerController::InitBattleHUD()
 	const UGRHealthAttributeSet* HealthSetConst = Cast<UGRHealthAttributeSet>(AttributeSet);
 	if (!IsValid(HealthSetConst))
 	{
-		UE_LOG(LogTemp, Error, TEXT("HealthSet (UGRHealthAttributeSet) is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("HealthSetConst (UGRHealthAttributeSet) is INVALID"));
 		return;
 	}
 
@@ -136,6 +146,8 @@ void AGRBattlePlayerController::InitBattleHUD()
 	UpdatePlayerMaxHealth(MaxHealth);
 	UpdatePlayerShield(Shield);
 	UpdatePlayerMaxShield(MaxShield);
+
+	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
 }
 
 void AGRBattlePlayerController::OnHealthChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue)

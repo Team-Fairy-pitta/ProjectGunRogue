@@ -14,6 +14,7 @@ class GUNROGUE_API AGRBattlePlayerController : public AGRPlayerController
 public:
 	AGRBattlePlayerController();
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type EndPlayResaon) override;
 	virtual void OnRep_PlayerState() override;
 
 protected:
@@ -22,6 +23,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRBattleHUDWidget> HUDWidgetClass;
+
+	FTimerHandle OtherPlayerStatusUpdateTimer;
+	float OtherPlayerStatusUpdateInterval = 1.0f;
 
 	void ShowBattleHUD();
 
@@ -34,6 +38,8 @@ private:
 	void UpdatePlayerMaxHealth(float Value);
 	void UpdatePlayerShield(float Value);
 	void UpdatePlayerMaxShield(float Value);
+
+	void OnUpdateOtherPlayerStatus();
 
 	void OnHealthChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue);
 	void OnMaxHealthChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue);
