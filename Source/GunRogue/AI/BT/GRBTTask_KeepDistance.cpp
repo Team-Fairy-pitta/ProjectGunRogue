@@ -13,12 +13,11 @@ UGRBTTask_KeepDistance::UGRBTTask_KeepDistance()
 	:MaintainDistance(500.0f)
 	,SearchRadius(300.0f)
 	,AcceptanceRadius(50.0f)
-	,bIsMoving(false)
 {
 	NodeName=TEXT("Keep Distance");
 
 	bNotifyTick = true;
-	bCreateNodeInstance = true;
+	bCreateNodeInstance = false;
 	bNotifyTaskFinished = true;
 }
 
@@ -56,7 +55,7 @@ EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& 
 		return EBTNodeResult::Failed;
 	}
 	
-	AActor* TargetPlayer = Cast<AActor>(TargetObj);
+	ACharacter* TargetPlayer = Cast<ACharacter>(TargetObj);
 	if (!IsValid(TargetPlayer))
 	{
 		return EBTNodeResult::Failed;
@@ -107,8 +106,6 @@ EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& 
 	{
 		return EBTNodeResult::Failed;
 	}
-
-	bIsMoving = true;
 	
 	return EBTNodeResult::InProgress;
 }
@@ -116,12 +113,6 @@ EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& 
 void UGRBTTask_KeepDistance::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-	
-	if (!bIsMoving)
-	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-		return;
-	}
 	
 	AAIController* AICon = OwnerComp.GetAIOwner();
 	if (!IsValid(AICon))
@@ -151,17 +142,25 @@ void UGRBTTask_KeepDistance::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
 		return;
 	}
 	
-	AActor* TargetPlayer = Cast<AActor>(TargetObj);
+	ACharacter* TargetPlayer = Cast<ACharacter>(TargetObj);
 	if (!IsValid(TargetPlayer))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 	
-	EPathFollowingStatus::Type Status = AICon->GetMoveStatus();
+	UPathFollowingComponent* PFC = AICon->GetPathFollowingComponent();
+	if (!IsValid(PFC))
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+
+	EPathFollowingStatus::Type Status = PFC->GetStatus();
 	if (Status == EPathFollowingStatus::Idle || Status == EPathFollowingStatus::Waiting)
 	{
-		bIsMoving = false;
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		return;
 	}
 }
 

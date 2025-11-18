@@ -67,6 +67,22 @@ void AGRAIController::OnPossess(APawn* InPawn)
 	}
 }
 
+void AGRAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (AIPerceptionComp)
+	{
+		AIPerceptionComp->OnTargetPerceptionUpdated.RemoveDynamic(this, &AGRAIController::OnTargetPerceptionUpdated);
+	}
+	
+	// 혹은 BTComponent가 별도로 있다면
+	if (BehaviorComp)
+	{
+		BehaviorComp->StopTree(EBTStopMode::Safe);
+	}
+}
+
 void AGRAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	////Note : AI끼리 서로 인지될 수 있으므로 예외처리. 추후 삭제.
