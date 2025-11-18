@@ -3,7 +3,7 @@
 
 #include "MetaProgression/GRPerkSubsystem.h"
 #include "GRPerkSaveGame.h"
-#include "PerkLevel.h"
+#include "PerkInfoRow.h"
 #include "Kismet/GameplayStatics.h"
 
 void UGRPerkSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -24,14 +24,15 @@ void UGRPerkSubsystem::LoadPerks()
 
 		if (LoadedPerkGame)
 		{
-			PerkLevels = LoadedPerkGame->PerkLevels;
+			PerkInfoRows = LoadedPerkGame->PerkInfoRows;
 			MetaGoods = LoadedPerkGame->MetaGoods;
-			return;
+		}
+		else
+		{
+			PerkInfoRows.Empty();
+			MetaGoods = 0;	
 		}
 	}
-
-	PerkLevels.Empty();
-	MetaGoods = 0;
 }
 
 void UGRPerkSubsystem::SavePerks()
@@ -40,7 +41,7 @@ void UGRPerkSubsystem::SavePerks()
 	
 	UGRPerkSaveGame* SavedPerkGame = Cast<UGRPerkSaveGame>(UGameplayStatics::CreateSaveGameObject(UGRPerkSaveGame::StaticClass()));
 
-	SavedPerkGame->PerkLevels = PerkLevels;
+	SavedPerkGame->PerkInfoRows = PerkInfoRows;
 	SavedPerkGame->MetaGoods = MetaGoods;
 
 	UGameplayStatics::SaveGameToSlot(SavedPerkGame, SlotName, GetUserIndex());
@@ -61,33 +62,33 @@ void UGRPerkSubsystem::SetLocalPlayerUniqueId(const FString& NewId)
 	LocalPlayerUniqueId = NewId;
 }
 
-int32 UGRPerkSubsystem::GetPerkLevel(FName PerkName) const
+int32 UGRPerkSubsystem::GetPerkInfoRow(FName PerkID) const
 {
-	const int32* Level = PerkLevels.Find(PerkName);
+	const int32* Level = PerkInfoRows.Find(PerkID);
 	return Level ? *Level : 0;
 }
 
-void UGRPerkSubsystem::SetPerkLevel(FName PerkName, int32 Level)
+void UGRPerkSubsystem::SetPerkInfoRow(FName PerkID, int32 Level)
 {
-	PerkLevels.Add(PerkName, Level);
+	PerkInfoRows.Add(PerkID, Level);
 	SavePerks();
 }
 
-float UGRPerkSubsystem::GetPerkBonus(FName PerkName, const UDataTable* PerkTable) const
+float UGRPerkSubsystem::GetPerkBonus(FName PerkID, const UDataTable* PerkTable) const
 {
 	if (!PerkTable)
 	{
 		return 0.0f;
 	}
 
-	FPerkLevel* Row = PerkTable->FindRow<FPerkLevel>(PerkName, TEXT(""));
+	FPerkInfoRow* Row = PerkTable->FindRow<FPerkInfoRow>(PerkID, TEXT(""));
 
 	if (!Row)
 	{
 		return 0.0f;
 	}
 
-	int32 Level = GetPerkLevel(PerkName);
+	int32 Level = GetPerkInfoRow(PerkID);
 	return Row->ValuePerLevel * Level;
 }
 
@@ -97,28 +98,28 @@ void UGRPerkSubsystem::AddMetaGoods(int32 Amount)
 	SavePerks();
 }
 
-bool UGRPerkSubsystem::TryUpgradePerk(FName PerkName, const UDataTable* PerkTable)
+bool UGRPerkSubsystem::TryUpgradePerk(FName PerkID, const UDataTable* PerkTable)
 {
 	if (!PerkTable)
 	{
 		return false;
 	}
 
-	FPerkLevel* Row = PerkTable->FindRow<FPerkLevel>(PerkName, TEXT(""));
+	FPerkInfoRow* Row = PerkTable->FindRow<FPerkInfoRow>(PerkID, TEXT(""));
 
 	if (!Row)
 	{
 		return false;
 	}
 
-	int32 CurrentLevel = GetPerkLevel(PerkName);
+	int32 CurrentLevel = GetPerkInfoRow(PerkID);
 
 	if (CurrentLevel >= Row->MaxLevel)
 	{
 		return false;
 	}
 
-	int32 Cost = (CurrentLevel) * 10;
+	int32 Cost = (CurrentLevel) * Row->CostPerLevel;
 
 	if (MetaGoods < Cost)
 	{
@@ -126,7 +127,7 @@ bool UGRPerkSubsystem::TryUpgradePerk(FName PerkName, const UDataTable* PerkTabl
 	}
 
 	MetaGoods -= Cost;
-	PerkLevels.Add(PerkName, CurrentLevel+1);
+	SetPerkInfoRow(PerkID, CurrentLevel + 1);
 
 	SavePerks();
 

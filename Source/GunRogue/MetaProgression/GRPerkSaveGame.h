@@ -16,7 +16,7 @@ class GUNROGUE_API UGRPerkSaveGame : public USaveGame
 
 public:
 	UPROPERTY()
-	TMap<FName, int32> PerkLevels;
+	TMap<FName, int32> PerkInfoRows;
 
 	UPROPERTY()
 	int32 MetaGoods = 0;

@@ -63,7 +63,7 @@ void ATestMPPlayerController::AddMetaGoodsToTest()
 	UE_LOG(LogTemp, Warning, TEXT("MetaGoods Added"));
 }
 
-void ATestMPPlayerController::PrintPerkLevels()
+void ATestMPPlayerController::PrintPerkInfoRows()
 {
 	UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
 	if (!Subsystem)
@@ -82,7 +82,7 @@ void ATestMPPlayerController::PrintPerkLevels()
 
 	for (const FName& PerkName : RowNames)
 	{
-		int32 Level = Subsystem->GetPerkLevel(PerkName);
+		int32 Level = Subsystem->GetPerkInfoRow(PerkName);
 
 		UE_LOG(LogTemp, Warning, TEXT("Perk: %s / Level: %d"),
 			*PerkName.ToString(),

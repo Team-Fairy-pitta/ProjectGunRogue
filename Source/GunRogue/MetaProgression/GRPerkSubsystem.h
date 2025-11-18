@@ -20,6 +20,7 @@ public:
 	void LoadPerks();
 	void SavePerks();
 
+	// 멀티플레이어 로컬 세이브에서 UserIndex는 보통 0 
 	int32 GetUserIndex() const { return 0; }
 
 	FString GetBaseSaveSlotName() const { return TEXT("SlotName"); }
@@ -31,19 +32,19 @@ private:
 	FString LocalPlayerUniqueId;
 
 public:
-	int32 GetPerkLevel(FName PerkName) const;
-	void SetPerkLevel(FName PerkName, int32 Level);
+	int32 GetPerkInfoRow(FName PerkID) const;
+	void SetPerkInfoRow(FName PerkID, int32 Level);
 
-	float GetPerkBonus(FName PerkName, const UDataTable* PerkTable) const;
+	float GetPerkBonus(FName PerkID, const UDataTable* PerkTable) const;
 
 	int32 GetMetaGoods() const { return MetaGoods;}
 	void AddMetaGoods(int32 Amount);
 
-	bool TryUpgradePerk(FName PerkName, const UDataTable* PerkTable);
+	bool TryUpgradePerk(FName PerkID, const UDataTable* PerkTable);
 
 private:
 	UPROPERTY()
-	TMap<FName, int32> PerkLevels;
+	TMap<FName, int32> PerkInfoRows;
 
 	int32 MetaGoods;
 };

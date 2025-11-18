@@ -25,7 +25,7 @@ public:
 	void AddMetaGoodsToTest();
 
 	UFUNCTION(BlueprintCallable)
-	void PrintPerkLevels();
+	void PrintPerkInfoRows();
 	
 private:
 	FString GetUniquePlayerId() const;
