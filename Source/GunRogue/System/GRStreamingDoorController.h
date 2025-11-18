@@ -19,7 +19,7 @@ public:
 	AGRStreamingDoorController();
 
 	UFUNCTION()
-	void OnRep_HasLevelCompleted();
+	void SetLoadLevelCompleted();
 
 protected:
 
@@ -35,8 +35,8 @@ protected:
 
 	UPROPERTY(ReplicatedUsing = OnRep_IsDoorOpen)
 	bool bIsDoorOpen;
-
-	UPROPERTY(ReplicatedUsing = OnRep_HasLevelCompleted)
+	
+	UPROPERTY(Replicated)
 	bool bHasLevelCompleted;
 
 	UFUNCTION()

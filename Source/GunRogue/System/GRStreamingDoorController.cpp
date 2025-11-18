@@ -43,7 +43,6 @@ void AGRStreamingDoorController::GetLifetimeReplicatedProps(TArray<class FLifeti
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGRStreamingDoorController, bIsDoorOpen);
-	DOREPLIFETIME(AGRStreamingDoorController, bHasLevelCompleted);
 }
 
 void AGRStreamingDoorController::OnRep_IsDoorOpen()
@@ -59,12 +58,13 @@ void AGRStreamingDoorController::OnRep_IsDoorOpen()
 	}
 }
 
-void AGRStreamingDoorController::OnRep_HasLevelCompleted()
+void AGRStreamingDoorController::SetLoadLevelCompleted()
 {
 	if (bRequiresLevelCompletion)
 	{
 		bHasLevelCompleted = true;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("setloadlevelcompleted"));
 }
 
 void AGRStreamingDoorController::CheckDoorOpenCondition()

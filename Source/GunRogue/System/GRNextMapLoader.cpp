@@ -1,6 +1,5 @@
 #include "System/GRNextMapLoader.h"
 
-#include "GRStreamingDoor.h"
 #include "GRStreamingDoorController.h"
 #include "Components/ArrowComponent.h"
 #include "GameModes/GRGameState.h"
@@ -83,7 +82,7 @@ void AGRNextMapLoader::OnLevelLoadCompleted()
 {
 	if (TargetController)
 	{
-		TargetController->OnRep_HasLevelCompleted();
+		TargetController->SetLoadLevelCompleted();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("CallbackDebug On"));
 }
@@ -168,5 +167,15 @@ void AGRNextMapLoader::CheckMapLoaderCondition()
 
 void AGRNextMapLoader::OnRep_ShouldLoadLevel()
 {
-	LoadMap(LevelToLoad);
+	if (!LevelToLoad)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("return Leveltoload isvalid"));
+		return;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("bshoudloadlevel: %d"), bShouldLoadLevel);
+	if (bShouldLoadLevel)
+	{
+		LoadMap(LevelToLoad);
+	}
 }
