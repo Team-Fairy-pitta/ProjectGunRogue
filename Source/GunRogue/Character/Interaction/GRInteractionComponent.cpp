@@ -32,7 +32,7 @@ void UGRInteractionComponent::FindInteractableActor()
 	{
 		if (FocusedActor)
 		{
-			RemoveOutline(FocusedActor);
+			OnOut(FocusedActor);
 			FocusedActor = nullptr;
 		}
 		return;
@@ -45,12 +45,13 @@ void UGRInteractionComponent::FindInteractableActor()
 		{
 			if (FocusedActor)
 			{
-				RemoveOutline(FocusedActor);
+				OnOut(FocusedActor);
+				FocusedActor = nullptr;
 			}
 			if (HitActor)
 			{
+				OnOver(HitActor);
 				FocusedActor = HitActor;
-				AddOutline(HitActor);
 			}
 		}
 	}
@@ -58,9 +59,31 @@ void UGRInteractionComponent::FindInteractableActor()
 	{
 		if (FocusedActor)
 		{
-			RemoveOutline(FocusedActor);
+			OnOut(FocusedActor);
 			FocusedActor = nullptr;
 		}
+	}
+}
+
+void UGRInteractionComponent::OnOver(AActor* InActor)
+{
+	AddOutline(InActor);
+
+	IGRInteractableActor* InteractableActor = Cast<IGRInteractableActor>(InActor);
+	if (InteractableActor)
+	{
+		InteractableActor->OnOver();
+	}
+}
+
+void UGRInteractionComponent::OnOut(AActor* InActor)
+{
+	RemoveOutline(FocusedActor);
+
+	IGRInteractableActor* InteractableActor = Cast<IGRInteractableActor>(InActor);
+	if (InteractableActor)
+	{
+		InteractableActor->OnOut();
 	}
 }
 
