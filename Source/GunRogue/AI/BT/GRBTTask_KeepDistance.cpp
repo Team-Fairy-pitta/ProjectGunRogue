@@ -98,8 +98,6 @@ EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& 
 	MoveComp->bOrientRotationToMovement = false;
 	MoveComp->bUseControllerDesiredRotation = false; 
 	AIPawn->bUseControllerRotationYaw = true;
-
-	AICon->SetFocus(TargetPlayer);
 	
 	EPathFollowingRequestResult::Type MoveResult = AICon->MoveToLocation(DesiredLocation, AcceptanceRadius, true, true, true, false, nullptr, true);
 	if (MoveResult == EPathFollowingRequestResult::Failed || MoveResult == EPathFollowingRequestResult::AlreadyAtGoal)
@@ -138,14 +136,14 @@ void UGRBTTask_KeepDistance::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
 	UObject* TargetObj = BB->GetValueAsObject(AGRAIController::TargetPlayerKey);
 	if (!IsValid(TargetObj))
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;
 	}
 	
 	ACharacter* TargetPlayer = Cast<ACharacter>(TargetObj);
 	if (!IsValid(TargetPlayer))
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;
 	}
 	
@@ -162,6 +160,8 @@ void UGRBTTask_KeepDistance::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;
 	}
+
+	AICon->SetFocus(TargetPlayer);
 }
 
 void UGRBTTask_KeepDistance::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
