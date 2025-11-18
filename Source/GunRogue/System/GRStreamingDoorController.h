@@ -7,6 +7,7 @@
 #include "GRStreamingDoorController.generated.h"
 
 class UBoxComponent;
+class AGRStreamingDoor;
 
 UCLASS()
 class GUNROGUE_API AGRStreamingDoorController : public AActor
@@ -16,6 +17,9 @@ class GUNROGUE_API AGRStreamingDoorController : public AActor
 public:	
 
 	AGRStreamingDoorController();
+
+	UFUNCTION()
+	void OnRep_IsLevelComplete();
 
 protected:
 
@@ -32,19 +36,32 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_IsDoorOpen)
 	bool bIsDoorOpen;
 
+	UPROPERTY(ReplicatedUsing = OnRep_IsLevelComplete)
+	bool bIsLevelComplete;
+
 	UFUNCTION()
 	void OnRep_IsDoorOpen();
+	
 
 	void CheckDoorOpenCondition();
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Door")
-	class AGRStreamingDoor* TargetDoor;
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "GR")
+	TObjectPtr<AGRStreamingDoor> TargetDoor;
+
+	UPROPERTY()
+	bool bWasActivated = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GR")
+	bool Check = false;
 
 private:
 
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+
+	
 };

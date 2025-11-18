@@ -3,8 +3,10 @@
 #include "GameFramework/Actor.h"
 #include "GRNextMapLoader.generated.h"
 
+class AGRStreamingDoorController;
 class UArrowComponent;
 class UBoxComponent;
+class AGRStreamingDoor;
 
 UCLASS()
 class GUNROGUE_API AGRNextMapLoader : public AActor
@@ -30,16 +32,16 @@ protected:
 	UArrowComponent* Arrow;
 	
 	UPROPERTY()
-	bool bHasOverlap = false;
+	bool bWasActivated = false;
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Streaming")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GRLoader")
 	TSoftObjectPtr<UWorld> LevelToLoad;
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Door")
-	class AGRStreamingDoor* TargetDoor;
+	
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "GRLoader")
+	TObjectPtr<AGRStreamingDoorController> TargetController;
 
 	void CheckMapLoaderCondition();
 	
@@ -54,10 +56,10 @@ protected:
 
 private:
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 	
 };

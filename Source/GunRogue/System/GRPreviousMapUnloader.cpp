@@ -22,7 +22,7 @@ void AGRPreviousMapUnloader::BeginPlay()
 
 	if (Trigger)
 	{
-		Trigger->OnComponentBeginOverlap.AddDynamic(this, &AGRPreviousMapUnloader::OnOverlapBegin);
+		Trigger->OnComponentBeginOverlap.AddDynamic(this, &AGRPreviousMapUnloader::OnBeginOverlap);
 	}
 }
 
@@ -59,7 +59,7 @@ void AGRPreviousMapUnloader::UnloadMap()
 
 }
 
-void AGRPreviousMapUnloader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void AGRPreviousMapUnloader::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (bHasOverlap)

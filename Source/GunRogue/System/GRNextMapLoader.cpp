@@ -1,6 +1,7 @@
 #include "System/GRNextMapLoader.h"
 
 #include "GRStreamingDoor.h"
+#include "GRStreamingDoorController.h"
 #include "Components/ArrowComponent.h"
 #include "GameModes/GRGameState.h"
 #include "Components/BoxComponent.h"
@@ -13,6 +14,7 @@ AGRNextMapLoader::AGRNextMapLoader()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
+	bIsStream = false;
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger"));
 	SetRootComponent(Trigger);
 	Trigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -29,19 +31,19 @@ void AGRNextMapLoader::BeginPlay()
 
 	if (HasAuthority())
 	{
-		Trigger->OnComponentBeginOverlap.AddDynamic(this, &AGRNextMapLoader::OnOverlapBegin);
-		Trigger->OnComponentEndOverlap.AddDynamic(this, &AGRNextMapLoader::OnOverlapEnd);
+		Trigger->OnComponentBeginOverlap.AddDynamic(this, &AGRNextMapLoader::OnBeginOverlap);
+		Trigger->OnComponentEndOverlap.AddDynamic(this, &AGRNextMapLoader::OnEndOverlap);
 	}
 }
 
 void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 {
-	if (bHasOverlap)
+	if (bWasActivated)
 	{
 		return;
 	}
 	bool bLoadSuccessful = false;
-	bHasOverlap = true;
+	bWasActivated = true;
 	
 	AGameStateBase* CurrentGameState = UGameplayStatics::GetGameState(GetWorld());
 	if (!CurrentGameState)
@@ -70,7 +72,7 @@ void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 		GS->GetNextLevelName()
 		);
 
-	if (StreamedLevel && TargetDoor)
+	if (StreamedLevel && TargetController)
 	{
 		StreamedLevel->OnLevelLoaded.AddDynamic(this, &AGRNextMapLoader::OnLevelLoadCompleted);
 	}
@@ -79,14 +81,14 @@ void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 
 void AGRNextMapLoader::OnLevelLoadCompleted()
 {
-	if (TargetDoor)
+	if (TargetController)
 	{
-		TargetDoor->ActivateDoor();
+		TargetController->OnRep_IsLevelComplete();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("CallbackDebug On"));
 }
 
-void AGRNextMapLoader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void AGRNextMapLoader::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!HasAuthority())
@@ -94,7 +96,7 @@ void AGRNextMapLoader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActo
 		return;
 	}
 
-	if (bHasOverlap)
+	if (bWasActivated)
 	{
 		return;
 	}
@@ -107,7 +109,7 @@ void AGRNextMapLoader::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActo
 	}
 }
 
-void AGRNextMapLoader::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void AGRNextMapLoader::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (!HasAuthority()) 
@@ -115,7 +117,7 @@ void AGRNextMapLoader::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor*
 		return;
 	}
 	
-	if (bHasOverlap)
+	if (bWasActivated)
 	{
 		return;
 	}

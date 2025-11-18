@@ -14,6 +14,7 @@ AGRStreamingDoorController::AGRStreamingDoorController()
 {
 	bReplicates = true;
 	bIsDoorOpen = false;
+	bIsLevelComplete = false;
 
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
 	RootComponent = TriggerBox;
@@ -31,8 +32,8 @@ void AGRStreamingDoorController::BeginPlay()
 
 	if (HasAuthority())
 	{
-		TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AGRStreamingDoorController::OnOverlapBegin);
-		TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AGRStreamingDoorController::OnOverlapEnd);
+		TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AGRStreamingDoorController::OnBeginOverlap);
+		TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AGRStreamingDoorController::OnEndOverlap);
 	}
 	
 }
@@ -42,13 +43,27 @@ void AGRStreamingDoorController::GetLifetimeReplicatedProps(TArray<class FLifeti
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGRStreamingDoorController, bIsDoorOpen);
+	DOREPLIFETIME(AGRStreamingDoorController, bIsLevelComplete);
 }
 
 void AGRStreamingDoorController::OnRep_IsDoorOpen()
 {
+	if (bWasActivated)
+	{
+		return;
+	}
+	bWasActivated = true;
 	if (TargetDoor)
 	{
 		TargetDoor->ActivateDoor();
+	}
+}
+
+void AGRStreamingDoorController::OnRep_IsLevelComplete()
+{
+	if (Check)
+	{
+		bIsLevelComplete = true;
 	}
 }
 
@@ -71,6 +86,12 @@ void AGRStreamingDoorController::CheckDoorOpenCondition()
 	
 	bool bShouldOpen = (CurrentPlayers >= TotalPlayers) && (TotalPlayers > 0);
 
+	if (Check && !bIsLevelComplete)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Back"));
+		return;
+	}
+
 	if (bIsDoorOpen != bShouldOpen)
 	{
 		bIsDoorOpen = bShouldOpen;
@@ -82,10 +103,15 @@ void AGRStreamingDoorController::CheckDoorOpenCondition()
 	UE_LOG(LogTemp, Warning, TEXT("Current bisDoorOpen : %s"), bIsDoorOpen ? TEXT("OPEN") : TEXT("CLOSED"));
 }
 
-void AGRStreamingDoorController::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void AGRStreamingDoorController::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (bWasActivated)
 	{
 		return;
 	}
@@ -98,10 +124,15 @@ void AGRStreamingDoorController::OnOverlapBegin(UPrimitiveComponent* OverlappedC
 	}
 }
 
-void AGRStreamingDoorController::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void AGRStreamingDoorController::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (!HasAuthority()) 
+	{
+		return;
+	}
+
+	if (bWasActivated)
 	{
 		return;
 	}
