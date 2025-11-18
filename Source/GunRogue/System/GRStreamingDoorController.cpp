@@ -60,6 +60,11 @@ void AGRStreamingDoorController::OnRep_IsDoorOpen()
 
 void AGRStreamingDoorController::SetLoadLevelCompleted()
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+	
 	if (bRequiresLevelCompletion)
 	{
 		bHasLevelCompleted = true;

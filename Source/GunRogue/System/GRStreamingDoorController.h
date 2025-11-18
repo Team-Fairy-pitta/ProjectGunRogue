@@ -35,8 +35,7 @@ protected:
 
 	UPROPERTY(ReplicatedUsing = OnRep_IsDoorOpen)
 	bool bIsDoorOpen;
-	
-	UPROPERTY(Replicated)
+
 	bool bHasLevelCompleted;
 
 	UFUNCTION()
