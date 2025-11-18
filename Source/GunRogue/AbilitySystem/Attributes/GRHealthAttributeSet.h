@@ -61,7 +61,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, MaxShield);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ShieldRegenDelay, Category = "Health|Shield")
-	FGameplayAttributeData ShieldRegenDelay; // 실드 회복에 걸리는 시간
+	FGameplayAttributeData ShieldRegenDelay; // 피해를 받지 않았을 때, 실드 재생이 시작되기 까지 걸리는 시간
 	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, ShieldRegenDelay);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ShieldRegenInterval, Category = "Shield")
