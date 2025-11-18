@@ -88,6 +88,17 @@ void UGRPlayerStatusWidget::CreateBuffIcon()
 
 void UGRPlayerStatusWidget::AddBuffIcon(TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
+	UGRGameplayEffect* EffectCDO = GameplayEffectClass->GetDefaultObject<UGRGameplayEffect>();
+	if (!EffectCDO)
+	{
+		return;
+	}
+
+	if (!EffectCDO->bShowBuffIconInUI)
+	{
+		return;
+	}
+
 	if (BuffEffects.Find(GameplayEffectClass) != INDEX_NONE)
 	{
 		return;
@@ -103,12 +114,6 @@ void UGRPlayerStatusWidget::AddBuffIcon(TSubclassOf<UGameplayEffect> GameplayEff
 
 	UGRBuffIconWidget* NewBuffIcon = BuffIcons[BuffIndex];
 	if (!NewBuffIcon)
-	{
-		return;
-	}
-
-	UGRGameplayEffect* EffectCDO = GameplayEffectClass->GetDefaultObject<UGRGameplayEffect>();
-	if (!EffectCDO)
 	{
 		return;
 	}

@@ -19,4 +19,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Description")
 	FText EffectDescription;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Configuration")
+	bool bShowBuffIconInUI = false;
 };
