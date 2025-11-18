@@ -77,14 +77,44 @@ void AGRItemActor::BeginPlay()
 			UE_LOG(LogTemp, Error, TEXT("Path of Blueprint Widget Class (UGRItemInfoWidget) is INVALID"));
 		}
 	}
+
+	if (ItemDefinition)
+	{
+		InitItem(ItemDefinition);
+	}
 }
 
 void AGRItemActor::MulticastRPC_InitItem_Implementation(UGRItemDefinition* InItemDefinition)
 {
+	InitItem(InItemDefinition);
+}
+
+void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
+{
 	ItemDefinition = InItemDefinition;
-	if (StaticMeshComponent && InItemDefinition)
+
+	if (!ItemDefinition)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ItemDefinition is INVALID"));
+		return;
+	}
+
+	if (StaticMeshComponent && ItemDefinition)
 	{
 		StaticMeshComponent->SetStaticMesh(ItemDefinition->ItemMesh);
+	}
+
+	if (ItemInfoWidgetComponent)
+	{
+		UWidget* Widget = ItemInfoWidgetComponent->GetWidget();
+		UGRItemInfoWidget* ItemInfoWidget = Cast<UGRItemInfoWidget>(Widget);
+		if (ItemInfoWidget)
+		{
+			UTexture2D* ItemIcon = ItemDefinition->ItemIcon;
+			const FText& ItemName = ItemDefinition->ItemName;
+			const FText& ItemDescription = ItemDefinition->ItemDescription;
+			ItemInfoWidget->InitItemInfo(ItemIcon, ItemName, ItemDescription);
+		}
 	}
 }
 

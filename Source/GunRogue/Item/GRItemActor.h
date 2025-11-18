@@ -45,6 +45,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_InitItem(UGRItemDefinition* InItemDefinition);
 
+	void InitItem(UGRItemDefinition* InItemDefinition);
+
 	// IGRInteractableActor
 	virtual TArray<TObjectPtr<UStaticMeshComponent>> GetMeshComponents() override;
 	virtual void InteractWith(AActor* OtherActor) override;
