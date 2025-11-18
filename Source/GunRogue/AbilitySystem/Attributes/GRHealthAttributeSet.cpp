@@ -6,6 +6,11 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 
+namespace GunRogue::Status
+{
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Status_Invincible, "Status.Invincible", "");
+}
+
 UGRHealthAttributeSet::UGRHealthAttributeSet()
 	: BeforeHealth(0.0f)
 	, BeforeMaxHealth(0.0f)
@@ -17,10 +22,10 @@ UGRHealthAttributeSet::UGRHealthAttributeSet()
 	InitShield(50.0f);
 	InitMaxShield(50.0f);
 
-	// 실드 설정 기본값
-	InitShieldRegenDelay(3.0f);     // 3초 후 회복 시작
-	InitShieldRegenRate(10.0f);      // 초당 10 회복
-	InitShieldBreakInvincibleDuration(0.5f);  // 0.5초 무적
+	InitShieldRegenDelay(5.0f);
+	InitShieldRegenInterval(1.0f);
+	InitShieldRegenAmount(5.0f);
+	InitShieldBreakInvincibleDuration(0.5f);
 
 	InitGainDamage(0.0f);
 	InitGainHealing(0.0f);
@@ -36,7 +41,8 @@ void UGRHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, Shield, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, MaxShield, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldRegenDelay, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldRegenRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldRegenInterval, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldRegenAmount, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldBreakInvincibleDuration, COND_None, REPNOTIFY_Always);
 }
 
@@ -56,13 +62,13 @@ bool UGRHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackD
 	// 무적 상태 체크 (GainDamage일 때만)
 	if (Data.EvaluatedData.Attribute == GetGainDamageAttribute())
 	{
-		UAbilitySystemComponent* TargetASC = GetOwningAbilitySystemComponent();
-		if (!TargetASC)
+		UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
+		if (!OwningASC)
 		{
 			return false;
 		}
 
-		if (TargetASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Status.Invincible"))))
+		if (OwningASC->HasMatchingGameplayTag(GunRogue::Status::Status_Invincible))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[Damage] Target is invincible - Damage blocked"));
 			return false;  // 피해 차단
@@ -84,6 +90,43 @@ void UGRHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	{
 		AdjustAttributeForMaxChange(Shield, MaxShield, NewValue, GetShieldAttribute());
 	}
+
+	// 음수 방어 로직
+	// 생명력 관련 (최소값 0)
+	if (Attribute == GetHealthAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 0.0f);
+	}
+	else if (Attribute == GetMaxHealthAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 1.0f);  // MaxHealth는 최소 1
+	}
+	// 실드 관련 (최소값 0)
+	else if (Attribute == GetShieldAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 0.0f);
+	}
+	else if (Attribute == GetMaxShieldAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 0.0f);  // MaxShield는 0 가능
+	}
+	// 실드 회복 관련
+	else if (Attribute == GetShieldRegenDelayAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 0.0f);  // 음수 방지
+	}
+	else if (Attribute == GetShieldRegenIntervalAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 0.1f);  // 최소 0.1초 (너무 빠른 회복 방지)
+	}
+	else if (Attribute == GetShieldRegenAmountAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 0.0f);  // 음수 방지
+	}
+	else if (Attribute == GetShieldBreakInvincibleDurationAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 0.0f);  // 음수 방지
+	}
 }
 
 void UGRHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -93,7 +136,7 @@ void UGRHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 	const FGameplayEffectContextHandle& EffectContext = Data.EffectSpec.GetEffectContext();
 	AActor* Instigator = EffectContext.GetOriginalInstigator();
 	AActor* Causer = EffectContext.GetEffectCauser();
-	UAbilitySystemComponent* TargetASC = GetOwningAbilitySystemComponent();
+	UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
 
 	// GainDamage 처리
 	if (Data.EvaluatedData.Attribute == GetGainDamageAttribute())
@@ -106,20 +149,19 @@ void UGRHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 			const float RealDealtAmount = ApplyDamageAndReturnRealDealtAmount(LocalDamage);
 			const bool bShieldWasBroken = (BeforeShield > 0.0f && GetShield() <= 0.0f);
 
-			// 실드가 파괴되었을 때 무적 부여
-			if (bShieldWasBroken && TargetASC && TargetASC->GetOwnerRole() == ROLE_Authority)
+			if (OwningASC && OwningASC->GetOwnerRole() == ROLE_Authority)
 			{
-				HandleShieldBreak(TargetASC, Instigator, Causer, &(Data.EffectSpec));
-			}
-
-			// 실드가 피격되면 회복 타이머 리셋
-			if (RealDealtAmount > 0.0f && TargetASC && TargetASC->GetOwnerRole() == ROLE_Authority)
-			{
-				// 실드가 최대치가 아니면 타이머 리셋
-				if (GetShield() < GetMaxShield())
+				// 실드가 파괴되었을 때 무적 부여
+				if (bShieldWasBroken)
 				{
-					ClearShieldRegenTimer(TargetASC);
-					StartShieldRegenTimer(TargetASC);
+					HandleShieldBreak(OwningASC);
+				}
+
+				// 실제 피해를 입으면 회복 타이머 리셋
+				if (RealDealtAmount > 0.0f && GetShield() < GetMaxShield())
+				{
+					ClearShieldRegenTimer(OwningASC);
+					StartShieldRegenTimer(OwningASC);
 				}
 			}
 
@@ -253,19 +295,19 @@ float UGRHealthAttributeSet::ApplyDamageAndReturnRealDealtAmount(float InDamage)
 	return DealtAmount;
 }
 
-void UGRHealthAttributeSet::HandleShieldBreak(UAbilitySystemComponent* TargetASC, AActor* Instigator, AActor* Causer, const FGameplayEffectSpec* EffectSpec)
+void UGRHealthAttributeSet::HandleShieldBreak(UAbilitySystemComponent* OwningASC)
 {
-	if (!TargetASC)
+	if (!OwningASC)
 	{
 		return;
 	}
 
 	// 무적 태그 부여
 	FGameplayTagContainer InvincibleTags;
-	InvincibleTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Status.Invincible")));
-	TargetASC->AddLooseGameplayTags(InvincibleTags);
+	InvincibleTags.AddTag(GunRogue::Status::Status_Invincible);
+	OwningASC->AddLooseGameplayTags(InvincibleTags);
 
-	AActor* OwnerActor = TargetASC->GetOwnerActor();
+	AActor* OwnerActor = OwningASC->GetOwnerActor();
 	if (!OwnerActor || !OwnerActor->GetWorld())
 	{
 		return;
@@ -275,15 +317,15 @@ void UGRHealthAttributeSet::HandleShieldBreak(UAbilitySystemComponent* TargetASC
 	FTimerHandle InvincibleTimerHandle;
 	FTimerDelegate InvincibleDelegate;
 
-	InvincibleDelegate.BindLambda([TargetASC, InvincibleTags]()
-		{
-			if (!TargetASC)
-			{
-				return;
-			}
+	TWeakObjectPtr<UAbilitySystemComponent> WeakOwningASC(OwningASC);
 
-			TargetASC->RemoveLooseGameplayTags(InvincibleTags);
-			UE_LOG(LogTemp, Log, TEXT("[Shield] Invincible ended"));
+	InvincibleDelegate.BindLambda([WeakOwningASC, InvincibleTags]()
+		{
+			if (WeakOwningASC.IsValid())
+			{
+				WeakOwningASC->RemoveLooseGameplayTags(InvincibleTags);
+				UE_LOG(LogTemp, Log, TEXT("[Shield] Invincible ended"));
+			}
 		});
 
 	OwnerActor->GetWorld()->GetTimerManager().SetTimer(
@@ -297,70 +339,86 @@ void UGRHealthAttributeSet::HandleShieldBreak(UAbilitySystemComponent* TargetASC
 		GetShieldBreakInvincibleDuration());
 
 	// 실드 회복 타이머 제거
-	ClearShieldRegenTimer(TargetASC);
+	ClearShieldRegenTimer(OwningASC);
 }
 
-void UGRHealthAttributeSet::StartShieldRegenTimer(UAbilitySystemComponent* TargetASC, bool bUseDelay)
+void UGRHealthAttributeSet::StartShieldRegenTimer(UAbilitySystemComponent* OwningASC, bool bIsInitialRegenDelay)
 {
-	if (!TargetASC)
+	if (!OwningASC)
 	{
 		return;
 	}
 
 	// 서버 체크
-	if (TargetASC->GetOwnerRole() != ROLE_Authority)
+	if (OwningASC->GetOwnerRole() != ROLE_Authority)
 	{
 		return;
 	}
 
-	AActor* OwnerActor = TargetASC->GetOwnerActor();
+	AActor* OwnerActor = OwningASC->GetOwnerActor();
 	if (!OwnerActor || !OwnerActor->GetWorld())
 	{
 		return;
 	}
 
-	float RegenDelay = GetShieldRegenDelay();
-	if (RegenDelay <= 0.0f)
+	const float CurrentShield = GetShield();
+	const float MaxShieldValue = GetMaxShield();
+
+	if (CurrentShield >= MaxShieldValue)
 	{
-		RegenDelay = 1.0f; // 최소 1초 딜레이
+		ShieldRegenTimers.Remove(OwningASC);
+		return;
 	}
 
 	// 기존 타이머 취소
-	ClearShieldRegenTimer(TargetASC);
+	ClearShieldRegenTimer(OwningASC);
 
-	FTimerHandle& RegenTimerHandle = ShieldRegenTimers.FindOrAdd(TargetASC);
+	FTimerHandle& RegenTimerHandle = ShieldRegenTimers.FindOrAdd(OwningASC);
 	FTimerDelegate RegenDelegate;
 
-	RegenDelegate.BindLambda([this, TargetASC]()
+	TWeakObjectPtr<ThisClass> WeakThis(this);
+	TWeakObjectPtr<UAbilitySystemComponent> WeakOwningASC(OwningASC);
+
+	RegenDelegate.BindLambda([WeakThis, WeakOwningASC]()
 		{
-			if (!TargetASC || TargetASC->GetOwnerRole() != ROLE_Authority)
+			if (!WeakThis.IsValid() || !WeakOwningASC.IsValid())
 			{
 				return;
 			}
 
-			const float CurrentShield = GetShield();
-			const float MaxShieldValue = GetMaxShield();
+			if (WeakOwningASC->GetOwnerRole() != ROLE_Authority)
+			{
+				return;
+			}
+
+			ThisClass* This = WeakThis.Get();
+			UAbilitySystemComponent* ASC = WeakOwningASC.Get();
+
+			const float CurrentShield = This->GetShield();
+			const float MaxShieldValue = This->GetMaxShield();
 
 			if (CurrentShield >= MaxShieldValue)
 			{
-				ShieldRegenTimers.Remove(TargetASC);
+				This->ShieldRegenTimers.Remove(ASC);
+				UE_LOG(LogTemp, Log, TEXT("[Shield] Regen completed"));
 				return;
 			}
 
-			ApplyShieldRegenEffect(TargetASC);
+			This->ApplyShieldRegenEffect(ASC);
 
-			// 다음 회복 예약
-			if (GetShield() < MaxShieldValue)
+			if (This->GetShield() < MaxShieldValue)
 			{
-				StartShieldRegenTimer(TargetASC, false);
+				This->StartShieldRegenTimer(ASC, false);
 			}
 			else
 			{
-				ShieldRegenTimers.Remove(TargetASC);
+				This->ShieldRegenTimers.Remove(ASC);
+				UE_LOG(LogTemp, Log, TEXT("[Shield] Regen completed"));
 			}
 		});
 
-	const float TimerDelay = bUseDelay ? GetShieldRegenDelay() : 1.0f;
+	// 첫 실행은 ShieldRegenDelay, 이후는 ShieldRegenInterval
+	const float TimerDelay = bIsInitialRegenDelay ? GetShieldRegenDelay() : GetShieldRegenInterval();
 
 	OwnerActor->GetWorld()->GetTimerManager().SetTimer(
 		RegenTimerHandle,
@@ -369,45 +427,59 @@ void UGRHealthAttributeSet::StartShieldRegenTimer(UAbilitySystemComponent* Targe
 		false
 	);
 
-	UE_LOG(LogTemp, Log, TEXT("[Shield] Regen timer started (Server): %.1f seconds"), RegenDelay);
+	if (bIsInitialRegenDelay)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Shield] Regen will start in %.1f seconds"), TimerDelay);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Shield] Next regen tick in %.1f seconds"), TimerDelay);
+	}
 
 }
 
-void UGRHealthAttributeSet::ClearShieldRegenTimer(UAbilitySystemComponent* TargetASC)
+void UGRHealthAttributeSet::ClearShieldRegenTimer(UAbilitySystemComponent* OwningASC)
 {
-	if (!TargetASC)
+	if (!OwningASC)
 	{
 		return;
 	}
 
-	FTimerHandle* TimerHandle = ShieldRegenTimers.Find(TargetASC);
-	if (!TimerHandle || !TimerHandle->IsValid())
+	FTimerHandle* TimerHandle = ShieldRegenTimers.Find(OwningASC);
+	if (!TimerHandle)
 	{
 		return;
 	}
 
-	AActor* OwnerActor = TargetASC->GetOwnerActor();
+	// Invalid 타이머도 제거
+	if (!TimerHandle->IsValid())
+	{
+		ShieldRegenTimers.Remove(OwningASC);
+		return;
+	}
+
+	AActor* OwnerActor = OwningASC->GetOwnerActor();
 	if (!OwnerActor || !OwnerActor->GetWorld())
 	{
 		return;
 	}
 
 	OwnerActor->GetWorld()->GetTimerManager().ClearTimer(*TimerHandle);
-	ShieldRegenTimers.Remove(TargetASC);
+	ShieldRegenTimers.Remove(OwningASC);
 
 	UE_LOG(LogTemp, Log, TEXT("[Shield] Regen timer cleared"));
 }
 
-void UGRHealthAttributeSet::ApplyShieldRegenEffect(UAbilitySystemComponent* TargetASC)
+void UGRHealthAttributeSet::ApplyShieldRegenEffect(UAbilitySystemComponent* OwningASC)
 {
-	if (!TargetASC || TargetASC->GetOwnerRole() != ROLE_Authority)
+	if (!OwningASC || OwningASC->GetOwnerRole() != ROLE_Authority)
 	{
 		return;
 	}
 
 	const float CurrentShield = GetShield();
 	const float MaxShieldValue = GetMaxShield();
-	const float RegenAmount = GetShieldRegenRate();
+	const float RegenAmount = GetShieldRegenAmount();
 
 	if (CurrentShield >= MaxShieldValue)
 	{
@@ -438,12 +510,11 @@ void UGRHealthAttributeSet::AdjustAttributeForMaxChange(const FGameplayAttribute
 	}
 }
 
-// OnRep 함수들
+// OnRep 함수들 - 클라이언트에서도 델리게이트 브로드캐스트
 void UGRHealthAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, Health, OldHealth);
 
-	// 클라이언트에서도 델리게이트 브로드캐스트
 	float OldValue = OldHealth.GetCurrentValue();
 	float NewValue = GetHealth();
 	OnHealthChanged.Broadcast(nullptr, nullptr, nullptr, NewValue - OldValue, OldValue, NewValue);
@@ -458,7 +529,6 @@ void UGRHealthAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMax
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, MaxHealth, OldMaxHealth);
 
-	// 클라이언트에서도 델리게이트 브로드캐스트
 	float OldValue = OldMaxHealth.GetCurrentValue();
 	float NewValue = GetMaxHealth();
 	OnMaxHealthChanged.Broadcast(nullptr, nullptr, nullptr, NewValue - OldValue, OldValue, NewValue);
@@ -468,7 +538,6 @@ void UGRHealthAttributeSet::OnRep_Shield(const FGameplayAttributeData& OldShield
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, Shield, OldShield);
 
-	// 클라이언트에서도 델리게이트 브로드캐스트
 	float OldValue = OldShield.GetCurrentValue();
 	float NewValue = GetShield();
 	OnShieldChanged.Broadcast(nullptr, nullptr, nullptr, NewValue - OldValue, OldValue, NewValue);
@@ -483,7 +552,6 @@ void UGRHealthAttributeSet::OnRep_MaxShield(const FGameplayAttributeData& OldMax
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, MaxShield, OldMaxShield);
 
-	// 클라이언트에서도 델리게이트 브로드캐스트
 	float OldValue = OldMaxShield.GetCurrentValue();
 	float NewValue = GetMaxShield();
 	OnMaxShieldChanged.Broadcast(nullptr, nullptr, nullptr, NewValue - OldValue, OldValue, NewValue);
@@ -494,9 +562,14 @@ void UGRHealthAttributeSet::OnRep_ShieldRegenDelay(const FGameplayAttributeData&
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, ShieldRegenDelay, OldValue);
 }
 
-void UGRHealthAttributeSet::OnRep_ShieldRegenRate(const FGameplayAttributeData& OldValue)
+void UGRHealthAttributeSet::OnRep_ShieldRegenInterval(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, ShieldRegenRate, OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, ShieldRegenInterval, OldValue);
+}
+
+void UGRHealthAttributeSet::OnRep_ShieldRegenAmount(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, ShieldRegenAmount, OldValue);
 }
 
 void UGRHealthAttributeSet::OnRep_ShieldBreakInvincibleDuration(const FGameplayAttributeData& OldValue)

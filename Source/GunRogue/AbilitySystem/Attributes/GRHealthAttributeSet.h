@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
+#include "GameplayTagContainer.h"
+#include "NativeGameplayTags.h"
 #include "GRHealthAttributeSet.generated.h"
 
 // Attribute 접근자 매크로
@@ -21,6 +23,11 @@ DECLARE_MULTICAST_DELEGATE_SixParams(
 	float /*OldValue*/,
 	float /*NewValue*/
 );
+
+namespace GunRogue::Status
+{
+	GUNROGUE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Invincible);
+}
 
 UCLASS()
 class GUNROGUE_API UGRHealthAttributeSet : public UAttributeSet
@@ -54,15 +61,19 @@ public:
 	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, MaxShield);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ShieldRegenDelay, Category = "Health|Shield")
-	FGameplayAttributeData ShieldRegenDelay;
+	FGameplayAttributeData ShieldRegenDelay; // 실드 회복에 걸리는 시간
 	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, ShieldRegenDelay);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ShieldRegenRate, Category = "Health|Shield")
-	FGameplayAttributeData ShieldRegenRate;
-	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, ShieldRegenRate);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ShieldRegenInterval, Category = "Shield")
+	FGameplayAttributeData ShieldRegenInterval;  // 실드 회복 간격
+	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, ShieldRegenInterval);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ShieldRegenAmount, Category = "Shield")
+	FGameplayAttributeData ShieldRegenAmount; // 실드 회복량
+	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, ShieldRegenAmount);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ShieldBreakInvincibleDuration, Category = "Health|Shield")
-	FGameplayAttributeData ShieldBreakInvincibleDuration;
+	FGameplayAttributeData ShieldBreakInvincibleDuration; // 실드 파괴 후 x초 무적
 	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, ShieldBreakInvincibleDuration);
 
 	// ========== Meta Attributes (복제되지 않음) ==========
@@ -106,7 +117,10 @@ protected:
 	void OnRep_ShieldRegenDelay(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	void OnRep_ShieldRegenRate(const FGameplayAttributeData& OldValue);
+	void OnRep_ShieldRegenInterval(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	void OnRep_ShieldRegenAmount(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
 	void OnRep_ShieldBreakInvincibleDuration(const FGameplayAttributeData& OldValue);
@@ -130,8 +144,8 @@ private:
 	float ApplyDamageAndReturnRealDealtAmount(float InDamage);
 
 	// 실드 시스템 헬퍼 함수
-	void HandleShieldBreak(UAbilitySystemComponent* TargetASC, AActor* Instigator, AActor* Causer, const FGameplayEffectSpec* EffectSpec);
-	void StartShieldRegenTimer(UAbilitySystemComponent* TargetASC, bool bUseDelay = true);
-	void ClearShieldRegenTimer(UAbilitySystemComponent* TargetASC);
-	void ApplyShieldRegenEffect(UAbilitySystemComponent* TargetASC);
+	void HandleShieldBreak(UAbilitySystemComponent* OwningASC);
+	void StartShieldRegenTimer(UAbilitySystemComponent* OwningASC, bool bIsInitialRegenDelay = true);
+	void ClearShieldRegenTimer(UAbilitySystemComponent* OwningASC);
+	void ApplyShieldRegenEffect(UAbilitySystemComponent* OwningASC);
 };
