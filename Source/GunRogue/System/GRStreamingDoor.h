@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "GRStreamingDoor.generated.h"
 
+class UArrowComponent;
+
 UCLASS()
 class GUNROGUE_API AGRStreamingDoor : public AActor
 {
@@ -21,10 +23,5 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
-
-private:
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* DoorMesh;
 
 };

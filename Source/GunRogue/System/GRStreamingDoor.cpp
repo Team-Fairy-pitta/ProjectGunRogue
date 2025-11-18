@@ -4,13 +4,9 @@
 #include "System/GRStreamingDoor.h"
 
 
+
 AGRStreamingDoor::AGRStreamingDoor()
 {
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
-	DoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMesh"));
-	DoorMesh->SetupAttachment(RootComponent);
-
 	bReplicates = true;
 	
 }
