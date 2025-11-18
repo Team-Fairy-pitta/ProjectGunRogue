@@ -157,11 +157,16 @@ void UGRHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 					HandleShieldBreak(OwningASC);
 				}
 
-				// 실제 피해를 입으면 회복 타이머 리셋
-				if (RealDealtAmount > 0.0f && GetShield() < GetMaxShield())
+				// 공격 받을 시, 실드 회복 타이머 리셋
+				if (RealDealtAmount > 0.0)
 				{
 					ClearShieldRegenTimer(OwningASC);
 					StartShieldRegenTimer(OwningASC);
+				}
+
+				if (GetShield() >= GetMaxShield())
+				{
+					ClearShieldRegenTimer(OwningASC);
 				}
 			}
 
