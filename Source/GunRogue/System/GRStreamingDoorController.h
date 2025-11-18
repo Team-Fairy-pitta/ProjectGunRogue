@@ -19,7 +19,7 @@ public:
 	AGRStreamingDoorController();
 
 	UFUNCTION()
-	void OnRep_IsLevelComplete();
+	void OnRep_HasLevelCompleted();
 
 protected:
 
@@ -36,8 +36,8 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_IsDoorOpen)
 	bool bIsDoorOpen;
 
-	UPROPERTY(ReplicatedUsing = OnRep_IsLevelComplete)
-	bool bIsLevelComplete;
+	UPROPERTY(ReplicatedUsing = OnRep_HasLevelCompleted)
+	bool bHasLevelCompleted;
 
 	UFUNCTION()
 	void OnRep_IsDoorOpen();
@@ -52,7 +52,7 @@ protected:
 	bool bWasActivated = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GR")
-	bool Check = false;
+	bool bRequiresLevelCompletion = false;
 
 private:
 

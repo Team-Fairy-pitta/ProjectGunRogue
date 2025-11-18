@@ -14,7 +14,7 @@ AGRStreamingDoorController::AGRStreamingDoorController()
 {
 	bReplicates = true;
 	bIsDoorOpen = false;
-	bIsLevelComplete = false;
+	bHasLevelCompleted = false;
 
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
 	RootComponent = TriggerBox;
@@ -43,7 +43,7 @@ void AGRStreamingDoorController::GetLifetimeReplicatedProps(TArray<class FLifeti
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGRStreamingDoorController, bIsDoorOpen);
-	DOREPLIFETIME(AGRStreamingDoorController, bIsLevelComplete);
+	DOREPLIFETIME(AGRStreamingDoorController, bHasLevelCompleted);
 }
 
 void AGRStreamingDoorController::OnRep_IsDoorOpen()
@@ -59,11 +59,11 @@ void AGRStreamingDoorController::OnRep_IsDoorOpen()
 	}
 }
 
-void AGRStreamingDoorController::OnRep_IsLevelComplete()
+void AGRStreamingDoorController::OnRep_HasLevelCompleted()
 {
-	if (Check)
+	if (bRequiresLevelCompletion)
 	{
-		bIsLevelComplete = true;
+		bHasLevelCompleted = true;
 	}
 }
 
@@ -86,7 +86,7 @@ void AGRStreamingDoorController::CheckDoorOpenCondition()
 	
 	bool bShouldOpen = (CurrentPlayers >= TotalPlayers) && (TotalPlayers > 0);
 
-	if (Check && !bIsLevelComplete)
+	if (bRequiresLevelCompletion && !bHasLevelCompleted)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Back"));
 		return;

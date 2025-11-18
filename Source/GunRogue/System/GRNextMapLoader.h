@@ -48,11 +48,11 @@ protected:
 	UPROPERTY()
 	TSet<APlayerState*> PlayersInArea;
 
-	UPROPERTY(ReplicatedUsing = OnRep_IsStream)
-	bool bIsStream;
+	UPROPERTY(ReplicatedUsing = OnRep_ShouldLoadLevel)
+	bool bShouldLoadLevel;
 
 	UFUNCTION()
-	void OnRep_IsStream();
+	void OnRep_ShouldLoadLevel();
 
 private:
 	UFUNCTION()

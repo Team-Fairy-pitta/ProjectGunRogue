@@ -14,7 +14,7 @@ AGRNextMapLoader::AGRNextMapLoader()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
-	bIsStream = false;
+	bShouldLoadLevel = false;
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger"));
 	SetRootComponent(Trigger);
 	Trigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -83,7 +83,7 @@ void AGRNextMapLoader::OnLevelLoadCompleted()
 {
 	if (TargetController)
 	{
-		TargetController->OnRep_IsLevelComplete();
+		TargetController->OnRep_HasLevelCompleted();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("CallbackDebug On"));
 }
@@ -133,7 +133,7 @@ void AGRNextMapLoader::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AGRNextMapLoader, bIsStream);
+	DOREPLIFETIME(AGRNextMapLoader, bShouldLoadLevel);
 }
 
 void AGRNextMapLoader::CheckMapLoaderCondition()
@@ -155,18 +155,18 @@ void AGRNextMapLoader::CheckMapLoaderCondition()
 	
 	bool bShouldLoad = (CurrentPlayers >= TotalPlayers) && (TotalPlayers > 0);
 
-	if (bIsStream != bShouldLoad)
+	if (bShouldLoadLevel != bShouldLoad)
 	{
-		bIsStream = bShouldLoad;
+		bShouldLoadLevel = bShouldLoad;
 
-		OnRep_IsStream();
+		OnRep_ShouldLoadLevel();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("TotalPlayer: %d"), TotalPlayers);
 	UE_LOG(LogTemp, Warning, TEXT("PlayersInArea: %d"), CurrentPlayers);
-	UE_LOG(LogTemp, Warning, TEXT("Current bIsStream : %s"), bIsStream ? TEXT("OPEN") : TEXT("CLOSED"));
+	UE_LOG(LogTemp, Warning, TEXT("Current bIsStream : %s"), bShouldLoadLevel ? TEXT("OPEN") : TEXT("CLOSED"));
 }
 
-void AGRNextMapLoader::OnRep_IsStream()
+void AGRNextMapLoader::OnRep_ShouldLoadLevel()
 {
 	LoadMap(LevelToLoad);
 }
