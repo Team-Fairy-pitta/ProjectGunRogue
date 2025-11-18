@@ -174,19 +174,20 @@ void AGRBattlePlayerController::ClientRPC_OnActiveGameplayEffectAdded_Implementa
 		return;
 	}
 
-	// TODO: HUD와 연동해서, 체력바 위에 현재 활성화된 GameplayEffect 아이콘을 추가해야 함
-	if (GEngine)
+	if (!HUDWidgetInstance)
 	{
-		UGRGameplayEffect* EffectCDO = EffectClass->GetDefaultObject<UGRGameplayEffect>();
-		if (EffectCDO)
-		{
-			FString EffectIconName = EffectCDO->EffectIcon.GetFullName();
-			FString EffectName = EffectCDO->EffectName.ToString();
-			FString EffectDescription = EffectCDO->EffectDescription.ToString();
-			FString DebugMessage = FString::Printf(TEXT("Added: %s / %s / %s"), *EffectIconName, *EffectName, *EffectDescription);
-			GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Cyan, DebugMessage);
-		}
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
 	}
+
+	UGRPlayerStatusWidget* PlayerStatusWidget = HUDWidgetInstance->GetPlayerStatusWidget();
+	if (!PlayerStatusWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerStatusWidget (UGRPlayerStatusWidget) is INVALID"));
+		return;
+	}
+
+	PlayerStatusWidget->AddBuffIcon(EffectClass);
 }
 
 void AGRBattlePlayerController::ClientRPC_OnActiveGameplayEffectRemoved_Implementation(TSubclassOf<UGameplayEffect> EffectClass)
@@ -196,17 +197,18 @@ void AGRBattlePlayerController::ClientRPC_OnActiveGameplayEffectRemoved_Implemen
 		return;
 	}
 
-	// TODO: HUD와 연동해서, 체력바 위에 현재 활성화된 GameplayEffect 아이콘을 제거해야 함
-	if (GEngine)
+	if (!HUDWidgetInstance)
 	{
-		UGRGameplayEffect* EffectCDO = EffectClass->GetDefaultObject<UGRGameplayEffect>();
-		if (EffectCDO)
-		{
-			FString EffectIconName = EffectCDO->EffectIcon.GetFullName();
-			FString EffectName = EffectCDO->EffectName.ToString();
-			FString EffectDescription = EffectCDO->EffectDescription.ToString();
-			FString DebugMessage = FString::Printf(TEXT("Removed: %s / %s / %s"), *EffectIconName, *EffectName, *EffectDescription);
-			GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Cyan, DebugMessage);
-		}
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
 	}
+
+	UGRPlayerStatusWidget* PlayerStatusWidget = HUDWidgetInstance->GetPlayerStatusWidget();
+	if (!PlayerStatusWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerStatusWidget (UGRPlayerStatusWidget) is INVALID"));
+		return;
+	}
+
+	PlayerStatusWidget->RemoveBuffIcon(EffectClass);
 }

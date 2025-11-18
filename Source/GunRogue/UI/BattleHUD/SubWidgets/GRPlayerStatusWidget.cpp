@@ -7,6 +7,7 @@
 #include "GRHPBarWidget.h"
 #include "Components/WrapBox.h"
 #include "Components/WrapBoxSlot.h"
+#include "AbilitySystem/GRGameplayEffect.h"
 
 void UGRPlayerStatusWidget::SetPlayerShieldBar(float CurrentShield, float MaxShield)
 {
@@ -83,4 +84,58 @@ void UGRPlayerStatusWidget::CreateBuffIcon()
 	}
 	
 	BuffIcons.Add(NewBuffIcon);
+}
+
+void UGRPlayerStatusWidget::AddBuffIcon(TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+	if (BuffEffects.Find(GameplayEffectClass) != INDEX_NONE)
+	{
+		return;
+	}
+	BuffEffects.Add(GameplayEffectClass);
+
+	int32 BuffIndex = BuffIcons.Num();
+	CreateBuffIcon();
+	if (!BuffIcons.IsValidIndex(BuffIndex))
+	{
+		return;
+	}
+
+	UGRBuffIconWidget* NewBuffIcon = BuffIcons[BuffIndex];
+	if (!NewBuffIcon)
+	{
+		return;
+	}
+
+	UGRGameplayEffect* EffectCDO = GameplayEffectClass->GetDefaultObject<UGRGameplayEffect>();
+	if (!EffectCDO)
+	{
+		return;
+	}
+
+	NewBuffIcon->SetBuffIcon(EffectCDO->EffectIcon);
+
+}
+
+void UGRPlayerStatusWidget::RemoveBuffIcon(TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+	int32 BuffIndex = BuffEffects.Find(GameplayEffectClass);
+	if (BuffIndex == INDEX_NONE)
+	{
+		return;
+	}
+
+	if (!BuffIcons.IsValidIndex(BuffIndex))
+	{
+		return;
+	}
+
+	if (!BuffIconContainer)
+	{
+		return;
+	}
+
+	BuffIcons.RemoveAt(BuffIndex);
+	BuffEffects.RemoveAt(BuffIndex);
+	BuffIconContainer->RemoveChildAt(BuffIndex);
 }

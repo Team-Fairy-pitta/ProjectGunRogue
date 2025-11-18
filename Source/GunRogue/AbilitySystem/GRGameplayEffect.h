@@ -3,7 +3,7 @@
 #include "GameplayEffect.h"
 #include "GRGameplayEffect.generated.h"
 
-class UTexture;
+class UTexture2D;
 
 UCLASS()
 class GUNROGUE_API UGRGameplayEffect : public UGameplayEffect
@@ -12,7 +12,7 @@ class GUNROGUE_API UGRGameplayEffect : public UGameplayEffect
 	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Icon")
-	TObjectPtr<UTexture> EffectIcon;
+	TObjectPtr<UTexture2D> EffectIcon;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Name")
 	FText EffectName;

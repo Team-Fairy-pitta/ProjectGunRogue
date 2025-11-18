@@ -9,6 +9,8 @@
 class UGRHPBarWidget;
 class UGRBuffIconWidget;
 class UWrapBox;
+class UGameplayEffect;
+
 /**
  * 
  */
@@ -30,6 +32,9 @@ protected:
 	UPROPERTY()
 	TArray<UGRBuffIconWidget*> BuffIcons;
 
+	UPROPERTY()
+	TArray<TSubclassOf<UGameplayEffect>> BuffEffects;
+
 public:
 	void SetPlayerShieldBar(float CurrentShield, float MaxShield);
 	void SetPlayerHPBar(float CurrentHP, float MaxHP);
@@ -41,4 +46,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void CreateBuffIcon();
+
+	void AddBuffIcon(TSubclassOf<UGameplayEffect> GameplayEffectClass);
+	void RemoveBuffIcon(TSubclassOf<UGameplayEffect> GameplayEffectClass);
 };
