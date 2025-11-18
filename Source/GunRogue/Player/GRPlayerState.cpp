@@ -172,8 +172,8 @@ void AGRPlayerState::InitAbilitySystemComponent()
 		return;
 	}
 
-	const UGRPawnData* PwanData = GRCharacter->GetPawnData();
-	if (!PwanData)
+	const UGRPawnData* PawnData = GRCharacter->GetPawnData();
+	if (!PawnData)
 	{
 		return;
 	}
@@ -185,7 +185,7 @@ void AGRPlayerState::InitAbilitySystemComponent()
 
 	AbilitySystemComponent->InitAbilityActorInfo(this /*Owner*/, GRCharacter /*Avatar*/);
 
-	for (UGRAbilitySet* AbilitySet : PwanData->AbilitySets)
+	for (UGRAbilitySet* AbilitySet : PawnData->AbilitySets)
 	{
 		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
 	}

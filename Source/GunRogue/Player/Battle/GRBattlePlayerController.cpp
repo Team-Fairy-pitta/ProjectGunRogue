@@ -33,9 +33,9 @@ void AGRBattlePlayerController::BeginPlay()
 	}
 }
 
-void AGRBattlePlayerController::EndPlay(EEndPlayReason::Type EndPlayResaon)
+void AGRBattlePlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
-	Super::EndPlay(EndPlayResaon);
+	Super::EndPlay(EndPlayReason);
 
 	if (OtherPlayerStatusUpdateTimer.IsValid())
 	{

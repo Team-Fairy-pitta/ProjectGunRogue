@@ -15,7 +15,7 @@ class GUNROGUE_API AGRBattlePlayerController : public AGRPlayerController
 public:
 	AGRBattlePlayerController();
 	virtual void BeginPlay() override;
-	virtual void EndPlay(EEndPlayReason::Type EndPlayResaon) override;
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void OnRep_PlayerState() override;
 
 	// Duration이 있는 (무제한 포함) Effect가 추가 되었을 때 호출됨 (Instance는 호출되지 않음)
