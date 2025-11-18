@@ -76,7 +76,6 @@ void AGRAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		AIPerceptionComp->OnTargetPerceptionUpdated.RemoveDynamic(this, &AGRAIController::OnTargetPerceptionUpdated);
 	}
 	
-	// 혹은 BTComponent가 별도로 있다면
 	if (BehaviorComp)
 	{
 		BehaviorComp->StopTree(EBTStopMode::Safe);
