@@ -50,25 +50,17 @@ void AGRItemRandomBox::InteractWith(AActor* OtherActor)
 		return;
 	}
 
+	if (WasActivatedSet.Contains(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Display, TEXT("%s has activated this item box..."), *GRPlayerState->GetPlayerName());
+		return;
+	}
+
 	TArray<UGRItemDefinition*> ItemDefinitions = GetNewRandomItems(GRPlayerState);
 
-	static TArray<FVector> SpawnLocations =
-	{
-		FVector(0, 0, 100),
-		FVector(-100, 0, 100),
-		FVector(100, 0, 100)
-	};
+	SpawnItemsToSpecificPlayer(GRPlayerState, ItemDefinitions);
 
-	SpawnedActors.Empty();
-	for (int32 ItemIndex = 0; ItemIndex < ItemDefinitions.Num(); ++ItemIndex)
-	{
-		UGRItemDefinition* ItemDefinition = ItemDefinitions[ItemIndex];
-		FVector SpawnLocation = GetActorLocation();
-		SpawnLocation += SpawnLocations[ItemIndex].X * GetActorForwardVector();
-		SpawnLocation += SpawnLocations[ItemIndex].Y * GetActorRightVector();
-		SpawnLocation += SpawnLocations[ItemIndex].Z * GetActorUpVector();
-		SpawnItemToSpecificPlayer(GRPlayerState, ItemDefinition, SpawnLocation);
-	}
+	WasActivatedSet.Add(GRPlayerState);
 }
 
 void AGRItemRandomBox::OnOver()
@@ -178,6 +170,42 @@ UGRItemDefinition* AGRItemRandomBox::GetNewRandomItem(AGRPlayerState* GRPlayerSt
 	{
 		int32 RandomIndex = FMath::RandRange(0, Targets.Num() - 1);
 		return Targets[RandomIndex];
+	}
+}
+
+void AGRItemRandomBox::SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState, TArray<UGRItemDefinition*> ItemDefinitions)
+{
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("SpawnItemsToSpecificPlayer() REQUIRES authority"));
+		return;
+	}
+
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRPlayerState (AGRPlayerState) is INVALID"));
+		return;
+	}
+
+	static TArray<FVector> SpawnLocations =
+	{
+		FVector(0, 0, 100),
+		FVector(-100, 0, 100),
+		FVector(100, 0, 100)
+	};
+
+	SpawnedActors.Empty();
+	for (int32 ItemIndex = 0; ItemIndex < ItemDefinitions.Num(); ++ItemIndex)
+	{
+		UGRItemDefinition* ItemDefinition = ItemDefinitions[ItemIndex];
+		if (ItemDefinition)
+		{
+			FVector SpawnLocation = GetActorLocation();
+			SpawnLocation += SpawnLocations[ItemIndex].X * GetActorForwardVector();
+			SpawnLocation += SpawnLocations[ItemIndex].Y * GetActorRightVector();
+			SpawnLocation += SpawnLocations[ItemIndex].Z * GetActorUpVector();
+			SpawnItemToSpecificPlayer(GRPlayerState, ItemDefinition, SpawnLocation);
+		}
 	}
 }
 

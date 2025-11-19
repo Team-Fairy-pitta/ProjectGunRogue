@@ -45,8 +45,12 @@ private:
 	TArray<UGRItemDefinition*> GetNewRandomItems(AGRPlayerState* GRPlayerState);
 	UGRItemDefinition* GetNewRandomItem(AGRPlayerState* GRPlayerState, TArray<UGRItemDefinition*>& AlreadySelected);
 
+	void SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState, TArray<UGRItemDefinition*> ItemDefinitions);
 	void SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, UGRItemDefinition* ItemDefinition, FVector& Location);
 	void OnPickupAnyItem();
+
+	UPROPERTY()
+	TSet<AGRPlayerState*> WasActivatedSet;
 
 	UPROPERTY()
 	TArray<TWeakObjectPtr<AActor>> SpawnedActors;
