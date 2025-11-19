@@ -119,7 +119,7 @@ bool UGRPerkSubsystem::TryUpgradePerk(FName PerkID, const UDataTable* PerkTable)
 		return false;
 	}
 
-	int32 Cost = (CurrentLevel) * Row->CostPerLevel;
+	int32 Cost = (CurrentLevel + 1) * Row->CostPerLevel;
 
 	if (MetaGoods < Cost)
 	{
@@ -128,8 +128,6 @@ bool UGRPerkSubsystem::TryUpgradePerk(FName PerkID, const UDataTable* PerkTable)
 
 	MetaGoods -= Cost;
 	SetPerkInfoRow(PerkID, CurrentLevel + 1);
-
-	SavePerks();
-
+	
 	return true;
 }

@@ -16,7 +16,7 @@ struct FPerkInfoRow : public FTableRowBase
 	GENERATED_BODY();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName PerkName;
+	FText PerkName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName PerkID;
@@ -25,7 +25,7 @@ struct FPerkInfoRow : public FTableRowBase
 	FText PerkDescription;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UTexture2D> PerkIcon;
+	TObjectPtr<UTexture2D> PerkIcon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MaxLevel = 10;
