@@ -8,6 +8,7 @@ class UGRItemDefinition;
 UENUM(BlueprintType)
 enum class EItemRarity : uint8
 {
+	NONE,
 	NORMAL UMETA(DisplayName = "Normal Item"),
 	RARE UMETA(DisplayName = "Rare Item"),
 	EPIC UMETA(DisplayName = "Epic Item")
