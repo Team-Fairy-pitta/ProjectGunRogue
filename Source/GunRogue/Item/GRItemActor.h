@@ -31,6 +31,8 @@ public:
 	UGRItemDefinition* ItemDefinition;
 };
 
+DECLARE_MULTICAST_DELEGATE(FOnPickup)
+
 // Item Actor
 // 바닥(=맵, 레벨)에 떨어져 있는 아이템을 나타내기 위한 Actor입니다.
 UCLASS()
@@ -52,6 +54,8 @@ public:
 	virtual void InteractWith(AActor* OtherActor) override;
 	virtual void OnOver() override;
 	virtual void OnOut() override;
+
+	FOnPickup OnPickup;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue")

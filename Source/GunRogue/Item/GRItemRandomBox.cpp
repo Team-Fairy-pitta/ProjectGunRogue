@@ -52,10 +52,22 @@ void AGRItemRandomBox::InteractWith(AActor* OtherActor)
 
 	TArray<UGRItemDefinition*> ItemDefinitions = GetNewRandomItems(GRPlayerState);
 
-	for (auto* a : ItemDefinitions)
+	static TArray<FVector> SpawnLocations =
 	{
-		FString Message = a->ItemName.ToString();
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Blue, Message);
+		FVector(0, 0, 100),
+		FVector(-100, 0, 100),
+		FVector(100, 0, 100)
+	};
+
+	SpawnedActors.Empty();
+	for (int32 ItemIndex = 0; ItemIndex < ItemDefinitions.Num(); ++ItemIndex)
+	{
+		UGRItemDefinition* ItemDefinition = ItemDefinitions[ItemIndex];
+		FVector SpawnLocation = GetActorLocation();
+		SpawnLocation += SpawnLocations[ItemIndex].X * GetActorForwardVector();
+		SpawnLocation += SpawnLocations[ItemIndex].Y * GetActorRightVector();
+		SpawnLocation += SpawnLocations[ItemIndex].Z * GetActorUpVector();
+		SpawnItemToSpecificPlayer(GRPlayerState, ItemDefinition, SpawnLocation);
 	}
 }
 
@@ -106,6 +118,7 @@ UGRItemDefinition* AGRItemRandomBox::GetNewRandomItem(AGRPlayerState* GRPlayerSt
 
 	if (!ItemTable)
 	{
+		UE_LOG(LogTemp, Error, TEXT("ItemTable (UDataTable) is INVALID"));
 		return nullptr;
 	}
 
@@ -165,5 +178,57 @@ UGRItemDefinition* AGRItemRandomBox::GetNewRandomItem(AGRPlayerState* GRPlayerSt
 	{
 		int32 RandomIndex = FMath::RandRange(0, Targets.Num() - 1);
 		return Targets[RandomIndex];
+	}
+}
+
+void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, UGRItemDefinition* ItemDefinition, FVector& Location)
+{
+	// 일단 스폰
+	// TODO: 특정 캐릭터에 대해서만 스폰
+	// TODO: 캐릭터마다 Interact With 정보 따로 저장해서 ,각각 사용할 수 있도록 하기
+
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("SpawnItemToSpecificPlayer() REQUIRES authority"));
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!IsValid(World))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GetWorld() is INVALID"));
+		return;
+	}
+
+	FRotator SpawnRotation = FRotator::ZeroRotator;
+	FActorSpawnParameters SpawnParam;
+	SpawnParam.Owner = GRPlayerState;
+
+	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(AGRItemActor::StaticClass(), Location, SpawnRotation, SpawnParam);
+	if (ItemActor)
+	{
+		ItemActor->OnPickup.AddUObject(this, &ThisClass::OnPickupAnyItem);
+		ItemActor->MulticastRPC_InitItem(ItemDefinition);
+		SpawnedActors.Add(ItemActor);
+	}
+}
+
+void AGRItemRandomBox::OnPickupAnyItem()
+{
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("OnPickupAnyItem() REQUIRES authority"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("OnPickupAnyItem()"));
+
+	// 아이템 하나를 집으면, 다른 아이템은 전부 제거해야 함
+	for (TWeakObjectPtr<AActor> WeakActor : SpawnedActors)
+	{
+		if (WeakActor.IsValid())
+		{
+			WeakActor.Get()->Destroy();
+		}
 	}
 }
