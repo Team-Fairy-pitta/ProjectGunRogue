@@ -77,6 +77,9 @@ TArray<UGRItemDefinition*> AGRItemRandomBox::GetNewRandomItems(AGRPlayerState* G
 
 	TArray<UGRItemDefinition*> Items;
 
+	// 최대 3개 까지, 
+	// 내가(GRPlayerState 확인) 가지고 있지 않은 아이템 중에서,
+	// 겹치지 않는(Items 확인) 아이템 Definition을 랜덤 선택함
 	while (Items.Num() < 3)
 	{
 		UGRItemDefinition* RandomItem = GetNewRandomItem(GRPlayerState, Items);
@@ -114,6 +117,9 @@ UGRItemDefinition* AGRItemRandomBox::GetNewRandomItem(AGRPlayerState* GRPlayerSt
 	RarityProbatilty_Sum += RarityProbatility_Rare;
 	RarityProbatilty_Sum += RarityProbatility_Epic;
 
+	// 레어리티 랜덤 선택 로직
+	// 숫자가 클 수록, 그 레어리티가 나올 확률이 높다는 뜻
+	// 확률 공식은 A / (A + B + C)
 	float RarityDice = FMath::FRandRange(0.0f, RarityProbatilty_Sum);
 	EItemRarity SelectedRarity = EItemRarity::NONE;
 	if (RarityDice < RarityProbatility_Normal)
