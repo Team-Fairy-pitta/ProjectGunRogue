@@ -13,6 +13,7 @@ class UGRAbilitySystemComponent;
 class UGRInputHandleComponent;
 class UGRInteractionComponent;
 class UGRPawnData;
+class AGRWeaponBase;
 
 UCLASS()
 class GUNROGUE_API AGRCharacter : public ACharacter, public IAbilitySystemInterface
@@ -72,4 +73,20 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Spectate")
 	bool IsTargetDead(ACharacter* TargetCharacter) const;
+
+
+
+	UFUNCTION(BlueprintCallable)
+	void Test_EquipWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void Test_UpgradeWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void Test_UnequipWeapon();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	AGRWeaponBase* Weapon;
+
+	void NotifyWeaponOverlap(AGRWeaponBase* GetWeapon);
 };

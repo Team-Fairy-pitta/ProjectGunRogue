@@ -9,6 +9,8 @@
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
+#include "Weapon/GRWeaponBase.h"
+
 
 AGRCharacter::AGRCharacter()
 {
@@ -66,6 +68,8 @@ UAbilitySystemComponent* AGRCharacter::GetAbilitySystemComponent() const
 	AGRPlayerState* GRPlayerState = GetGRPlayerState();
 	if (IsValid(GRPlayerState))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ASC 획득"));
+
 		return GRPlayerState->GetAbilitySystemComponent();
 	}
 	else
@@ -114,3 +118,42 @@ bool AGRCharacter::IsTargetDead(ACharacter* TargetCharacter) const
 	
 	return false;
 }
+
+void AGRCharacter::Test_EquipWeapon()
+{
+	if (!Weapon)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("무기 미소유"));
+		return;
+	}
+	Weapon->EquipWeapon(this);
+}
+
+void AGRCharacter::Test_UpgradeWeapon()
+{
+	if (!Weapon)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("무기 미소유"));
+		return;
+	}
+	Weapon->TryUpgradeWeapon();
+}
+
+void AGRCharacter::Test_UnequipWeapon()
+{
+	if (!Weapon)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("무기 미소유"));
+		return;
+	}
+	Weapon->UnequipWeapon();
+	Weapon = nullptr;
+}
+
+void AGRCharacter::NotifyWeaponOverlap(AGRWeaponBase* GetWeapon)
+{
+	Weapon = GetWeapon;
+	UE_LOG(LogTemp, Warning, TEXT("무기 감지: %s"), *Weapon->GetName());
+
+}
+
