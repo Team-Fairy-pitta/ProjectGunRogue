@@ -98,14 +98,16 @@ void UGRBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	UObject* TargetObj = BB->GetValueAsObject(AGRAIController::TargetPlayerKey);
 	if (!IsValid(TargetObj))
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		// FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 	
 	AActor* TargetPlayer = Cast<AActor>(TargetObj);
 	if (!IsValid(TargetPlayer))
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		// FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 	
