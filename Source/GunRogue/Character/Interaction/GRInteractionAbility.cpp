@@ -40,9 +40,11 @@ void UGRInteractionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		}
 
 		AActor* Avartar = OwnerInfo->AvatarActor.Get();
-		
+
 		AActor* HitActor = TraceForInteractable(OwnerInfo);
 		IGRInteractableActor* InteractableActor = Cast<IGRInteractableActor>(HitActor);
+
+
 		if (!InteractableActor)
 		{
 			UE_LOG(LogTemp, Display, TEXT("HitActor is NOT IGRInteractableActor"));
@@ -50,8 +52,10 @@ void UGRInteractionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 			return;
 		}
 
-		InteractableActor->InteractWith(Avartar);
-
+		if (InteractableActor->CanInteract(Avartar))
+		{
+			InteractableActor->InteractWith(Avartar);
+		}
 		EndAbility(Handle, OwnerInfo, ActivationInfo, true, false);
 	}
 }

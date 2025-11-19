@@ -21,6 +21,7 @@ public:
 	virtual void InteractWith(AActor* OtherActor) override;
 	virtual void OnOver() override;
 	virtual void OnOut() override;
+	virtual bool CanInteract(AActor* OtherActor) override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Configuration")

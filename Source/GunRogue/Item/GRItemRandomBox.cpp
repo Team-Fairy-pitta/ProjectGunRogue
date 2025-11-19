@@ -71,6 +71,33 @@ void AGRItemRandomBox::OnOut()
 {
 }
 
+bool AGRItemRandomBox::CanInteract(AActor* OtherActor)
+{
+	if (OtherActor->IsA<AGRCharacter>())
+	{
+		AGRCharacter* GRCharacter = Cast<AGRCharacter>(OtherActor);
+		if (IsValid(GRCharacter))
+		{
+			AGRPlayerState* GRPlayerState = GRCharacter->GetGRPlayerState();
+			if (IsValid(GRPlayerState))
+			{
+				bool bWasActivate = WasActivatedSet.Contains(GRPlayerState);
+				return !bWasActivate;
+			}
+		}
+	}
+	else if (OtherActor->IsA<AGRPlayerState>())
+	{
+		AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(OtherActor);
+		if (IsValid(GRPlayerState))
+		{
+			bool bWasActivate = WasActivatedSet.Contains(GRPlayerState);
+			return !bWasActivate;
+		}
+	}
+	return false;
+}
+
 TArray<UGRItemDefinition*> AGRItemRandomBox::GetNewRandomItems(AGRPlayerState* GRPlayerState)
 {
 	if (!IsValid(GRPlayerState))
