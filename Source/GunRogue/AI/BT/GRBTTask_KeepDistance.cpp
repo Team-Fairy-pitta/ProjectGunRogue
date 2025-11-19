@@ -100,7 +100,6 @@ EBTNodeResult::Type UGRBTTask_KeepDistance::ExecuteTask(UBehaviorTreeComponent& 
 	AIPawn->bUseControllerRotationYaw = true;
 	
 	EPathFollowingRequestResult::Type MoveResult = AICon->MoveToLocation(DesiredLocation, AcceptanceRadius, true, true, true, false, nullptr, true);
-	// if (MoveResult == EPathFollowingRequestResult::Failed || MoveResult == EPathFollowingRequestResult::AlreadyAtGoal)
 	if (MoveResult == EPathFollowingRequestResult::Failed)
 	{
 		return EBTNodeResult::Failed;
@@ -141,7 +140,6 @@ void UGRBTTask_KeepDistance::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
 	UObject* TargetObj = BB->GetValueAsObject(AGRAIController::TargetPlayerKey);
 	if (!IsValid(TargetObj))
 	{
-		//FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
@@ -149,7 +147,6 @@ void UGRBTTask_KeepDistance::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
 	ACharacter* TargetPlayer = Cast<ACharacter>(TargetObj);
 	if (!IsValid(TargetPlayer))
 	{
-		//FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
@@ -162,7 +159,6 @@ void UGRBTTask_KeepDistance::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
 	}
 
 	EPathFollowingStatus::Type Status = PFC->GetStatus();
-	// if (Status == EPathFollowingStatus::Idle || Status == EPathFollowingStatus::Waiting)
 	if (Status == EPathFollowingStatus::Idle)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);

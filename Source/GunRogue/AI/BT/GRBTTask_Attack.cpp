@@ -67,13 +67,6 @@ void UGRBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	FPauseMemory* MyMemory = reinterpret_cast<FPauseMemory*>(NodeMemory);
-	if (!MyMemory->bPaused)
-	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
-		return;
-	}
-
 	AAIController* AICon = OwnerComp.GetAIOwner();
 	if (!AICon)
 	{
@@ -89,6 +82,7 @@ void UGRBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	}
 
 	float CurrentTime = OwnerComp.GetWorld()->GetTimeSeconds();
+	FPauseMemory* MyMemory = reinterpret_cast<FPauseMemory*>(NodeMemory);
 	if (CurrentTime - MyMemory->StartTime >= AttackDelay)
 	{
 		MyMemory->bPaused = false;
@@ -98,7 +92,6 @@ void UGRBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	UObject* TargetObj = BB->GetValueAsObject(AGRAIController::TargetPlayerKey);
 	if (!IsValid(TargetObj))
 	{
-		// FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
@@ -106,7 +99,6 @@ void UGRBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	AActor* TargetPlayer = Cast<AActor>(TargetObj);
 	if (!IsValid(TargetPlayer))
 	{
-		// FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
@@ -131,6 +123,7 @@ void UGRBTTask_Attack::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* 
 	}
 
 	ResumeMovement(AICon);
+	
 }
 
 void UGRBTTask_Attack::StopMovement(AAIController* AIController)
@@ -142,13 +135,14 @@ void UGRBTTask_Attack::StopMovement(AAIController* AIController)
 		{
 			if (UCharacterMovementComponent* MoveComp = AIPawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("AI Attack : Stopping Movement"));
+				//UE_LOG(LogTemp, Warning, TEXT("AI Attack : Stopping Movement"));
 				
 				MoveComp->StopMovementImmediately();
 				MoveComp->DisableMovement();
-			}
 
-			AIPawn->bUseControllerRotationYaw = true;
+				MoveComp->bUseControllerDesiredRotation = false; 
+				AIPawn->bUseControllerRotationYaw = true;
+			}
 		}
 	}
 }
@@ -162,13 +156,15 @@ void UGRBTTask_Attack::ResumeMovement(AAIController* AIController)
 		{
 			if (UCharacterMovementComponent* MoveComp = AIPawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("AI Attack : Resuming Movement"));
+				//UE_LOG(LogTemp, Warning, TEXT("AI Attack : Resuming Movement"));
+
+				AIController->ClearFocus(EAIFocusPriority::Gameplay);
+				AIController->SetControlRotation(AIPawn->GetActorRotation());
 				
 				MoveComp->SetMovementMode(MOVE_Walking);
 				MoveComp->Activate();
-
+				MoveComp->bUseControllerDesiredRotation = true; 
 				AIPawn->bUseControllerRotationYaw = false;
-				AIController->ClearFocus(EAIFocusPriority::Gameplay);
 			}
 		}
 	}
