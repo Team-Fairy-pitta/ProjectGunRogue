@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "GameplayEffect.h"
+#include "AbilitySystem/GRGameplayEffect.h"
 #include "GRWeaponOptionPool.generated.h"
 
 /**
@@ -15,7 +15,7 @@ struct FOptionPoolEntry
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UGameplayEffect> EffectClass;
+	TSubclassOf<UGRGameplayEffect> EffectClass;
 
 	UPROPERTY(EditAnywhere)
 	float MinValue = 1.f;

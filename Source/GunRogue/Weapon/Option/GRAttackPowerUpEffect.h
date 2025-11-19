@@ -1,13 +1,13 @@
 #pragma once
 
-#include "GameplayEffect.h"
+#include "AbilitySystem/GRGameplayEffect.h"
 #include "GRAttackPowerUpEffect.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUNROGUE_API UGRAttackPowerUpEffect : public UGameplayEffect
+class GUNROGUE_API UGRAttackPowerUpEffect : public UGRGameplayEffect
 {
 	GENERATED_BODY()
 	

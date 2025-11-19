@@ -1,13 +1,13 @@
 #pragma once
 
-#include "GameplayEffect.h"
+#include "AbilitySystem/GRGameplayEffect.h"
 #include "GRMagazineCapacityUpEffect.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUNROGUE_API UGRMagazineCapacityUpEffect : public UGameplayEffect
+class GUNROGUE_API UGRMagazineCapacityUpEffect : public UGRGameplayEffect
 {
 	GENERATED_BODY()
 	

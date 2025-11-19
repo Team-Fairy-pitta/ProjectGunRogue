@@ -7,7 +7,7 @@
 
 
 UCLASS()
-class GUNROGUE_API UGRWeaponDataAsset : public UPrimaryDataAsset
+class GUNROGUE_API UGRWeaponDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 	
@@ -21,9 +21,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UGRWeaponOptionPool* OptionPool = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float UpgradeSeccessProbability = 0.8f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 UpgradeCost = 1;
