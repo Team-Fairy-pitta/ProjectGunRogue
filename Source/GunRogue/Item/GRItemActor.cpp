@@ -84,6 +84,28 @@ void AGRItemActor::BeginPlay()
 	}
 }
 
+PRAGMA_DISABLE_OPTIMIZATION
+bool AGRItemActor::IsNetRelevantFor(const AActor* RealViewer, const AActor* ViewTarget, const FVector& SrcLocation) const
+{
+	bool DefaultNetRelevant = Super::IsNetRelevantFor(RealViewer, ViewTarget, SrcLocation);
+
+	AActor* ItemOwner = GetOwner();
+	if (ItemOwner)
+	{
+		if (RealViewer && RealViewer->IsA<APlayerController>())
+		{
+			const APlayerController* ViewerController = Cast<APlayerController>(RealViewer);
+			if (IsValid(ViewerController))
+			{
+				bool bIsOwnClient = ViewerController->GetPlayerState<AActor>() == ItemOwner;
+				return bIsOwnClient && DefaultNetRelevant;
+			}
+		}
+	}
+	return DefaultNetRelevant;
+}
+PRAGMA_ENABLE_OPTIMIZATION
+
 void AGRItemActor::MulticastRPC_InitItem_Implementation(UGRItemDefinition* InItemDefinition)
 {
 	InitItem(InItemDefinition);
@@ -170,4 +192,35 @@ void AGRItemActor::OnOut()
 	{
 		ItemInfoWidgetComponent->SetVisibility(false);
 	}
+}
+
+bool AGRItemActor::CanInteract(AActor* OtherActor)
+{
+	AActor* ItemOwner = GetOwner();
+	if (ItemOwner == nullptr)
+	{
+		return true;
+	}
+
+	if (OtherActor->IsA<AGRCharacter>())
+	{
+		AGRCharacter* GRCharacter = Cast<AGRCharacter>(OtherActor);
+		if (IsValid(GRCharacter))
+		{
+			AGRPlayerState* GRPlayerState = GRCharacter->GetGRPlayerState();
+			if (IsValid(GRPlayerState))
+			{
+				return ItemOwner == GRPlayerState;
+			}
+		}
+	}
+	else if (OtherActor->IsA<AGRPlayerState>())
+	{
+		AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(OtherActor);
+		if (IsValid(GRPlayerState))
+		{
+			return ItemOwner == GRPlayerState;
+		}
+	}
+	return false;
 }

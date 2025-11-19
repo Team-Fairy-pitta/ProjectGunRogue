@@ -43,6 +43,7 @@ class GUNROGUE_API AGRItemActor : public AActor, public IGRInteractableActor
 public:
 	AGRItemActor();
 	virtual void BeginPlay() override;
+	virtual bool IsNetRelevantFor(const AActor* RealViewer, const AActor* ViewTarget, const FVector& SrcLocation) const override;
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_InitItem(UGRItemDefinition* InItemDefinition);
@@ -54,6 +55,7 @@ public:
 	virtual void InteractWith(AActor* OtherActor) override;
 	virtual void OnOver() override;
 	virtual void OnOut() override;
+	virtual bool CanInteract(AActor* OtherActor) override;
 
 	FOnPickup OnPickup;
 

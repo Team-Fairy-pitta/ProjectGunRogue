@@ -15,6 +15,7 @@ class GUNROGUE_API AGRItemRandomBox : public AActor, public IGRInteractableActor
 public:
 	AGRItemRandomBox();
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	// IGRInteractableActor
 	virtual TArray<TObjectPtr<UStaticMeshComponent>> GetMeshComponents() override;
@@ -50,8 +51,8 @@ private:
 	void SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, UGRItemDefinition* ItemDefinition, FVector& Location);
 	void OnPickupAnyItem();
 
-	UPROPERTY()
-	TSet<AGRPlayerState*> WasActivatedSet;
+	UPROPERTY(Replicated)
+	TArray<AGRPlayerState*> WasActivatedArray;
 
 	UPROPERTY()
 	TArray<TWeakObjectPtr<AActor>> SpawnedActors;

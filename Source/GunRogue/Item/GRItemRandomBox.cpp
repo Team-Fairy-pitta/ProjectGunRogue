@@ -4,10 +4,12 @@
 #include "Character/GRCharacter.h"
 #include "Player/GRPlayerState.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AGRItemRandomBox::AGRItemRandomBox()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	bReplicates = true;
 
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
 	SetRootComponent(SceneRoot);
@@ -19,6 +21,13 @@ AGRItemRandomBox::AGRItemRandomBox()
 void AGRItemRandomBox::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AGRItemRandomBox::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, WasActivatedArray);
 }
 
 TArray<TObjectPtr<UStaticMeshComponent>> AGRItemRandomBox::GetMeshComponents()
@@ -50,7 +59,7 @@ void AGRItemRandomBox::InteractWith(AActor* OtherActor)
 		return;
 	}
 
-	if (WasActivatedSet.Contains(GRPlayerState))
+	if (WasActivatedArray.Contains(GRPlayerState))
 	{
 		UE_LOG(LogTemp, Display, TEXT("%s has activated this item box..."), *GRPlayerState->GetPlayerName());
 		return;
@@ -60,7 +69,7 @@ void AGRItemRandomBox::InteractWith(AActor* OtherActor)
 
 	SpawnItemsToSpecificPlayer(GRPlayerState, ItemDefinitions);
 
-	WasActivatedSet.Add(GRPlayerState);
+	WasActivatedArray.Add(GRPlayerState);
 }
 
 void AGRItemRandomBox::OnOver()
@@ -81,7 +90,7 @@ bool AGRItemRandomBox::CanInteract(AActor* OtherActor)
 			AGRPlayerState* GRPlayerState = GRCharacter->GetGRPlayerState();
 			if (IsValid(GRPlayerState))
 			{
-				bool bWasActivate = WasActivatedSet.Contains(GRPlayerState);
+				bool bWasActivate = WasActivatedArray.Contains(GRPlayerState);
 				return !bWasActivate;
 			}
 		}
@@ -91,7 +100,7 @@ bool AGRItemRandomBox::CanInteract(AActor* OtherActor)
 		AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(OtherActor);
 		if (IsValid(GRPlayerState))
 		{
-			bool bWasActivate = WasActivatedSet.Contains(GRPlayerState);
+			bool bWasActivate = WasActivatedArray.Contains(GRPlayerState);
 			return !bWasActivate;
 		}
 	}
@@ -252,6 +261,12 @@ void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, 
 	if (!IsValid(World))
 	{
 		UE_LOG(LogTemp, Error, TEXT("GetWorld() is INVALID"));
+		return;
+	}
+
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRPlayerState (AGRPlayerState) is INVALID"));
 		return;
 	}
 
