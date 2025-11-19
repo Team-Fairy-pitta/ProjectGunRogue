@@ -7,6 +7,15 @@
 class UGRItemDefinition;
 class AGRPlayerState;
 
+USTRUCT()
+struct FSpawnedActor
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AActor>> Actors;
+};
+
 UCLASS()
 class GUNROGUE_API AGRItemRandomBox : public AActor, public IGRInteractableActor
 {
@@ -49,11 +58,11 @@ private:
 
 	void SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState, TArray<UGRItemDefinition*> ItemDefinitions);
 	void SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, UGRItemDefinition* ItemDefinition, FVector& Location);
-	void OnPickupAnyItem();
+	void OnPickupAnyItem(AGRPlayerState* GRPlayerState);
 
 	UPROPERTY(Replicated)
 	TArray<AGRPlayerState*> WasActivatedArray;
 
 	UPROPERTY()
-	TArray<TWeakObjectPtr<AActor>> SpawnedActors;
+	TMap<AGRPlayerState*, FSpawnedActor> SpawnedActors;
 };

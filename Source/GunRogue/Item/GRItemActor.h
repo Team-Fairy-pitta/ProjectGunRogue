@@ -9,6 +9,7 @@ class UBoxComponent;
 class UGRItemDefinition;
 class UStaticMeshComponent;
 class UWidgetComponent;
+class AGRPlayerState;
 
 // Item Activate Handle 구조체
 // Item을 플레이어가 장착했을 때, 해제했을 때를 관리하기 위한 핸들 구조체 입니다.
@@ -31,7 +32,7 @@ public:
 	UGRItemDefinition* ItemDefinition;
 };
 
-DECLARE_MULTICAST_DELEGATE(FOnPickup)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPickup, AGRPlayerState*)
 
 // Item Actor
 // 바닥(=맵, 레벨)에 떨어져 있는 아이템을 나타내기 위한 Actor입니다.
@@ -49,6 +50,7 @@ public:
 	void MulticastRPC_InitItem(UGRItemDefinition* InItemDefinition);
 
 	void InitItem(UGRItemDefinition* InItemDefinition);
+	void SetInvisibile();
 
 	// IGRInteractableActor
 	virtual TArray<TObjectPtr<UStaticMeshComponent>> GetMeshComponents() override;

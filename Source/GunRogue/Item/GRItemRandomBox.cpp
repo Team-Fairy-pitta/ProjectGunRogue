@@ -230,7 +230,7 @@ void AGRItemRandomBox::SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState,
 		FVector(100, 0, 100)
 	};
 
-	SpawnedActors.Empty();
+	SpawnedActors.Add(GRPlayerState);
 	for (int32 ItemIndex = 0; ItemIndex < ItemDefinitions.Num(); ++ItemIndex)
 	{
 		UGRItemDefinition* ItemDefinition = ItemDefinitions[ItemIndex];
@@ -279,11 +279,11 @@ void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, 
 	{
 		ItemActor->OnPickup.AddUObject(this, &ThisClass::OnPickupAnyItem);
 		ItemActor->MulticastRPC_InitItem(ItemDefinition);
-		SpawnedActors.Add(ItemActor);
+		SpawnedActors[GRPlayerState].Actors.Add(ItemActor);
 	}
 }
 
-void AGRItemRandomBox::OnPickupAnyItem()
+void AGRItemRandomBox::OnPickupAnyItem(AGRPlayerState* GRPlayerState)
 {
 	if (!HasAuthority())
 	{
@@ -294,7 +294,13 @@ void AGRItemRandomBox::OnPickupAnyItem()
 	UE_LOG(LogTemp, Display, TEXT("OnPickupAnyItem()"));
 
 	// 아이템 하나를 집으면, 다른 아이템은 전부 제거해야 함
-	for (TWeakObjectPtr<AActor> WeakActor : SpawnedActors)
+	if (!SpawnedActors.Contains(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("SpawnedActors: Key GRPlayerState is INVALID"));
+		return;
+	}
+
+	for (TWeakObjectPtr<AActor> WeakActor : SpawnedActors[GRPlayerState].Actors)
 	{
 		if (WeakActor.IsValid())
 		{

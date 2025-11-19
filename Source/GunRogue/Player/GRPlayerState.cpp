@@ -98,7 +98,7 @@ void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* 
 	AGRItemActor* GRItemActor = Cast<AGRItemActor>(ItemActor);
 	if (IsValid(GRItemActor))
 	{
-		GRItemActor->OnPickup.Broadcast();
+		GRItemActor->OnPickup.Broadcast(this);
 	}
 
 	ItemActor->Destroy();
