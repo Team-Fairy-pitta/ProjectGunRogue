@@ -33,6 +33,15 @@ public:
 	virtual void OnOut() override;
 	virtual bool CanInteract(AActor* OtherActor) override;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_StartAnimation(AGRPlayerState* GRPlayerState);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartOpenAnimation(AGRPlayerState* GRPlayerState);
+
+	UFUNCTION(BlueprintCallable)
+	void OnFinishOpenAnimation(AGRPlayerState* GRPlayerState);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Configuration")
 	float RarityProbatility_Normal = 100.0f;
@@ -47,7 +56,10 @@ protected:
 	TObjectPtr<USceneComponent> SceneRoot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
+	TObjectPtr<UStaticMeshComponent> BoxBottom;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> BoxLid;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item|Table")
 	TObjectPtr<UDataTable> ItemTable;

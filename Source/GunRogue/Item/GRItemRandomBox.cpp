@@ -14,8 +14,11 @@ AGRItemRandomBox::AGRItemRandomBox()
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
 	SetRootComponent(SceneRoot);
 
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	StaticMeshComponent->SetupAttachment(SceneRoot);
+	BoxBottom = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BoxBottom"));
+	BoxBottom->SetupAttachment(SceneRoot);
+
+	BoxLid = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BoxLid"));
+	BoxLid->SetupAttachment(SceneRoot);
 }
 
 void AGRItemRandomBox::BeginPlay()
@@ -33,7 +36,8 @@ void AGRItemRandomBox::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 TArray<TObjectPtr<UStaticMeshComponent>> AGRItemRandomBox::GetMeshComponents()
 {
 	TArray<TObjectPtr<UStaticMeshComponent>> MeshComponents;
-	MeshComponents.Add(StaticMeshComponent);
+	MeshComponents.Add(BoxBottom);
+	MeshComponents.Add(BoxLid);
 	return MeshComponents;
 }
 
@@ -65,13 +69,12 @@ void AGRItemRandomBox::InteractWith(AActor* OtherActor)
 		return;
 	}
 
-	// 'GRPlayerState'가 가지고 있지 않은 아이템을 랜덤으로 여러 개 선택한 다음,
-	// 'GRPlayerState'의 게임 화면에만 아이템을 스폰한다.
-	TArray<UGRItemDefinition*> ItemDefinitions = GetNewRandomItems(GRPlayerState);
-	SpawnItemsToSpecificPlayer(GRPlayerState, ItemDefinitions);
-
-	// 그 이후, 'GRPlayerState'가 이 아이템 박스를 사용하지 못하도록 한다.
+	// 'GRPlayerState'가 이 아이템 박스를 사용하지 못하도록 한다. (1회용 상호 작용)
 	DisableToSpecificPlayer(GRPlayerState);
+
+	// 박스 Open 애니메이션 재생
+	// 애니메이션 재생이 끝나면 처리 시작
+	MulticastRPC_StartAnimation(GRPlayerState);
 }
 
 void AGRItemRandomBox::OnOver()
@@ -110,6 +113,31 @@ bool AGRItemRandomBox::CanInteract(AActor* OtherActor)
 		}
 	}
 	return false;
+}
+
+void AGRItemRandomBox::MulticastRPC_StartAnimation_Implementation(AGRPlayerState* GRPlayerState)
+{
+	StartOpenAnimation(GRPlayerState);
+}
+
+void AGRItemRandomBox::OnFinishOpenAnimation(AGRPlayerState* GRPlayerState)
+{
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("InteractWith() REQUIRES authority"));
+		return;
+	}
+
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRPlayerState (AGRPlayerState) is INVALID"));
+		return;
+	}
+
+	// 'GRPlayerState'가 가지고 있지 않은 아이템을 랜덤으로 여러 개 선택한 다음,
+	// 'GRPlayerState'의 게임 화면에만 아이템을 스폰한다.
+	TArray<UGRItemDefinition*> ItemDefinitions = GetNewRandomItems(GRPlayerState);
+	SpawnItemsToSpecificPlayer(GRPlayerState, ItemDefinitions);
 }
 
 TArray<UGRItemDefinition*> AGRItemRandomBox::GetNewRandomItems(AGRPlayerState* GRPlayerState)
@@ -231,8 +259,8 @@ void AGRItemRandomBox::SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState,
 	static TArray<FVector> SpawnLocations =
 	{
 		FVector(0, 0, 100),
-		FVector(-100, 0, 100),
-		FVector(100, 0, 100)
+		FVector(0, -100, 100),
+		FVector(0, 100, 100)
 	};
 
 	SpawnedActors.Add(GRPlayerState);
