@@ -7,6 +7,7 @@
 class UGRItemDefinition;
 class AGRPlayerState;
 class AGRItemActor;
+class UWidgetComponent;
 
 USTRUCT()
 struct FSpawnedActor
@@ -44,14 +45,17 @@ public:
 	void OnFinishOpenAnimation(AGRPlayerState* GRPlayerState);
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Configuration")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Configuration")
 	float RarityProbatility_Normal = 100.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Configuration")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Configuration")
 	float RarityProbatility_Rare = 0.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Configuration")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Configuration")
 	float RarityProbatility_Epic = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|WidgetClass")
+	TSubclassOf<UUserWidget> InteractWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USceneComponent> SceneRoot;
@@ -62,10 +66,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> BoxLid;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item|Table")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UWidgetComponent> InteractWidgetComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|Table")
 	TObjectPtr<UDataTable> ItemTable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item|Class")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|Class")
 	TSubclassOf<AGRItemActor> ItemActorClass;
 
 private:

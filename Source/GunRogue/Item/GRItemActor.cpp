@@ -111,7 +111,7 @@ void AGRItemActor::BeginPlay()
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("Path of Blueprint Widget Class (UGRItemInfoWidget) is INVALID"));
+			UE_LOG(LogTemp, Error, TEXT("ItemInfoWidgetComponent is INVALID"));
 		}
 	}
 

@@ -4,6 +4,7 @@
 #include "Character/GRCharacter.h"
 #include "Player/GRPlayerState.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 
 AGRItemRandomBox::AGRItemRandomBox()
@@ -19,11 +20,29 @@ AGRItemRandomBox::AGRItemRandomBox()
 
 	BoxLid = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BoxLid"));
 	BoxLid->SetupAttachment(SceneRoot);
+
+	InteractWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidgetComponent"));
+	InteractWidgetComponent->SetupAttachment(SceneRoot);
+	InteractWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	InteractWidgetComponent->SetVisibility(false);
+	InteractWidgetComponent->SetDrawSize(FVector2D(300, 100)); // Desired Size of UGR*****
 }
 
 void AGRItemRandomBox::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsValid(InteractWidgetComponent))
+	{
+		if (InteractWidgetClass)
+		{
+			InteractWidgetComponent->SetWidgetClass(InteractWidgetClass);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("InteractWidgetClass is INVALID"));
+		}
+	}
 }
 
 void AGRItemRandomBox::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -79,10 +98,18 @@ void AGRItemRandomBox::InteractWith(AActor* OtherActor)
 
 void AGRItemRandomBox::OnOver()
 {
+	if (InteractWidgetComponent)
+	{
+		InteractWidgetComponent->SetVisibility(true);
+	}
 }
 
 void AGRItemRandomBox::OnOut()
 {
+	if (InteractWidgetComponent)
+	{
+		InteractWidgetComponent->SetVisibility(false);
+	}
 }
 
 bool AGRItemRandomBox::CanInteract(AActor* OtherActor)
