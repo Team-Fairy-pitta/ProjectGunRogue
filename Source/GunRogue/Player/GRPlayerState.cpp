@@ -9,6 +9,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Item/GRItemActor.h"
 #include "Item/GRItemDefinition.h"
+#include "Weapon/GRWeaponActor.h"
+#include "Weapon/GRWeaponDefinition.h"
 
 AGRPlayerState::AGRPlayerState()
 {
@@ -31,6 +33,7 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, ItemHandles);
+	DOREPLIFETIME(ThisClass, EquippedWeapon);
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
@@ -71,6 +74,26 @@ void AGRPlayerState::UnequipItem(int32 ItemIndex)
 int32 AGRPlayerState::GetItemNum()
 {
 	return ItemHandles.Num();
+}
+
+void AGRPlayerState::TryEquipWeapon(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor)
+{
+	ServerRPC_EquipWeapon(WeaponDefinition, WeaponActor);
+}
+
+void AGRPlayerState::DropWeapon()
+{
+	ServerRPC_DropWeapon();
+}
+
+bool AGRPlayerState::HasWeaponEquipped() const
+{
+	return EquippedWeapon.IsEquipped();
+}
+
+UGRWeaponDefinition* AGRPlayerState::GetEquippedWeaponDefinition() const
+{
+	return EquippedWeapon.GetWeaponDefinition();
 }
 
 void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* ItemDefinition, AActor* ItemActor)
@@ -148,6 +171,119 @@ void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
 	}
 
 	OnUnequipItem(RemovedItemDefinition);
+}
+
+void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!IsValid(WeaponDefinition))
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is INVALID"));
+		return;
+	}
+
+	if (!IsValid(AbilitySystemComponent))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AbilitySystemComponent is INVALID"));
+		return;
+	}
+
+	// 이미 무기를 들고 있다면 먼저 버림
+	if (EquippedWeapon.IsEquipped())
+	{
+		ServerRPC_DropWeapon();
+	}
+
+	// 새 무기 장착
+	EquippedWeapon.EquipWeapon(AbilitySystemComponent, WeaponDefinition);
+
+	// 바닥의 무기 액터 제거
+	if (IsValid(WeaponActor))
+	{
+		WeaponActor->Destroy();
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("Player equipped weapon: %s"),
+		*WeaponDefinition->WeaponName.ToString());
+}
+
+void AGRPlayerState::ServerRPC_DropWeapon_Implementation()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!EquippedWeapon.IsEquipped())
+	{
+		UE_LOG(LogTemp, Display, TEXT("No weapon to drop"));
+		return;
+	}
+
+	UGRWeaponDefinition* DroppedWeaponDef = EquippedWeapon.GetWeaponDefinition();
+
+	// 무기 해제
+	EquippedWeapon.UnequipWeapon();
+
+	// 플레이어 앞에 무기 스폰
+	APawn* Pawn = GetPawn();
+	if (IsValid(Pawn) && IsValid(DroppedWeaponDef))
+	{
+		float DropDistance = 150.0f;
+		FVector DropLocation = Pawn->GetActorLocation() +
+			Pawn->GetActorForwardVector() * DropDistance;
+		FRotator DropRotation = Pawn->GetActorRotation();
+
+		SpawnWeaponAtLocation(DroppedWeaponDef, DropLocation, DropRotation);
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("Player dropped weapon"));
+}
+
+void AGRPlayerState::SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition,
+	const FVector& Location,
+	const FRotator& Rotation)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!IsValid(World))
+	{
+		UE_LOG(LogTemp, Error, TEXT("World is INVALID"));
+		return;
+	}
+
+	if (!IsValid(WeaponDefinition))
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is INVALID"));
+		return;
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = nullptr;
+	SpawnParams.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	AGRWeaponActor* WeaponActor = World->SpawnActor<AGRWeaponActor>(
+		AGRWeaponActor::StaticClass(),
+		Location,
+		Rotation,
+		SpawnParams
+	);
+
+	if (IsValid(WeaponActor))
+	{
+		PlaceActorOnGround(WeaponActor);
+		WeaponActor->InitWeapon(WeaponDefinition);
+		WeaponActor->MulticastRPC_InitWeapon(WeaponDefinition);
+	}
 }
 
 void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)
