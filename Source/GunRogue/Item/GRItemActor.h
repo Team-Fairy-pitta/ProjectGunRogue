@@ -11,6 +11,7 @@ class UStaticMeshComponent;
 class UWidgetComponent;
 class AGRPlayerState;
 
+
 // Item Activate Handle 구조체
 // Item을 플레이어가 장착했을 때, 해제했을 때를 관리하기 위한 핸들 구조체 입니다.
 USTRUCT(BlueprintType)
@@ -50,6 +51,7 @@ public:
 	void MulticastRPC_InitItem(UGRItemDefinition* InItemDefinition);
 
 	void InitItem(UGRItemDefinition* InItemDefinition);
+
 	void SetInvisibile();
 
 	// IGRInteractableActor

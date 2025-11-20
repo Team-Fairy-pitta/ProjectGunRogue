@@ -179,5 +179,7 @@ void AGRAIController::UpdateClosestPlayer()
 	{
 		BlackboardComp->SetValueAsObject(TargetPlayerKey, nullptr);
 		BlackboardComp->SetValueAsBool(IsPlayerDetectedKey, false);
+		
+		ClearFocus(EAIFocusPriority::Gameplay);
 	}
 }

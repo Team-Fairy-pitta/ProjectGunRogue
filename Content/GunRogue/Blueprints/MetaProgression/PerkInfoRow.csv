@@ -1,0 +1,12 @@
+,PerkName,PerkID,PerkDescription,PerkIcon,MaxLevel,ValuePerLevel,CostPerLevel
+Health,Health,Health,Text,,10,3,100
+Shield,Shield,Shield,Text,,10,5,100
+ShieldCooldown,ShieldCooldown,ShieldCooldown,Text,,10,0.05,100
+ShieldInvicibleTime,ShieldInvicibleTime,ShieldInvicibleTime,Text,,10,0.01,100
+KillEnemyHeal,KillEnemyHeal,KillEnemyHeal,Text,,10,1,100
+StrenghtenShield,StrenghtenShield,StrenghtenShield,Text,,10,0.03,100
+WeaponDamage,WeaponDamage,WeaponDamage,Text,,10,0.05,100
+PistolTraining,PistolTraining,PistolTraining,Text,,10,0.07,100
+RifleTraining,RifleTraining,RifleTraining,Text,,10,0.05,100
+ShotgunTraining,ShotgunTraining,ShotgunTraining,Text,,10,0.03,100
+SniperTraining,SniperTraining,SniperTraining,Text,,10,0.1,100

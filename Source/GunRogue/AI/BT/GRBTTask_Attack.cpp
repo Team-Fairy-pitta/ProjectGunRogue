@@ -13,6 +13,7 @@ UGRBTTask_Attack::UGRBTTask_Attack()
 	NodeName=TEXT("Attack");
 
 	bNotifyTick = true;
+	bNotifyTaskFinished = true;
 }
 
 EBTNodeResult::Type UGRBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -58,14 +59,6 @@ EBTNodeResult::Type UGRBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	}
 
 	StopMovement(GRAICon);
-
-	//NOTE : 실행이 제대로 안됨 추후 수정 또는 다른 방법 찾아보기
-	//TODO : 공격을 시작할 때 플레이어를 바라보도록 회전하게 하기
-	// AIPawn->bUseControllerRotationYaw = true;
-	// FVector AILocation = AIPawn->GetActorLocation();
-	// FVector TargetLocation = TargetChar->GetActorLocation();
-	// FRotator LookAtRot = (TargetLocation - AILocation).Rotation();
-	// GRAICon->SetControlRotation(LookAtRot);
 	
 	return EBTNodeResult::InProgress;
 }
@@ -74,29 +67,63 @@ void UGRBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	FPauseMemory* MyMemory = reinterpret_cast<FPauseMemory*>(NodeMemory);
-	if (!MyMemory->bPaused)
+	AAIController* AICon = OwnerComp.GetAIOwner();
+	if (!AICon)
 	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+	
+	UBlackboardComponent* BB = OwnerComp.GetBlackboardComponent();
+	if (!BB)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 
 	float CurrentTime = OwnerComp.GetWorld()->GetTimeSeconds();
+	FPauseMemory* MyMemory = reinterpret_cast<FPauseMemory*>(NodeMemory);
 	if (CurrentTime - MyMemory->StartTime >= AttackDelay)
 	{
-		AAIController* AICon = OwnerComp.GetAIOwner();
-		if (AICon)
-		{
-			ResumeMovement(AICon);
-		}
-
 		MyMemory->bPaused = false;
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
+
+	UObject* TargetObj = BB->GetValueAsObject(AGRAIController::TargetPlayerKey);
+	if (!IsValid(TargetObj))
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+	
+	AActor* TargetPlayer = Cast<AActor>(TargetObj);
+	if (!IsValid(TargetPlayer))
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+	
+	AICon->SetFocus(TargetPlayer);
 }
 
 uint16 UGRBTTask_Attack::GetInstanceMemorySize() const
 {
-	return Super::GetInstanceMemorySize();
+	return sizeof(FPauseMemory);
+}
+
+void UGRBTTask_Attack::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
+	EBTNodeResult::Type TaskResult)
+{
+	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
+	
+	AAIController* AICon = OwnerComp.GetAIOwner();
+	if (!IsValid(AICon))
+	{
+		return;
+	}
+
+	ResumeMovement(AICon);
+	
 }
 
 void UGRBTTask_Attack::StopMovement(AAIController* AIController)
@@ -108,13 +135,13 @@ void UGRBTTask_Attack::StopMovement(AAIController* AIController)
 		{
 			if (UCharacterMovementComponent* MoveComp = AIPawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("AI Attack : Stopping Movement"));
+				//UE_LOG(LogTemp, Warning, TEXT("AI Attack : Stopping Movement"));
+				
+				MoveComp->StopMovementImmediately();
+				MoveComp->DisableMovement();
 
-				// NOTE : 둘 중 어느 것을 써야할지 아직 못 정함.
-				// TODO : 동작을 멈출 경우 회전도 같이 못하게 막혀있는 것인지, 확인해보기
-				//MoveComp->StopMovementImmediately();
-				//MoveComp->DisableMovement();
-				MoveComp->SetMovementMode(MOVE_None);
+				MoveComp->bUseControllerDesiredRotation = false; 
+				AIPawn->bUseControllerRotationYaw = true;
 			}
 		}
 	}
@@ -129,10 +156,15 @@ void UGRBTTask_Attack::ResumeMovement(AAIController* AIController)
 		{
 			if (UCharacterMovementComponent* MoveComp = AIPawn->FindComponentByClass<UCharacterMovementComponent>())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("AI Attack : Resuming Movement"));
+				//UE_LOG(LogTemp, Warning, TEXT("AI Attack : Resuming Movement"));
+
+				AIController->ClearFocus(EAIFocusPriority::Gameplay);
+				AIController->SetControlRotation(AIPawn->GetActorRotation());
 				
 				MoveComp->SetMovementMode(MOVE_Walking);
 				MoveComp->Activate();
+				MoveComp->bUseControllerDesiredRotation = true; 
+				AIPawn->bUseControllerRotationYaw = false;
 			}
 		}
 	}
