@@ -183,6 +183,12 @@ void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
 		return;
 	}
 
+	if (!ItemActorClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ItemActorClass (TSubclassOf<AGRItemActor>) is INVALID"));
+		return;
+	}
+
 	FGRItemHandle& ItemHandle = ItemHandles[ItemIndex];
 	ItemHandle.UnequipItem();
 
@@ -199,7 +205,7 @@ void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
 	float DropDistance = 100.0f;
 	DropLocation = DropLocation + DropRotator.Vector() * DropDistance;
 
-	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(AGRItemActor::StaticClass(), DropLocation, DropRotator, SpawnParam);
+	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(ItemActorClass, DropLocation, DropRotator, SpawnParam);
 	if (ItemActor)
 	{
 		ItemActor->MulticastRPC_InitItem(RemovedItemDefinition, EGRItemPlacement::GROUND);

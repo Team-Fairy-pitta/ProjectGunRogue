@@ -7,6 +7,16 @@
 class UTexture2D;
 class UStaticMesh;
 
+UENUM(BlueprintType)
+enum class EItemRarity : uint8
+{
+	NONE,
+	NORMAL UMETA(DisplayName = "Normal Item"),
+	RARE UMETA(DisplayName = "Rare Item"),
+	EPIC UMETA(DisplayName = "Epic Item")
+};
+
+
 UCLASS()
 class GUNROGUE_API UGRItemDefinition : public UDataAsset
 {
@@ -27,4 +37,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStaticMesh> ItemMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EItemRarity Rarity;
 };

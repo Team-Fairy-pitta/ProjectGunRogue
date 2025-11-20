@@ -302,11 +302,17 @@ void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, 
 		return;
 	}
 
+	if (!ItemActorClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ItemActorClass (TSubclassOf<AGRItemActor>) is INVALID"));
+		return;
+	}
+
 	FRotator SpawnRotation = FRotator::ZeroRotator;
 	FActorSpawnParameters SpawnParam;
 	SpawnParam.Owner = GRPlayerState; /* 특정 플레이어에게만 아이템을 보여줌 */
 
-	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(AGRItemActor::StaticClass(), Location, SpawnRotation, SpawnParam);
+	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(ItemActorClass, Location, SpawnRotation, SpawnParam);
 	if (ItemActor)
 	{
 		ItemActor->OnPickup.AddUObject(this, &ThisClass::OnPickupAnyItem);

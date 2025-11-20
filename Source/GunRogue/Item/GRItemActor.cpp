@@ -62,6 +62,17 @@ AGRItemActor::AGRItemActor()
 	MeshTransform.SetRotation(FQuat::MakeFromRotator(FRotator(30.0f, 0, 0)));
 	StaticMeshComponent->SetWorldTransform(MeshTransform);
 
+	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
+	SphereMesh->SetupAttachment(StaticMeshComponent);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereAsset(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+	if (SphereAsset.Succeeded())
+	{
+		SphereMesh->SetStaticMesh(SphereAsset.Object);
+		SphereMesh->SetRelativeLocation(FVector(0.0f, 0.0f, 35.0f));
+		SphereMesh->SetWorldScale3D(FVector(0.9f));
+	}
+
 	ItemInfoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("ItemInfoWidgetComponent"));
 	ItemInfoWidgetComponent->SetupAttachment(SceneRoot);
 	ItemInfoWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
@@ -153,7 +164,19 @@ void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
 		return;
 	}
 
-	if (StaticMeshComponent && ItemDefinition)
+	if (!StaticMeshComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("StaticMeshComponent is INVALID"));
+		return;
+	}
+
+	if (!SphereMesh)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SphereMesh is INVALID"));
+		return;
+	}
+
+	if (ItemDefinition)
 	{
 		StaticMeshComponent->SetStaticMesh(ItemDefinition->ItemMesh);
 	}
@@ -169,6 +192,22 @@ void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
 			const FText& ItemDescription = ItemDefinition->ItemDescription;
 			ItemInfoWidget->InitItemInfo(ItemIcon, ItemName, ItemDescription);
 		}
+	}
+
+	switch (ItemDefinition->Rarity)
+	{
+	case EItemRarity::NORMAL:
+		SphereMesh->SetMaterial(0, RarityMaterial_Normal);
+		break;
+	case EItemRarity::RARE:
+		SphereMesh->SetMaterial(0, RarityMaterial_Rare);
+		break;
+	case EItemRarity::EPIC:
+		SphereMesh->SetMaterial(0, RarityMaterial_Epic);
+		break;
+	default:
+		SphereMesh->SetVisibility(false);
+		break;
 	}
 }
 

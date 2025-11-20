@@ -73,12 +73,24 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue")
 	TObjectPtr<UGRItemDefinition> ItemDefinition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|Materials")
+	TObjectPtr<UMaterialInstance> RarityMaterial_Normal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|Materials")
+	TObjectPtr<UMaterialInstance> RarityMaterial_Rare;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|Materials")
+	TObjectPtr<UMaterialInstance> RarityMaterial_Epic;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USceneComponent> SceneRoot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> SphereMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UWidgetComponent> ItemInfoWidgetComponent;

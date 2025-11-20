@@ -6,6 +6,7 @@
 
 class UGRItemDefinition;
 class AGRPlayerState;
+class AGRItemActor;
 
 USTRUCT()
 struct FSpawnedActor
@@ -63,6 +64,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item|Table")
 	TObjectPtr<UDataTable> ItemTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item|Class")
+	TSubclassOf<AGRItemActor> ItemActorClass;
 
 private:
 	TArray<UGRItemDefinition*> GetNewRandomItems(AGRPlayerState* GRPlayerState);
