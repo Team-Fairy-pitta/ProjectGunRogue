@@ -40,27 +40,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Mesh")
 	TObjectPtr<USkeletalMesh> WeaponEquippedMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effects")
-	TArray<TSubclassOf<UGameplayEffect>> WeaponEffects;
-
-	// 무기 스탯 GameplayEffect
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effects")
-	TSubclassOf<UGameplayEffect> WeaponStatsEffect;
-
-	// 무기가 부여하는 어빌리티(특수 능력 있는 무기용)
+	// 무기가 부여하는 어빌리티(사격, 재장전, 특수능력 등)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ability")
 	TObjectPtr<UGRAbilitySet> AbilitySet;
-
-	/* 오류로 제외
-	// 무기 기본 공격력
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Stats")
-	float BaseDamage = 10.0f;
-
-	// 무기 기본 약점 배율
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Stats")
-	float BaseCriticalMultiplier = 2.0f;
-
-	// 무기 강화 레벨
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Stats")
-	int32 EnhancementLevel = 0;*/
 };

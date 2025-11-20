@@ -4,7 +4,7 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/GRAbilitySet.h"
 #include "Item/GRItemActor.h"
-#include "Weapon/GRWeaponInstance.h"
+#include "Weapon/GRWeaponHandle.h"
 #include "GRPlayerState.generated.h"
 
 class AGRPlayerController;
@@ -90,7 +90,7 @@ protected:
 	TSet<UGRItemDefinition*> ItemDefinitionSet;
 
 	UPROPERTY(Replicated)
-	FGRWeaponInstance EquippedWeapon;
+	FGRWeaponHandle EquippedWeapon;
 
 private:
 	UFUNCTION()

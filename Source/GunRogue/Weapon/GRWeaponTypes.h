@@ -11,6 +11,5 @@ enum class EGRWeaponCategory : uint8
 	Shotgun UMETA(DisplayName = "산탄총"),
 	Rifle UMETA(DisplayName = "소총"),
 	SniperRifle UMETA(DisplayName = "저격 소총"),
-	AssaultRifle UMETA(DisplayName = "돌격 소총"),
 	None UMETA(DisplayName = "없음")
 };

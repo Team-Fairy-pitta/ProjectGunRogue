@@ -27,7 +27,7 @@ void AGRWeaponActor::BeginPlay()
 
 	if (IsValid(WeaponInfoWidgetComponent))
 	{
-		// TODO: 더 좋은 방법으로 개선 필요
+		// TODO: 나중에 무기 전용 Widget으로 변경 필요
 		UClass* WidgetClass = LoadClass<UUserWidget>(
 			nullptr, TEXT("/Game/GunRogue/Blueprints/Item/WBP_ItemInfoWidget.WBP_ItemInfoWidget_C"));
 
@@ -68,7 +68,7 @@ void AGRWeaponActor::InitWeapon(UGRWeaponDefinition* InWeaponDefinition)
 		StaticMeshComponent->SetStaticMesh(WeaponDefinition->WeaponPickupMesh);
 	}
 
-	// 위젯 정보 설정
+	// 위젯 정보 설정 // TODO: 나중에 무기 전용 Widget으로 변경 필요
 	if (WeaponInfoWidgetComponent)
 	{
 		UWidget* Widget = WeaponInfoWidgetComponent->GetWidget();
