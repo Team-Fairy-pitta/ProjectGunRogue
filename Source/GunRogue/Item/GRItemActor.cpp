@@ -48,11 +48,22 @@ AGRItemActor::AGRItemActor()
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	
 	SetRootComponent(StaticMeshComponent);
 
+	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
+	SetRootComponent(SceneRoot);
+
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	StaticMeshComponent->SetupAttachment(SceneRoot);
+
+	FTransform MeshTransform;
+	MeshTransform.SetLocation(FVector(43.0f, 0.0f, 40.3f)); /* 아이템 Mesh 의 크기를 이용해 구한 상수값 */
+	MeshTransform.SetRotation(FQuat::MakeFromRotator(FRotator(30.0f, 0, 0)));
+	StaticMeshComponent->SetWorldTransform(MeshTransform);
+
 	ItemInfoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("ItemInfoWidgetComponent"));
-	ItemInfoWidgetComponent->SetupAttachment(StaticMeshComponent);
+	ItemInfoWidgetComponent->SetupAttachment(SceneRoot);
 	ItemInfoWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	ItemInfoWidgetComponent->SetVisibility(false);
 	ItemInfoWidgetComponent->SetDrawSize(FVector2D(400, 300)); // Desired Size of UGRItemInfoWidget
@@ -123,9 +134,13 @@ bool AGRItemActor::IsNetRelevantFor(const AActor* RealViewer, const AActor* View
 	return DefaultNetRelevant;
 }
 
-void AGRItemActor::MulticastRPC_InitItem_Implementation(UGRItemDefinition* InItemDefinition)
+void AGRItemActor::MulticastRPC_InitItem_Implementation(UGRItemDefinition* InItemDefinition, EGRItemPlacement ItemPlacement)
 {
 	InitItem(InItemDefinition);
+	if (ItemPlacement == EGRItemPlacement::GROUND)
+	{
+		PlaceActorOnGround();
+	}
 }
 
 void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
@@ -248,4 +263,33 @@ bool AGRItemActor::CanInteract(AActor* OtherActor)
 		}
 	}
 	return false;
+}
+
+void AGRItemActor::PlaceActorOnGround()
+{
+	FVector NewLocation = GetGroundPointUsingLineTrace();
+	this->SetActorLocation(NewLocation);
+}
+
+FVector AGRItemActor::GetGroundPointUsingLineTrace()
+{
+	if (!GetWorld())
+	{
+		return this->GetActorLocation();
+	}
+
+	static const FVector FallDirection = FVector(0, 0, -1.0f);
+	static const float CheckDistance = 1000.0f;
+	FVector Start = this->GetActorLocation();
+	FVector Result = Start;
+	FVector End = Start + FallDirection * (CheckDistance);
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+	{
+		Result.Z = HitResult.ImpactPoint.Z;
+	}
+
+	return Result;
 }

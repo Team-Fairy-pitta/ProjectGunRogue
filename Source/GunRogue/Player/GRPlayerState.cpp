@@ -202,8 +202,7 @@ void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
 	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(AGRItemActor::StaticClass(), DropLocation, DropRotator, SpawnParam);
 	if (ItemActor)
 	{
-		PlaceActorOnGround(ItemActor);
-		ItemActor->MulticastRPC_InitItem(RemovedItemDefinition);
+		ItemActor->MulticastRPC_InitItem(RemovedItemDefinition, EGRItemPlacement::GROUND);
 	}
 
 	OnUnequipItem(RemovedItemDefinition);

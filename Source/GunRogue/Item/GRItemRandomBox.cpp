@@ -256,11 +256,12 @@ void AGRItemRandomBox::SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState,
 		return;
 	}
 
+	// ItemBox, Item 크기에 맞춰 계산한 아이템 스폰 위치값
 	static TArray<FVector> SpawnLocations =
 	{
-		FVector(0, 0, 100),
-		FVector(0, -100, 100),
-		FVector(0, 100, 100)
+		FVector(0, 0, 70),
+		FVector(0, -90, 70),
+		FVector(0, 90, 70)
 	};
 
 	SpawnedActors.Add(GRPlayerState);
@@ -309,7 +310,7 @@ void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, 
 	if (ItemActor)
 	{
 		ItemActor->OnPickup.AddUObject(this, &ThisClass::OnPickupAnyItem);
-		ItemActor->MulticastRPC_InitItem(ItemDefinition);
+		ItemActor->MulticastRPC_InitItem(ItemDefinition, EGRItemPlacement::AIR);
 		SpawnedActors[GRPlayerState].Actors.Add(ItemActor);
 	}
 }
