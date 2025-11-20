@@ -58,6 +58,9 @@ private:
 
 	void SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState, TArray<UGRItemDefinition*> ItemDefinitions);
 	void SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, UGRItemDefinition* ItemDefinition, FVector& Location);
+
+	void DisableToSpecificPlayer(AGRPlayerState* GRPlayerState);
+
 	void OnPickupAnyItem(AGRPlayerState* GRPlayerState);
 
 	UPROPERTY(Replicated)

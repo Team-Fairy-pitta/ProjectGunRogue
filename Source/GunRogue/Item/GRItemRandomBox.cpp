@@ -65,11 +65,13 @@ void AGRItemRandomBox::InteractWith(AActor* OtherActor)
 		return;
 	}
 
+	// 'GRPlayerState'가 가지고 있지 않은 아이템을 랜덤으로 여러 개 선택한 다음,
+	// 'GRPlayerState'의 게임 화면에만 아이템을 스폰한다.
 	TArray<UGRItemDefinition*> ItemDefinitions = GetNewRandomItems(GRPlayerState);
-
 	SpawnItemsToSpecificPlayer(GRPlayerState, ItemDefinitions);
 
-	WasActivatedArray.Add(GRPlayerState);
+	// 그 이후, 'GRPlayerState'가 이 아이템 박스를 사용하지 못하도록 한다.
+	DisableToSpecificPlayer(GRPlayerState);
 }
 
 void AGRItemRandomBox::OnOver()
@@ -82,6 +84,9 @@ void AGRItemRandomBox::OnOut()
 
 bool AGRItemRandomBox::CanInteract(AActor* OtherActor)
 {
+	// 사용한 적이 없는 Player만 이 아이템 박스와 상호작용 할 수 있다.
+	// 'WasActivatedArray' 배열을 이용해 사용한 적이 있는지 없는지 판단한다.
+
 	if (OtherActor->IsA<AGRCharacter>())
 	{
 		AGRCharacter* GRCharacter = Cast<AGRCharacter>(OtherActor);
@@ -117,7 +122,7 @@ TArray<UGRItemDefinition*> AGRItemRandomBox::GetNewRandomItems(AGRPlayerState* G
 
 	TArray<UGRItemDefinition*> Items;
 
-	// 최대 3개 까지, 
+	// 최대 3개 까지,
 	// 내가(GRPlayerState 확인) 가지고 있지 않은 아이템 중에서,
 	// 겹치지 않는(Items 확인) 아이템 Definition을 랜덤 선택함
 	while (Items.Num() < 3)
@@ -231,7 +236,9 @@ void AGRItemRandomBox::SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState,
 	};
 
 	SpawnedActors.Add(GRPlayerState);
-	for (int32 ItemIndex = 0; ItemIndex < ItemDefinitions.Num(); ++ItemIndex)
+
+	int32 Max = ItemDefinitions.Num() <= 3 ? ItemDefinitions.Num() : 3;
+	for (int32 ItemIndex = 0; ItemIndex < Max; ++ItemIndex)
 	{
 		UGRItemDefinition* ItemDefinition = ItemDefinitions[ItemIndex];
 		if (ItemDefinition)
@@ -247,10 +254,6 @@ void AGRItemRandomBox::SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState,
 
 void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, UGRItemDefinition* ItemDefinition, FVector& Location)
 {
-	// 일단 스폰
-	// TODO: 특정 캐릭터에 대해서만 스폰
-	// TODO: 캐릭터마다 Interact With 정보 따로 저장해서 ,각각 사용할 수 있도록 하기
-
 	if (!HasAuthority())
 	{
 		UE_LOG(LogTemp, Error, TEXT("SpawnItemToSpecificPlayer() REQUIRES authority"));
@@ -272,7 +275,7 @@ void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, 
 
 	FRotator SpawnRotation = FRotator::ZeroRotator;
 	FActorSpawnParameters SpawnParam;
-	SpawnParam.Owner = GRPlayerState;
+	SpawnParam.Owner = GRPlayerState; /* 특정 플레이어에게만 아이템을 보여줌 */
 
 	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(AGRItemActor::StaticClass(), Location, SpawnRotation, SpawnParam);
 	if (ItemActor)
@@ -281,6 +284,11 @@ void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, 
 		ItemActor->MulticastRPC_InitItem(ItemDefinition);
 		SpawnedActors[GRPlayerState].Actors.Add(ItemActor);
 	}
+}
+
+void AGRItemRandomBox::DisableToSpecificPlayer(AGRPlayerState* GRPlayerState)
+{
+	WasActivatedArray.Add(GRPlayerState);
 }
 
 void AGRItemRandomBox::OnPickupAnyItem(AGRPlayerState* GRPlayerState)
