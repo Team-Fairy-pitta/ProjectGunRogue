@@ -126,7 +126,7 @@ void AGRCharacter::Test_EquipWeapon()
 		UE_LOG(LogTemp, Warning, TEXT("무기 미소유"));
 		return;
 	}
-	Weapon->EquipWeapon(this);
+	Weapon->EquipWeapon(GetAbilitySystemComponent());
 }
 
 void AGRCharacter::Test_UpgradeWeapon()

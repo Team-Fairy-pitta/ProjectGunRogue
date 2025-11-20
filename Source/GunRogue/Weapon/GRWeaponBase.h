@@ -5,10 +5,11 @@
 #include "AbilitySystemComponent.h"
 #include "GRWeaponBase.generated.h"
 
+
 class UGRGameplayEffect;
 class UGRWeaponDataAsset;
-class AGRCharacter;
 class UBoxComponent;
+
 
 USTRUCT(BlueprintType)
 struct FWeaponAbility
@@ -49,15 +50,13 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	/** 장착 */
-	UFUNCTION(BlueprintCallable)
-	void EquipWeapon(class AGRCharacter* Character);
 
-	/** 해제 */
+	UFUNCTION(BlueprintCallable)
+	void EquipWeapon(UAbilitySystemComponent* ASC);
+
 	UFUNCTION(BlueprintCallable)
 	void UnequipWeapon();
-
-	/** 강화 시도 */
+	
 	UFUNCTION(BlueprintCallable)
 	bool TryUpgradeWeapon();
 
@@ -71,31 +70,30 @@ public:
 		const FHitResult& SweepResult);
 
 private:
-	void ApplyDamage();
+
 	void ApplyAllEffects();
 
 	void ClearEffects();
 
-	
-
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UGRWeaponDataAsset* WeaponData;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Options")
-	TArray<FWeaponOption> Options;
-
-	UPROPERTY()
-	UAbilitySystemComponent* CharacterASC;
-
-	UPROPERTY()
-	TArray<FActiveGameplayEffectHandle> AppliedEffects;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FWeaponAbility WeaponAbllity;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UGRWeaponDataAsset* WeaponData;
+
+	UPROPERTY()
+	TArray<FWeaponOption> Options;
+
+	UPROPERTY()
+	TArray<FActiveGameplayEffectHandle> AppliedEffects;
+
+	UPROPERTY()
+	UAbilitySystemComponent* CachedASC;
+
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* PickupCollision;
-
+	
 };

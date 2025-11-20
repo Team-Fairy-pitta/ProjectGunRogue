@@ -21,7 +21,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UGRWeaponOptionPool* OptionPool = nullptr;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 UpgradeCost = 1;
+	int32 MaxLevel = 15;
 };

@@ -1,6 +1,5 @@
 #include "GRWeaponBase.h"
 
-#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "GRWeaponDataAsset.h"
 #include "Character/GRCharacter.h"
@@ -32,9 +31,14 @@ void AGRWeaponBase::BeginPlay()
 	
 }
 
-void AGRWeaponBase::EquipWeapon(AGRCharacter* Character)
+void AGRWeaponBase::EquipWeapon(UAbilitySystemComponent* ASC)
 {
-	CharacterASC = Character->GetAbilitySystemComponent();
+	if (CachedASC)
+	{
+		return;
+	}
+
+	CachedASC = ASC;
 
 	UE_LOG(LogTemp, Warning, TEXT("무기 장착"));
 
@@ -47,7 +51,7 @@ void AGRWeaponBase::UnequipWeapon()
 	UE_LOG(LogTemp, Warning, TEXT("무기 해제"));
 
 	ClearEffects();
-	CharacterASC = nullptr;
+	CachedASC = nullptr;
 }
 
 bool AGRWeaponBase::TryUpgradeWeapon()
@@ -55,6 +59,12 @@ bool AGRWeaponBase::TryUpgradeWeapon()
 	if (!WeaponData || !WeaponData->OptionPool)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("WeaponData, WeaponData->OptionPool이 없음"));
+		return false;
+	}
+
+	if (!(WeaponAbllity.Level <= WeaponData->MaxLevel))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Weapon MaxLevel에 도달했습니다."));
 		return false;
 	}
 
@@ -67,6 +77,7 @@ bool AGRWeaponBase::TryUpgradeWeapon()
 		const auto& Pool = WeaponData->OptionPool->Options;
 		if (Pool.Num() == 0)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("OptionPool이 없음"));
 			return true;
 		}
 
@@ -81,36 +92,18 @@ bool AGRWeaponBase::TryUpgradeWeapon()
 
 		Options.Add(NewOption);
 
-		// ASC에 효과 재적용
 		ClearEffects();
 		ApplyAllEffects();
 	}
-	ApplyDamage();
-	UE_LOG(LogTemp, Warning, TEXT("깅화"));
 
 	return true;
 }
 
-void AGRWeaponBase::ApplyDamage()
-{
-	if (!CharacterASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("CharacterASC가 없음"));
-		return;
-	}
-
-	CharacterASC->ApplyModToAttribute(
-		UGRCombatAttributeSet::GetWeaponDamage_AdditiveAttribute(),
-		EGameplayModOp::Additive,
-		WeaponAbllity.Damage
-	);
-}
-
 void AGRWeaponBase::ApplyAllEffects()
 {
-	if (!CharacterASC)
+	if (!CachedASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CharacterASC가 없음"));
+		UE_LOG(LogTemp, Warning, TEXT("CachedASC가 없음"));
 		return;
 	}
 
@@ -122,16 +115,11 @@ void AGRWeaponBase::ApplyAllEffects()
 		{
 			continue;
 		}
-		
-		// 옵션 값 적용
 
-		UE_LOG(LogTemp, Warning, TEXT("옵션 적용"));
-
-		// GameplayEffectSpec 생성
-		FGameplayEffectSpecHandle SpecHandle = CharacterASC->MakeOutgoingSpec(
+		FGameplayEffectSpecHandle SpecHandle = CachedASC->MakeOutgoingSpec(
 			Option.EffectClass,
 			1.0f,
-			CharacterASC->MakeEffectContext()
+			CachedASC->MakeEffectContext()
 		);
 
 		if (!SpecHandle.IsValid())
@@ -139,14 +127,11 @@ void AGRWeaponBase::ApplyAllEffects()
 			continue;
 		}
 
-		// SetByCaller 적용하기 위해 태그 생성
 		FGameplayTag ValueTag = FGameplayTag::RequestGameplayTag("Data.OptionValue");
 
-		// 값 부여
 		SpecHandle.Data->SetSetByCallerMagnitude(ValueTag, Option.Value);
 
-		// 플레이어에게 적용
-		FActiveGameplayEffectHandle Handle = CharacterASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		FActiveGameplayEffectHandle Handle = CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
 		AppliedEffects.Add(Handle);
 
@@ -155,15 +140,15 @@ void AGRWeaponBase::ApplyAllEffects()
 
 void AGRWeaponBase::ClearEffects()
 {
-	if (!CharacterASC)
+	if (!CachedASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CharacterASC가 없음"));
+		UE_LOG(LogTemp, Warning, TEXT("CachedASC가 없음"));
 		return;
 	}
 
 	for (auto& Handle : AppliedEffects)
-	{
-		CharacterASC->RemoveActiveGameplayEffect(Handle);
+	{		
+		CachedASC->RemoveActiveGameplayEffect(Handle);
 	}
 
 	AppliedEffects.Empty();
@@ -176,6 +161,3 @@ void AGRWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
 		Character->NotifyWeaponOverlap(this);
 	}
 }
-
-
-
