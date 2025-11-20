@@ -105,13 +105,9 @@ void AGRItemActor::BeginPlay()
 
 	if (IsValid(ItemInfoWidgetComponent))
 	{
-		// TODO: 이 방법보다 좋은 방법은 없을까?
-		UClass* WidgetClass = LoadClass<UGRItemInfoWidget>(
-			nullptr, TEXT("/Game/GunRogue/Blueprints/Item/WBP_ItemInfoWidget.WBP_ItemInfoWidget_C"));
-
-		if (WidgetClass)
+		if (ItemInfoWidgetClass)
 		{
-			ItemInfoWidgetComponent->SetWidgetClass(WidgetClass);
+			ItemInfoWidgetComponent->SetWidgetClass(ItemInfoWidgetClass);
 		}
 		else
 		{

@@ -82,6 +82,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|Materials")
 	TObjectPtr<UMaterialInstance> RarityMaterial_Epic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|WidgetClass")
+	TSubclassOf<UUserWidget> ItemInfoWidgetClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USceneComponent> SceneRoot;
