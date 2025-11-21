@@ -1,19 +1,120 @@
 #include "GameModes/Level1/GRLevel1Data.h"
+#include "GameModes/Level1/GRGameMode_Level1.h"
 
-
-void FGRLevel1Data::Init()
+FGRLevel1Node::FGRLevel1Node()
 {
+	NextLeftIndex = -1;
+	NextRightIndex = -1;
+}
+
+FGRLevel1Data::FGRLevel1Data()
+{
+	bIsValid = false;
+}
+
+void FGRLevel1Data::Init(AGRGameMode_Level1* GRGameMode)
+{
+	if (!IsValid(GRGameMode))
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("GRGameMode is INVALID"));
+		return;
+	}
+
+	// 16개의 방을 만들고, 논리적으로 연결한다.
+	// 아래와 같은 구조가 되도록...
+	//                  -> [3]
+	//           -> [2]        -> [7]
+	//     -> [1]       -> [6]        -> [B]
+	// [0]        -> [5]       -> [A]        -> [F]
+	//     -> [4]       -> [9]        -> [E]
+	//           -> [8]        -> [D]
+	//                  -> [C]
+	int32 TotalRoomCount = 16;
+	Nodes.Reserve(TotalRoomCount);
+	for (int Loop = 0; Loop < TotalRoomCount; ++Loop)
+	{
+		Nodes.AddDefaulted();
+	}
+
+	for (int Index = 0; Index < TotalRoomCount; ++Index)
+	{
+		if (Index % 4 < 3)
+		{
+			Nodes[Index].NextLeftIndex = Index + 1;
+		}
+		if (Index < 12)
+		{
+			Nodes[Index].NextRightIndex = Index + 4;
+		}
+	}
+
+	// 랜덤으로 각 방을 설정한다.
+	// 단, 시작맵과 보스 맵은 랜덤으로 지정하지 않는다.
+	// 또한, 연결된 방과 같은 맵은 사용하지 않도록 한다.
+	if (GRGameMode->RandomLevelPool.Num() < 2)
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("REQUIREMENT: RandomLevelPool.Num() >= 2"));
+		return;
+	}
+
+	for (int Index = TotalRoomCount - 2; Index > 0; --Index)
+	{
+		while (true)
+		{
+			FGRLevel1Node& Node = Nodes[Index];
+			
+			int32 RandomMax = GRGameMode->RandomLevelPool.Num();
+			int32 Random = FMath::RandRange(0, RandomMax - 1);
+			UWorld* RandomLevel = GRGameMode->RandomLevelPool[Random];
+
+			if (!RandomLevel)
+			{
+				UE_LOG(LogTemp, Fatal, TEXT("GRGameMode->RandomLevelPool[Random] is INVALID"));
+				return;
+			}
+
+			if (Node.NextLeftIndex != -1)
+			{
+				if (Nodes[Node.NextLeftIndex].LevelToLoad == RandomLevel)
+				{
+					continue;
+				}
+			}
+			if (Node.NextRightIndex != -1)
+			{
+				if (Nodes[Node.NextRightIndex].LevelToLoad == RandomLevel)
+				{
+					continue;
+				}
+			}
+
+			Node.LevelToLoad = RandomLevel;
+			break;
+		}
+	}
+
+
+	// 초기화를 성공적으로 진행했다면, bIsValid 값을 참으로 바꾼다.
 	bIsValid = true;
 }
 
 void FGRLevel1Data::PrintDebugLog()
 {
-	if (IsValid())
+	if (IsValidData())
 	{
-
+		for (int Index = 0; Index < Nodes.Num(); ++Index)
+		{
+			const FGRLevel1Node& Node = Nodes[Index];
+			UE_LOG(LogTemp, Display, TEXT("%d -> [%d, %d]"), Index, Node.NextLeftIndex, Node.NextRightIndex);
+			if (Node.LevelToLoad)
+			{
+				UE_LOG(LogTemp, Display, TEXT("%d Level is %s"), Index, *Node.LevelToLoad->GetName());
+			}
+		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FGRLevel1Data is INVALID"));
 	}
 }
+

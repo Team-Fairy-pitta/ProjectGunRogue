@@ -10,10 +10,15 @@ class GUNROGUE_API AGRGameMode_Level1 : public AGRGameMode
 {
 	GENERATED_BODY()
 	
+	friend struct FGRLevel1Data;
+
 public:
 	virtual void BeginPlay() override;
 
-private:
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
+	TArray<TObjectPtr<UWorld>> RandomLevelPool;
+
 	UPROPERTY()
 	FGRLevel1Data Level1Data;
 };
