@@ -1,6 +1,8 @@
 #include "System/GRLevel1ControlPanel.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Character/GRCharacter.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 #include "Net/UnrealNetwork.h"
 
 AGRLevel1ControlPanel::AGRLevel1ControlPanel()
@@ -65,6 +67,33 @@ TArray<TObjectPtr<UStaticMeshComponent>> AGRLevel1ControlPanel::GetMeshComponent
 
 void AGRLevel1ControlPanel::InteractWith(AActor* OtherActor)
 {
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("InteractWith() REQUIRES authority"));
+		return;
+	}
+
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(OtherActor);
+	if (!IsValid(GRCharacter))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRCharacter (AGRCharacter) is INVALID"));
+		return;
+	}
+
+	AGRBattlePlayerController* BattlePC = GRCharacter->GetController<AGRBattlePlayerController>();
+	if (!IsValid(BattlePC))
+	{
+		UE_LOG(LogTemp, Error, TEXT("BattlePC (AGRBattlePlayerController) is INVALID"));
+		return;
+	}
+
+	if (bWasActivated)
+	{
+		UE_LOG(LogTemp, Display, TEXT("bWasActivated == true"));
+		return;
+	}
+
+	BattlePC->ClientRPC_ShowLevel1SelectWidget();
 }
 
 void AGRLevel1ControlPanel::OnOver()

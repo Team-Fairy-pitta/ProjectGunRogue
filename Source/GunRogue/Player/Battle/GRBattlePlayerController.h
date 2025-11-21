@@ -4,6 +4,7 @@
 #include "GRBattlePlayerController.generated.h"
 
 class UGRBattleHUDWidget;
+class UGRLevel1SelectWidget;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 
@@ -54,4 +55,26 @@ private:
 	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
 	void OnShieldChanged(const FOnAttributeChangeData& Data);
 	void OnMaxShieldChanged(const FOnAttributeChangeData& Data);
+
+
+/* Level1 관련 코드 */
+#pragma region Level1
+public:
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowLevel1SelectWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowLevel1SelectWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideLevel1SelectWidget();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRLevel1SelectWidget> Level1SelectWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UGRLevel1SelectWidget> Level1SelectWidgetInstance;
+
+#pragma endregion Level1
 };

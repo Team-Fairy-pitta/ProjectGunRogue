@@ -3,6 +3,7 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/Level1/GRLevel1SelectWidget.h"
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
@@ -95,7 +96,7 @@ void AGRBattlePlayerController::CreateWidgets()
 {
 	if(!HUDWidgetClass)
 	{
-		UE_LOG(LogTemp, Error, TEXT("HUDWidgetClass (TSubclassOf<UGRBattleHUDWidget>) is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetClass (TSubclassOf<>) is INVALID"));
 		return;
 	}
 
@@ -103,6 +104,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!HUDWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRBattleHUDWidget Widgets"));
+		return;
+	}
+
+	if (!Level1SelectWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Level1SelectWidgetClass (TSubclassOf<>) is INVALID"));
+		return;
+	}
+
+	Level1SelectWidgetInstance = CreateWidget<UGRLevel1SelectWidget>(this, Level1SelectWidgetClass);
+	if (!Level1SelectWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create Level1SelectWidget Widgets"));
 		return;
 	}
 }
