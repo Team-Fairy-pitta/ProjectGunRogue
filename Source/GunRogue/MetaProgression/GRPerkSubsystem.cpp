@@ -144,7 +144,6 @@ bool UGRPerkSubsystem::TryUpgradePerk(FName PerkID, const UDataTable* PerkTable)
 	}
 
 	int32 Cost = (CurrentLevel + 1) * Row->CostPerLevel;
-	UE_LOG(LogTemp, Warning, TEXT("MetaGoods: %d, Cost: %d"), MetaGoods, Cost);
 	
 	if (MetaGoods < Cost)
 	{

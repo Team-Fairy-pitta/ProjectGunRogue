@@ -37,5 +37,10 @@ void ATestMPPlayerController::SetMetaGoodsInText()
 	{
 		Subsystem->SetMetaGoods(9000);
 	}
+
+	if (PerkHUDWidget)
+	{
+		PerkHUDWidget->UpdateGoodsText();
+	}
 }
 
