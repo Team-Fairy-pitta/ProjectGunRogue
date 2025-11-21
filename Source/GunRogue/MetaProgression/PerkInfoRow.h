@@ -35,4 +35,7 @@ struct FPerkInfoRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 CostPerLevel = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName PerkCategory;
 };
