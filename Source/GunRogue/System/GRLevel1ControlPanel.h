@@ -5,6 +5,8 @@
 #include "GRLevel1ControlPanel.generated.h"
 
 class UStaticMeshComponent;
+class UWidgetComponent;
+class UUserWidget;
 
 UCLASS()
 class GUNROGUE_API AGRLevel1ControlPanel : public AActor, public IGRInteractableActor
@@ -35,6 +37,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent_Sub3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UWidgetComponent> InteractWidgetComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|WidgetClass")
+	TSubclassOf<UUserWidget> InteractWidgetClass;
 
 	UPROPERTY(Replicated)
 	int8 bWasActivated;

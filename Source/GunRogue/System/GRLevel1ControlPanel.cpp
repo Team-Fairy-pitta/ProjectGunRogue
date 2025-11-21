@@ -1,5 +1,6 @@
 #include "System/GRLevel1ControlPanel.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 
 AGRLevel1ControlPanel::AGRLevel1ControlPanel()
@@ -19,12 +20,30 @@ AGRLevel1ControlPanel::AGRLevel1ControlPanel()
 	StaticMeshComponent_Sub3 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent_Sub3"));
 	StaticMeshComponent_Sub3->SetupAttachment(StaticMeshComponent);
 
+	InteractWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidgetComponent"));
+	InteractWidgetComponent->SetupAttachment(StaticMeshComponent);
+	InteractWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	InteractWidgetComponent->SetVisibility(false);
+	InteractWidgetComponent->SetDrawSize(FVector2D(300, 100)); // Desired Size of UUserWidget
+
 	bWasActivated = false;
 }
 
 void AGRLevel1ControlPanel::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsValid(InteractWidgetComponent))
+	{
+		if (InteractWidgetClass)
+		{
+			InteractWidgetComponent->SetWidgetClass(InteractWidgetClass);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("InteractWidgetClass is INVALID"));
+		}
+	}
 }
 
 void AGRLevel1ControlPanel::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -50,10 +69,18 @@ void AGRLevel1ControlPanel::InteractWith(AActor* OtherActor)
 
 void AGRLevel1ControlPanel::OnOver()
 {
+	if (InteractWidgetComponent)
+	{
+		InteractWidgetComponent->SetVisibility(true);
+	}
 }
 
 void AGRLevel1ControlPanel::OnOut()
 {
+	if (InteractWidgetComponent)
+	{
+		InteractWidgetComponent->SetVisibility(false);
+	}
 }
 
 bool AGRLevel1ControlPanel::CanInteract(AActor* OtherActor)
