@@ -16,6 +16,17 @@ struct FGameplayEffectSpec;
 
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponSwitched, int32, OldSlotIndex, int32, NewSlotIndex);
+
+namespace WeaponSlot
+{
+	constexpr int32 MaxWeaponSlots = 2;  // 무기 슬롯 개수
+	constexpr int32 FirstSlot = 0;     // 1번 슬롯 (인덱스 0)
+	constexpr int32 SecondarySlot = 1;   // 2번 슬롯 (인덱스 1)
+}
+
 UCLASS()
 class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemInterface
 {
@@ -34,6 +45,16 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ITPlayerState")
 	UGRAbilitySystemComponent* GetGRAbilitySystemComponent();
+
+	// 무기 이벤트 델리게이트
+	UPROPERTY(BlueprintAssignable, Category = "GunRogue|Weapon|Events")
+	FOnWeaponEquipped OnWeaponEquipped;
+
+	UPROPERTY(BlueprintAssignable, Category = "GunRogue|Weapon|Events")
+	FOnWeaponDropped OnWeaponDropped;
+
+	UPROPERTY(BlueprintAssignable, Category = "GunRogue|Weapon|Events")
+	FOnWeaponSwitched OnWeaponSwitched;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
@@ -57,13 +78,25 @@ public:
 	void TryEquipWeapon(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor);
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
-	void DropWeapon();
+	void DropWeapon(int32 SlotIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
-	bool HasWeaponEquipped() const;
+	void DropCurrentWeapon();
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
-	UGRWeaponDefinition* GetEquippedWeaponDefinition() const;
+	void SwitchWeapon(int32 SlotIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
+	bool HasWeaponInSlot(int32 SlotIndex) const;
+
+	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
+	int32 GetCurrentWeaponSlotIndex() const { return CurrentWeaponSlot; }
+
+	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
+	UGRWeaponDefinition* GetWeaponDefinitionInSlot(int32 SlotIndex) const;
+
+	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
+	UGRWeaponDefinition* GetCurrentWeaponDefinition() const;
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_EquipItemActor(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
@@ -75,7 +108,10 @@ public:
 	void ServerRPC_EquipWeapon(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor);
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_DropWeapon();
+	void ServerRPC_DropWeapon(int32 SlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SwitchWeapon(int32 SlotIndex);
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
@@ -90,7 +126,10 @@ protected:
 	TSet<UGRItemDefinition*> ItemDefinitionSet;
 
 	UPROPERTY(Replicated)
-	FGRWeaponHandle EquippedWeapon;
+	TArray<FGRWeaponHandle> WeaponSlots;
+
+	UPROPERTY(Replicated)
+	int32 CurrentWeaponSlot = -1; // -1은 무기 없음
 
 private:
 	UFUNCTION()
@@ -104,7 +143,10 @@ private:
 	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
 	void PlaceActorOnGround(AActor* SpawnedActor);
 
-	// 무기 스폰 헬퍼 함수
+	// 무기 헬퍼 함수
+	int32 FindEmptyWeaponSlot() const;
+	void ActivateWeaponInSlot(int32 SlotIndex);
+	void DeactivateWeaponInSlot(int32 SlotIndex);
 	void SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition, const FVector& Location, const FRotator& Rotation);
 
 	bool bIsAbilitySystemComponentInit = false;

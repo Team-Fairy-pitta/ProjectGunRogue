@@ -23,11 +23,19 @@ public:
 	// 무기 해제
 	void UnequipWeapon();
 
+	// 무기 활성화 (Effect 적용)
+	void ActivateWeapon();
+
+	// 무기 비활성화 (Effect 제거, 슬롯에는 유지)
+	void DeactivateWeapon();
+
 	// 장착된 무기인지 확인
 	bool IsEquipped() const { return WeaponDefinition != nullptr; }
 
 	// 무기 정의 가져오기
 	UGRWeaponDefinition* GetWeaponDefinition() const { return WeaponDefinition; }
+
+	bool IsActive() const { return bIsActive; }
 
 private:
 	// 부여된 어빌리티/이펙트 핸들
@@ -41,4 +49,6 @@ private:
 	// 무기 정의
 	UPROPERTY()
 	TObjectPtr<UGRWeaponDefinition> WeaponDefinition;
+
+	bool bIsActive = false;
 };
