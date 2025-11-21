@@ -11,6 +11,7 @@ struct GUNROGUE_API FGRLevel1Node
 
 public:
 	FGRLevel1Node();
+	void CopyNodeInformation(const FGRLevel1Node& Other);
 
 	int32 NextLeftIndex;
 	int32 NextRightIndex;
@@ -26,14 +27,21 @@ struct GUNROGUE_API FGRLevel1Data
 
 public:
 	FGRLevel1Data();
-	void Init(AGRGameMode_Level1* GRGameMode);
+	void InitAtServer(AGRGameMode_Level1* GRGameMode);
+	void InitAtClient();
 	bool IsValidData() const { return bIsValid; }
+	FGRLevel1Node* GetNode(int32 Index);
+	void SetNode(int32 Index, FGRLevel1Node& Data);
 
 	void PrintDebugLog();
 
 private:
 	bool bIsValid;
+	int32 TotalRoomCount;
 
 	UPROPERTY()
 	TArray<FGRLevel1Node> Nodes;
+
+	void MakeAndConnectEmptyRooms(int32 RoomNum);
+	void SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode, int32 RoomNum);
 };

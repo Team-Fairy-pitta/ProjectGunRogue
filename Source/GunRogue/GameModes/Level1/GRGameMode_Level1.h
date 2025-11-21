@@ -15,6 +15,8 @@ class GUNROGUE_API AGRGameMode_Level1 : public AGRGameMode
 public:
 	virtual void BeginPlay() override;
 
+	FGRLevel1Node* GetLevel1Node(int32 Index);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
 	TArray<TObjectPtr<UWorld>> RandomLevelPool;
