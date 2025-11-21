@@ -19,6 +19,8 @@ AGRAICharacter::AGRAICharacter()
 		MoveComp->bUseRVOAvoidance = true;
 		MoveComp->AvoidanceConsiderationRadius = 100.f;
 		MoveComp->AvoidanceWeight = 0.5f;
+
+		MoveComp->bRequestedMoveUseAcceleration = true;
 	}
 	bUseControllerRotationYaw = false;
 
