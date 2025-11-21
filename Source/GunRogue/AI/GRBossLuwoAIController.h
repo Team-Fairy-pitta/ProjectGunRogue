@@ -14,6 +14,7 @@ class UBehaviorTree;
 class UBlackboardData;
 class UBehaviorTreeComponent;
 class UBlackboardComponent;
+class ATargetPoint;
 
 UENUM(BlueprintType)
 enum class EBossAttackRangeState : uint8
@@ -37,11 +38,17 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+private:
+	void InitBlackboardKey();
+	
 public:
 	static const FName TargetPlayerKey;
 	static const FName LastPlayerLocationKey;
 	static const FName BossAttackRangeStateKey;
 	static const FName FarAttackRandomIndexKey;
+	static const FName StartJumpTargetPointKey;
+	static const FName ShieldRegenTargetPointKey;
+	static const FName MapCenterTargetPointKey;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="AI")
@@ -55,4 +62,5 @@ private:
 	
 	UPROPERTY()
 	UBlackboardComponent* BlackboardComp;
+	
 };
