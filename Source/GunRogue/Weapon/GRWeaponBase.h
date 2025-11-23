@@ -17,6 +17,11 @@ struct FWeaponAbility
 	GENERATED_BODY()
 
 public:
+	int32 GetLevel() const { return Level; }
+
+	float GetDamage() const { return Damage; }
+
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Level = 0;
 
@@ -54,11 +59,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void EquipWeapon(UAbilitySystemComponent* ASC);
 
+	UFUNCTION(Server, Reliable)
+	void Server_EquipWeapon(UAbilitySystemComponent* ASC);
+
 	UFUNCTION(BlueprintCallable)
 	void UnequipWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void Server_UnequipWeapon();
 	
 	UFUNCTION(BlueprintCallable)
-	bool TryUpgradeWeapon();
+	void TryUpgradeWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void Server_TryUpgradeWeapon(); 
 
 	UFUNCTION()
 	void OnOverlap(
@@ -69,8 +83,12 @@ public:
 		bool bFromSweep,
 		const FHitResult& SweepResult);
 
-private:
+public:
+	int32 GetLevel() const { return WeaponAbility.Level; }
 
+	float GetDamage() const { return WeaponAbility.Damage; }
+
+private:
 	void ApplyAllEffects();
 
 	void ClearEffects();
@@ -79,7 +97,7 @@ private:
 public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FWeaponAbility WeaponAbllity;
+	FWeaponAbility WeaponAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UGRWeaponDataAsset* WeaponData;
