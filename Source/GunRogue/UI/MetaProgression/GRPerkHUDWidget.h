@@ -43,7 +43,7 @@ protected:
 	UDataTable* PerkTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Perk")
-	TArray<FName> PerkCategories = { "Battle", "Weapon", "Skill", "SupSkill"};
+	TArray<FName> PerkCategories = { FName("Battle"), FName("Weapon"), FName("Skill"), FName("SubSkill")};
 	
 	virtual void NativeConstruct() override;
 

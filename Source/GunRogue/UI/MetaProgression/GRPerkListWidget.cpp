@@ -23,19 +23,19 @@ void UGRPerkListWidget::SetPerkCategoryText(FName InCategory)
 		return;
 	}
 
-	if (InCategory == "Battle")
+	if (InCategory == FName("Battle"))
 	{
 		PerkCategoryText->SetText(FText::FromString(TEXT("전투")));
 	}
-	else if (InCategory == "Weapon")
+	else if (InCategory == FName("Weapon"))
 	{
 		PerkCategoryText->SetText(FText::FromString(TEXT("무기")));
 	}
-	else if (InCategory == "Skill")
+	else if (InCategory == FName("Skill"))
 	{
 		PerkCategoryText->SetText(FText::FromString(TEXT("스킬")));
 	}
-	else if (InCategory == "SupSkill")
+	else if (InCategory == FName("SubSkill"))
 	{
 		PerkCategoryText->SetText(FText::FromString((TEXT("보조"))));
 	}
