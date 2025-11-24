@@ -9,6 +9,10 @@
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
+#include "Weapon/GRWeaponBase.h"
+#include "Net/UnrealNetwork.h"
+
+
 
 AGRCharacter::AGRCharacter()
 {
@@ -66,6 +70,8 @@ UAbilitySystemComponent* AGRCharacter::GetAbilitySystemComponent() const
 	AGRPlayerState* GRPlayerState = GetGRPlayerState();
 	if (IsValid(GRPlayerState))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ASC 획득"));
+
 		return GRPlayerState->GetAbilitySystemComponent();
 	}
 	else
@@ -113,4 +119,117 @@ bool AGRCharacter::IsTargetDead(ACharacter* TargetCharacter) const
 
 	
 	return false;
+}
+
+void AGRCharacter::Test_EquipWeapon()
+{
+	if (!Weapon)
+	{
+		return;
+	}
+
+	if (HasAuthority())
+	{
+		Server_EquipWeapon(); 
+	}
+	else
+	{
+		Server_EquipWeapon();
+	}
+}
+
+void AGRCharacter::Server_EquipWeapon_Implementation()
+{
+	if (!Weapon)
+	{
+		return;
+	}
+
+	Weapon->EquipWeapon(GetAbilitySystemComponent());
+}
+
+void AGRCharacter::Test_UpgradeWeapon()
+{
+	if (!Weapon)
+	{
+		return;
+	}
+
+	if (HasAuthority())
+	{
+		Server_UpgradeWeapon();
+	}
+	else
+	{
+		Server_UpgradeWeapon();
+	}
+}
+
+void AGRCharacter::Server_UpgradeWeapon_Implementation()
+{
+	if (!Weapon)
+	{
+		return;
+	}
+
+	Weapon->TryUpgradeWeapon();
+}
+
+void AGRCharacter::Test_UnequipWeapon()
+{
+	if (!Weapon)
+	{
+		return;
+	}
+
+	if (HasAuthority())
+	{
+		Server_UnequipWeapon();
+	}
+	else
+	{
+		Server_UnequipWeapon();
+	}
+}
+
+void AGRCharacter::Server_UnequipWeapon_Implementation()
+{
+	if (!Weapon)
+	{
+		return;
+	}
+
+	Weapon->UnequipWeapon();
+	Weapon = nullptr;
+}
+
+AGRWeaponBase* AGRCharacter::GetWeapon() const
+{
+	return Weapon;
+}
+
+void AGRCharacter::NotifyWeaponOverlap(AGRWeaponBase* GetWeapon)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!GetWeapon)
+	{
+		return;
+	}
+
+	Weapon = GetWeapon;
+
+	Weapon->SetOwner(this);
+
+	UE_LOG(LogTemp, Warning, TEXT("무기 감지: %s"), *Weapon->GetName());
+}
+
+void AGRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGRCharacter, Weapon);
 }

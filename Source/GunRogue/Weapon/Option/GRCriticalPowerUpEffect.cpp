@@ -1,12 +1,12 @@
-#include "GRAttackPowerUpEffect.h"
+#include "GRCriticalPowerUpEffect.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 
-UGRAttackPowerUpEffect::UGRAttackPowerUpEffect()
+UGRCriticalPowerUpEffect::UGRCriticalPowerUpEffect()
 {
 	DurationPolicy = EGameplayEffectDurationType::Infinite;
 
 	FGameplayModifierInfo Mod;
-	Mod.Attribute = UGRCombatAttributeSet::GetWeaponDamage_AdditiveAttribute();
+	Mod.Attribute = UGRCombatAttributeSet::GetWeaponCriticalMultiplier_BonusAttribute();
 	Mod.ModifierOp = EGameplayModOp::Additive;
 
 	Mod.ModifierMagnitude = FScalableFloat(0.f);

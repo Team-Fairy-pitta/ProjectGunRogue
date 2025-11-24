@@ -14,6 +14,8 @@ class UGRInputHandleComponent;
 class UGRInteractionComponent;
 class UGRPawnData;
 
+class AGRWeaponBase;
+
 UCLASS()
 class GUNROGUE_API AGRCharacter : public ACharacter, public IAbilitySystemInterface
 {
@@ -72,4 +74,39 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Spectate")
 	bool IsTargetDead(ACharacter* TargetCharacter) const;
+
+
+// 작성자: 김효영
+#pragma region WeaponUpgradeTest
+
+	UFUNCTION(BlueprintCallable)
+	void Test_EquipWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void Server_EquipWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void Test_UpgradeWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void Server_UpgradeWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void Test_UnequipWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void Server_UnequipWeapon();
+
+	UPROPERTY(Replicated)
+	AGRWeaponBase* Weapon;
+
+	UFUNCTION(BlueprintCallable)
+	AGRWeaponBase* GetWeapon() const;
+
+	void NotifyWeaponOverlap(AGRWeaponBase* GetWeapon);
+
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+#pragma endregion
 };
