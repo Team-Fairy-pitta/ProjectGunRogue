@@ -23,6 +23,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystem;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TObjectPtr<UTestWeaponAsset> CurrentWeaponAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	bool bHasWeapon = false;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon")
+	void PushWeaponStateToAnimBP();
 };

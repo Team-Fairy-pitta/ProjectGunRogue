@@ -23,6 +23,9 @@ void UTestGAEquipMontage::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 	MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, EquipMontage, 1.0f, NAME_None, false);
 
+	UE_LOG(LogTemp, Warning, TEXT("EquipGA: Playing montage = %s"), *EquipMontage->GetName());
+
+
 	MontageTask->OnCompleted.AddDynamic(this, &UTestGAEquipMontage::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &UTestGAEquipMontage::OnMontageCancelled);
 	MontageTask->OnCancelled.AddDynamic(this, &UTestGAEquipMontage::OnMontageCancelled);

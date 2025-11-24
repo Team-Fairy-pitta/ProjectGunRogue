@@ -18,12 +18,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Default")
 	FGameplayTagContainer WeaponTags;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	USkeletalMesh* WeaponMesh;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Default")
 	UAnimMontage* EquipMontage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Default")
 	UAnimSequenceBase* UpperBodyIdle;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	USkeletalMesh* WeaponMesh;
 };

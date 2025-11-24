@@ -44,9 +44,16 @@ void ATestWeaponPickup::OnPickupSphereBeginOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
+	if (!WeaponData)
+	{
+		return;
+	}
+
 	ATestGRCharacter* Character = Cast<ATestGRCharacter>(OtherActor);
 
 	Character->CurrentWeaponAsset = WeaponData;
+	Character->bHasWeapon = true;
+	Character->PushWeaponStateToAnimBP();
 
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	ASC->TryActivateAbilityByClass(UTestGAEquipMontage::StaticClass());
