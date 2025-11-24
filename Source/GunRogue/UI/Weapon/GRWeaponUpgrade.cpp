@@ -63,6 +63,29 @@ void UGRWeaponUpgrade::NativeConstruct()
 	}
 
 	SettingWeapon();
+
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+	{
+		return;
+	}
+
+	AGRCharacter* Character = Cast<AGRCharacter>(PC->GetPawn());
+	if (!Character)
+	{
+		return;
+	}
+
+	AGRWeaponBase* Weapon = Character->GetWeapon();
+	if (!Weapon)
+	{
+		return;
+	}
+
+	if (Weapon)
+	{
+		Weapon->OnWeaponStatChanged.AddDynamic(this, &UGRWeaponUpgrade::SettingWeapon);
+	}
 }
 
 void UGRWeaponUpgrade::NativeDestruct()
@@ -100,21 +123,6 @@ void UGRWeaponUpgrade::UpGrade()
 
 	Character->Test_UpgradeWeapon();
 
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, this, &UGRWeaponUpgrade::SettingWeapon, 0.1f, false);
-
-	AGRWeaponBase* Weapon = Character->GetWeapon();
-	if (!Weapon)
-	{
-		return;
-	}
-
-	int32 Level = Weapon->GetLevel();
-	float Damage = Weapon->GetDamage();
-
-	WeaponLevelUpdate(Level);
-	WeaponDamageUpdate(Damage);
-	//WeaponOptionUpdate();
 }
 
 void UGRWeaponUpgrade::Reroll()
@@ -205,6 +213,4 @@ void UGRWeaponUpgrade::WeaponExplainUpdate(FString WeaponExplain)
 //void UGRWeaponUpgrade::WeaponOptionUpdate()
 //{
 //}
-
-
 

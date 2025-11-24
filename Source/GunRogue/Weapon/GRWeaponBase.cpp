@@ -5,6 +5,7 @@
 #include "Character/GRCharacter.h"
 
 #include "Components/BoxComponent.h"
+#include "Net/UnrealNetwork.h"
 
 
 AGRWeaponBase::AGRWeaponBase()
@@ -32,6 +33,13 @@ void AGRWeaponBase::BeginPlay()
 		PickupCollision->OnComponentBeginOverlap.AddDynamic(this, &AGRWeaponBase::OnOverlap);
 	}
 	
+}
+
+void AGRWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGRWeaponBase, WeaponAbility);
 }
 
 void AGRWeaponBase::EquipWeapon(UAbilitySystemComponent* ASC)
@@ -137,7 +145,13 @@ void AGRWeaponBase::Server_TryUpgradeWeapon_Implementation()
 		ApplyAllEffects();
 	}
 
-	return;
+	OnWeaponStatChanged.Broadcast();
+
+}
+
+void AGRWeaponBase::OnRep_WeaponAbility()
+{
+	OnWeaponStatChanged.Broadcast();
 }
 
 void AGRWeaponBase::ApplyAllEffects()

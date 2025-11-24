@@ -10,16 +10,12 @@ class UGRGameplayEffect;
 class UGRWeaponDataAsset;
 class UBoxComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponStatChanged);
 
 USTRUCT(BlueprintType)
 struct FWeaponAbility
 {
 	GENERATED_BODY()
-
-public:
-	int32 GetLevel() const { return Level; }
-
-	float GetDamage() const { return Damage; }
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -54,6 +50,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
 public:
 
 	UFUNCTION(BlueprintCallable)
@@ -83,10 +82,12 @@ public:
 		bool bFromSweep,
 		const FHitResult& SweepResult);
 
-public:
 	int32 GetLevel() const { return WeaponAbility.Level; }
 
 	float GetDamage() const { return WeaponAbility.Damage; }
+
+	UFUNCTION()
+	void OnRep_WeaponAbility();
 
 private:
 	void ApplyAllEffects();
@@ -96,8 +97,11 @@ private:
 
 public:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponAbility)
 	FWeaponAbility WeaponAbility;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStatChanged OnWeaponStatChanged;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UGRWeaponDataAsset* WeaponData;

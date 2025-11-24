@@ -13,6 +13,48 @@ UCLASS()
 class GUNROGUE_API UGRWeaponUpgrade : public UUserWidget
 {
 	GENERATED_BODY()
+
+protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+public:
+	UFUNCTION()
+	void SettingWeapon();
+
+	UFUNCTION()
+	void UpGrade();
+
+	UFUNCTION()
+	void Reroll();
+
+private:
+	UFUNCTION()
+	void WeaponNameUpdate(FString WeaponName);
+
+	/*UFUNCTION()
+	void WeaponImageUpdate();*/
+
+	UFUNCTION()
+	void WeaponLevelUpdate(int32 Level);
+
+	UFUNCTION()
+	void WeaponDamageUpdate(float Damage);
+
+	UFUNCTION()
+	void WeaponWeakpointUpdate(float Weakpoint);
+
+	UFUNCTION()
+	void WeaponLaunchspeedUpdate(float Launchspeed);
+
+	UFUNCTION()
+	void WeaponMagazineUpdate(float Magazine);
+
+	UFUNCTION()
+	void WeaponExplainUpdate(FString WeaponExplain);
+
+	/*UFUNCTION()
+	void WeaponOptionUpdate();*/
 	
 public:
 
@@ -48,46 +90,4 @@ public:
 
 	//UPROPERTY(meta = (BindWidget))
 	//TArray<UTextBlock> WeaponOptionListText;
-
-public:
-	UFUNCTION()
-	void SettingWeapon();
-
-protected:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-
-	UFUNCTION()
-	void UpGrade();
-
-	UFUNCTION()
-	void Reroll();
-
-private:
-	UFUNCTION()
-	void WeaponNameUpdate(FString WeaponName);
-
-	/*UFUNCTION()
-	void WeaponImageUpdate();*/
-
-	UFUNCTION()
-	void WeaponLevelUpdate(int32 Level);
-
-	UFUNCTION()
-	void WeaponDamageUpdate(float Damage);
-
-	UFUNCTION()
-	void WeaponWeakpointUpdate(float Weakpoint);
-
-	UFUNCTION()
-	void WeaponLaunchspeedUpdate(float Launchspeed);
-
-	UFUNCTION()
-	void WeaponMagazineUpdate(float Magazine);
-
-	UFUNCTION()
-	void WeaponExplainUpdate(FString WeaponExplain);
-
-	/*UFUNCTION()
-	void WeaponOptionUpdate();*/
 };
