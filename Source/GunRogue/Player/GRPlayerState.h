@@ -13,6 +13,7 @@ class UGRAbilitySystemComponent;
 class UGRWeaponDefinition;
 class AGRWeaponActor;
 struct FGameplayEffectSpec;
+struct FGRWeaponInstance;
 
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
@@ -75,7 +76,7 @@ public:
 	int32 GetItemNum();
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
-	void TryEquipWeapon(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor);
+	void TryEquipWeapon(UGRWeaponDefinition* WeaponDefinition, FGRWeaponInstance& Instance, AActor* WeaponActor);
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
 	void DropWeapon(int32 SlotIndex);
@@ -105,7 +106,7 @@ public:
 	void ServerRPC_UnequipItemActor(int32 ItemIndex);
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_EquipWeapon(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor);
+	void ServerRPC_EquipWeapon(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& Instance, AActor* WeaponActor);
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_DropWeapon(int32 SlotIndex);
@@ -139,7 +140,7 @@ private:
 
 	void OnEquipItem(UGRItemDefinition* ItemDefinition);
 	void OnUnequipItem(UGRItemDefinition* ItemDefinition);
-	void DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition);
+	void DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& Instance);
 
 	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
 	void PlaceActorOnGround(AActor* SpawnedActor);
@@ -148,7 +149,7 @@ private:
 	int32 FindEmptyWeaponSlot() const;
 	void ActivateWeaponInSlot(int32 SlotIndex);
 	void DeactivateWeaponInSlot(int32 SlotIndex);
-	void SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition, const FVector& Location, const FRotator& Rotation);
+	void SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& WeaponInstance, const FVector& Location, const FRotator& Rotation);
 
 	bool bIsAbilitySystemComponentInit = false;
 };
