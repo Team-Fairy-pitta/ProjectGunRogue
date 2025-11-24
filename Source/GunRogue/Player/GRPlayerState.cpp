@@ -242,15 +242,7 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 			OnWeaponDropped.Broadcast(CurrentWeaponSlot, DroppedWeaponDef);
 
 			// 바닥에 무기 스폰
-			APawn* Pawn = GetPawn();
-			if (IsValid(Pawn) && IsValid(DroppedWeaponDef))
-			{
-				float DropDistance = 150.0f;
-				FVector DropLocation = Pawn->GetActorLocation() +
-					Pawn->GetActorForwardVector() * DropDistance;
-				FRotator DropRotation = Pawn->GetActorRotation();
-				SpawnWeaponAtLocation(DroppedWeaponDef, DropLocation, DropRotation);
-			}
+			DropWeaponAtPlayerFront(DroppedWeaponDef);
 
 			EmptySlot = CurrentWeaponSlot;
 
@@ -353,16 +345,7 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 	}
 
 	// 플레이어 앞에 무기 스폰
-	APawn* Pawn = GetPawn();
-	if (IsValid(Pawn) && IsValid(DroppedWeaponDef))
-	{
-		float DropDistance = 150.0f;
-		FVector DropLocation = Pawn->GetActorLocation() +
-			Pawn->GetActorForwardVector() * DropDistance;
-		FRotator DropRotation = Pawn->GetActorRotation();
-
-		SpawnWeaponAtLocation(DroppedWeaponDef, DropLocation, DropRotation);
-	}
+	DropWeaponAtPlayerFront(DroppedWeaponDef);
 
 	UE_LOG(LogTemp, Display, TEXT("Player dropped weapon from slot %d"), SlotIndex);
 }
@@ -600,6 +583,27 @@ void AGRPlayerState::OnUnequipItem(UGRItemDefinition* ItemDefinition)
 	{
 		GRBattlePlayerController->ClientRPC_OnActiveGameplayEffectRemoved(Effect.GameplayEffect);
 	}
+}
+
+void AGRPlayerState::DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	APawn* Pawn = GetPawn();
+	if (!IsValid(Pawn) || !IsValid(WeaponDefinition))
+	{
+		return;
+	}
+
+	const float DropDistance = 150.0f;
+	const FVector DropLocation = Pawn->GetActorLocation() +
+		Pawn->GetActorForwardVector() * DropDistance;
+	const FRotator DropRotation = Pawn->GetActorRotation();
+
+	SpawnWeaponAtLocation(WeaponDefinition, DropLocation, DropRotation);
 }
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)

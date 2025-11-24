@@ -139,6 +139,7 @@ private:
 
 	void OnEquipItem(UGRItemDefinition* ItemDefinition);
 	void OnUnequipItem(UGRItemDefinition* ItemDefinition);
+	void DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition);
 
 	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
 	void PlaceActorOnGround(AActor* SpawnedActor);
