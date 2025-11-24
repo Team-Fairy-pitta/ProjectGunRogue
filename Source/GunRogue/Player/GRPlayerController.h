@@ -4,6 +4,7 @@
 #include "GRPlayerController.generated.h"
 
 class UInputMappingContext;
+class UGameplayEffect;
 
 UCLASS()
 class GUNROGUE_API AGRPlayerController : public APlayerController

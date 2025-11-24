@@ -4,6 +4,9 @@
 #include "AbilitySystem/GRAbilitySet.h"
 #include "GRItemDefinition.generated.h"
 
+class UTexture2D;
+class UStaticMesh;
+
 UCLASS()
 class GUNROGUE_API UGRItemDefinition : public UDataAsset
 {
@@ -12,4 +15,16 @@ class GUNROGUE_API UGRItemDefinition : public UDataAsset
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UGRAbilitySet> AbilitySet;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UTexture2D> ItemIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText ItemName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText ItemDescription;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UStaticMesh> ItemMesh;
 };

@@ -17,6 +17,9 @@ public:
 
 protected:
 	void FindInteractableActor();
+	void OnOver(AActor* InActor);
+	void OnOut(AActor* InActor);
+
 	void AddOutline(AActor* InActor);
 	void RemoveOutline(AActor* InActor);
 
