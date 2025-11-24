@@ -16,6 +16,9 @@ namespace GunRogue::InputTag
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Crouch, "InputTag.Crouch", "");
 
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_InputBlocked, "Ability.InputBlocked", "");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_WeaponSlot1, "InputTag.WeaponSlot1", "");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_WeaponSlot2, "InputTag.WeaponSlot2", "");
 }
 
 UGRInputHandleComponent::UGRInputHandleComponent()
