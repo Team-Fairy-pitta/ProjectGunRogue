@@ -59,3 +59,24 @@ void UGRTeamStatusListWidget::CreateTeamStatus()
 
 	TeamStatusArray.Add(NewTeamStatus);
 }
+
+void UGRTeamStatusListWidget::DestroyLastTeamStatus()
+{
+	if (GetTeamStatusWidgetCount() <= 0)
+	{
+		return;
+	}
+	if (TeamStatusContainer)
+	{
+		return;
+	}
+
+	int32 LastIndex = TeamStatusArray.Num() - 1;
+	TeamStatusArray.RemoveAt(LastIndex);
+	TeamStatusContainer->RemoveChildAt(LastIndex);
+}
+
+int32 UGRTeamStatusListWidget::GetTeamStatusWidgetCount() const
+{
+	return TeamStatusArray.Num();
+}

@@ -8,6 +8,7 @@
 class UBoxComponent;
 class UGRItemDefinition;
 class UStaticMeshComponent;
+class UWidgetComponent;
 
 // Item Activate Handle 구조체
 // Item을 플레이어가 장착했을 때, 해제했을 때를 관리하기 위한 핸들 구조체 입니다.
@@ -17,15 +18,17 @@ struct GUNROGUE_API FGRItemHandle
 	GENERATED_BODY()
 
 public:
-	void EquipItem(UGRAbilitySystemComponent* ASC, UGRItemDefinition* ItemDefinition);
+	void EquipItem(UGRAbilitySystemComponent* ASC, UGRItemDefinition* InItemDefinition);
 	void UnequipItem();
 
-protected:
 	UPROPERTY()
 	FGRAbilitySet_GrantedHandles GrantedHandles;
 
 	UPROPERTY()
 	UGRAbilitySystemComponent* CachedASC;
+
+	UPROPERTY()
+	UGRItemDefinition* ItemDefinition;
 };
 
 // Item Actor
@@ -39,17 +42,24 @@ public:
 	AGRItemActor();
 	virtual void BeginPlay() override;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_InitItem(UGRItemDefinition* InItemDefinition);
+
+	void InitItem(UGRItemDefinition* InItemDefinition);
+
 	// IGRInteractableActor
 	virtual TArray<TObjectPtr<UStaticMeshComponent>> GetMeshComponents() override;
 	virtual void InteractWith(AActor* OtherActor) override;
+	virtual void OnOver() override;
+	virtual void OnOut() override;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue")
 	TObjectPtr<UGRItemDefinition> ItemDefinition;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UBoxComponent> InteractionBoxComponent;
+	TObjectPtr<UWidgetComponent> ItemInfoWidgetComponent;
 };

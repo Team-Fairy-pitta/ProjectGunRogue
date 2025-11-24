@@ -67,6 +67,21 @@ void AGRAIController::OnPossess(APawn* InPawn)
 	}
 }
 
+void AGRAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (AIPerceptionComp)
+	{
+		AIPerceptionComp->OnTargetPerceptionUpdated.RemoveDynamic(this, &AGRAIController::OnTargetPerceptionUpdated);
+	}
+	
+	if (BehaviorComp)
+	{
+		BehaviorComp->StopTree(EBTStopMode::Safe);
+	}
+}
+
 void AGRAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	////Note : AI끼리 서로 인지될 수 있으므로 예외처리. 추후 삭제.
@@ -164,5 +179,7 @@ void AGRAIController::UpdateClosestPlayer()
 	{
 		BlackboardComp->SetValueAsObject(TargetPlayerKey, nullptr);
 		BlackboardComp->SetValueAsBool(IsPlayerDetectedKey, false);
+		
+		ClearFocus(EAIFocusPriority::Gameplay);
 	}
 }

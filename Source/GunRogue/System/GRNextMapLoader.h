@@ -3,8 +3,10 @@
 #include "GameFramework/Actor.h"
 #include "GRNextMapLoader.generated.h"
 
+class AGRStreamingDoorController;
 class UArrowComponent;
 class UBoxComponent;
+class AGRStreamingDoor;
 
 UCLASS()
 class GUNROGUE_API AGRNextMapLoader : public AActor
@@ -16,6 +18,11 @@ public:
 	virtual void BeginPlay() override;
 	
 	void LoadMap(TSoftObjectPtr<UWorld> LevelAsset);
+	
+	UFUNCTION()
+	void OnLevelLoadCompleted();
+
+
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
@@ -23,13 +30,36 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UArrowComponent* Arrow;
+	
+	UPROPERTY()
+	bool bWasActivated = false;
+
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GRLoader")
+	TObjectPtr<UWorld> LevelToLoad;
+	
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "GRLoader")
+	TObjectPtr<AGRStreamingDoorController> TargetController;
+
+	void CheckMapLoaderCondition();
+	
+	UPROPERTY()
+	TSet<APlayerState*> PlayersInArea;
+
+	UPROPERTY(ReplicatedUsing = OnRep_ShouldLoadLevel)
+	bool bShouldLoadLevel;
 
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnRep_ShouldLoadLevel();
 
-	UPROPERTY()
-	bool bHasOverlap = false;
+private:
+	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Streaming")
-	TSoftObjectPtr<UWorld> LevelToLoad;
+	UFUNCTION()
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	
 };
