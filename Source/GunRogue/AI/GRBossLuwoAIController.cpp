@@ -28,6 +28,11 @@ AGRBossLuwoAIController::AGRBossLuwoAIController()
 void AGRBossLuwoAIController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (BlackboardComp)
+	{
+		InitBlackboardKey();
+	}
 }
 
 void AGRBossLuwoAIController::OnPossess(APawn* InPawn)
@@ -41,11 +46,6 @@ void AGRBossLuwoAIController::OnPossess(APawn* InPawn)
 			BlackboardComp->InitializeBlackboard(*BlackboardAsset);
 		}
 		RunBehaviorTree(BehaviorTreeAsset);
-	}
-
-	if (BlackboardComp)
-	{
-		InitBlackboardKey();
 	}
 }
 
@@ -64,7 +64,10 @@ void AGRBossLuwoAIController::InitBlackboardKey()
 	BlackboardComp->SetValueAsEnum(BossAttackRangeStateKey,static_cast<uint8>(EBossAttackRangeState::None));
 
 	UWorld* World = GetWorld();
-	if (!World) return;
+	if (!World)
+	{
+		return;
+	}
 	
 	TArray<AActor*> FoundActors;
 	

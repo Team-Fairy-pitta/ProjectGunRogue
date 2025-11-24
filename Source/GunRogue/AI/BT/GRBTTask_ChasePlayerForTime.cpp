@@ -8,7 +8,7 @@
 
 UGRBTTask_ChasePlayerForTime::UGRBTTask_ChasePlayerForTime()
 	:ChaseDuration(3.0f)
-	,AcceptanceRadius(5.0f)
+	,AcceptanceRadius(100.0f)
 {
 	bNotifyTick = true;
 

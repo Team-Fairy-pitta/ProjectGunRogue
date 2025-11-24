@@ -72,14 +72,14 @@ EBTNodeResult::Type UGRBTTask_CheckAttackRangeState::ExecuteTask(UBehaviorTreeCo
 	BB->SetValueAsEnum(AGRBossLuwoAIController::BossAttackRangeStateKey, static_cast<uint8>(FoundRangeState));
 
 	//NOTE : Debug Draw
+#if WITH_EDITOR
+	UWorld* World = AIPawn->GetWorld();
+	if (World)
 	{
-		UWorld* World = AIPawn->GetWorld();
-		if (World)
-		{
-			DrawDebugSphere(World, AILocation, CloseRange, 12, FColor::Blue, false, 1.0f);
-			DrawDebugSphere(World, AILocation, MidRange, 12, FColor::Green, false, 1.0f);
-		}
+		DrawDebugSphere(World, AILocation, CloseRange, 12, FColor::Blue, false, 1.0f);
+		DrawDebugSphere(World, AILocation, MidRange, 12, FColor::Green, false, 1.0f);
 	}
+#endif
 	
 	return EBTNodeResult::Succeeded;
 }
