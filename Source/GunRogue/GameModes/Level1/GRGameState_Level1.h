@@ -15,6 +15,7 @@ class GUNROGUE_API AGRGameState_Level1 : public AGRGameState
 
 public:
 	AGRGameState_Level1();
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_RequestNextRoomInformation(int32 CurrentIndex);
@@ -27,9 +28,12 @@ public:
 
 	FOnReceiveNextRoomInformation OnReceiveNextRoomInformation;
 
+	const FGRLevel1Data& GetLevel1ClientData() const { return Level1ClientData; }
+
 protected:
 	UPROPERTY()
 	FGRLevel1Data Level1ClientData; /* GameMode의 그것과는 다르게, 일부 정보만 가지고 있음 */
 
+	UPROPERTY(Replicated)
 	int32 CurrentLevel1NodeIndex;
 };

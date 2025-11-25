@@ -6,6 +6,7 @@ FGRLevel1Node::FGRLevel1Node()
 	NextLeftIndex = -1;
 	NextRightIndex = -1;
 	LevelToLoad = nullptr;
+	NodeStatus = ENodeStatus::NONE;
 }
 
 void FGRLevel1Node::CopyNodeInformation(const FGRLevel1Node& Other)

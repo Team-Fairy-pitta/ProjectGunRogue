@@ -1,6 +1,7 @@
 #include "GameModes/Level1/GRGameState_Level1.h"
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "GameModes/Level1/GRLevel1Data.h"
+#include "Net/UnrealNetwork.h"
 
 AGRGameState_Level1::AGRGameState_Level1()
 {
@@ -8,6 +9,13 @@ AGRGameState_Level1::AGRGameState_Level1()
 
 	// 항상 0번째 방에서 시작
 	CurrentLevel1NodeIndex = 0;
+}
+
+void AGRGameState_Level1::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, CurrentLevel1NodeIndex);
 }
 
 void AGRGameState_Level1::RequestNextRoomInformation()
@@ -58,11 +66,6 @@ void AGRGameState_Level1::ServerRPC_RequestNextRoomInformation_Implementation(in
 
 void AGRGameState_Level1::MulticastRPC_ReceiveNextRoomInformation_Implementation(int32 Index, FGRLevel1Node LeftRoomInfo, FGRLevel1Node RightRoomInfo)
 {
-	if (OnReceiveNextRoomInformation.IsBound())
-	{
-		OnReceiveNextRoomInformation.Broadcast();
-	}
-
 	FGRLevel1Node* CurrentRoom = Level1ClientData.GetNode(Index);
 	if (!CurrentRoom)
 	{
@@ -81,7 +84,17 @@ void AGRGameState_Level1::MulticastRPC_ReceiveNextRoomInformation_Implementation
 		Level1ClientData.SetNode(RightRoomIndex, RightRoomInfo);
 	}
 
+	Level1ClientData.GetNode(Index)->NodeStatus = ENodeStatus::CURRENT;
+	Level1ClientData.GetNode(LeftRoomIndex)->NodeStatus = ENodeStatus::NEXT;
+	Level1ClientData.GetNode(RightRoomIndex)->NodeStatus = ENodeStatus::NEXT;
+
+
 #if WITH_EDITOR
 	Level1ClientData.PrintDebugLog();
 #endif
+
+	if (OnReceiveNextRoomInformation.IsBound())
+	{
+		OnReceiveNextRoomInformation.Broadcast();
+	}
 }

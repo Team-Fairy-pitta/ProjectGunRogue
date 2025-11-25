@@ -7,6 +7,7 @@ class UGRBattleHUDWidget;
 class UGRLevel1SelectWidget;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
+struct FGRLevel1Data;
 
 UCLASS()
 class GUNROGUE_API AGRBattlePlayerController : public AGRPlayerController
@@ -75,6 +76,17 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UGRLevel1SelectWidget> Level1SelectWidgetInstance;
+
+private:
+	FDelegateHandle OnReceiveHandle;
+
+	UFUNCTION()
+	void OnReceiveNextRoomInformation();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_RequestNextRoomInformation();
+
+	void SetLevel1SelectWidget(const FGRLevel1Data& Level1Data);
 
 #pragma endregion Level1
 };

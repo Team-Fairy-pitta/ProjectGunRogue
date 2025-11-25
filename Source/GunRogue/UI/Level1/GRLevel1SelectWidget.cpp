@@ -1,9 +1,18 @@
 #include "UI/Level1/GRLevel1SelectWidget.h"
+#include "UI/Level1/GRLevel1RoomWidget.h"
+#include "Components/UniformGridPanel.h"
 #include "Player/Battle/GRBattlePlayerController.h"
+#include "GameModes/Level1/GRLevel1Data.h"
+
+void UGRLevel1SelectWidget::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+}
 
 void UGRLevel1SelectWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+	Create16RoomWidget();
 	SetWidgetFocusable();
 }
 
@@ -22,6 +31,55 @@ FReply UGRLevel1SelectWidget::NativeOnKeyDown(const FGeometry& InGeometry, const
 		return FReply::Handled();
 	}
 	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+}
+
+void UGRLevel1SelectWidget::InitWidget(const FGRLevel1Data& Level1Data)
+{
+	const TArray<FGRLevel1Node>& Nodes = Level1Data.GetNodes();
+
+	if (RoomWidgetInstances.Num() != 16)
+	{
+		return;
+	}
+
+	for (int32 Row = 0; Row < 4; ++Row)
+	{
+		for (int32 Col = 0; Col < 4; ++Col)
+		{
+			int32 Index = Row * 4 + Col;
+			const FGRLevel1Node& Node = Nodes[Index];
+			RoomWidgetInstances[Index]->InitRoomWidget(Node);
+		}
+	}
+}
+
+void UGRLevel1SelectWidget::Create16RoomWidget()
+{
+	if (RoomWidgetInstances.Num() == 16)
+	{
+		return;
+	}
+
+	if (RoomWidgetClass && RoomGridPanel)
+	{
+		// 4 x 4 = 16개의 노드 생성
+		APlayerController* PC = GetOwningPlayer();
+		if (IsValid(PC))
+		{
+			for (int32 Row = 0; Row < 4; ++Row)
+			{
+				for (int32 Col = 0; Col < 4; ++Col)
+				{
+					UGRLevel1RoomWidget* Room = CreateWidget<UGRLevel1RoomWidget>(PC, RoomWidgetClass);
+					if (Room)
+					{
+						RoomGridPanel->AddChildToUniformGrid(Room, Row, Col);
+						RoomWidgetInstances.Add(Room);
+					}
+				}
+			}
+		}
+	}
 }
 
 void UGRLevel1SelectWidget::SetWidgetFocusable()

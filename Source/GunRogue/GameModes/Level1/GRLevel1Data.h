@@ -4,6 +4,14 @@
 
 class AGRGameMode_Level1;
 
+enum class ENodeStatus : uint8
+{
+	NONE,
+	CURRENT,
+	NEXT,
+	CLEARD
+};
+
 USTRUCT()
 struct GUNROGUE_API FGRLevel1Node
 {
@@ -15,6 +23,8 @@ public:
 
 	int32 NextLeftIndex;
 	int32 NextRightIndex;
+
+	ENodeStatus NodeStatus;
 
 	UPROPERTY()
 	TObjectPtr<UWorld> LevelToLoad;
@@ -32,6 +42,8 @@ public:
 	bool IsValidData() const { return bIsValid; }
 	FGRLevel1Node* GetNode(int32 Index);
 	void SetNode(int32 Index, FGRLevel1Node& Data);
+
+	const TArray<FGRLevel1Node>& GetNodes() const { return Nodes; }
 
 	void PrintDebugLog();
 

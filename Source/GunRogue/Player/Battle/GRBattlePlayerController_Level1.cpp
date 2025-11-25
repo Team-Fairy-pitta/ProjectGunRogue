@@ -1,11 +1,61 @@
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
-#include "GameModes/GRGameState.h"
+#include "GameModes/Level1/GRGameState_Level1.h"
 #include "UI/Level1/GRLevel1SelectWidget.h"
 
 void AGRBattlePlayerController::ClientRPC_ShowLevel1SelectWidget_Implementation()
 {
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRGameState_Level1* GRGameState = GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GRGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AGRGameState_Level1 is INVALID"));
+		return;
+	}
+
+	OnReceiveHandle = GRGameState->OnReceiveNextRoomInformation.AddUObject(this, &ThisClass::OnReceiveNextRoomInformation);
+	ServerRPC_RequestNextRoomInformation();
+}
+
+void AGRBattlePlayerController::ServerRPC_RequestNextRoomInformation_Implementation()
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRGameState_Level1* GRGameState = GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GRGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AGRGameState_Level1 is INVALID"));
+		return;
+	}
+
+	GRGameState->RequestNextRoomInformation();
+}
+
+void AGRBattlePlayerController::OnReceiveNextRoomInformation()
+{
+	AGRGameState_Level1* GRGameState = GetWorld()->GetGameState<AGRGameState_Level1>();
+	GRGameState->OnReceiveNextRoomInformation.Remove(OnReceiveHandle);
+
 	ShowLevel1SelectWidget();
+	SetLevel1SelectWidget(GRGameState->GetLevel1ClientData());
+}
+
+void AGRBattlePlayerController::SetLevel1SelectWidget(const FGRLevel1Data& Level1Data)
+{
+	if (!Level1SelectWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Level1SelectWidgetInstance is INVALID"));
+		return;
+	}
+
+	Level1SelectWidgetInstance->InitWidget(Level1Data);
 }
 
 void AGRBattlePlayerController::ShowLevel1SelectWidget()
