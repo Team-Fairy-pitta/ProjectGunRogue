@@ -62,6 +62,25 @@ void AGRItemActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Listen Server에서, 다른 Client의 Item이 화면에 나타나는 것을 막기 위한 코드
+	if (HasAuthority())
+	{
+		AActor* ItemOwner = GetOwner();
+		if (ItemOwner != nullptr)
+		{
+			AGRPlayerState* ItemOwnerPlayerState = Cast<AGRPlayerState>(ItemOwner);
+			if (IsValid(ItemOwnerPlayerState))
+			{
+				AController* OwnerController = ItemOwnerPlayerState->GetOwningController();
+				if (!OwnerController->IsLocalPlayerController())
+				{
+					SetInvisibile();
+					return;
+				}
+			}
+		}
+	}
+
 	if (IsValid(ItemInfoWidgetComponent))
 	{
 		// TODO: 이 방법보다 좋은 방법은 없을까?
@@ -82,6 +101,26 @@ void AGRItemActor::BeginPlay()
 	{
 		InitItem(ItemDefinition);
 	}
+}
+
+bool AGRItemActor::IsNetRelevantFor(const AActor* RealViewer, const AActor* ViewTarget, const FVector& SrcLocation) const
+{
+	bool DefaultNetRelevant = Super::IsNetRelevantFor(RealViewer, ViewTarget, SrcLocation);
+
+	AActor* ItemOwner = GetOwner();
+	if (ItemOwner)
+	{
+		if (RealViewer && RealViewer->IsA<APlayerController>())
+		{
+			const APlayerController* ViewerController = Cast<APlayerController>(RealViewer);
+			if (IsValid(ViewerController))
+			{
+				bool bIsOwnClient = ViewerController->GetPlayerState<AActor>() == ItemOwner;
+				return bIsOwnClient && DefaultNetRelevant;
+			}
+		}
+	}
+	return DefaultNetRelevant;
 }
 
 void AGRItemActor::MulticastRPC_InitItem_Implementation(UGRItemDefinition* InItemDefinition)
@@ -115,6 +154,14 @@ void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
 			const FText& ItemDescription = ItemDefinition->ItemDescription;
 			ItemInfoWidget->InitItemInfo(ItemIcon, ItemName, ItemDescription);
 		}
+	}
+}
+
+void AGRItemActor::SetInvisibile()
+{
+	if (StaticMeshComponent)
+	{
+		StaticMeshComponent->SetVisibility(false, true);
 	}
 }
 
@@ -170,4 +217,35 @@ void AGRItemActor::OnOut()
 	{
 		ItemInfoWidgetComponent->SetVisibility(false);
 	}
+}
+
+bool AGRItemActor::CanInteract(AActor* OtherActor)
+{
+	AActor* ItemOwner = GetOwner();
+	if (ItemOwner == nullptr)
+	{
+		return true;
+	}
+
+	if (OtherActor->IsA<AGRCharacter>())
+	{
+		AGRCharacter* GRCharacter = Cast<AGRCharacter>(OtherActor);
+		if (IsValid(GRCharacter))
+		{
+			AGRPlayerState* GRPlayerState = GRCharacter->GetGRPlayerState();
+			if (IsValid(GRPlayerState))
+			{
+				return ItemOwner == GRPlayerState;
+			}
+		}
+	}
+	else if (OtherActor->IsA<AGRPlayerState>())
+	{
+		AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(OtherActor);
+		if (IsValid(GRPlayerState))
+		{
+			return ItemOwner == GRPlayerState;
+		}
+	}
+	return false;
 }

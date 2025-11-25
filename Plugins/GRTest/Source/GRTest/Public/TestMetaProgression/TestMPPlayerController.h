@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "TestMPPlayerController.generated.h"
 
+class UGRPerkHUDWidget;
 /**
  * 
  */
@@ -15,21 +16,20 @@ class GRTEST_API ATestMPPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable)
-	void RequestLocalSave();
-
-	UFUNCTION(BlueprintCallable)
-	void RequestLocalLoad();
-
-	UFUNCTION(BlueprintCallable)
-	void AddMetaGoodsToTest();
-
-	UFUNCTION(BlueprintCallable)
-	void PrintPerkInfoRows();
+	virtual void BeginPlay() override;
 	
-private:
-	FString GetUniquePlayerId() const;
+	UFUNCTION(BlueprintCallable)
+	void SetMetaGoodsInText();
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Perk")
+	TSubclassOf<UGRPerkHUDWidget> PerkHUDClass;
+
+	UPROPERTY(BlueprintReadOnly, Category="Perk")
+	UGRPerkHUDWidget* PerkHUDWidget;
+
+private:
+	
 	UPROPERTY(EditDefaultsOnly)
 	UDataTable* PerkTable;
 };

@@ -25,6 +25,8 @@ public class GunRogue : ModuleRules
 
 			//AI
 			"AIModule", "NavigationSystem",
+			
+			"AdvancedSessions",
 		});
 
 		// Uncomment if you are using online features

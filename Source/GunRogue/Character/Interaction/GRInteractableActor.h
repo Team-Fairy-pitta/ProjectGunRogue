@@ -18,4 +18,5 @@ public:
 	virtual void InteractWith(AActor* OtherActor) = 0;
 	virtual void OnOver() = 0;
 	virtual void OnOut() = 0;
+	virtual bool CanInteract(AActor* OtherActor) { return true; }
 };

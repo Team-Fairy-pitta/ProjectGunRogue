@@ -5,6 +5,7 @@
 #include "GRPerkSaveGame.h"
 #include "PerkInfoRow.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerState.h"
 
 void UGRPerkSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -15,7 +16,8 @@ void UGRPerkSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UGRPerkSubsystem::LoadPerks()
 {
-	FString SlotName = GetPlayerSpecificSaveSlotName();
+	FString PlayerId = GetLocalPlayerUniqueId();
+	FString SlotName = GetPlayerSpecificSaveSlotName(PlayerId);
 	
 	if (UGameplayStatics::DoesSaveGameExist(SlotName, GetUserIndex()))
 	{
@@ -37,7 +39,8 @@ void UGRPerkSubsystem::LoadPerks()
 
 void UGRPerkSubsystem::SavePerks()
 {
-	FString SlotName = GetPlayerSpecificSaveSlotName();
+	FString PlayerId = GetLocalPlayerUniqueId();
+	FString SlotName = GetPlayerSpecificSaveSlotName(PlayerId);
 	
 	UGRPerkSaveGame* SavedPerkGame = Cast<UGRPerkSaveGame>(UGameplayStatics::CreateSaveGameObject(UGRPerkSaveGame::StaticClass()));
 
@@ -47,28 +50,43 @@ void UGRPerkSubsystem::SavePerks()
 	UGameplayStatics::SaveGameToSlot(SavedPerkGame, SlotName, GetUserIndex());
 }
 
-FString UGRPerkSubsystem::GetPlayerSpecificSaveSlotName() const
+FString UGRPerkSubsystem::GetLocalPlayerUniqueId() const
 {
-	if (LocalPlayerUniqueId.IsEmpty())
+	if (UGameInstance* GI = GetGameInstance())
 	{
-		return GetBaseSaveSlotName();
+		if (APlayerController* PC = GI->GetFirstLocalPlayerController())
+		{
+			if (PC->PlayerState)
+			{
+				FString ID = FString::Printf(TEXT("NetID_%d"), PC->PlayerState->GetPlayerId());
+				UE_LOG(LogTemp, Warning, TEXT("[GetLocalPlayerUniqueId] Using PlayerState: %s"), *ID);
+				return ID;
+			}
+			else if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PC->GetLocalPlayer()))
+			{
+				FString ID = FString::Printf(TEXT("ControllerID_Fallback_%d"), LocalPlayer->GetControllerId());
+				UE_LOG(LogTemp, Warning, TEXT("[GetLocalPlayerUniqueId] Using LocalPlayer: %s"), *ID);
+				return ID;
+			}
+		}
 	}
-
-	return FString::Printf(TEXT("%s_%s"), *GetBaseSaveSlotName(), *LocalPlayerUniqueId);
+	
+	return TEXT("UnKnown_Player");
 }
 
-void UGRPerkSubsystem::SetLocalPlayerUniqueId(const FString& NewId)
+FString UGRPerkSubsystem::GetPlayerSpecificSaveSlotName(const FString& PlayerId) const
 {
-	LocalPlayerUniqueId = NewId;
+	FString BaseSlot = TEXT("PerkSave");
+	return FString::Printf(TEXT("%s_%s"), *BaseSlot, *PlayerId);
 }
 
-int32 UGRPerkSubsystem::GetPerkInfoRow(FName PerkID) const
+int32 UGRPerkSubsystem::GetPerkLevel(FName PerkID) const
 {
 	const int32* Level = PerkInfoRows.Find(PerkID);
 	return Level ? *Level : 0;
 }
 
-void UGRPerkSubsystem::SetPerkInfoRow(FName PerkID, int32 Level)
+void UGRPerkSubsystem::SetPerkLevel(FName PerkID, int32 Level)
 {
 	PerkInfoRows.Add(PerkID, Level);
 	SavePerks();
@@ -88,8 +106,14 @@ float UGRPerkSubsystem::GetPerkBonus(FName PerkID, const UDataTable* PerkTable) 
 		return 0.0f;
 	}
 
-	int32 Level = GetPerkInfoRow(PerkID);
+	int32 Level = GetPerkLevel(PerkID);
 	return Row->ValuePerLevel * Level;
+}
+
+void UGRPerkSubsystem::SetMetaGoods(int32 Amount)
+{
+	MetaGoods = Amount;
+	SavePerks();
 }
 
 void UGRPerkSubsystem::AddMetaGoods(int32 Amount)
@@ -112,7 +136,7 @@ bool UGRPerkSubsystem::TryUpgradePerk(FName PerkID, const UDataTable* PerkTable)
 		return false;
 	}
 
-	int32 CurrentLevel = GetPerkInfoRow(PerkID);
+	int32 CurrentLevel = GetPerkLevel(PerkID);
 
 	if (CurrentLevel >= Row->MaxLevel)
 	{
@@ -120,14 +144,14 @@ bool UGRPerkSubsystem::TryUpgradePerk(FName PerkID, const UDataTable* PerkTable)
 	}
 
 	int32 Cost = (CurrentLevel + 1) * Row->CostPerLevel;
-
+	
 	if (MetaGoods < Cost)
 	{
 		return false;
 	}
 
 	MetaGoods -= Cost;
-	SetPerkInfoRow(PerkID, CurrentLevel + 1);
+	SetPerkLevel(PerkID, CurrentLevel + 1);
 	
 	return true;
 }

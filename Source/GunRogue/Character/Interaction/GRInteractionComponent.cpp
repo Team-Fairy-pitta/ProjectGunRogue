@@ -39,7 +39,7 @@ void UGRInteractionComponent::FindInteractableActor()
 	}
 
 	IGRInteractableActor* InteractableActor = Cast<IGRInteractableActor>(HitActor);
-	if (InteractableActor)
+	if (InteractableActor && InteractableActor->CanInteract(GetOwner()))
 	{
 		if (HitActor != FocusedActor)
 		{
