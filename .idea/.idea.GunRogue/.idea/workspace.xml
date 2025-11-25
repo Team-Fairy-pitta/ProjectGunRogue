@@ -14,9 +14,8 @@
   <component name="ChangeListManager">
     <list default="true" id="992caa9f-6972-42fb-8d48-05e4f4623c58" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GunRogue/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestSteam/BP_GameInstance.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestSteam/BP_GameInstance.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestSteam/WBP_FriendList.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestSteam/WBP_FriendList.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestSteam/WBP_LobbyUI.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestSteam/WBP_LobbyUI.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/GunRogue.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/GunRogue.Build.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/System/GRGameInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/System/GRGameInstance.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,6 +171,7 @@
       <workItem from="1763715571551" duration="1043000" />
       <workItem from="1763716781068" duration="2418000" />
       <workItem from="1763723958986" duration="961000" />
+      <workItem from="1764034811713" duration="623000" />
     </task>
     <servers />
   </component>
