@@ -1,32 +1,41 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/AnimNotify/GRAttackAnimNotify_GameplayEvent.h"
+#include "AI/Notify/GRAttackAnimNotify_GameplayEvent.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
-void UGRAttackAnimNotify_GameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UGRAttackAnimNotify_GameplayEvent::Notify(USkeletalMeshComponent* MeshComp,UAnimSequenceBase* Animation,const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation);
+	Super::Notify(MeshComp, Animation,EventReference);
 	
-	if (!MeshComp) return;
+	if (!MeshComp)
+	{
+		return;
+	}
+	
 	AActor* Owner = MeshComp->GetOwner();
-	if (!Owner) return;
-
-	// AbilitySystemInterface를 구현한 액터인지 확인
+	if (!Owner)
+	{
+		return;
+	}
+	
 	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(Owner);
-	if (!ASI) return;
+	if (!ASI)
+	{
+		return;
+	}
 
 	UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent();
-	if (!ASC) return;
-
-	// 이벤트 데이터 생성
+	if (!ASC)
+	{
+		return;
+	}
+	
 	FGameplayEventData EventData;
 	EventData.Instigator = Owner;
 	EventData.Target = Owner;
-	// 필요하면 추가 정보 설정 가능
-
-	// GameplayEvent 보내기
+	
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Owner, EventTag, EventData);
 }

@@ -16,11 +16,9 @@ class GUNROGUE_API UGRAttackAnimNotify_GameplayEvent : public UAnimNotify
 {
 	GENERATED_BODY()
 
-protected:
-	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
-
+	virtual void Notify(USkeletalMeshComponent* MeshComp,UAnimSequenceBase* Animation,const FAnimNotifyEventReference& EventReference) override;
+	
 private:
-	// 보낼 GameplayEvent의 태그
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameplayAbility",meta=(AllowPrivateAccess))
 	FGameplayTag EventTag;
 };

@@ -40,10 +40,8 @@ void AGRAICharacter::BeginPlay()
 
 	if (ASC && GroundStrikeAbilityClass)
 	{
-		// AbilityActorInfo 초기화: 소유자(owner)와 아바타(애니메이션 동작 주체)
 		ASC->InitAbilityActorInfo(this, this);
 
-		// Ability 부여
 		FGameplayAbilitySpec Spec(GroundStrikeAbilityClass, 1, /*InputID*/ 0, this);
 		ASC->GiveAbility(Spec);
 	}

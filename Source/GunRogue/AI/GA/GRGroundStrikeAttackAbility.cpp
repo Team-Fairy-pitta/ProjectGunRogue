@@ -7,8 +7,10 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "Character/GRCharacter.h"
 
 UGRGroundStrikeAttackAbility::UGRGroundStrikeAttackAbility()
+	:AttackMontage(nullptr)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -25,7 +27,6 @@ void UGRGroundStrikeAttackAbility::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	// 몽타주 재생 + 이벤트 기다리기
 	UAbilityTask_PlayMontageAndWait* MontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
@@ -42,8 +43,7 @@ void UGRGroundStrikeAttackAbility::ActivateAbility(const FGameplayAbilitySpecHan
 	MontageTask->OnCancelled.AddDynamic(this, &UGRGroundStrikeAttackAbility::OnMontageEnded);
 	MontageTask->OnBlendOut.AddDynamic(this, &UGRGroundStrikeAttackAbility::OnMontageEnded);
 	MontageTask->ReadyForActivation();
-
-	// 이벤트 대기
+	
 	UAbilityTask_WaitGameplayEvent* WaitEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
 		HitEventTag,
@@ -65,11 +65,11 @@ void UGRGroundStrikeAttackAbility::EndAbility(const FGameplayAbilitySpecHandle H
 
 void UGRGroundStrikeAttackAbility::OnHitNotify(FGameplayEventData Payload)
 {
-	// 데미지 로직
 	AActor* Instigator = GetAvatarActorFromActorInfo();
 	if (!Instigator) return;
 
 	// 예: Sphere Trace로 범위 데미지 판정
+	//TODO : 원기둥 모양으로, 범위 거리 추후 변경
 	FVector Origin = Instigator->GetActorLocation();
 	float Radius = 300.f;
 	TArray<FHitResult> Hits;
@@ -85,31 +85,50 @@ void UGRGroundStrikeAttackAbility::OnHitNotify(FGameplayEventData Payload)
 		EDrawDebugTrace::ForDuration,      // 디버그 그리기 타입
 		Hits,
 		true,
-		FLinearColor::Yellow,                 // Trace 라인 색
-		FLinearColor::Red,               // 히트 위치 색
+		FLinearColor::Red,                 // 히트 위치 색
+		FLinearColor::Yellow,               // Trace 라인 색
 		1.0f                                // 화면에 표시되는 시간 (초)
 	);
-
-	//GRCharacter에게만 데미지 주기.
+	
 	for (auto& Hit : Hits)
 	{
 		AActor* Other = Hit.GetActor();
-		if (!Other) continue;
+		if (!Other)
+		{
+			continue;
+		}
+		
+		AGRCharacter* PlayerChar=Cast<AGRCharacter>(Other);
+		if (!PlayerChar)
+		{
+			continue;
+		}
 
-		IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(Other);
-		if (!ASI) continue;
-
-		UAbilitySystemComponent* TargetASC = ASI->GetAbilitySystemComponent();
-		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-		if (!TargetASC || !SourceASC) continue;
-
-		FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+		IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(PlayerChar);
+		if (!ASI)
+		{
+			continue;
+		}
+		
+		UAbilitySystemComponent* PlayerASC = ASI->GetAbilitySystemComponent();
+		if (!PlayerASC)
+		{
+			continue;
+		}
+		
+		UAbilitySystemComponent* AIASC = GetAbilitySystemComponentFromActorInfo();
+		if (!AIASC)
+		{
+			continue;
+		}
+		
+		FGameplayEffectContextHandle Context = AIASC->MakeEffectContext();
 		Context.AddSourceObject(Instigator);
 
-		FGameplayEffectSpecHandle Spec = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), Context);
+		FGameplayEffectSpecHandle Spec = AIASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), Context);
 		if (Spec.IsValid())
 		{
-			SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
+			AIASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), PlayerASC);
 		}
 	}
 }

@@ -37,15 +37,12 @@ protected:
 	void OnMontageEnded();
 
 protected:
-	// 공격 애니메이션 몽타주
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Animation")
 	UAnimMontage* AttackMontage;
-
-	// 노티파이 태그: 애니메이션 중에 발생하는 이벤트 (예: 땅을 강타할 때)
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Animation")
 	FGameplayTag HitEventTag;
-
-	// 데미지용 GameplayEffect 클래스
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Effects")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 };

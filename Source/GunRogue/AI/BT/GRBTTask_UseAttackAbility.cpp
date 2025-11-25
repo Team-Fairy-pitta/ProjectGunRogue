@@ -16,17 +16,29 @@ UGRBTTask_UseAttackAbility::UGRBTTask_UseAttackAbility()
 EBTNodeResult::Type UGRBTTask_UseAttackAbility::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AAIController* AIController = OwnerComp.GetAIOwner();
-	if (!AIController) return EBTNodeResult::Failed;
-
-	APawn* Pawn = AIController->GetPawn();
-	if (!Pawn) return EBTNodeResult::Failed;
-
-	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(Pawn);
-	if (!ASI) return EBTNodeResult::Failed;
-
+	if (!AIController)
+	{
+		return EBTNodeResult::Failed;
+	}
+	
+	APawn* AIPawn = AIController->GetPawn();
+	if (!AIPawn)
+	{
+		return EBTNodeResult::Failed;
+	}
+	
+	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(AIPawn);
+	if (!ASI)
+	{
+		return EBTNodeResult::Failed;
+	}
+	
 	UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent();
-	if (!ASC) return EBTNodeResult::Failed;
-
+	if (!ASC)
+	{
+		return EBTNodeResult::Failed;
+	}
+	
 	bool bActivated = ASC->TryActivateAbilityByClass(AbilityToUse);
 	if (bActivated)
 	{
@@ -43,19 +55,34 @@ void UGRBTTask_UseAttackAbility::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 	
 	AAIController* AIController = OwnerComp.GetAIOwner();
-	if (!AIController) return;
+	if (!AIController)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
 	
-	APawn* Pawn = AIController->GetPawn();
-	if (!Pawn) return;
-	
-	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(Pawn);
-	if (!ASI) return;
+	APawn* AIPawn = AIController->GetPawn();
+	if (!AIPawn)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(AIPawn);
+	if (!ASI)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
 	
 	UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent();
-	if (!ASC) return;
+	if (!ASC)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
 	
-	FGameplayTag Tag = FGameplayTag::RequestGameplayTag(FName("Ability.Hit.Active"));
-	if (!ASC->HasMatchingGameplayTag(Tag))
+	FGameplayTag ActiveTag = FGameplayTag::RequestGameplayTag(FName("Ability.Hit.Active"));
+	if (!ASC->HasMatchingGameplayTag(ActiveTag))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
