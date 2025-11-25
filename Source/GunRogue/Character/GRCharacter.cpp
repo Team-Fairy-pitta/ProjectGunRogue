@@ -70,8 +70,6 @@ UAbilitySystemComponent* AGRCharacter::GetAbilitySystemComponent() const
 	AGRPlayerState* GRPlayerState = GetGRPlayerState();
 	if (IsValid(GRPlayerState))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ASC 획득"));
-
 		return GRPlayerState->GetAbilitySystemComponent();
 	}
 	else

@@ -1,6 +1,8 @@
 #include "Weapon/GRWeaponUpgradeConsole.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Character/GRCharacter.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 #include "Net/UnrealNetwork.h"
 
 AGRWeaponUpgradeConsole::AGRWeaponUpgradeConsole()
@@ -50,6 +52,27 @@ TArray<TObjectPtr<UStaticMeshComponent>> AGRWeaponUpgradeConsole::GetMeshCompone
 
 void AGRWeaponUpgradeConsole::InteractWith(AActor* OtherActor)
 {
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("InteractWith() REQUIRES authority"));
+		return;
+	}
+
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(OtherActor);
+	if (!IsValid(GRCharacter))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRCharacter (AGRCharacter) is INVALID"));
+		return;
+	}
+
+	AGRBattlePlayerController* BattlePC = GRCharacter->GetController<AGRBattlePlayerController>();
+	if (!IsValid(BattlePC))
+	{
+		UE_LOG(LogTemp, Error, TEXT("BattlePC (AGRBattlePlayerController) is INVALID"));
+		return;
+	}
+
+	BattlePC->ClientRPC_ShowUpgradeConsoleWidget();
 }
 
 void AGRWeaponUpgradeConsole::OnOver()

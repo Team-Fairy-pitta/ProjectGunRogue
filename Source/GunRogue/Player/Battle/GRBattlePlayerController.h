@@ -4,6 +4,7 @@
 #include "GRBattlePlayerController.generated.h"
 
 class UGRBattleHUDWidget;
+class UGRWeaponUpgrade;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 
@@ -54,4 +55,25 @@ private:
 	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
 	void OnShieldChanged(const FOnAttributeChangeData& Data);
 	void OnMaxShieldChanged(const FOnAttributeChangeData& Data);
+
+/* 무기 강화 UI (UpgradeConsole) 관련 코드 */
+#pragma region UpgradeConsole
+public:
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowUpgradeConsoleWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowUpgradeConsoleWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideUpgradeConsoleWidget();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UUserWidget> UpgradeConsoleWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> UpgradeConsoleWidgetInstance;
+
+#pragma endregion UpgradeConsole
 };
