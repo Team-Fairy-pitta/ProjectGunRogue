@@ -37,14 +37,6 @@ UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const
 void AGRAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (ASC && GroundStrikeAbilityClass)
-	{
-		ASC->InitAbilityActorInfo(this, this);
-
-		FGameplayAbilitySpec Spec(GroundStrikeAbilityClass, 1, /*InputID*/ 0, this);
-		ASC->GiveAbility(Spec);
-	}
 }
 
 

@@ -7,7 +7,6 @@
 #include "GameFramework/Character.h"
 #include "GRAICharacter.generated.h"
 
-class UGameplayAbility;
 
 UCLASS()
 class GUNROGUE_API AGRAICharacter : public ACharacter, public IAbilitySystemInterface
@@ -26,6 +25,4 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	UAbilitySystemComponent* ASC;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
-	TSubclassOf<UGameplayAbility> GroundStrikeAbilityClass;
 };

@@ -81,7 +81,7 @@ void UGRBTTask_UseAttackAbility::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 		return;
 	}
 	
-	FGameplayTag ActiveTag = FGameplayTag::RequestGameplayTag(FName("Ability.Hit.Active"));
+	FGameplayTag ActiveTag = FGameplayTag::RequestGameplayTag(FName("Enemy.Ability.Activating"));
 	if (!ASC->HasMatchingGameplayTag(ActiveTag))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
