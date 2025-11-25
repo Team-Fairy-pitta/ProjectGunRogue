@@ -5,6 +5,7 @@
 
 class UUniformGridPanel;
 class UGRLevel1RoomWidget;
+class AGRLevel1ControlPanel;
 struct FGRLevel1Data;
 
 UCLASS()
@@ -17,7 +18,10 @@ public:
 	virtual void NativeConstruct() override;
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
-	void InitWidget(const FGRLevel1Data& Level1Data);
+	void InitWidget(const FGRLevel1Data& Level1Data, AGRLevel1ControlPanel* ControlPanel);
+	void ResetWidget();
+
+	void OnRoomClicked(int32 Index);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -32,4 +36,6 @@ protected:
 private:
 	void Create16RoomWidget();
 	void SetWidgetFocusable();
+
+	AGRLevel1ControlPanel* CachedControlPanel;
 };

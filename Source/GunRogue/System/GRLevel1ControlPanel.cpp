@@ -93,7 +93,7 @@ void AGRLevel1ControlPanel::InteractWith(AActor* OtherActor)
 		return;
 	}
 
-	BattlePC->ClientRPC_ShowLevel1SelectWidget();
+	BattlePC->ClientRPC_ShowLevel1SelectWidget(this);
 }
 
 void AGRLevel1ControlPanel::OnOver()

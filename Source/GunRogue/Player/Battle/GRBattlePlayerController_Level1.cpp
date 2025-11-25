@@ -3,7 +3,7 @@
 #include "GameModes/Level1/GRGameState_Level1.h"
 #include "UI/Level1/GRLevel1SelectWidget.h"
 
-void AGRBattlePlayerController::ClientRPC_ShowLevel1SelectWidget_Implementation()
+void AGRBattlePlayerController::ClientRPC_ShowLevel1SelectWidget_Implementation(AGRLevel1ControlPanel* ControlPanel)
 {
 	if (!GetWorld())
 	{
@@ -17,6 +17,7 @@ void AGRBattlePlayerController::ClientRPC_ShowLevel1SelectWidget_Implementation(
 		return;
 	}
 
+	CachedControlPanel = ControlPanel;
 	OnReceiveHandle = GRGameState->OnReceiveNextRoomInformation.AddUObject(this, &ThisClass::OnReceiveNextRoomInformation);
 	ServerRPC_RequestNextRoomInformation();
 }
@@ -44,10 +45,13 @@ void AGRBattlePlayerController::OnReceiveNextRoomInformation()
 	GRGameState->OnReceiveNextRoomInformation.Remove(OnReceiveHandle);
 
 	ShowLevel1SelectWidget();
-	SetLevel1SelectWidget(GRGameState->GetLevel1ClientData());
+	SetLevel1SelectWidget(GRGameState->GetLevel1ClientData(), CachedControlPanel);
+
+	CachedControlPanel = nullptr;
+	OnReceiveHandle.Reset();
 }
 
-void AGRBattlePlayerController::SetLevel1SelectWidget(const FGRLevel1Data& Level1Data)
+void AGRBattlePlayerController::SetLevel1SelectWidget(const FGRLevel1Data& Level1Data, AGRLevel1ControlPanel* ControlPanel)
 {
 	if (!Level1SelectWidgetInstance)
 	{
@@ -55,7 +59,7 @@ void AGRBattlePlayerController::SetLevel1SelectWidget(const FGRLevel1Data& Level
 		return;
 	}
 
-	Level1SelectWidgetInstance->InitWidget(Level1Data);
+	Level1SelectWidgetInstance->InitWidget(Level1Data, ControlPanel);
 }
 
 void AGRBattlePlayerController::ShowLevel1SelectWidget()
@@ -86,7 +90,11 @@ void AGRBattlePlayerController::HideLevel1SelectWidget()
 	if (Level1SelectWidgetInstance->IsInViewport())
 	{
 		Level1SelectWidgetInstance->RemoveFromParent();
+		Level1SelectWidgetInstance->ResetWidget();
 	}
+
+	CachedControlPanel = nullptr;
+	OnReceiveHandle.Reset();
 
 	FInputModeGameOnly Mode;
 	SetInputMode(Mode);

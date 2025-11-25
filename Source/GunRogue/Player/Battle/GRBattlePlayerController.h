@@ -5,6 +5,7 @@
 
 class UGRBattleHUDWidget;
 class UGRLevel1SelectWidget;
+class AGRLevel1ControlPanel;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
@@ -62,7 +63,7 @@ private:
 #pragma region Level1
 public:
 	UFUNCTION(Client, Reliable)
-	void ClientRPC_ShowLevel1SelectWidget();
+	void ClientRPC_ShowLevel1SelectWidget(AGRLevel1ControlPanel* ControlPanel);
 
 	UFUNCTION(BlueprintCallable)
 	void ShowLevel1SelectWidget();
@@ -86,7 +87,9 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_RequestNextRoomInformation();
 
-	void SetLevel1SelectWidget(const FGRLevel1Data& Level1Data);
+	void SetLevel1SelectWidget(const FGRLevel1Data& Level1Data, AGRLevel1ControlPanel* ControlPanel);
+
+	AGRLevel1ControlPanel* CachedControlPanel;
 
 #pragma endregion Level1
 };

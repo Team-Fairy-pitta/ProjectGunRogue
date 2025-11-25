@@ -33,8 +33,10 @@ FReply UGRLevel1SelectWidget::NativeOnKeyDown(const FGeometry& InGeometry, const
 	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
 }
 
-void UGRLevel1SelectWidget::InitWidget(const FGRLevel1Data& Level1Data)
+void UGRLevel1SelectWidget::InitWidget(const FGRLevel1Data& Level1Data, AGRLevel1ControlPanel* ControlPanel)
 {
+	CachedControlPanel = ControlPanel;
+
 	const TArray<FGRLevel1Node>& Nodes = Level1Data.GetNodes();
 
 	if (RoomWidgetInstances.Num() != 16)
@@ -48,9 +50,19 @@ void UGRLevel1SelectWidget::InitWidget(const FGRLevel1Data& Level1Data)
 		{
 			int32 Index = Row * 4 + Col;
 			const FGRLevel1Node& Node = Nodes[Index];
-			RoomWidgetInstances[Index]->InitRoomWidget(Node);
+			RoomWidgetInstances[Index]->InitRoomWidget(Index, Node, this);
 		}
 	}
+}
+
+void UGRLevel1SelectWidget::ResetWidget()
+{
+	CachedControlPanel = nullptr;
+}
+
+void UGRLevel1SelectWidget::OnRoomClicked(int32 Index)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, FString::Printf(TEXT("OnRoomClicked(int32 Index): %d"), Index));
 }
 
 void UGRLevel1SelectWidget::Create16RoomWidget()
