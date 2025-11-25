@@ -26,6 +26,25 @@ void AGRGameState_Level1::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 	DOREPLIFETIME(ThisClass, Level1ClientData);
 }
 
+void AGRGameState_Level1::SetCurrentRoomIndex(int32 InIndex)
+{
+	FGRLevel1Node* CurrentRoom = Level1ClientData.GetNode(CurrentLevel1NodeIndex);
+	Level1ClientData.GetNode(CurrentLevel1NodeIndex)->NodeStatus = ENodeStatus::CLEARD;
+
+	int32 LeftRoomIndex = CurrentRoom->NextLeftIndex;
+	int32 RightRoomIndex = CurrentRoom->NextRightIndex;
+	if (LeftRoomIndex != -1)
+	{
+		Level1ClientData.GetNode(LeftRoomIndex)->NodeStatus = ENodeStatus::NONE;
+	}
+	if (RightRoomIndex != -1)
+	{
+		Level1ClientData.GetNode(RightRoomIndex)->NodeStatus = ENodeStatus::NONE;
+	}
+	
+	CurrentLevel1NodeIndex = InIndex;
+}
+
 void AGRGameState_Level1::RequestNextRoomInformation()
 {
 	if (!HasAuthority())
@@ -60,14 +79,13 @@ void AGRGameState_Level1::RequestNextRoomInformation()
 	{
 		LeftRoom = GRGameMode->GetLevel1Node(LeftRoomIndex);
 		Level1ClientData.SetNode(LeftRoomIndex, *LeftRoom);
+		Level1ClientData.GetNode(LeftRoomIndex)->NodeStatus = ENodeStatus::NEXT;
 	}
 	if (RightRoomIndex != -1)
 	{
 		RightRoom = GRGameMode->GetLevel1Node(RightRoomIndex);
 		Level1ClientData.SetNode(RightRoomIndex, *RightRoom);
+		Level1ClientData.GetNode(RightRoomIndex)->NodeStatus = ENodeStatus::NEXT;
 	}
-
 	Level1ClientData.GetNode(CurrentLevel1NodeIndex)->NodeStatus = ENodeStatus::CURRENT;
-	Level1ClientData.GetNode(LeftRoomIndex)->NodeStatus = ENodeStatus::NEXT;
-	Level1ClientData.GetNode(RightRoomIndex)->NodeStatus = ENodeStatus::NEXT;
 }
