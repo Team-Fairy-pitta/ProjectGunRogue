@@ -22,7 +22,11 @@ void UGRLevel1RoomWidget::InitRoomWidget(int32 InIndex, const FGRLevel1Node& Lev
 
 	Index = InIndex;
 	ParentWidget = InParentWidget;
-	RoomButton->OnClicked.AddDynamic(this, &ThisClass::OnButtonClicked);
+
+	if (!RoomButton->OnClicked.IsAlreadyBound(this, &ThisClass::OnButtonClicked))
+	{
+		RoomButton->OnClicked.AddDynamic(this, &ThisClass::OnButtonClicked);
+	}
 
 	switch (Level1Data.NodeStatus)
 	{

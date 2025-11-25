@@ -61,7 +61,7 @@ void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 	{
 		LoadLocation = Arrow->GetComponentLocation();
 	}
-	
+
 	ULevelStreamingDynamic* StreamedLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
 		this,
 		LevelAsset,

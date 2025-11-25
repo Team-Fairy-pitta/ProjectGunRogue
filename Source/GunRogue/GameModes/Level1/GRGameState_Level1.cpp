@@ -5,10 +5,17 @@
 
 AGRGameState_Level1::AGRGameState_Level1()
 {
+	CurrentLevel1NodeIndex = 0; // 항상 0번째 방에서 시작
 	Level1ClientData.InitAtClient();
+}
 
-	// 항상 0번째 방에서 시작
-	CurrentLevel1NodeIndex = 0;
+void AGRGameState_Level1::BeginPlay()
+{
+	Super::BeginPlay();
+	if (HasAuthority())
+	{
+		RequestNextRoomInformation();
+	}
 }
 
 void AGRGameState_Level1::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -16,15 +23,10 @@ void AGRGameState_Level1::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, CurrentLevel1NodeIndex);
+	DOREPLIFETIME(ThisClass, Level1ClientData);
 }
 
 void AGRGameState_Level1::RequestNextRoomInformation()
-{
-	ServerRPC_RequestNextRoomInformation(CurrentLevel1NodeIndex);
-}
-
-
-void AGRGameState_Level1::ServerRPC_RequestNextRoomInformation_Implementation(int32 CurrentIndex)
 {
 	if (!HasAuthority())
 	{
@@ -43,7 +45,7 @@ void AGRGameState_Level1::ServerRPC_RequestNextRoomInformation_Implementation(in
 		return;
 	}
 
-	FGRLevel1Node* CurrentRoom = GRGameMode->GetLevel1Node(CurrentIndex);
+	FGRLevel1Node* CurrentRoom = GRGameMode->GetLevel1Node(CurrentLevel1NodeIndex);
 	if (!CurrentRoom)
 	{
 		UE_LOG(LogTemp, Fatal, TEXT("CurrentRoom is INVALID"));
@@ -52,49 +54,20 @@ void AGRGameState_Level1::ServerRPC_RequestNextRoomInformation_Implementation(in
 
 	FGRLevel1Node* LeftRoom = nullptr;
 	FGRLevel1Node* RightRoom = nullptr;
-	if (CurrentRoom->NextLeftIndex != -1)
-	{
-		LeftRoom = GRGameMode->GetLevel1Node(CurrentRoom->NextLeftIndex);
-	}
-	if (CurrentRoom->NextRightIndex != -1)
-	{
-		RightRoom = GRGameMode->GetLevel1Node(CurrentRoom->NextRightIndex);
-	}
-
-	MulticastRPC_ReceiveNextRoomInformation(CurrentIndex, *LeftRoom, *RightRoom);
-}
-
-void AGRGameState_Level1::MulticastRPC_ReceiveNextRoomInformation_Implementation(int32 Index, FGRLevel1Node LeftRoomInfo, FGRLevel1Node RightRoomInfo)
-{
-	FGRLevel1Node* CurrentRoom = Level1ClientData.GetNode(Index);
-	if (!CurrentRoom)
-	{
-		return;
-	}
-
 	int32 LeftRoomIndex = CurrentRoom->NextLeftIndex;
 	int32 RightRoomIndex = CurrentRoom->NextRightIndex;
-
 	if (LeftRoomIndex != -1)
 	{
-		Level1ClientData.SetNode(LeftRoomIndex, LeftRoomInfo);
+		LeftRoom = GRGameMode->GetLevel1Node(LeftRoomIndex);
+		Level1ClientData.SetNode(LeftRoomIndex, *LeftRoom);
 	}
 	if (RightRoomIndex != -1)
 	{
-		Level1ClientData.SetNode(RightRoomIndex, RightRoomInfo);
+		RightRoom = GRGameMode->GetLevel1Node(RightRoomIndex);
+		Level1ClientData.SetNode(RightRoomIndex, *RightRoom);
 	}
 
-	Level1ClientData.GetNode(Index)->NodeStatus = ENodeStatus::CURRENT;
+	Level1ClientData.GetNode(CurrentLevel1NodeIndex)->NodeStatus = ENodeStatus::CURRENT;
 	Level1ClientData.GetNode(LeftRoomIndex)->NodeStatus = ENodeStatus::NEXT;
 	Level1ClientData.GetNode(RightRoomIndex)->NodeStatus = ENodeStatus::NEXT;
-
-
-#if WITH_EDITOR
-	Level1ClientData.PrintDebugLog();
-#endif
-
-	if (OnReceiveNextRoomInformation.IsBound())
-	{
-		OnReceiveNextRoomInformation.Broadcast();
-	}
 }

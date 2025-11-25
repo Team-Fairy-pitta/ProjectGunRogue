@@ -17,14 +17,14 @@ void FGRLevel1Node::CopyNodeInformation(const FGRLevel1Node& Other)
 
 FGRLevel1Data::FGRLevel1Data()
 {
-	bIsValid = false;
+	bIsValid = 0;
 	TotalRoomCount = 16;
 }
 
 void FGRLevel1Data::InitAtClient()
 {
 	MakeAndConnectEmptyRooms(TotalRoomCount);
-	bIsValid = true;
+	bIsValid = 1;
 }
 
 FGRLevel1Node* FGRLevel1Data::GetNode(int32 Index)
@@ -57,7 +57,7 @@ void FGRLevel1Data::InitAtServer(AGRGameMode_Level1* GRGameMode)
 
 	MakeAndConnectEmptyRooms(TotalRoomCount);
 	SetupEachRoomRandomly(GRGameMode, TotalRoomCount);
-	bIsValid = true;
+	bIsValid = 1;
 }
 
 void FGRLevel1Data::PrintDebugLog()

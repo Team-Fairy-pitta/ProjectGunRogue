@@ -79,17 +79,7 @@ protected:
 	TObjectPtr<UGRLevel1SelectWidget> Level1SelectWidgetInstance;
 
 private:
-	FDelegateHandle OnReceiveHandle;
-
-	UFUNCTION()
-	void OnReceiveNextRoomInformation();
-
-	UFUNCTION(Server, Reliable)
-	void ServerRPC_RequestNextRoomInformation();
-
 	void SetLevel1SelectWidget(const FGRLevel1Data& Level1Data, AGRLevel1ControlPanel* ControlPanel);
-
-	AGRLevel1ControlPanel* CachedControlPanel;
 
 #pragma endregion Level1
 };

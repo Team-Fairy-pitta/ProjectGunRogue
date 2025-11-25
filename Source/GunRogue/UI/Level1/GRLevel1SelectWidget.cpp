@@ -62,7 +62,14 @@ void UGRLevel1SelectWidget::ResetWidget()
 
 void UGRLevel1SelectWidget::OnRoomClicked(int32 Index)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, FString::Printf(TEXT("OnRoomClicked(int32 Index): %d"), Index));
+	APlayerController* PlayerController = GetOwningPlayer();
+	AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(PlayerController);
+	if (!IsValid(BattlePlayerController))
+	{
+		return;
+	}
+
+
 }
 
 void UGRLevel1SelectWidget::Create16RoomWidget()

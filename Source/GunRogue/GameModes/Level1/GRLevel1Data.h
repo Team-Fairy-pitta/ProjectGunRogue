@@ -4,6 +4,7 @@
 
 class AGRGameMode_Level1;
 
+UENUM()
 enum class ENodeStatus : uint8
 {
 	NONE,
@@ -21,9 +22,13 @@ public:
 	FGRLevel1Node();
 	void CopyNodeInformation(const FGRLevel1Node& Other);
 
+	UPROPERTY()
 	int32 NextLeftIndex;
+
+	UPROPERTY()
 	int32 NextRightIndex;
 
+	UPROPERTY()
 	ENodeStatus NodeStatus;
 
 	UPROPERTY()
@@ -39,7 +44,7 @@ public:
 	FGRLevel1Data();
 	void InitAtServer(AGRGameMode_Level1* GRGameMode);
 	void InitAtClient();
-	bool IsValidData() const { return bIsValid; }
+	bool IsValidData() const { return bIsValid == 1; }
 	FGRLevel1Node* GetNode(int32 Index);
 	void SetNode(int32 Index, FGRLevel1Node& Data);
 
@@ -48,7 +53,10 @@ public:
 	void PrintDebugLog();
 
 private:
-	bool bIsValid;
+	UPROPERTY()
+	int8 bIsValid;
+
+	UPROPERTY()
 	int32 TotalRoomCount;
 
 	UPROPERTY()
