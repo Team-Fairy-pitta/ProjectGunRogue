@@ -2,9 +2,10 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
-#include "Character/GRCharacter.h"
 #include "Player/Battle/GRBattlePlayerController.h"
-#include "Weapon/GRWeaponBase.h"
+#include "Player/GRPlayerState.h"
+#include "Weapon/GRWeaponDefinition.h"
+#include "Components/Image.h"
 
 
 void UGRWeaponUpgrade::SettingWeapon()
@@ -14,41 +15,32 @@ void UGRWeaponUpgrade::SettingWeapon()
 		return;
 	}
 
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC)
+	if (APlayerController* PC = GetOwningPlayer())
 	{
-		return;
+		if (AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>())
+		{
+			UGRWeaponDefinition* WeaponDefinition = PS->GetCurrentWeaponDefinition();
+
+			FText WeaponName = WeaponDefinition->WeaponName;
+			UTexture2D* WeaponIcon = WeaponDefinition->WeaponIcon;
+			int32 WeaponLevel = WeaponDefinition->CurrentLevel;
+			float WeaponDamage = WeaponDefinition->CurrentDamage;
+			float WeaponWeakpoint = 150.f;
+			float WeaponLaunchspeed = 500;
+			float WeaponMagazine = 300;
+			FText WeaponExplain = WeaponDefinition->WeaponDescription;
+
+			WeaponNameUpdate(WeaponName);
+			WeaponImageUpdate(WeaponIcon);
+			WeaponLevelUpdate(WeaponLevel);
+			WeaponDamageUpdate(WeaponDamage);
+			WeaponWeakpointUpdate(WeaponWeakpoint);
+			WeaponLaunchspeedUpdate(WeaponLaunchspeed);
+			WeaponMagazineUpdate(WeaponMagazine);
+			WeaponExplainUpdate(WeaponExplain);
+			//WeaponOptionUpdate();
+		}
 	}
-
-	AGRCharacter* Character = Cast<AGRCharacter>(PC->GetPawn());
-	if (!Character)
-	{
-		return;
-	}
-
-	AGRWeaponBase* Weapon = Character->GetWeapon();
-	if (!Weapon)
-	{
-		return;
-	}
-
-	FString WeaponName = TEXT("Gun");
-	int32 WeaponLevel = Weapon->GetLevel();
-	float WeaponDamage = Weapon->GetDamage();
-	float WeaponWeakpoint = 150.f;
-	float WeaponLaunchspeed = 500;
-	float WeaponMagazine = 300;
-	FString WeaponExplain = TEXT("기본 무기이다.");
-
-	WeaponNameUpdate(WeaponName);
-	//WeaponImageUpdate();
-	WeaponLevelUpdate(WeaponLevel);
-	WeaponDamageUpdate(WeaponDamage);
-	WeaponWeakpointUpdate(WeaponWeakpoint);
-	WeaponLaunchspeedUpdate(WeaponLaunchspeed);
-	WeaponMagazineUpdate(WeaponMagazine);
-	WeaponExplainUpdate(WeaponExplain);
-	//WeaponOptionUpdate();
 }
 
 void UGRWeaponUpgrade::NativeConstruct()
@@ -73,13 +65,13 @@ void UGRWeaponUpgrade::NativeConstruct()
 		return;
 	}
 
-	AGRCharacter* Character = Cast<AGRCharacter>(PC->GetPawn());
-	if (!Character)
-	{
-		return;
-	}
+	//AGRCharacter* Character = Cast<AGRCharacter>(PC->GetPawn());
+	//if (!Character)
+	//{
+	//	return;
+	//}
 
-	AGRWeaponBase* Weapon = Character->GetWeapon();
+	/*AGRWeaponBase* Weapon = Character->GetWeapon();
 	if (!Weapon)
 	{
 		return;
@@ -88,7 +80,7 @@ void UGRWeaponUpgrade::NativeConstruct()
 	if (Weapon)
 	{
 		Weapon->OnWeaponStatChanged.AddDynamic(this, &UGRWeaponUpgrade::SettingWeapon);
-	}
+	}*/
 }
 
 void UGRWeaponUpgrade::NativeDestruct()
@@ -135,13 +127,13 @@ void UGRWeaponUpgrade::UpGrade()
 		return;
 	}
 
-	AGRCharacter* Character = Cast<AGRCharacter>(PC->GetPawn());
-	if (!Character)
-	{
-		return;
-	}
+	//AGRCharacter* Character = Cast<AGRCharacter>(PC->GetPawn());
+	//if (!Character)
+	//{
+	//	return;
+	//}
 
-	Character->Test_UpgradeWeapon();
+	//Character->Test_UpgradeWeapon();
 
 }
 
@@ -150,19 +142,25 @@ void UGRWeaponUpgrade::Reroll()
 	//WeaponOptionUpdate();
 }
 
-void UGRWeaponUpgrade::WeaponNameUpdate(FString WeaponName)
+void UGRWeaponUpgrade::WeaponNameUpdate(FText WeaponName)
 {
 	if (!WeaponNameText)
 	{
 		return;
 	}
 
-	WeaponNameText->SetText(FText::FromString(WeaponName));
+	WeaponNameText->SetText(WeaponName);
 }
 
-//void UGRWeaponUpgrade::WeaponImageUpdate()
-//{
-//}
+void UGRWeaponUpgrade::WeaponImageUpdate(UTexture2D* Image)
+{
+	if (!WeaponIconIamge)
+	{
+		return;
+	}
+
+	WeaponIconIamge->SetBrushFromTexture(Image);
+}
 
 void UGRWeaponUpgrade::WeaponLevelUpdate(int32 Level)
 {
@@ -220,14 +218,14 @@ void UGRWeaponUpgrade::WeaponMagazineUpdate(float Magazine)
 	WeaponMagazineText->SetText(FText::AsNumber(Magazine));
 }
 
-void UGRWeaponUpgrade::WeaponExplainUpdate(FString WeaponExplain)
+void UGRWeaponUpgrade::WeaponExplainUpdate(FText WeaponExplain)
 {
 	if (!WeaponExplainText)
 	{
 		return;
 	}
 
-	WeaponExplainText->SetText(FText::FromString(WeaponExplain));
+	WeaponExplainText->SetText(WeaponExplain);
 }
 
 void UGRWeaponUpgrade::SetWidgetFocusable()

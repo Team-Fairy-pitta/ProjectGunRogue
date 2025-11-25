@@ -7,6 +7,7 @@
 class UButton;
 class UTextBlock;
 class UImage;
+class AGRPlayerState;
 
 
 UCLASS()
@@ -31,10 +32,10 @@ public:
 
 private:
 	UFUNCTION()
-	void WeaponNameUpdate(FString WeaponName);
+	void WeaponNameUpdate(FText WeaponName);
 
-	/*UFUNCTION()
-	void WeaponImageUpdate();*/
+	UFUNCTION()
+	void WeaponImageUpdate(UTexture2D* Image);
 
 	UFUNCTION()
 	void WeaponLevelUpdate(int32 Level);
@@ -52,7 +53,7 @@ private:
 	void WeaponMagazineUpdate(float Magazine);
 
 	UFUNCTION()
-	void WeaponExplainUpdate(FString WeaponExplain);
+	void WeaponExplainUpdate(FText WeaponExplain);
 
 	/*UFUNCTION()
 	void WeaponOptionUpdate();*/
@@ -68,8 +69,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponNameText;
 
-	/*UPROPERTY(meta = (BindWidget))
-	UImage* WeaponImage;*/
+	UPROPERTY(meta = (BindWidget))
+	UImage* WeaponIconIamge;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponLevelText;

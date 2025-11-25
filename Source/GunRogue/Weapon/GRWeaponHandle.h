@@ -38,6 +38,8 @@ public:
 	UGRWeaponDefinition* GetWeaponDefinition() const { return WeaponDefinition; }
 
 	FGRWeaponInstance GetWeaponInstanceCopy() { return WeaponInstance; }
+	
+	FGRWeaponInstance* GetWeaponInstanceRef() { return &WeaponInstance; }
 
 	bool IsActive() const { return bIsActive; }
 
