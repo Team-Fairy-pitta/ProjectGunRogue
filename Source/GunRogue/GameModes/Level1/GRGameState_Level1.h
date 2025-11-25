@@ -18,6 +18,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+	void SetCurrentRoomIndex(int32 InIndex);
 	void RequestNextRoomInformation();
 
 	const FGRLevel1Data& GetLevel1ClientData() const { return Level1ClientData; }

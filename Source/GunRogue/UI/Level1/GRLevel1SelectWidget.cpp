@@ -69,7 +69,7 @@ void UGRLevel1SelectWidget::OnRoomClicked(int32 Index)
 		return;
 	}
 
-
+	BattlePlayerController->ServerRPC_OnSelectNextRoom(Index, CachedControlPanel);
 }
 
 void UGRLevel1SelectWidget::Create16RoomWidget()

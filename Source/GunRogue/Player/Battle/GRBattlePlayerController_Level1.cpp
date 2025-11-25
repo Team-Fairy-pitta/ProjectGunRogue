@@ -1,6 +1,7 @@
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "GameModes/Level1/GRGameState_Level1.h"
+#include "System/GRLevel1ControlPanel.h"
 #include "UI/Level1/GRLevel1SelectWidget.h"
 
 void AGRBattlePlayerController::ClientRPC_ShowLevel1SelectWidget_Implementation(AGRLevel1ControlPanel* ControlPanel)
@@ -19,6 +20,52 @@ void AGRBattlePlayerController::ClientRPC_ShowLevel1SelectWidget_Implementation(
 
 	ShowLevel1SelectWidget();
 	SetLevel1SelectWidget(GRGameState->GetLevel1ClientData(), ControlPanel);
+}
+
+void AGRBattlePlayerController::ClientRPC_HideLevel1SelectWidget_Implementation()
+{
+	HideLevel1SelectWidget();
+}
+
+void AGRBattlePlayerController::ServerRPC_OnSelectNextRoom_Implementation(int32 NextRoomIndex, AGRLevel1ControlPanel* ControlPanel)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (!IsValid(ControlPanel))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ControlPanel is INVALID"));
+		return;
+	}
+	ControlPanel->OnUsePanel();
+
+	AGameStateBase* GameState = GetWorld()->GetGameState();
+	AGRGameState_Level1* GameState_Level1 = Cast<AGRGameState_Level1>(GameState);
+	if (!IsValid(GameState_Level1))
+	{
+		return;
+	}
+
+	GameState_Level1->SetCurrentRoomIndex(NextRoomIndex);
+	GameState_Level1->RequestNextRoomInformation();
+
+	for (APlayerState* PS: GameState->PlayerArray)
+	{
+		if (IsValid(PS))
+		{
+			AGRBattlePlayerController* BattleController = Cast<AGRBattlePlayerController>(PS->GetOwner());
+			if (IsValid(BattleController))
+			{
+				BattleController->ClientRPC_HideLevel1SelectWidget();
+			}
+		}
+	}
 }
 
 void AGRBattlePlayerController::SetLevel1SelectWidget(const FGRLevel1Data& Level1Data, AGRLevel1ControlPanel* ControlPanel)

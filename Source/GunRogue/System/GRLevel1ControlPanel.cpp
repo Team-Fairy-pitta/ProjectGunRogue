@@ -123,3 +123,12 @@ bool AGRLevel1ControlPanel::CanInteract(AActor* OtherActor)
 		return true;
 	}
 }
+
+void AGRLevel1ControlPanel::OnUsePanel()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	bWasActivated = 1;
+}

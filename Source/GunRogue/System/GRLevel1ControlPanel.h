@@ -23,7 +23,9 @@ public:
 	virtual void InteractWith(AActor* OtherActor) override;
 	virtual void OnOver() override;
 	virtual void OnOut() override;
-	virtual bool CanInteract(AActor* OtherActor); /* TODO: merge 이후 override 가능 */
+	virtual bool CanInteract(AActor* OtherActor) override;
+
+	void OnUsePanel();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")

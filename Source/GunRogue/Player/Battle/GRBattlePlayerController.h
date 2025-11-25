@@ -65,6 +65,12 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_ShowLevel1SelectWidget(AGRLevel1ControlPanel* ControlPanel);
 
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_HideLevel1SelectWidget();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_OnSelectNextRoom(int32 NextRoomIndex, AGRLevel1ControlPanel* ControlPanel);
+
 	UFUNCTION(BlueprintCallable)
 	void ShowLevel1SelectWidget();
 
