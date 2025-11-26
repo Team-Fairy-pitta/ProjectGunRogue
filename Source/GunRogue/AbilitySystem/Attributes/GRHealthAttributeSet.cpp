@@ -17,10 +17,10 @@ UGRHealthAttributeSet::UGRHealthAttributeSet()
 	, BeforeShield(0.0f)
 	, BeforeMaxShield(0.0f)
 {
-	InitHealth(100.0f);
-	InitMaxHealth(100.0f);
-	InitShield(50.0f);
-	InitMaxShield(50.0f);
+	InitHealth(200.0f);
+	InitMaxHealth(200.0f);
+	InitShield(100.0f);
+	InitMaxShield(100.0f);
 
 	InitShieldRegenDelay(5.0f);
 	InitShieldRegenInterval(1.0f);

@@ -86,6 +86,31 @@ public:
 	FGameplayAttributeData IsCriticalHit;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, IsCriticalHit)
 
+	// 연사력 (초당 발사 횟수, RoundsPerMinute / 60)
+    UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon", ReplicatedUsing = OnRep_FireRate)
+    FGameplayAttributeData FireRate;
+    ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, FireRate)
+
+    // 집탄율 (0.0 ~ 1.0, 높을수록 정확함)
+    UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon", ReplicatedUsing = OnRep_Accuracy)
+    FGameplayAttributeData Accuracy;
+    ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, Accuracy)
+
+    // 반동 (크기, 0.0 ~ 무한대)
+    UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon", ReplicatedUsing = OnRep_Recoil)
+    FGameplayAttributeData Recoil;
+    ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, Recoil)
+
+    // 탄퍼짐 회복 속도 (초당 회복률)
+    UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon", ReplicatedUsing = OnRep_SpreadRecoveryRate)
+    FGameplayAttributeData SpreadRecoveryRate;
+    ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SpreadRecoveryRate)
+
+    // 최대 탄퍼짐 (각도, degree)
+    UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon", ReplicatedUsing = OnRep_MaxSpread)
+    FGameplayAttributeData MaxSpread;
+    ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, MaxSpread)
+
 
 	// 무기 데미지 계산 (무기 공격력만)
 	float CalculateWeaponDamage() const;
@@ -132,4 +157,19 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_DamageReduction(const FGameplayAttributeData& OldDamageReduction);
+
+	UFUNCTION()
+	virtual void OnRep_FireRate(const FGameplayAttributeData& OldFireRate);
+
+	UFUNCTION()
+	virtual void OnRep_Accuracy(const FGameplayAttributeData& OldAccuracy);
+
+	UFUNCTION()
+	virtual void OnRep_Recoil(const FGameplayAttributeData& OldRecoil);
+
+	UFUNCTION()
+	virtual void OnRep_SpreadRecoveryRate(const FGameplayAttributeData& OldSpreadRecoveryRate);
+
+	UFUNCTION()
+	virtual void OnRep_MaxSpread(const FGameplayAttributeData& OldMaxSpread);
 };

@@ -16,10 +16,14 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	FinalDamage_Additive = 0.0f;
 	FinalDamage_Multiplicative = 0.0f;
 	FinalDamage_Bonus = 0.0f;
-
 	DamageReduction = 0.0f;
-
 	IsCriticalHit = 0.0f;
+
+	FireRate = 5.0f;
+	Accuracy = 1.0f;
+	Recoil = 1.0f;
+	SpreadRecoveryRate = 5.0f;
+	MaxSpread = 10.0f;
 }
 
 void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -40,6 +44,12 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, FinalDamage_Bonus, COND_None, REPNOTIFY_Always);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, DamageReduction, COND_None, REPNOTIFY_Always);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, FireRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, Accuracy, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, Recoil, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SpreadRecoveryRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxSpread, COND_None, REPNOTIFY_Always);
 }
 
 float UGRCombatAttributeSet::CalculateWeaponDamage() const
@@ -159,4 +169,29 @@ void UGRCombatAttributeSet::OnRep_FinalDamage_Bonus(const FGameplayAttributeData
 void UGRCombatAttributeSet::OnRep_DamageReduction(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, DamageReduction, OldValue);
+}
+
+void UGRCombatAttributeSet::OnRep_FireRate(const FGameplayAttributeData& OldFireRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, FireRate, OldFireRate);
+}
+
+void UGRCombatAttributeSet::OnRep_Accuracy(const FGameplayAttributeData& OldAccuracy)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, Accuracy, OldAccuracy);
+}
+
+void UGRCombatAttributeSet::OnRep_Recoil(const FGameplayAttributeData& OldRecoil)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, Recoil, OldRecoil);
+}
+
+void UGRCombatAttributeSet::OnRep_SpreadRecoveryRate(const FGameplayAttributeData& OldSpreadRecoveryRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, SpreadRecoveryRate, OldSpreadRecoveryRate);
+}
+
+void UGRCombatAttributeSet::OnRep_MaxSpread(const FGameplayAttributeData& OldMaxSpread)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, MaxSpread, OldMaxSpread);
 }

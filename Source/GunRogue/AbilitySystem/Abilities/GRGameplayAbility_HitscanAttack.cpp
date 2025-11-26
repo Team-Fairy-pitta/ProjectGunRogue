@@ -3,10 +3,11 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystemInterface.h"
-
+#include "TimerManager.h"
 
 UGRGameplayAbility_HitscanAttack::UGRGameplayAbility_HitscanAttack()
 {
@@ -22,9 +23,135 @@ void UGRGameplayAbility_HitscanAttack::ActivateAbility(const FGameplayAbilitySpe
 		return;
 	}
 
+	// 연사 시작
+	StartContinuousFire();
+}
+
+void UGRGameplayAbility_HitscanAttack::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility,
+	bool bWasCancelled)
+{
+	// 연사 중지
+	StopContinuousFire();
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UGRGameplayAbility_HitscanAttack::InputReleased(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	// 버튼 떼면 어빌리티 종료
+	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+}
+
+void UGRGameplayAbility_HitscanAttack::StartContinuousFire()
+{
+	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	if (!Character)
+	{
+		return;
+	}
+
+	IAbilitySystemInterface* SourceASI = Cast<IAbilitySystemInterface>(Character);
+	if (!SourceASI)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* SourceASC = SourceASI->GetAbilitySystemComponent();
+	if (!SourceASC)
+	{
+		return;
+	}
+
+	const UGRCombatAttributeSet* CombatSet = SourceASC->GetSet<UGRCombatAttributeSet>();
+	if (!CombatSet)
+	{
+		return;
+	}
+
+	// FireRate에 따른 연사 간격 계산
+	const float FireRate = CombatSet->GetFireRate();
+	if (FireRate <= 0.0f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Fire] Invalid FireRate: %.2f"), FireRate);
+		return;
+	}
+
+	const float FireInterval = 1.0f / FireRate;
+
+	// 즉시 첫 발 발사
 	FireLineTrace();
 
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	// 타이머로 연사 시작
+	GetWorld()->GetTimerManager().SetTimer(
+		FireTimerHandle,
+		[this]()
+		{
+			if (HasAuthority(&CurrentActivationInfo))
+			{
+				FireLineTrace();
+			}
+		},
+		FireInterval,
+		true  // Loop
+	);
+
+	// 탄퍼짐 회복 타이머 시작
+	GetWorld()->GetTimerManager().SetTimer(
+		SpreadRecoveryTimerHandle,
+		[this]()
+		{
+			UpdateSpreadRecovery(0.1f);
+		},
+		0.1f,
+		true
+	);
+}
+
+void UGRGameplayAbility_HitscanAttack::StopContinuousFire()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(SpreadRecoveryTimerHandle);
+	}
+}
+
+void UGRGameplayAbility_HitscanAttack::UpdateSpreadRecovery(float DeltaTime)
+{
+	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	if (!Character)
+	{
+		return;
+	}
+
+	IAbilitySystemInterface* SourceASI = Cast<IAbilitySystemInterface>(Character);
+	if (!SourceASI)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* SourceASC = SourceASI->GetAbilitySystemComponent();
+	if (!SourceASC)
+	{
+		return;
+	}
+
+	const UGRCombatAttributeSet* CombatSet = SourceASC->GetSet<UGRCombatAttributeSet>();
+	if (!CombatSet)
+	{
+		return;
+	}
+
+	// 탄퍼짐 회복
+	const float RecoveryRate = CombatSet->GetSpreadRecoveryRate();
+	CurrentSpread = FMath::Max(0.0f, CurrentSpread - RecoveryRate * DeltaTime);
 }
 
 void UGRGameplayAbility_HitscanAttack::FireLineTrace()
@@ -35,6 +162,37 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		UE_LOG(LogTemp, Warning, TEXT("[Fire] No Character!"));
 		return;
 	}
+
+	IAbilitySystemInterface* SourceASI = Cast<IAbilitySystemInterface>(Character);
+	if (!SourceASI)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Fire] No Source ASI"));
+		return;
+	}
+
+	UAbilitySystemComponent* SourceASC = SourceASI->GetAbilitySystemComponent();
+	if (!SourceASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Fire] No Source ASC"));
+		return;
+	}
+
+	const UGRCombatAttributeSet* CombatSet = SourceASC->GetSet<UGRCombatAttributeSet>();
+	if (!CombatSet)
+	{
+		return;
+	}
+
+	if (!DamageEffect)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Fire] No DamageEffect class"));
+		return;
+	}
+
+	// 무기 스탯 가져오기
+	const float Accuracy = CombatSet->GetAccuracy();
+	const float Recoil = CombatSet->GetRecoil();
+	const float MaxSpread = CombatSet->GetMaxSpread();
 
 	// 카메라 위치/방향 가져오기
 	FVector CameraLocation;
@@ -51,9 +209,18 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		CameraRotation = Character->GetActorRotation();
 	}
 
+	// 탄퍼짐 적용 (Accuracy 낮을수록, CurrentSpread 높을수록 더 퍼짐)
+	const float SpreadAngle = CurrentSpread * (1.0f - Accuracy);
+	const float RandomPitch = FMath::RandRange(-SpreadAngle, SpreadAngle);
+	const float RandomYaw = FMath::RandRange(-SpreadAngle, SpreadAngle);
+
+	FRotator AdjustedRotation = CameraRotation;
+	AdjustedRotation.Pitch += RandomPitch;
+	AdjustedRotation.Yaw += RandomYaw;
+
 	// LineTrace 실행
 	FVector TraceStart = CameraLocation;
-	FVector TraceEnd = CameraLocation + (CameraRotation.Vector() * FireRange);
+	FVector TraceEnd = CameraLocation + (AdjustedRotation.Vector() * FireRange);
 
 	FHitResult HitResult;
 	FCollisionQueryParams QueryParams;
@@ -81,6 +248,14 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 			false, DebugLineDuration);
 	}
 #endif
+
+	// 탄퍼짐 증가 (최대치 제한)
+	CurrentSpread = FMath::Min(CurrentSpread + SpreadIncreasePerShot, MaxSpread);
+
+	if (PC)
+	{
+		ApplyRecoil(PC, Recoil);
+	}
 
 	if (!bHit)
 	{
@@ -111,28 +286,7 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		return;
 	}
 
-	IAbilitySystemInterface* SourceASI = Cast<IAbilitySystemInterface>(Character);
-	if (!SourceASI)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Fire] No Source ASI"));
-		return;
-	}
-
-	UAbilitySystemComponent* SourceASC = SourceASI->GetAbilitySystemComponent();
-	if (!SourceASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Fire] No Source ASC"));
-		return;
-	}
-
-	if (!DamageEffect)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Fire] No DamageEffect class"));
-		return;
-	}
-
 	// 피해량 계산
-	const UGRCombatAttributeSet* CombatSet = SourceASC->GetSet<UGRCombatAttributeSet>();
 	const UGRCombatAttributeSet* TargetCombatSet = TargetASC->GetSet<UGRCombatAttributeSet>();
 
 	const float TargetReduction = TargetCombatSet ? TargetCombatSet->GetDamageReduction() : 0.0f;
@@ -187,4 +341,19 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, Color, Message);
 	}
 #endif
+}
+
+void UGRGameplayAbility_HitscanAttack::ApplyRecoil(APlayerController* PC, float RecoilAmount)
+{
+	if (!PC)
+	{
+		return;
+	}
+
+	// 반동 (위쪽으로 카메라 흔들림)
+	const float RecoilPitch = FMath::RandRange(RecoilAmount * -0.5f, RecoilAmount * -1.0f);
+	const float RecoilYaw = FMath::RandRange(-RecoilAmount * 0.3f, RecoilAmount * 0.3f);
+
+	PC->AddPitchInput(RecoilPitch);
+	PC->AddYawInput(RecoilYaw);
 }
