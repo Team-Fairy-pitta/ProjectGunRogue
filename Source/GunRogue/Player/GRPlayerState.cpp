@@ -124,12 +124,23 @@ UGRWeaponDefinition* AGRPlayerState::GetWeaponDefinitionInSlot(int32 SlotIndex) 
 	{
 		return nullptr;
 	}
+
 	return WeaponSlots[SlotIndex].GetWeaponDefinition();
 }
 
 UGRWeaponDefinition* AGRPlayerState::GetCurrentWeaponDefinition() const
 {
 	return GetWeaponDefinitionInSlot(CurrentWeaponSlot);
+}
+
+const FGRWeaponInstance* AGRPlayerState::GetWeaponInstanceInSlot(int32 SlotIndex) const
+{
+	if (!WeaponSlots.IsValidIndex(SlotIndex))
+	{
+		return nullptr;
+	}
+
+	return WeaponSlots[SlotIndex].GetWeaponInstanceRef();
 }
 
 void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* ItemDefinition, AActor* ItemActor)

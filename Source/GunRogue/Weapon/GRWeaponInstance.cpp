@@ -36,6 +36,11 @@ void FGRWeaponInstance::Init(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition
 {
 	CachedASC = ASC;
 	WeaponDefinition = InWeaponDefinition;
+
+	if (!CurrentDamage)
+	{
+		CurrentDamage = WeaponDefinition->BaseDamage;
+	}
 }
 
 void FGRWeaponInstance::WeaponUpgrade()
@@ -46,17 +51,17 @@ void FGRWeaponInstance::WeaponUpgrade()
 		return;
 	}
 
-	if (!(WeaponDefinition->CurrentLevel < WeaponDefinition->MaxLevel))
+	if (!(CurrentLevel < WeaponDefinition->MaxLevel))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Weapon MaxLevel에 도달했습니다."));
 		return;
 	}
 
-	WeaponDefinition->CurrentLevel++;
-	WeaponDefinition->CurrentDamage += WeaponDefinition->UpgradeDamageIncrease;
+	CurrentLevel++;
+	CurrentDamage += WeaponDefinition->UpgradeDamageIncrease;
 
 
-	if (WeaponDefinition->CurrentLevel % 3 == 0)
+	if (CurrentLevel % 3 == 0)
 	{
 		const auto& Pool = WeaponDefinition->OptionPool->Options;
 		if (Pool.Num() == 0)

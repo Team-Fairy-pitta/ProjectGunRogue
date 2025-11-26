@@ -49,14 +49,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	float BaseDamage = 10.f;
 
-	// 현재 무기 데미지
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
-	float CurrentDamage = BaseDamage;
-
-	// 무기 현재 레벨
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
-	int32 CurrentLevel = 0;
-
 	// 무기 최대 레벨
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	int32 MaxLevel = 15;

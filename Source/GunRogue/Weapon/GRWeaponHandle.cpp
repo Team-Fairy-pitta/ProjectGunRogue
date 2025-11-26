@@ -22,7 +22,7 @@ void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefin
 
 	WeaponInstance = InWeaponInstance;
 
-	WeaponInstance.Init(ASC, InWeaponDefinition);
+	WeaponInstance.Init(CachedASC, WeaponDefinition);
 
 	// [NOTE] Replicate 테스트용 변수입니다. [TODO] 나중에 제거해야 합니다.
 	WeaponInstance.Counter += 1;

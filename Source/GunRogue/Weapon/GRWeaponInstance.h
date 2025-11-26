@@ -60,13 +60,16 @@ public:
 	TArray<FActiveGameplayEffectHandle> AppliedEffects;
 
 	UPROPERTY()
-	UGRAbilitySystemComponent* CachedASC;
+	TObjectPtr<UGRAbilitySystemComponent> CachedASC;
 
 	UPROPERTY()
 	TObjectPtr<UGRWeaponDefinition> WeaponDefinition = nullptr;
 
+	UPROPERTY()
+	int32 CurrentLevel = 0;
 
-
+	UPROPERTY()
+	float CurrentDamage;
 
 
 

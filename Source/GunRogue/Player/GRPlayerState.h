@@ -99,6 +99,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
 	UGRWeaponDefinition* GetCurrentWeaponDefinition() const;
 
+	const FGRWeaponInstance* GetWeaponInstanceInSlot(int32 SlotIndex) const;
+
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_EquipItemActor(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
 

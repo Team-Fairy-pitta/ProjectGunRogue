@@ -19,12 +19,26 @@ void UGRWeaponUpgrade::SettingWeapon()
 	{
 		if (AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>())
 		{
-			UGRWeaponDefinition* WeaponDefinition = PS->GetCurrentWeaponDefinition();
+
+			const UGRWeaponDefinition* WeaponDefinition = PS->GetWeaponDefinitionInSlot(0);
+			const FGRWeaponInstance* WeaponInstance = PS->GetWeaponInstanceInSlot(0);
+
+			if (!WeaponDefinition)
+			{
+				UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is invalid"));
+				return;
+			}
+
+			if (!WeaponInstance)
+			{
+				UE_LOG(LogTemp, Error, TEXT("WeaponInstance is invalid"));
+				return;
+			}
 
 			FText WeaponName = WeaponDefinition->WeaponName;
 			UTexture2D* WeaponIcon = WeaponDefinition->WeaponIcon;
-			int32 WeaponLevel = WeaponDefinition->CurrentLevel;
-			float WeaponDamage = WeaponDefinition->CurrentDamage;
+			int32 WeaponLevel = WeaponInstance->CurrentLevel;
+			float WeaponDamage = WeaponInstance->CurrentDamage;
 			float WeaponWeakpoint = 150.f;
 			float WeaponLaunchspeed = 500;
 			float WeaponMagazine = 300;
