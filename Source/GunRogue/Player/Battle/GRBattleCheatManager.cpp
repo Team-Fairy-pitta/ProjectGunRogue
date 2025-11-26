@@ -1,5 +1,6 @@
 #include "Player/Battle/GRBattleCheatManager.h"
 #include "GameModes/Level1/GRGameMode_Level1.h"
+#include "GameModes/Level1/GRGameState_Level1.h"
 
 void UGRBattleCheatManager::SetLevel1NextRoomIndex(int32 InIndex)
 {
@@ -27,13 +28,22 @@ void UGRBattleCheatManager::SetLevel1NextRoomIndex(int32 InIndex)
 		return;
 	}
 
+	AGRGameState_Level1* GameState_Level1 = PC->GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GameState_Level1))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameState is NOT AGRGameState_Level1"));
+		return;
+	}
+
 	if (!GameMode_Level1->RandomLevelPool.IsValidIndex(InIndex))
 	{
 		UE_LOG(LogTemp, Error, TEXT("InIndex is INVALID"));
 		return;
 	}
 
-	for (int32 Index = 0; Index <= 16; ++Index)
+	int32 MAX = 4 * 4; // 맵 크기
+
+	for (int32 Index = 0; Index <= MAX; ++Index)
 	{
 		FGRLevel1Node* Node = GameMode_Level1->GetLevel1Node(Index);
 		if (Node)
@@ -41,4 +51,6 @@ void UGRBattleCheatManager::SetLevel1NextRoomIndex(int32 InIndex)
 			Node->LevelToLoad = GameMode_Level1->RandomLevelPool[InIndex];
 		}
 	}
+
+	GameState_Level1->RequestNextRoomInformation();
 }
