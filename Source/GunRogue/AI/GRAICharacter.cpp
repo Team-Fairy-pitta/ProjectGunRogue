@@ -2,7 +2,8 @@
 
 
 #include "AI/GRAICharacter.h"
-#include "GameFramework/CharacterMovementComponent.h" 
+#include "GameFramework/CharacterMovementComponent.h"
+#include "AbilitySystemComponent.h"
 
 AGRAICharacter::AGRAICharacter()
 {
@@ -24,13 +25,18 @@ AGRAICharacter::AGRAICharacter()
 	}
 	bUseControllerRotationYaw = false;
 
+	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
+}
+
+UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const
+{
+	return ASC;
 }
 
 
 void AGRAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 
