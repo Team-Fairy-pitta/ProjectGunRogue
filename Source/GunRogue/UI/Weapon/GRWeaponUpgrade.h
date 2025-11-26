@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GRWeaponUpgrade.generated.h"
 
+
 class UButton;
 class UTextBlock;
 class UImage;
@@ -57,7 +58,8 @@ private:
 
 	/*UFUNCTION()
 	void WeaponOptionUpdate();*/
-	
+
+
 public:
 
 	UPROPERTY(meta = (BindWidget))

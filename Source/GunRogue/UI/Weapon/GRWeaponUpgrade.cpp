@@ -72,6 +72,12 @@ void UGRWeaponUpgrade::NativeConstruct()
 	}
 
 	SettingWeapon();
+
+	if (AGRPlayerState* PS = GetOwningPlayerState<AGRPlayerState>())
+	{
+		PS->OnWeaponDataChanged.AddUObject(this, &UGRWeaponUpgrade::SettingWeapon);
+	}
+
 }
 
 void UGRWeaponUpgrade::NativeDestruct()
@@ -116,7 +122,7 @@ void UGRWeaponUpgrade::UpGrade()
 	{
 		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
-			GRPS->ServerRPC_WeaponUpgrade(0);
+			GRPS->ServerRPC_UpgradeWeapon(0);
 		}
 	}
 }

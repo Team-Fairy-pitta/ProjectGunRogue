@@ -39,6 +39,7 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ThisClass, ItemHandles);
 	DOREPLIFETIME(ThisClass, WeaponSlots);
 	DOREPLIFETIME(ThisClass, CurrentWeaponSlot);
+	DOREPLIFETIME(ThisClass, RepWeaponData);
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
@@ -143,7 +144,7 @@ FGRWeaponInstance* AGRPlayerState::GetWeaponInstanceInSlot(int32 SlotIndex)
 	return WeaponSlots[SlotIndex].GetWeaponInstanceRef();
 }
 
-void AGRPlayerState::ServerRPC_WeaponUpgrade_Implementation(int32 SlotIndex)
+void AGRPlayerState::ServerRPC_UpgradeWeapon_Implementation(int32 SlotIndex)
 {
 	if (!HasAuthority())
 	{
@@ -175,6 +176,11 @@ void AGRPlayerState::ServerRPC_WeaponUpgrade_Implementation(int32 SlotIndex)
 	}
 
 	WeaponInstance->UpgradeWeapon();
+
+	RepWeaponData.CurrentLevel = WeaponInstance->CurrentLevel;
+	RepWeaponData.CurrentDamage = WeaponInstance->CurrentDamage;
+
+	OnWeaponDataChanged.Broadcast();
 }
 
 void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* ItemDefinition, AActor* ItemActor)
@@ -708,3 +714,9 @@ void AGRPlayerState::PlaceActorOnGround(AActor* SpawnedActor)
 	NewLocation.Z += BoxExtent.Z;
 	SpawnedActor->SetActorLocation(NewLocation);
 }
+
+void AGRPlayerState::OnRep_WeaponData()
+{
+	OnWeaponDataChanged.Broadcast();
+}
+

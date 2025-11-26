@@ -17,6 +17,8 @@ struct FGRWeaponInstance;
 
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
+DECLARE_MULTICAST_DELEGATE(FOnWeaponDataChanged);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponSwitched, int32, OldSlotIndex, int32, NewSlotIndex);
@@ -27,6 +29,18 @@ namespace WeaponSlot
 	constexpr int32 FirstSlot = 0;     // 1번 슬롯 (인덱스 0)
 	constexpr int32 SecondarySlot = 1;   // 2번 슬롯 (인덱스 1)
 }
+
+USTRUCT(BlueprintType)
+struct FWeaponRepData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int32 CurrentLevel = 0;
+
+	UPROPERTY()
+	float CurrentDamage = 0.f;
+};
 
 UCLASS()
 class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemInterface
@@ -117,7 +131,15 @@ public:
 	void ServerRPC_SwitchWeapon(int32 SlotIndex);
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_WeaponUpgrade(int32 SlotIndex);
+	void ServerRPC_UpgradeWeapon(int32 SlotIndex);
+
+	UFUNCTION()
+	void OnRep_WeaponData();
+
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponData)
+	FWeaponRepData RepWeaponData;
+
+	FOnWeaponDataChanged OnWeaponDataChanged;
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
