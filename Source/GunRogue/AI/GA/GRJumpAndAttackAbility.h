@@ -3,20 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GRAIAttackAbility.h"
-#include "GRGroundStrikeAttackAbility.generated.h"
+#include "AI/GA/GRAIAttackAbility.h"
+#include "GRJumpAndAttackAbility.generated.h"
 
 /**
  * 
  */
-
 UCLASS()
-class GUNROGUE_API UGRGroundStrikeAttackAbility : public UGRAIAttackAbility
+class GUNROGUE_API UGRJumpAndAttackAbility : public UGRAIAttackAbility
 {
 	GENERATED_BODY()
 
 public:
-	UGRGroundStrikeAttackAbility();
+	UGRJumpAndAttackAbility();
 
 protected:
 	virtual void ActivateAbility(
@@ -31,4 +30,13 @@ protected:
 		bool bReplicateEndAbility, bool bWasCancelled) override;
 
 	virtual void OnHitNotify(FGameplayEventData Payload) override;
+
+private:
+	void JumpToTargetLocation();
+
+	UFUNCTION()
+	void OnLanded();
+
+private:
+	FDelegateHandle LandedDelegateHandle;
 };

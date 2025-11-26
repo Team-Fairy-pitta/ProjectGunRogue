@@ -12,11 +12,24 @@ void AGRLuwoAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (ASC && GroundStrikeAbilityClass)
+	if (ASC)
 	{
 		ASC->InitAbilityActorInfo(this, this);
-
-		FGameplayAbilitySpec Spec(GroundStrikeAbilityClass, 1, /*InputID*/ 0, this);
-		ASC->GiveAbility(Spec);
+		
+		for (auto& AbilityClass : AttackAbilityClassList)
+		{
+			if (AbilityClass)
+			{
+				FGameplayAbilitySpec Spec(AbilityClass, /*Level*/1, /*InputID*/0, this);
+				ASC->GiveAbility(Spec);
+			}
+		}
 	}
+}
+
+void AGRLuwoAICharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	OnLandedEvent.Broadcast();
 }

@@ -2,7 +2,7 @@
 
 
 #include "AI/BT/GRBTTask_Attack.h"
-#include "AI/GRAIController.h"
+#include "AI/Controller/GRAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"

@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/GRAIController.h"
+#include "AI/Controller/GRAIController.h"
 
-#include "GRAICharacter.h"
+#include "AI/Character/GRAICharacter.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
