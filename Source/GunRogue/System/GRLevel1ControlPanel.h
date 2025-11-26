@@ -7,6 +7,7 @@
 class UStaticMeshComponent;
 class UWidgetComponent;
 class UUserWidget;
+class AGRStreamingDoor;
 
 UCLASS()
 class GUNROGUE_API AGRLevel1ControlPanel : public AActor, public IGRInteractableActor
@@ -46,6 +47,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|WidgetClass")
 	TSubclassOf<UUserWidget> InteractWidgetClass;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "GunRogue|TargetDoor")
+	TObjectPtr<AGRStreamingDoor> TargetDoorInstance;
+
 	UPROPERTY(Replicated)
 	int8 bWasActivated;
+
+	UPROPERTY(ReplicatedUsing = OnRep_bIsDoorOpen)
+	int8 bIsDoorOpen;
+
+	UFUNCTION()
+	void OnRep_bIsDoorOpen();
 };

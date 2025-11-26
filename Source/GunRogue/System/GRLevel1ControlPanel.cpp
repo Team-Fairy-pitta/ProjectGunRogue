@@ -1,4 +1,5 @@
 #include "System/GRLevel1ControlPanel.h"
+#include "System/GRStreamingDoor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Character/GRCharacter.h"
@@ -28,7 +29,8 @@ AGRLevel1ControlPanel::AGRLevel1ControlPanel()
 	InteractWidgetComponent->SetVisibility(false);
 	InteractWidgetComponent->SetDrawSize(FVector2D(300, 100)); // Desired Size of UUserWidget
 
-	bWasActivated = false;
+	bWasActivated = 0;
+	bIsDoorOpen = 0;
 }
 
 void AGRLevel1ControlPanel::BeginPlay()
@@ -53,6 +55,7 @@ void AGRLevel1ControlPanel::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, bWasActivated);
+	DOREPLIFETIME(ThisClass, bIsDoorOpen);
 }
 
 TArray<TObjectPtr<UStaticMeshComponent>> AGRLevel1ControlPanel::GetMeshComponents()
@@ -126,9 +129,25 @@ bool AGRLevel1ControlPanel::CanInteract(AActor* OtherActor)
 
 void AGRLevel1ControlPanel::OnUsePanel()
 {
-	if (!HasAuthority())
+	if (HasAuthority())
 	{
-		return;
+		bWasActivated = 1;
+		bIsDoorOpen = 1;
+
+		if (IsValid(TargetDoorInstance))
+		{
+			TargetDoorInstance->ActivateDoor();
+		}
 	}
-	bWasActivated = 1;
+}
+
+void AGRLevel1ControlPanel::OnRep_bIsDoorOpen()
+{
+	if (IsValid(TargetDoorInstance))
+	{
+		if (bIsDoorOpen)
+		{
+			TargetDoorInstance->ActivateDoor();
+		}
+	}
 }
