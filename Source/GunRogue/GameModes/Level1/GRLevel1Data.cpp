@@ -16,19 +16,6 @@ void FGRLevel1Node::CopyNodeInformation(const FGRLevel1Node& Other)
 	LevelToLoad = Other.LevelToLoad;
 }
 
-
-FGRLevel1Data::FGRLevel1Data()
-{
-	bIsValid = 0;
-	TotalRoomCount = 16;
-}
-
-void FGRLevel1Data::InitAtClient()
-{
-	MakeAndConnectEmptyRooms(TotalRoomCount);
-	bIsValid = 1;
-}
-
 FGRLevel1Node* FGRLevel1Data::GetNode(int32 Index)
 {
 	if (Nodes.IsValidIndex(Index))
@@ -39,6 +26,21 @@ FGRLevel1Node* FGRLevel1Data::GetNode(int32 Index)
 	{
 		return nullptr;
 	}
+}
+
+int32 FGRLevel1Data::RowCount = 4;
+int32 FGRLevel1Data::ColCount = 4;
+
+FGRLevel1Data::FGRLevel1Data()
+{
+	bIsValid = 0;
+	TotalRoomCount = RowCount * ColCount;
+}
+
+void FGRLevel1Data::InitAtClient()
+{
+	MakeAndConnectEmptyRooms();
+	bIsValid = 1;
 }
 
 void FGRLevel1Data::SetNode(int32 Index, FGRLevel1Node& Data)
@@ -57,8 +59,8 @@ void FGRLevel1Data::InitAtServer(AGRGameMode_Level1* GRGameMode)
 		return;
 	}
 
-	MakeAndConnectEmptyRooms(TotalRoomCount);
-	SetupEachRoomRandomly(GRGameMode, TotalRoomCount);
+	MakeAndConnectEmptyRooms();
+	SetupEachRoomRandomly(GRGameMode);
 	bIsValid = 1;
 }
 
@@ -82,9 +84,9 @@ void FGRLevel1Data::PrintDebugLog()
 	}
 }
 
-void FGRLevel1Data::MakeAndConnectEmptyRooms(int32 RoomNum)
+void FGRLevel1Data::MakeAndConnectEmptyRooms()
 {
-	// 16개의 방을 만들고, 논리적으로 연결한다.
+	// 방을 만들고, 논리적으로 연결한다.
 	// 아래와 같은 구조가 되도록...
 	//                  -> [3]
 	//           -> [2]        -> [7]
@@ -93,26 +95,26 @@ void FGRLevel1Data::MakeAndConnectEmptyRooms(int32 RoomNum)
 	//     -> [4]       -> [9]        -> [E]
 	//           -> [8]        -> [D]
 	//                  -> [C]
-	Nodes.Reserve(RoomNum);
-	for (int Loop = 0; Loop < RoomNum; ++Loop)
+	Nodes.Reserve(TotalRoomCount);
+	for (int Loop = 0; Loop < TotalRoomCount; ++Loop)
 	{
 		Nodes.AddDefaulted();
 	}
 
-	for (int Index = 0; Index < RoomNum; ++Index)
+	for (int Index = 0; Index < TotalRoomCount; ++Index)
 	{
-		if (Index % 4 < 3)
+		if (Index % ColCount < ColCount - 1)
 		{
 			Nodes[Index].NextLeftIndex = Index + 1;
 		}
-		if (Index < 12)
+		if (Index < (ColCount * (RowCount - 1)))
 		{
-			Nodes[Index].NextRightIndex = Index + 4;
+			Nodes[Index].NextRightIndex = Index + ColCount;
 		}
 	}
 }
 
-void FGRLevel1Data::SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode, int32 RoomNum)
+void FGRLevel1Data::SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode)
 {
 	// 랜덤으로 각 방을 설정한다.
 	// 단, 시작맵과 보스 맵은 랜덤으로 지정하지 않는다.
@@ -130,7 +132,7 @@ void FGRLevel1Data::SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode, int32 
 		return;
 	}
 
-	for (int Index = RoomNum - 2; Index > 0; --Index)
+	for (int Index = TotalRoomCount - 2; Index > 0; --Index)
 	{
 		while (true)
 		{

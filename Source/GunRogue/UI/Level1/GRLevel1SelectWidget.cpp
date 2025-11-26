@@ -12,7 +12,7 @@ void UGRLevel1SelectWidget::NativePreConstruct()
 void UGRLevel1SelectWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	Create16RoomWidget();
+	CreateRoomWidgets();
 	SetWidgetFocusable();
 }
 
@@ -39,16 +39,18 @@ void UGRLevel1SelectWidget::InitWidget(const FGRLevel1Data& Level1Data, AGRLevel
 
 	const TArray<FGRLevel1Node>& Nodes = Level1Data.GetNodes();
 
-	if (RoomWidgetInstances.Num() != 16)
+	int32 TotalRoomCount = FGRLevel1Data::RowCount * FGRLevel1Data::ColCount;
+
+	if (RoomWidgetInstances.Num() != TotalRoomCount)
 	{
 		return;
 	}
 
-	for (int32 Row = 0; Row < 4; ++Row)
+	for (int32 Row = 0; Row < FGRLevel1Data::RowCount; ++Row)
 	{
-		for (int32 Col = 0; Col < 4; ++Col)
+		for (int32 Col = 0; Col < FGRLevel1Data::ColCount; ++Col)
 		{
-			int32 Index = Row * 4 + Col;
+			int32 Index = Row * FGRLevel1Data::ColCount + Col;
 			const FGRLevel1Node& Node = Nodes[Index];
 			RoomWidgetInstances[Index]->InitRoomWidget(Index, Node, this);
 		}
@@ -72,22 +74,23 @@ void UGRLevel1SelectWidget::OnRoomClicked(int32 Index)
 	BattlePlayerController->ServerRPC_OnSelectNextRoom(Index, CachedControlPanel);
 }
 
-void UGRLevel1SelectWidget::Create16RoomWidget()
+void UGRLevel1SelectWidget::CreateRoomWidgets()
 {
-	if (RoomWidgetInstances.Num() == 16)
+	int32 TotalRoomCount = FGRLevel1Data::RowCount * FGRLevel1Data::ColCount;
+
+	if (RoomWidgetInstances.Num() == TotalRoomCount)
 	{
 		return;
 	}
 
 	if (RoomWidgetClass && RoomGridPanel)
 	{
-		// 4 x 4 = 16개의 노드 생성
 		APlayerController* PC = GetOwningPlayer();
 		if (IsValid(PC))
 		{
-			for (int32 Row = 0; Row < 4; ++Row)
+			for (int32 Row = 0; Row < FGRLevel1Data::RowCount; ++Row)
 			{
-				for (int32 Col = 0; Col < 4; ++Col)
+				for (int32 Col = 0; Col < FGRLevel1Data::ColCount; ++Col)
 				{
 					UGRLevel1RoomWidget* Room = CreateWidget<UGRLevel1RoomWidget>(PC, RoomWidgetClass);
 					if (Room)

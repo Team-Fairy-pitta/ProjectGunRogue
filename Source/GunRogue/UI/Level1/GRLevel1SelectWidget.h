@@ -34,7 +34,7 @@ protected:
 	TArray<TObjectPtr<UGRLevel1RoomWidget>> RoomWidgetInstances;
 
 private:
-	void Create16RoomWidget();
+	void CreateRoomWidgets();
 	void SetWidgetFocusable();
 
 	AGRLevel1ControlPanel* CachedControlPanel;
