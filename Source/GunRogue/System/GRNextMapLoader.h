@@ -38,7 +38,7 @@ protected:
 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GRLoader")
-	TObjectPtr<UWorld> LevelToLoad;
+	TSoftObjectPtr<UWorld> LevelToLoad;
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "GRLoader")
 	TObjectPtr<AGRStreamingDoorController> TargetController;
