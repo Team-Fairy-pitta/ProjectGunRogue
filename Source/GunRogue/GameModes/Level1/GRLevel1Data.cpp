@@ -11,6 +11,8 @@ FGRLevel1Node::FGRLevel1Node()
 
 void FGRLevel1Node::CopyNodeInformation(const FGRLevel1Node& Other)
 {
+	NextLeftIndex = Other.NextLeftIndex;
+	NextRightIndex = Other.NextRightIndex;
 	LevelToLoad = Other.LevelToLoad;
 }
 
@@ -136,11 +138,11 @@ void FGRLevel1Data::SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode, int32 
 
 			int32 RandomMax = GRGameMode->RandomLevelPool.Num();
 			int32 Random = FMath::RandRange(0, RandomMax - 1);
-			UWorld* RandomLevel = GRGameMode->RandomLevelPool[Random];
+			TSoftObjectPtr<UWorld> RandomLevel = GRGameMode->RandomLevelPool[Random];
 
-			if (!RandomLevel)
+			if (RandomLevel.IsNull())
 			{
-				UE_LOG(LogTemp, Fatal, TEXT("GRGameMode->RandomLevelPool[Random] is INVALID"));
+				UE_LOG(LogTemp, Fatal, TEXT("GRGameMode->RandomLevelPool[Random] is NULL"));
 				return;
 			}
 

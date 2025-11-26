@@ -22,6 +22,7 @@ public:
 	void RequestNextRoomInformation();
 
 	const FGRLevel1Data& GetLevel1ClientData() const { return Level1ClientData; }
+	FGRLevel1Node* GetCurrentNodeInfo();
 
 protected:
 	UPROPERTY(Replicated)

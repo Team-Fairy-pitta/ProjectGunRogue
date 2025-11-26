@@ -19,7 +19,7 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
-	TArray<TObjectPtr<UWorld>> RandomLevelPool;
+	TArray<TSoftObjectPtr<UWorld>> RandomLevelPool;
 
 	UPROPERTY()
 	FGRLevel1Data Level1Data;

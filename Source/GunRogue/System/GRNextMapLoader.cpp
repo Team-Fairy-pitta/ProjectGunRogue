@@ -87,6 +87,11 @@ void AGRNextMapLoader::OnLevelLoadCompleted()
 	UE_LOG(LogTemp, Warning, TEXT("CallbackDebug On"));
 }
 
+void AGRNextMapLoader::SetLevelToLoad(TSoftObjectPtr<UWorld> InLevelToLoad)
+{
+	LevelToLoad = InLevelToLoad;
+}
+
 void AGRNextMapLoader::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -167,7 +172,7 @@ void AGRNextMapLoader::CheckMapLoaderCondition()
 
 void AGRNextMapLoader::OnRep_ShouldLoadLevel()
 {
-	if (!LevelToLoad)
+	if (LevelToLoad.IsNull())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("return Leveltoload isvalid"));
 		return;

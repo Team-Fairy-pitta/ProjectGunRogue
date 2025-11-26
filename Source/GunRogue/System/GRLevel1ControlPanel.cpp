@@ -1,5 +1,6 @@
 #include "System/GRLevel1ControlPanel.h"
 #include "System/GRStreamingDoor.h"
+#include "System/GRNextMapLoader.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Character/GRCharacter.h"
@@ -56,6 +57,7 @@ void AGRLevel1ControlPanel::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 
 	DOREPLIFETIME(ThisClass, bWasActivated);
 	DOREPLIFETIME(ThisClass, bIsDoorOpen);
+	DOREPLIFETIME(ThisClass, CachedNextNode);
 }
 
 TArray<TObjectPtr<UStaticMeshComponent>> AGRLevel1ControlPanel::GetMeshComponents()
@@ -127,27 +129,38 @@ bool AGRLevel1ControlPanel::CanInteract(AActor* OtherActor)
 	}
 }
 
-void AGRLevel1ControlPanel::OnUsePanel()
+void AGRLevel1ControlPanel::OnUsePanel(FGRLevel1Node NextNode)
 {
 	if (HasAuthority())
 	{
 		bWasActivated = 1;
 		bIsDoorOpen = 1;
-
-		if (IsValid(TargetDoorInstance))
-		{
-			TargetDoorInstance->ActivateDoor();
-		}
+		CachedNextNode = NextNode;
+		OnRep_bIsDoorOpen();
+		OnRep_CachedNextNode();
 	}
 }
 
 void AGRLevel1ControlPanel::OnRep_bIsDoorOpen()
 {
+	if (!GetWorld())
+	{
+		return;
+	}
+
 	if (IsValid(TargetDoorInstance))
 	{
 		if (bIsDoorOpen)
 		{
 			TargetDoorInstance->ActivateDoor();
 		}
+	}
+}
+
+void AGRLevel1ControlPanel::OnRep_CachedNextNode()
+{
+	if (MapLoaderInstance)
+	{
+		MapLoaderInstance->SetLevelToLoad(CachedNextNode.LevelToLoad);
 	}
 }

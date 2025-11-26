@@ -32,7 +32,7 @@ public:
 	ENodeStatus NodeStatus;
 
 	UPROPERTY()
-	TObjectPtr<UWorld> LevelToLoad;
+	TSoftObjectPtr<UWorld> LevelToLoad;
 };
 
 USTRUCT()

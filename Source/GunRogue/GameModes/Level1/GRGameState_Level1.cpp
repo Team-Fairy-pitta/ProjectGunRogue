@@ -89,3 +89,8 @@ void AGRGameState_Level1::RequestNextRoomInformation()
 	}
 	Level1ClientData.GetNode(CurrentLevel1NodeIndex)->NodeStatus = ENodeStatus::CURRENT;
 }
+
+FGRLevel1Node* AGRGameState_Level1::GetCurrentNodeInfo()
+{
+	return Level1ClientData.GetNode(CurrentLevel1NodeIndex);
+}

@@ -43,8 +43,7 @@ void AGRBattlePlayerController::ServerRPC_OnSelectNextRoom_Implementation(int32 
 		UE_LOG(LogTemp, Error, TEXT("ControlPanel is INVALID"));
 		return;
 	}
-	ControlPanel->OnUsePanel();
-
+	
 	AGameStateBase* GameState = GetWorld()->GetGameState();
 	AGRGameState_Level1* GameState_Level1 = Cast<AGRGameState_Level1>(GameState);
 	if (!IsValid(GameState_Level1))
@@ -54,6 +53,9 @@ void AGRBattlePlayerController::ServerRPC_OnSelectNextRoom_Implementation(int32 
 
 	GameState_Level1->SetCurrentRoomIndex(NextRoomIndex);
 	GameState_Level1->RequestNextRoomInformation();
+	FGRLevel1Node* NextNode = GameState_Level1->GetCurrentNodeInfo();
+
+	ControlPanel->OnUsePanel(*NextNode);
 
 	for (APlayerState* PS: GameState->PlayerArray)
 	{
