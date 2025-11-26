@@ -17,7 +17,6 @@ public:
 
 	FGRLevel1Node* GetLevel1Node(int32 Index);
 
-protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
 	TArray<TSoftObjectPtr<UWorld>> RandomLevelPool;
 

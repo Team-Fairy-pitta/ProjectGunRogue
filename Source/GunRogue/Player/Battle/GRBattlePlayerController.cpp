@@ -1,4 +1,5 @@
 #include "Player/Battle/GRBattlePlayerController.h"
+#include "Player/Battle/GRBattleCheatManager.h"
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
@@ -7,6 +8,9 @@
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
+#if WITH_EDITOR
+	CheatClass = UGRBattleCheatManager::StaticClass();
+#endif
 }
 
 void AGRBattlePlayerController::BeginPlay()
