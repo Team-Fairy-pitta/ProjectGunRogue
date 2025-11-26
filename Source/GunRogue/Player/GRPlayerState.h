@@ -130,13 +130,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SwitchWeapon(int32 SlotIndex);
 
+	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
+	void UpgradeWeapon(int32 SlotIndex);
+
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_UpgradeWeapon(int32 SlotIndex);
 
-	UFUNCTION()
-	void OnRep_WeaponData();
-
-	UPROPERTY(ReplicatedUsing = OnRep_WeaponData)
+	UPROPERTY(Replicated)
 	FWeaponRepData RepWeaponData;
 
 	FOnWeaponDataChanged OnWeaponDataChanged;

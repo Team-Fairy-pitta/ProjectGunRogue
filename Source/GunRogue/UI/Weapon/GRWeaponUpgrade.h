@@ -23,6 +23,9 @@ protected:
 
 public:
 	UFUNCTION()
+	void ResetWeapon();
+
+	UFUNCTION()
 	void SettingWeapon();
 
 	UFUNCTION()

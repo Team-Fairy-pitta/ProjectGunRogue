@@ -177,9 +177,6 @@ void AGRPlayerState::ServerRPC_UpgradeWeapon_Implementation(int32 SlotIndex)
 
 	WeaponInstance->UpgradeWeapon();
 
-	RepWeaponData.CurrentLevel = WeaponInstance->CurrentLevel;
-	RepWeaponData.CurrentDamage = WeaponInstance->CurrentDamage;
-
 	OnWeaponDataChanged.Broadcast();
 }
 
@@ -715,8 +712,9 @@ void AGRPlayerState::PlaceActorOnGround(AActor* SpawnedActor)
 	SpawnedActor->SetActorLocation(NewLocation);
 }
 
-void AGRPlayerState::OnRep_WeaponData()
+void AGRPlayerState::UpgradeWeapon(int32 SlotIndex)
 {
+	ServerRPC_UpgradeWeapon(SlotIndex);
+
 	OnWeaponDataChanged.Broadcast();
 }
-

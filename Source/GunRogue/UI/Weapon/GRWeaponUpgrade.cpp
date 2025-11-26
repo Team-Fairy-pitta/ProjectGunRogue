@@ -8,6 +8,28 @@
 #include "Components/Image.h"
 
 
+void UGRWeaponUpgrade::ResetWeapon()
+{
+	// 텍스트는 모두 빈 값으로
+	const FText EmptyText = FText::GetEmpty();
+
+	// 이미지 없음
+	UTexture2D* EmptyIcon = nullptr;
+
+	// 수치 값 기본 0
+	const int32 DefaultLevel = 0;
+	const float DefaultFloat = 0.f;
+
+	WeaponNameUpdate(EmptyText);
+	WeaponImageUpdate(EmptyIcon);
+	WeaponLevelUpdate(DefaultLevel);
+	WeaponDamageUpdate(DefaultFloat);
+	WeaponWeakpointUpdate(DefaultFloat);
+	WeaponLaunchspeedUpdate(DefaultFloat);
+	WeaponMagazineUpdate(DefaultFloat);
+	WeaponExplainUpdate(EmptyText);
+}
+
 void UGRWeaponUpgrade::SettingWeapon()
 {
 	if (!GetWorld())
@@ -26,12 +48,14 @@ void UGRWeaponUpgrade::SettingWeapon()
 			if (!WeaponDefinition)
 			{
 				UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is invalid"));
+				ResetWeapon();
 				return;
 			}
 
 			if (!WeaponInstance)
 			{
 				UE_LOG(LogTemp, Error, TEXT("WeaponInstance is invalid"));
+				ResetWeapon();
 				return;
 			}
 
@@ -122,7 +146,7 @@ void UGRWeaponUpgrade::UpGrade()
 	{
 		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
-			GRPS->ServerRPC_UpgradeWeapon(0);
+			GRPS->UpgradeWeapon(0);
 		}
 	}
 }
