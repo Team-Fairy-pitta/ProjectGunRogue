@@ -9,6 +9,7 @@
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/TextBlock.h"
+#include "TestMetaProgression/TestMPPlayerController.h"
 
 void UGRPerkListWidget::SetupList(UGRPerkSubsystem* InSubsystem, UGRPerkHUDWidget* InHUD)
 {
@@ -54,6 +55,12 @@ void UGRPerkListWidget::CreateAllSlot(FName InCategory)
 		return;
 	}
 
+	ATestMPPlayerController* MPPC = Cast<ATestMPPlayerController>(PC);
+	if (!MPPC)
+	{
+		return;
+	}
+
 	TArray<FName> RowNames = PerkTable->GetRowNames();
 
 	for (const FName& PerkID : RowNames)
@@ -84,6 +91,7 @@ void UGRPerkListWidget::CreateAllSlot(FName InCategory)
 		NewPerkSlot->SetupSlot(PerkID, PerkSubsystem);
 		NewPerkSlot->OnPerkSlotHovered.AddDynamic(PerkHUD, &UGRPerkHUDWidget::ShowTooltipForSlot);
 		NewPerkSlot->OnPerkSlotClicked.AddDynamic(PerkHUD, &UGRPerkHUDWidget::UpdateUIOnClicked);
+		NewPerkSlot->OnPerkSlotClicked.AddDynamic(MPPC, &ATestMPPlayerController::ApplyPerkToASCOnSlotClicked);
 		NewPerkSlot->OnPerkSlotUnhovered.AddDynamic(PerkHUD, &UGRPerkHUDWidget::HideTooltipForSlot);
 	}
 }

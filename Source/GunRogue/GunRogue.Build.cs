@@ -6,6 +6,7 @@ public class GunRogue : ModuleRules
 {
 	public GunRogue(ReadOnlyTargetRules Target) : base(Target)
 	{
+		PrivateDependencyModuleNames.AddRange(new string[] { "GRTest" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicIncludePaths.AddRange(new string[] {

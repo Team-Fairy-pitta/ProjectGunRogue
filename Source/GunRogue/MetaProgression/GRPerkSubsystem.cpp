@@ -175,6 +175,8 @@ void UGRPerkSubsystem::ApplyAllPerksToASC(UAbilitySystemComponent* ASC, const UD
 	}
 
 	SpecHandle.Data->DynamicGrantedTags.AddTag(PerkRootTag);
+
+	UE_LOG(LogTemp, Warning, TEXT("PerkInfoRows.Num() = %d"), PerkInfoRows.Num());
 	
 	for (auto& Pair : PerkInfoRows)
 	{
@@ -184,12 +186,14 @@ void UGRPerkSubsystem::ApplyAllPerksToASC(UAbilitySystemComponent* ASC, const UD
 		if (!Row) continue;
 
 		float LevelBonus  = GetPerkBonus(PerkID, PerkTable);
+		UE_LOG(LogTemp, Warning, TEXT("Setting SetByCaller %s = %f"),
+	   *Row->PerkTag.ToString(), LevelBonus);
 
-		if (LevelBonus > 0.f)
+		if (LevelBonus > 0.0f)
 		{
-			SpecHandle.Data->SetSetByCallerMagnitude(Row->PerkTag, LevelBonus);	
+			SpecHandle.Data->SetSetByCallerMagnitude(Row->PerkTag, LevelBonus);
 		}
 	}
-
+	
 	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }

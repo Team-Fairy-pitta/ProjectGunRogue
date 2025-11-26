@@ -8,17 +8,21 @@
 #include "MetaProgression/GRPerkSubsystem.h"
 #include "TestMetaProgression/TestMPPlayerState.h"
 #include "UI/MetaProgression/GRPerkHUDWidget.h"
+#include "UI/MetaProgression/GRPerkSlotWidget.h"
 
-void ATestMPPlayerController::BeginPlay()
+void ATestMPPlayerController::OnPossess(APawn* InPawn)
 {
-	Super::BeginPlay();
+	Super::OnPossess(InPawn);
 
 	UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
-	if (Subsystem)
+	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState<ATestMPPlayerState>());
+
+	if (Subsystem && ASC)
 	{
 		Subsystem->LoadPerks();
+		Subsystem->ApplyAllPerksToASC(ASC, PerkTable, PerkGE);
 	}
-	
+
 	if (PerkHUDClass)
 	{
 		PerkHUDWidget = CreateWidget<UGRPerkHUDWidget>(this, PerkHUDClass);
@@ -30,23 +34,6 @@ void ATestMPPlayerController::BeginPlay()
 		FInputModeGameAndUI Mode;
 		SetInputMode(Mode);
 		bShowMouseCursor = true;
-	}
-	
-}
-
-void ATestMPPlayerController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
-
-	if (HasAuthority())
-	{
-		UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
-		UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState<ATestMPPlayerState>());
-
-		if (Subsystem && ASC)
-		{
-			Subsystem->ApplyAllPerksToASC(ASC, PerkTable, PerkGE);
-		}
 	}
 }
 
@@ -61,6 +48,17 @@ void ATestMPPlayerController::SetMetaGoodsInText()
 	if (PerkHUDWidget)
 	{
 		PerkHUDWidget->UpdateGoodsText();
+	}
+}
+
+void ATestMPPlayerController::ApplyPerkToASCOnSlotClicked(UGRPerkSlotWidget* PerkSlotWidget)
+{
+	UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState<ATestMPPlayerState>());
+
+	if (Subsystem && ASC)
+	{
+		Subsystem->ApplyAllPerksToASC(ASC, PerkTable, PerkGE);
 	}
 }
 
