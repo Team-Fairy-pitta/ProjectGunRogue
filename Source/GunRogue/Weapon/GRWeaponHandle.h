@@ -39,7 +39,7 @@ public:
 
 	FGRWeaponInstance GetWeaponInstanceCopy() { return WeaponInstance; }
 	
-	const FGRWeaponInstance* GetWeaponInstanceRef() const { return &WeaponInstance; }
+	FGRWeaponInstance* GetWeaponInstanceRef() { return &WeaponInstance; }
 
 	bool IsActive() const { return bIsActive; }
 

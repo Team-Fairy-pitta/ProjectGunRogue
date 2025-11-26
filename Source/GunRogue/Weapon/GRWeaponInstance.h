@@ -8,6 +8,8 @@
 class UGRWeaponDefinition;
 class UGRAbilitySystemComponent;
 
+
+
 USTRUCT(BlueprintType)
 struct FWeaponOption
 {
@@ -45,7 +47,7 @@ public:
 
 	void Init(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition* InWeaponDefinition);
 
-	void WeaponUpgrade();
+	void UpgradeWeapon();
 
 	void ApplyAllEffects();
 
@@ -70,8 +72,6 @@ public:
 
 	UPROPERTY()
 	float CurrentDamage;
-
-
 
 
 

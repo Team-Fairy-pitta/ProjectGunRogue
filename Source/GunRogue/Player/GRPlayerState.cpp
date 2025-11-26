@@ -133,7 +133,7 @@ UGRWeaponDefinition* AGRPlayerState::GetCurrentWeaponDefinition() const
 	return GetWeaponDefinitionInSlot(CurrentWeaponSlot);
 }
 
-const FGRWeaponInstance* AGRPlayerState::GetWeaponInstanceInSlot(int32 SlotIndex) const
+FGRWeaponInstance* AGRPlayerState::GetWeaponInstanceInSlot(int32 SlotIndex)
 {
 	if (!WeaponSlots.IsValidIndex(SlotIndex))
 	{
@@ -141,6 +141,40 @@ const FGRWeaponInstance* AGRPlayerState::GetWeaponInstanceInSlot(int32 SlotIndex
 	}
 
 	return WeaponSlots[SlotIndex].GetWeaponInstanceRef();
+}
+
+void AGRPlayerState::ServerRPC_WeaponUpgrade_Implementation(int32 SlotIndex)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!WeaponSlots.IsValidIndex(SlotIndex))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid weapon slot index: %d"), SlotIndex);
+		return;
+	}
+
+	FGRWeaponHandle& WeaponHandle = WeaponSlots[SlotIndex];
+
+	UGRWeaponDefinition* WeaponDefinition = WeaponHandle.GetWeaponDefinition();
+
+	if (!IsValid(WeaponDefinition))
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is INVALID"));
+		return;
+	}
+
+	FGRWeaponInstance* WeaponInstance = WeaponHandle.GetWeaponInstanceRef();
+
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return;
+	}
+
+	WeaponInstance->UpgradeWeapon();
 }
 
 void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* ItemDefinition, AActor* ItemActor)

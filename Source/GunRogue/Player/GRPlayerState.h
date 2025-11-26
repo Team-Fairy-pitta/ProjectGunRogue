@@ -99,7 +99,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
 	UGRWeaponDefinition* GetCurrentWeaponDefinition() const;
 
-	const FGRWeaponInstance* GetWeaponInstanceInSlot(int32 SlotIndex) const;
+	FGRWeaponInstance* GetWeaponInstanceInSlot(int32 SlotIndex);
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_EquipItemActor(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
@@ -115,6 +115,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SwitchWeapon(int32 SlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_WeaponUpgrade(int32 SlotIndex);
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")

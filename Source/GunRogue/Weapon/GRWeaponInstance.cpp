@@ -43,11 +43,16 @@ void FGRWeaponInstance::Init(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition
 	}
 }
 
-void FGRWeaponInstance::WeaponUpgrade()
+void FGRWeaponInstance::UpgradeWeapon()
 {
 	if (!WeaponDefinition || !WeaponDefinition->OptionPool)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("WeaponData, WeaponData->OptionPool이 없음"));
+		return;
+	}
+
+	if (CachedASC->GetOwnerRole() != ROLE_Authority)
+	{
 		return;
 	}
 
@@ -96,6 +101,11 @@ void FGRWeaponInstance::ApplyAllEffects()
 		return;
 	}
 
+	if (CachedASC->GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
 	AppliedEffects.Empty();
 
 	for (const auto& Option : Options)
@@ -122,7 +132,12 @@ void FGRWeaponInstance::ApplyAllEffects()
 
 		FActiveGameplayEffectHandle Handle = CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
-		AppliedEffects.Add(Handle);
+		if (AppliedEffects.Add(Handle))
+		{
+			UE_LOG(LogTemp, Display, TEXT("Applied Effect: %s with Value: %f"),
+				*Option.EffectClass->GetName(),
+				Option.Value);
+		}
 
 	}
 }
@@ -135,9 +150,17 @@ void FGRWeaponInstance::ClearEffects()
 		return;
 	}
 
+	if (CachedASC->GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
 	for (auto& Handle : AppliedEffects)
 	{
-		CachedASC->RemoveActiveGameplayEffect(Handle);
+		if (Handle.IsValid())
+		{
+			CachedASC->RemoveActiveGameplayEffect(Handle);
+		}
 	}
 
 	AppliedEffects.Empty();

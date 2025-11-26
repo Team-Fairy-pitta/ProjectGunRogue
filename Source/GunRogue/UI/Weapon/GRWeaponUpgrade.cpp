@@ -72,29 +72,6 @@ void UGRWeaponUpgrade::NativeConstruct()
 	}
 
 	SettingWeapon();
-
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC)
-	{
-		return;
-	}
-
-	//AGRCharacter* Character = Cast<AGRCharacter>(PC->GetPawn());
-	//if (!Character)
-	//{
-	//	return;
-	//}
-
-	/*AGRWeaponBase* Weapon = Character->GetWeapon();
-	if (!Weapon)
-	{
-		return;
-	}
-
-	if (Weapon)
-	{
-		Weapon->OnWeaponStatChanged.AddDynamic(this, &UGRWeaponUpgrade::SettingWeapon);
-	}*/
 }
 
 void UGRWeaponUpgrade::NativeDestruct()
@@ -135,20 +112,13 @@ void UGRWeaponUpgrade::UpGrade()
 		return;
 	}
 
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC)
+	if (APlayerController* PC = GetOwningPlayer())
 	{
-		return;
+		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
+		{
+			GRPS->ServerRPC_WeaponUpgrade(0);
+		}
 	}
-
-	//AGRCharacter* Character = Cast<AGRCharacter>(PC->GetPawn());
-	//if (!Character)
-	//{
-	//	return;
-	//}
-
-	//Character->Test_UpgradeWeapon();
-
 }
 
 void UGRWeaponUpgrade::Reroll()
