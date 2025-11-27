@@ -9,6 +9,7 @@ class UButton;
 class UTextBlock;
 class UImage;
 class AGRPlayerState;
+class UBorder;
 
 
 UCLASS()
@@ -23,7 +24,10 @@ protected:
 
 public:
 	UFUNCTION()
-	void ResetWeapon();
+	void Init(int32 GetSlotNumber);
+
+	UFUNCTION()
+	void BlindWeapon(bool bBlind);
 
 	UFUNCTION()
 	void SettingWeapon();
@@ -64,6 +68,8 @@ private:
 
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot")
+	int32 SlotNumber = 0;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* UpgradeButton;
@@ -98,6 +104,8 @@ public:
 	//UPROPERTY(meta = (BindWidget))
 	//TArray<UTextBlock> WeaponOptionListText;
 
+	UPROPERTY(meta = (BindWidget))
+	UBorder* BlindBorder;
 private:
 	void SetWidgetFocusable();
 };

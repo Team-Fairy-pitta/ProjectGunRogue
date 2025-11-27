@@ -6,28 +6,28 @@
 #include "Player/GRPlayerState.h"
 #include "Weapon/GRWeaponDefinition.h"
 #include "Components/Image.h"
+#include "Components/Border.h"
 
-
-void UGRWeaponUpgrade::ResetWeapon()
+void UGRWeaponUpgrade::Init(int32 GetSlotNumber)
 {
-	// 텍스트는 모두 빈 값으로
-	const FText EmptyText = FText::GetEmpty();
+	SlotNumber = GetSlotNumber;
+}
 
-	// 이미지 없음
-	UTexture2D* EmptyIcon = nullptr;
-
-	// 수치 값 기본 0
-	const int32 DefaultLevel = 0;
-	const float DefaultFloat = 0.f;
-
-	WeaponNameUpdate(EmptyText);
-	WeaponImageUpdate(EmptyIcon);
-	WeaponLevelUpdate(DefaultLevel);
-	WeaponDamageUpdate(DefaultFloat);
-	WeaponWeakpointUpdate(DefaultFloat);
-	WeaponLaunchspeedUpdate(DefaultFloat);
-	WeaponMagazineUpdate(DefaultFloat);
-	WeaponExplainUpdate(EmptyText);
+void UGRWeaponUpgrade::BlindWeapon(bool bBlind)
+{
+	if (!BlindBorder)
+	{
+		return;
+	}
+	if (bBlind)
+	{
+		BlindBorder->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		BlindBorder->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	
 }
 
 void UGRWeaponUpgrade::SettingWeapon()
@@ -42,22 +42,24 @@ void UGRWeaponUpgrade::SettingWeapon()
 		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
 
-			const UGRWeaponDefinition* WeaponDefinition = GRPS->GetWeaponDefinitionInSlot(0);
-			const FGRWeaponInstance* WeaponInstance = GRPS->GetWeaponInstanceInSlot(0);
+			const UGRWeaponDefinition* WeaponDefinition = GRPS->GetWeaponDefinitionInSlot(SlotNumber);
+			const FGRWeaponInstance* WeaponInstance = GRPS->GetWeaponInstanceInSlot(SlotNumber);
 
 			if (!WeaponDefinition)
 			{
 				UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is invalid"));
-				ResetWeapon();
+				BlindWeapon(true);
 				return;
 			}
 
 			if (!WeaponInstance)
 			{
 				UE_LOG(LogTemp, Error, TEXT("WeaponInstance is invalid"));
-				ResetWeapon();
+				BlindWeapon(true);
 				return;
 			}
+
+			BlindWeapon(false);
 
 			FText WeaponName = WeaponDefinition->WeaponName;
 			UTexture2D* WeaponIcon = WeaponDefinition->WeaponIcon;
@@ -93,6 +95,13 @@ void UGRWeaponUpgrade::NativeConstruct()
 	if (RerollButton)
 	{
 		RerollButton->OnClicked.AddDynamic(this, &UGRWeaponUpgrade::Reroll);
+	}
+
+	if(SlotNumber == -1)
+	{
+		BlindWeapon(true);
+		UE_LOG(LogTemp, Error, TEXT("SlotNumber is invalid"));
+		return;
 	}
 
 	SettingWeapon();
@@ -146,7 +155,7 @@ void UGRWeaponUpgrade::UpGrade()
 	{
 		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
-			GRPS->UpgradeWeapon(0);
+			GRPS->UpgradeWeapon(SlotNumber);
 		}
 	}
 }
