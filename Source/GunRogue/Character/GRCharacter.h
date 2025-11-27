@@ -94,20 +94,49 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ReturnToLastControllerRotation();
 
+	UFUNCTION(BlueprintCallable)
+	void SetFirstPersonViewSmooth();
+
+	UFUNCTION(BlueprintCallable)
+	void SetThirdPersonViewSmooth();
+
 protected:
-	void ApplySmoothCameraControl(float DeltaTime);
+	void ApplySmoothCameraControl_Rotation(float DeltaTime);
+	void ApplySmoothCameraControl_CameraArm(float DeltaTime);
+	void SetCharacterVisibilityForCamera(bool InVisibility);
+	void AttachCameraArmToCapsule();
+	void AttachCameraArmToHead();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
+	FVector ThirdPerson_CameraArmLocation = FVector(0.0f, 25.0f, 75.0f);
+
+	// [NOTE] [TODO] 적절한 카메라 위치를 찾아야 함
+	// [NOTE] 이유는 모르겠는데 X가 좌우, Y가 위아래, Z가 앞뒤로 적용되며, 부호도 이상함.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
+	FVector FirstPerson_CameraArmLocation = FVector(15.0f, 0.0f, 70.0f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
+	float ThirdPerson_CameraArmLength = 150.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
+	float FirstPerson_CameraArmLength = 0.0f;
+
+	FVector TargetCameraArmLocation;
+	float TargetCameraArmLength;
 
 	// 플레이어가 지정한 최근(Last) 컨트롤러 방향을 저장
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FQuat LastControllerRotation;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
-	float SmoothAlpha = 0.75f;
+	float SmoothAlpha = 0.9f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
 	float SmoothSpeed = 15.0f;
 
-	FQuat TargetRotation;
+	FQuat TargetCameraRotation;
+
+	bool bIsCameraAttachedToHead;
 
 #pragma endregion SmoothCameraControl
 };
