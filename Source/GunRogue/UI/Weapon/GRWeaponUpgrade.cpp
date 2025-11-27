@@ -47,14 +47,14 @@ void UGRWeaponUpgrade::SettingWeapon()
 
 			if (!WeaponDefinition)
 			{
-				UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is invalid"));
+				UE_LOG(LogTemp, Warning, TEXT("WeaponDefinition is invalid"));
 				BlindWeapon(true);
 				return;
 			}
 
 			if (!WeaponInstance)
 			{
-				UE_LOG(LogTemp, Error, TEXT("WeaponInstance is invalid"));
+				UE_LOG(LogTemp, Warning, TEXT("WeaponInstance is invalid"));
 				BlindWeapon(true);
 				return;
 			}

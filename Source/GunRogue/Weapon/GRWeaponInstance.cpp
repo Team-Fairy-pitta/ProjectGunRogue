@@ -65,15 +65,15 @@ void FGRWeaponInstance::UpgradeWeapon()
 
 	if (!(UpgradeLevel < WeaponDefinition->MaxLevel))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Weapon MaxLevel에 도달했습니다."));
+		UE_LOG(LogTemp, Display, TEXT("Weapon MaxLevel에 도달했습니다."));
 		return;
 	}
 
 	UpgradeLevel++;
 	UpgradeDamage += WeaponDefinition->UpgradeDamageIncrease;
 
-	UE_LOG(LogTemp, Error, TEXT("Upgrade Level:%d"), UpgradeLevel);
-	UE_LOG(LogTemp, Error, TEXT("Upgrade Damage:%f"), UpgradeDamage);
+	UE_LOG(LogTemp, Display, TEXT("Upgrade Level:%d"), UpgradeLevel);
+	UE_LOG(LogTemp, Display, TEXT("Upgrade Damage:%f"), UpgradeDamage);
 
 	if (UpgradeLevel % 3 == 0)
 	{
