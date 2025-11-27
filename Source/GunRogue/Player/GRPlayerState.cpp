@@ -171,7 +171,7 @@ void AGRPlayerState::ServerRPC_UpgradeWeapon_Implementation(int32 SlotIndex)
 
 	WeaponInstance->UpgradeWeapon();
 
-	OnRep_WeaponData(); 
+	OnRep_WeaponDataUpdata();
 }
 
 void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* ItemDefinition, AActor* ItemActor)
@@ -750,7 +750,7 @@ void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 SlotIn
 	WeaponInstance->AllRerollOption();
 }
 
-void AGRPlayerState::OnRep_WeaponData()
+void AGRPlayerState::OnRep_WeaponDataUpdata()
 {
-	OnWeaponDataChanged.Broadcast();
+	OnWeaponDataUpdata.Broadcast();
 }

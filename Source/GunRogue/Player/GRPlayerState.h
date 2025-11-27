@@ -17,7 +17,7 @@ struct FGRWeaponInstance;
 
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
-DECLARE_MULTICAST_DELEGATE(FOnWeaponDataChanged);
+DECLARE_MULTICAST_DELEGATE(FOnWeaponDataUpdata);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
@@ -125,7 +125,7 @@ public:
 	void ServerRPC_UpgradeWeapon(int32 SlotIndex);
 
 	UFUNCTION()
-	void OnRep_WeaponData();
+	void OnRep_WeaponDataUpdata();
 
 	UFUNCTION()
 	void AllRerollOptionWeapon(int32 SlotIndex);
@@ -133,7 +133,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_AllRerollOptionWeapon(int32 SlotIndex);
 
-	FOnWeaponDataChanged OnWeaponDataChanged;
+	FOnWeaponDataUpdata OnWeaponDataUpdata;
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
@@ -147,7 +147,7 @@ protected:
 	UPROPERTY()
 	TSet<UGRItemDefinition*> ItemDefinitionSet;
 
-	UPROPERTY(ReplicatedUsing = OnRep_WeaponData)
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponDataUpdata)
 	TArray<FGRWeaponHandle> WeaponSlots;
 
 	UPROPERTY(Replicated)

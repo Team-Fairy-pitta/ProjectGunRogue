@@ -40,10 +40,6 @@ public:
 	void Validate() { bIsValid = 1; }
 	void Invalidate() { bIsValid = 0; }
 	bool IsValid() const { return bIsValid == 1; }
-	
-
-
-
 
 	void Init(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition* InWeaponDefinition);
 
