@@ -39,11 +39,11 @@ void UGRWeaponUpgrade::SettingWeapon()
 
 	if (APlayerController* PC = GetOwningPlayer())
 	{
-		if (AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>())
+		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
 
-			const UGRWeaponDefinition* WeaponDefinition = PS->GetWeaponDefinitionInSlot(0);
-			const FGRWeaponInstance* WeaponInstance = PS->GetWeaponInstanceInSlot(0);
+			const UGRWeaponDefinition* WeaponDefinition = GRPS->GetWeaponDefinitionInSlot(0);
+			const FGRWeaponInstance* WeaponInstance = GRPS->GetWeaponInstanceInSlot(0);
 
 			if (!WeaponDefinition)
 			{
@@ -61,8 +61,8 @@ void UGRWeaponUpgrade::SettingWeapon()
 
 			FText WeaponName = WeaponDefinition->WeaponName;
 			UTexture2D* WeaponIcon = WeaponDefinition->WeaponIcon;
-			int32 WeaponLevel = WeaponInstance->CurrentLevel;
-			float WeaponDamage = WeaponInstance->CurrentDamage;
+			int32 WeaponLevel = WeaponInstance->GetLevel();
+			float WeaponDamage = WeaponInstance->GetDamage();
 			float WeaponWeakpoint = 150.f;
 			float WeaponLaunchspeed = 500;
 			float WeaponMagazine = 300;
@@ -97,9 +97,9 @@ void UGRWeaponUpgrade::NativeConstruct()
 
 	SettingWeapon();
 
-	if (AGRPlayerState* PS = GetOwningPlayerState<AGRPlayerState>())
+	if (AGRPlayerState* GRPS = GetOwningPlayerState<AGRPlayerState>())
 	{
-		PS->OnWeaponDataChanged.AddUObject(this, &UGRWeaponUpgrade::SettingWeapon);
+		GRPS->OnWeaponDataChanged.AddUObject(this, &UGRWeaponUpgrade::SettingWeapon);
 	}
 
 }

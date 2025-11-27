@@ -42,6 +42,7 @@ struct FWeaponRepData
 	float CurrentDamage = 0.f;
 };
 
+
 UCLASS()
 class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemInterface
 {
@@ -136,8 +137,11 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_UpgradeWeapon(int32 SlotIndex);
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponData)
 	FWeaponRepData RepWeaponData;
+
+	UFUNCTION()
+	void OnRep_WeaponData();
 
 	FOnWeaponDataChanged OnWeaponDataChanged;
 

@@ -11,6 +11,7 @@ FGRWeaponInstance::FGRWeaponInstance()
 
 	bIsValid = 0;
 	UpgradeLevel = 0;
+	UpgradeDamage = 0.f;
 }
 
 FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
@@ -20,6 +21,9 @@ FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
 
 	bIsValid = Other.bIsValid;
 	UpgradeLevel = Other.UpgradeLevel;
+	UpgradeDamage = Other.UpgradeDamage;
+	Options = Other.Options;
+	AppliedEffects = Other.AppliedEffects;
 }
 
 FGRWeaponInstance& FGRWeaponInstance::operator=(const FGRWeaponInstance& Other)
@@ -29,6 +33,9 @@ FGRWeaponInstance& FGRWeaponInstance::operator=(const FGRWeaponInstance& Other)
 
 	this->bIsValid = Other.bIsValid;
 	this->UpgradeLevel = Other.UpgradeLevel;
+	this->UpgradeDamage = Other.UpgradeDamage;
+	this->Options = Other.Options;
+	this->AppliedEffects = Other.AppliedEffects;
 	return *this;
 }
 
@@ -37,9 +44,9 @@ void FGRWeaponInstance::Init(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition
 	CachedASC = ASC;
 	WeaponDefinition = InWeaponDefinition;
 
-	if (!CurrentDamage)
+	if (UpgradeLevel == 0)
 	{
-		CurrentDamage = WeaponDefinition->BaseDamage;
+		UpgradeDamage = WeaponDefinition->BaseDamage;
 	}
 }
 
@@ -56,17 +63,19 @@ void FGRWeaponInstance::UpgradeWeapon()
 		return;
 	}
 
-	if (!(CurrentLevel < WeaponDefinition->MaxLevel))
+	if (!(UpgradeLevel < WeaponDefinition->MaxLevel))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Weapon MaxLevel에 도달했습니다."));
 		return;
 	}
 
-	CurrentLevel++;
-	CurrentDamage += WeaponDefinition->UpgradeDamageIncrease;
+	UpgradeLevel++;
+	UpgradeDamage += WeaponDefinition->UpgradeDamageIncrease;
 
+	UE_LOG(LogTemp, Error, TEXT("Upgrade Level:%d"), UpgradeLevel);
+	UE_LOG(LogTemp, Error, TEXT("Upgrade Damage:%f"), UpgradeDamage);
 
-	if (CurrentLevel % 3 == 0)
+	if (UpgradeLevel % 3 == 0)
 	{
 		const auto& Pool = WeaponDefinition->OptionPool->Options;
 		if (Pool.Num() == 0)
@@ -91,6 +100,13 @@ void FGRWeaponInstance::UpgradeWeapon()
 		ClearEffects();
 		ApplyAllEffects();
 	}
+
+	for(FWeaponOption& Option : Options)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Option Effect: %s with Value: %f"),
+			*Option.EffectClass->GetName(),
+			Option.Value);
+	}
 }
 
 void FGRWeaponInstance::ApplyAllEffects()
@@ -108,7 +124,7 @@ void FGRWeaponInstance::ApplyAllEffects()
 
 	AppliedEffects.Empty();
 
-	for (const auto& Option : Options)
+	for (const FWeaponOption& Option : Options)
 	{
 		if (!Option.EffectClass)
 		{
@@ -132,12 +148,7 @@ void FGRWeaponInstance::ApplyAllEffects()
 
 		FActiveGameplayEffectHandle Handle = CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
-		if (AppliedEffects.Add(Handle))
-		{
-			UE_LOG(LogTemp, Display, TEXT("Applied Effect: %s with Value: %f"),
-				*Option.EffectClass->GetName(),
-				Option.Value);
-		}
+		AppliedEffects.Add(Handle);
 
 	}
 }
@@ -155,7 +166,7 @@ void FGRWeaponInstance::ClearEffects()
 		return;
 	}
 
-	for (auto& Handle : AppliedEffects)
+	for (FActiveGameplayEffectHandle& Handle : AppliedEffects)
 	{
 		if (Handle.IsValid())
 		{

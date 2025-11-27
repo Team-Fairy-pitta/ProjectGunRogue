@@ -52,6 +52,8 @@ public:
 	void ApplyAllEffects();
 
 	void ClearEffects();
+	int32 GetLevel() const { return UpgradeLevel; };
+	float GetDamage() const { return UpgradeDamage; };
 
 public:
 
@@ -67,11 +69,7 @@ public:
 	UPROPERTY()
 	TObjectPtr<UGRWeaponDefinition> WeaponDefinition = nullptr;
 
-	UPROPERTY()
-	int32 CurrentLevel = 0;
-
-	UPROPERTY()
-	float CurrentDamage;
+	
 
 
 
@@ -82,6 +80,9 @@ public:
 protected:
 	UPROPERTY()
 	int32 UpgradeLevel;
+
+	UPROPERTY()
+	float UpgradeDamage;
 
 	UPROPERTY();
 	int8 bIsValid;
