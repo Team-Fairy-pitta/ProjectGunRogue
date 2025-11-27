@@ -52,7 +52,13 @@ public:
 	void ApplyAllEffects();
 
 	void ClearEffects();
+
+	FWeaponOption RandomOption() const;
+
+	void AllRerollOption();
+
 	int32 GetLevel() const { return UpgradeLevel; };
+
 	float GetDamage() const { return UpgradeDamage; };
 
 public:
@@ -70,12 +76,6 @@ public:
 	TObjectPtr<UGRWeaponDefinition> WeaponDefinition = nullptr;
 
 	
-
-
-
-	// [NOTE] Replicate 테스트용 변수입니다. [TODO] 나중에 제거해야 합니다.
-	UPROPERTY()
-	int32 Counter;
 
 protected:
 	UPROPERTY()

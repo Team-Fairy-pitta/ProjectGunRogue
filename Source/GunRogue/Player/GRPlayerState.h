@@ -30,19 +30,6 @@ namespace WeaponSlot
 	constexpr int32 SecondarySlot = 1;   // 2번 슬롯 (인덱스 1)
 }
 
-USTRUCT(BlueprintType)
-struct FWeaponRepData
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	int32 CurrentLevel = 0;
-
-	UPROPERTY()
-	float CurrentDamage = 0.f;
-};
-
-
 UCLASS()
 class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemInterface
 {
@@ -137,11 +124,14 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_UpgradeWeapon(int32 SlotIndex);
 
-	UPROPERTY(ReplicatedUsing = OnRep_WeaponData)
-	FWeaponRepData RepWeaponData;
-
 	UFUNCTION()
 	void OnRep_WeaponData();
+
+	UFUNCTION()
+	void AllRerollOptionWeapon(int32 SlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_AllRerollOptionWeapon(int32 SlotIndex);
 
 	FOnWeaponDataChanged OnWeaponDataChanged;
 
@@ -157,7 +147,7 @@ protected:
 	UPROPERTY()
 	TSet<UGRItemDefinition*> ItemDefinitionSet;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponData)
 	TArray<FGRWeaponHandle> WeaponSlots;
 
 	UPROPERTY(Replicated)

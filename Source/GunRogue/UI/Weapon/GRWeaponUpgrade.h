@@ -36,7 +36,7 @@ public:
 	void UpGrade();
 
 	UFUNCTION()
-	void Reroll();
+	void AllRerollOption();
 
 private:
 	UFUNCTION()

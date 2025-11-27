@@ -94,7 +94,7 @@ void UGRWeaponUpgrade::NativeConstruct()
 	}
 	if (RerollButton)
 	{
-		RerollButton->OnClicked.AddDynamic(this, &UGRWeaponUpgrade::Reroll);
+		RerollButton->OnClicked.AddDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
 	}
 
 	if(SlotNumber == -1)
@@ -121,7 +121,7 @@ void UGRWeaponUpgrade::NativeDestruct()
 	}
 	if (RerollButton)
 	{
-		RerollButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::Reroll);
+		RerollButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
 	}
 
 	Super::NativeDestruct();
@@ -160,8 +160,20 @@ void UGRWeaponUpgrade::UpGrade()
 	}
 }
 
-void UGRWeaponUpgrade::Reroll()
+void UGRWeaponUpgrade::AllRerollOption()
 {
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (APlayerController* PC = GetOwningPlayer())
+	{
+		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
+		{
+			GRPS->AllRerollOptionWeapon(SlotNumber);
+		}
+	}
 	//WeaponOptionUpdate();
 }
 

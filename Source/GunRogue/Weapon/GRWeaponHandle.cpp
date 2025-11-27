@@ -31,13 +31,7 @@ void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefin
 	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.CurrentDamage: %f"),
 		*WeaponDefinition->WeaponName.ToString(),
 		WeaponInstance.GetDamage());
-	
 
-	// [NOTE] Replicate 테스트용 변수입니다. [TODO] 나중에 제거해야 합니다.
-	WeaponInstance.Counter += 1;
-	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.Counter: %d"),
-		*WeaponDefinition->WeaponName.ToString(),
-		WeaponInstance.Counter);
 
 	// 슬롯에 저장만 하고 활성화는 별도로 호출
 	UE_LOG(LogTemp, Display, TEXT("Weapon Equipped to slot: %s"),

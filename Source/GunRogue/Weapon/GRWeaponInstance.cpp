@@ -6,9 +6,6 @@
 
 FGRWeaponInstance::FGRWeaponInstance()
 {
-	// [NOTE] Replicate 테스트용 변수입니다. [TODO] 나중에 제거해야 합니다.
-	Counter = 0;
-
 	bIsValid = 0;
 	UpgradeLevel = 0;
 	UpgradeDamage = 0.f;
@@ -16,9 +13,6 @@ FGRWeaponInstance::FGRWeaponInstance()
 
 FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
 {
-	// [NOTE] Replicate 테스트용 변수입니다. [TODO] 나중에 제거해야 합니다.
-	Counter = Other.Counter;
-
 	bIsValid = Other.bIsValid;
 	UpgradeLevel = Other.UpgradeLevel;
 	UpgradeDamage = Other.UpgradeDamage;
@@ -28,9 +22,6 @@ FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
 
 FGRWeaponInstance& FGRWeaponInstance::operator=(const FGRWeaponInstance& Other)
 {
-	// [NOTE] Replicate 테스트용 변수입니다. [TODO] 나중에 제거해야 합니다.
-	this->Counter = Other.Counter;
-
 	this->bIsValid = Other.bIsValid;
 	this->UpgradeLevel = Other.UpgradeLevel;
 	this->UpgradeDamage = Other.UpgradeDamage;
@@ -77,28 +68,14 @@ void FGRWeaponInstance::UpgradeWeapon()
 
 	if (UpgradeLevel % 3 == 0)
 	{
-		const auto& Pool = WeaponDefinition->OptionPool->Options;
-		if (Pool.Num() == 0)
+		FWeaponOption NewOption = RandomOption();
+		if (NewOption.EffectClass)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("OptionPool이 없음"));
-			return;
+			Options.Add(NewOption);
+
+			ClearEffects();
+			ApplyAllEffects();
 		}
-
-		const FOptionPoolEntry& Entry = Pool[FMath::RandRange(0, Pool.Num() - 1)];
-
-
-		float RandomValue = FMath::FRandRange(Entry.MinValue, Entry.MaxValue);
-
-		RandomValue = FMath::RoundToFloat(RandomValue * 10.0f) / 10.0f;
-
-		FWeaponOption NewOption;
-		NewOption.EffectClass = Entry.EffectClass;
-		NewOption.Value = RandomValue;
-
-		Options.Add(NewOption);
-
-		ClearEffects();
-		ApplyAllEffects();
 	}
 
 	for(FWeaponOption& Option : Options)
@@ -176,3 +153,61 @@ void FGRWeaponInstance::ClearEffects()
 
 	AppliedEffects.Empty();
 }
+
+FWeaponOption FGRWeaponInstance::RandomOption() const
+{
+	FWeaponOption EmptyOption;
+
+	if (!WeaponDefinition || !WeaponDefinition->OptionPool)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OptionPool 데이터가 없음"));
+		return EmptyOption;
+	}
+
+	const TArray<FOptionPoolEntry>& Pool = WeaponDefinition->OptionPool->Options;
+
+	if (Pool.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OptionPool이 비어있음"));
+		return EmptyOption;
+	}
+
+	const FOptionPoolEntry& Entry = Pool[FMath::RandRange(0, Pool.Num() - 1)];
+
+	float RandomValue = FMath::FRandRange(Entry.MinValue, Entry.MaxValue);
+	RandomValue = FMath::RoundToFloat(RandomValue * 10.0f) / 10.0f;
+
+	FWeaponOption NewOption;
+	NewOption.EffectClass = Entry.EffectClass;
+	NewOption.Value = RandomValue;
+
+	return NewOption;
+}
+
+void FGRWeaponInstance::AllRerollOption()
+{
+	if (!WeaponDefinition || !WeaponDefinition->OptionPool)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponData, WeaponData->OptionPool이 없음"));
+		return;
+	}
+
+	if (CachedASC->GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+	int32 OptionNumber = Options.Num();
+	Options.Empty();
+
+	for (int32 i = 0; i < OptionNumber; ++i)
+	{
+		FWeaponOption NewOption = RandomOption();
+		if (NewOption.EffectClass)
+		{
+			Options.Add(NewOption);
+		}
+	}
+	ClearEffects();
+	ApplyAllEffects();
+}
+

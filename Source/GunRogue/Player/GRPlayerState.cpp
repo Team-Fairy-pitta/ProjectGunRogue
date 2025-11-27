@@ -39,7 +39,6 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ThisClass, ItemHandles);
 	DOREPLIFETIME(ThisClass, WeaponSlots);
 	DOREPLIFETIME(ThisClass, CurrentWeaponSlot);
-	DOREPLIFETIME(ThisClass, RepWeaponData);
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
@@ -96,11 +95,6 @@ void AGRPlayerState::DropCurrentWeapon()
 {
 	if (CurrentWeaponSlot >= 0)
 	{
-		// [NOTE] Replicate 테스트용 출력입니다. 나중에 제거해야 합니다.
-		UE_LOG(LogTemp, Display, TEXT("[AGRPlayerState] %s WeaponInstance.Counter: %d"),
-			*WeaponSlots[CurrentWeaponSlot].GetWeaponDefinition()->WeaponName.ToString(),
-			WeaponSlots[CurrentWeaponSlot].GetWeaponInstanceCopy().Counter);
-
 		ServerRPC_DropWeapon(CurrentWeaponSlot);
 	}
 }
@@ -176,9 +170,6 @@ void AGRPlayerState::ServerRPC_UpgradeWeapon_Implementation(int32 SlotIndex)
 	}
 
 	WeaponInstance->UpgradeWeapon();
-
-	RepWeaponData.CurrentLevel = WeaponInstance->GetLevel();
-	RepWeaponData.CurrentDamage = WeaponInstance->GetDamage();
 
 	OnRep_WeaponData(); 
 }
@@ -718,6 +709,45 @@ void AGRPlayerState::PlaceActorOnGround(AActor* SpawnedActor)
 void AGRPlayerState::UpgradeWeapon(int32 SlotIndex)
 {
 	ServerRPC_UpgradeWeapon(SlotIndex);
+}
+
+void AGRPlayerState::AllRerollOptionWeapon(int32 SlotIndex)
+{
+	ServerRPC_AllRerollOptionWeapon(SlotIndex);
+}
+
+void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 SlotIndex)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!WeaponSlots.IsValidIndex(SlotIndex))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid weapon slot index: %d"), SlotIndex);
+		return;
+	}
+
+	FGRWeaponHandle& WeaponHandle = WeaponSlots[SlotIndex];
+
+	UGRWeaponDefinition* WeaponDefinition = WeaponHandle.GetWeaponDefinition();
+
+	if (!IsValid(WeaponDefinition))
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is INVALID"));
+		return;
+	}
+
+	FGRWeaponInstance* WeaponInstance = WeaponHandle.GetWeaponInstanceRef();
+
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return;
+	}
+
+	WeaponInstance->AllRerollOption();
 }
 
 void AGRPlayerState::OnRep_WeaponData()
