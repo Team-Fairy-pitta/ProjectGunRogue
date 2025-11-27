@@ -24,6 +24,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = "AITCharacter")
 	AGRPlayerController* GetGRPlayerController() const;
@@ -72,4 +73,41 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Spectate")
 	bool IsTargetDead(ACharacter* TargetCharacter) const;
+
+
+#pragma region SmoothCameraControl
+public:
+	void SetLastControllerRotation();
+
+	UFUNCTION(BlueprintCallable)
+	void AddControllerYawSmooth_Temporal(float Value);
+
+	UFUNCTION(BlueprintCallable)
+	void AddControllerPitchSmooth_Temporal(float Value);
+
+	UFUNCTION(BlueprintCallable)
+	void AddControllerYawSmooth(float Value);
+
+	UFUNCTION(BlueprintCallable)
+	void AddControllerPitchSmooth(float Value);
+
+	UFUNCTION(BlueprintCallable)
+	void ReturnToLastControllerRotation();
+
+protected:
+	void ApplySmoothCameraControl(float DeltaTime);
+
+	// 플레이어가 지정한 최근(Last) 컨트롤러 방향을 저장
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FQuat LastControllerRotation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
+	float SmoothAlpha = 0.75f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
+	float SmoothSpeed = 15.0f;
+
+	FQuat TargetRotation;
+
+#pragma endregion SmoothCameraControl
 };
