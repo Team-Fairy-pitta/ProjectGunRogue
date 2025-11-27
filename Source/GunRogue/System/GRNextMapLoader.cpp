@@ -167,7 +167,7 @@ void AGRNextMapLoader::CheckMapLoaderCondition()
 
 void AGRNextMapLoader::OnRep_ShouldLoadLevel()
 {
-	if (!LevelToLoad)
+	if (LevelToLoad.IsNull())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("return Leveltoload isvalid"));
 		return;

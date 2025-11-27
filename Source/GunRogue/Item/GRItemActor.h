@@ -33,6 +33,13 @@ public:
 	UGRItemDefinition* ItemDefinition;
 };
 
+UENUM()
+enum class EGRItemPlacement : uint8
+{
+	AIR,
+	GROUND,
+};
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPickup, AGRPlayerState*)
 
 // Item Actor
@@ -48,7 +55,7 @@ public:
 	virtual bool IsNetRelevantFor(const AActor* RealViewer, const AActor* ViewTarget, const FVector& SrcLocation) const override;
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRPC_InitItem(UGRItemDefinition* InItemDefinition);
+	void MulticastRPC_InitItem(UGRItemDefinition* InItemDefinition, EGRItemPlacement ItemPlacement);
 
 	void InitItem(UGRItemDefinition* InItemDefinition);
 
@@ -66,10 +73,32 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue")
 	TObjectPtr<UGRItemDefinition> ItemDefinition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|Materials")
+	TObjectPtr<UMaterialInstance> RarityMaterial_Normal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|Materials")
+	TObjectPtr<UMaterialInstance> RarityMaterial_Rare;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|Materials")
+	TObjectPtr<UMaterialInstance> RarityMaterial_Epic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue|WidgetClass")
+	TSubclassOf<UUserWidget> ItemInfoWidgetClass;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<USceneComponent> SceneRoot;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> SphereMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UWidgetComponent> ItemInfoWidgetComponent;
+
+private:
+	void PlaceActorOnGround();
+	FVector GetGroundPointUsingLineTrace();
 };
