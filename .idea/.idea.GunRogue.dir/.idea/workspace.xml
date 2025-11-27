@@ -8,24 +8,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="189d8e3a-7c20-4c98-94b2-895d871fd1a8" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/projectSettingsUpdater.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTService_CheckInAttackRange.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTService_CheckInAttackRange.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_Attack.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_Attack.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_ChasePlayerForTime.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_ChasePlayerForTime.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_CheckAttackRangeState.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_CheckAttackRangeState.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_KeepDistance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_KeepDistance.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_SelectRandomPlayer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_SelectRandomPlayer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_SwapPatrolPointsIfClose.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_SwapPatrolPointsIfClose.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRLuwoAICharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRLuwoAICharacter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/GameModes/BP_GRGameMode.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/GameModes/BP_GRGameMode.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GunRogue.uproject.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/GunRogue.uproject.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/BP_Test_AI_PlayerCharacter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/BP_Test_AI_PlayerCharacter.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BT_Test_Boss_Luwo_AI.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BT_Test_Boss_Luwo_AI.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/TestMap_AI_BossLuwo.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/TestMap_AI_BossLuwo.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestThirdPerson/ThirdPerson/Blueprints/BP_ThirdPersonGameMode.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestThirdPerson/ThirdPerson/Blueprints/BP_ThirdPersonGameMode.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRGroundStrikeAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRGroundStrikeAttackAbility.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRGroundStrikeAttackAbility.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRGroundStrikeAttackAbility.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GRAICharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GRAICharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GRAIController.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRAIController.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GRAIController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRAIController.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GRBossLuwoAIController.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRBossLuwoAIController.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GRBossLuwoAIController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRBossLuwoAIController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRJumpAndAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRJumpAndAttackAbility.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +31,14 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="cidr-memory-view://0" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/AIModule/Classes/AIController.h" root0="FORCE_HIGHLIGHTING" />
@@ -208,6 +207,8 @@
       <workItem from="1764070803469" duration="409000" />
       <workItem from="1764123545197" duration="536000" />
       <workItem from="1764124115670" duration="3675000" />
+      <workItem from="1764206846673" duration="1957000" />
+      <workItem from="1764211880041" duration="7531000" />
     </task>
     <servers />
   </component>

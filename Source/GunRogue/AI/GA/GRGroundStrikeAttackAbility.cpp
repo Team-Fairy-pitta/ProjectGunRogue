@@ -2,10 +2,10 @@
 
 
 #include "AI/GA/GRGroundStrikeAttackAbility.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "Character/GRCharacter.h"
+#include "Engine/OverlapResult.h"
 
 UGRGroundStrikeAttackAbility::UGRGroundStrikeAttackAbility()
 {
@@ -36,31 +36,38 @@ void UGRGroundStrikeAttackAbility::OnHitNotify(FGameplayEventData Payload)
 	AActor* Instigator = GetAvatarActorFromActorInfo();
 	if (!Instigator) return;
 
-	// 예: Sphere Trace로 범위 데미지 판정
-	//TODO : 원기둥 모양으로, 범위 거리 추후 변경
 	FVector Origin = Instigator->GetActorLocation();
-	float Radius = 300.f;
-	TArray<FHitResult> Hits;
+	const float Radius = 500.f;
+	TArray<FOverlapResult> Overlaps;
 
-	UKismetSystemLibrary::SphereTraceMulti(
-		Instigator->GetWorld(),
-		Origin,
-		Origin,
-		Radius,
-		UEngineTypes::ConvertToTraceType(ECC_Pawn),
-		false,
-		TArray<AActor*>({Instigator}),
-		EDrawDebugTrace::ForDuration,      // 디버그 그리기 타입
-		Hits,
-		true,
-		FLinearColor::Yellow,                 // 히트 위치 색
-		FLinearColor::Red,               // Trace 라인 색
-		1.0f                                // 화면에 표시되는 시간 (초)
-	);
+	FCollisionShape SphereShape = FCollisionShape::MakeSphere(Radius);
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(Instigator);
 	
-	for (auto& Hit : Hits)
+	ECollisionChannel TraceChannel = ECC_Pawn;
+
+	bool bOverlap = GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		Origin,               
+		FQuat::Identity,      
+		TraceChannel,
+		SphereShape,
+		QueryParams
+	);
+
+	
+#if WITH_EDITOR
+	DrawDebugSphere(GetWorld(), Origin, Radius, 16, FColor::Yellow, false, 1.0f);
+#endif
+	
+	if (!bOverlap)
 	{
-		AActor* Other = Hit.GetActor();
+		return;
+	}
+	
+	for (const FOverlapResult& Result : Overlaps)
+	{
+		AActor* Other = Result.GetActor();
 		if (!Other)
 		{
 			continue;
@@ -72,13 +79,13 @@ void UGRGroundStrikeAttackAbility::OnHitNotify(FGameplayEventData Payload)
 			continue;
 		}
 
-		IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(PlayerChar);
-		if (!ASI)
+		IAbilitySystemInterface* PlayerASI = Cast<IAbilitySystemInterface>(PlayerChar);
+		if (!PlayerASI)
 		{
 			continue;
 		}
 		
-		UAbilitySystemComponent* PlayerASC = ASI->GetAbilitySystemComponent();
+		UAbilitySystemComponent* PlayerASC = PlayerASI->GetAbilitySystemComponent();
 		if (!PlayerASC)
 		{
 			continue;
@@ -89,6 +96,14 @@ void UGRGroundStrikeAttackAbility::OnHitNotify(FGameplayEventData Payload)
 		{
 			continue;
 		}
+
+#if WITH_EDITOR
+		FVector PlayerLoc = PlayerChar->GetActorLocation();
+		if (GetWorld())
+		{
+			DrawDebugSphere(GetWorld(),PlayerLoc,20.f,12,FColor::Red,false,1.0f);
+		}
+#endif
 		
 		FGameplayEffectContextHandle Context = AIASC->MakeEffectContext();
 		Context.AddSourceObject(Instigator);

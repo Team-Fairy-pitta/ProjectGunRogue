@@ -9,6 +9,7 @@
 #include "NavigationSystem.h"
 #include "AbilitySystemComponent.h"
 #include "Character/GRCharacter.h"
+#include "Engine/OverlapResult.h"
 
 UGRJumpAndAttackAbility::UGRJumpAndAttackAbility()
 {
@@ -32,7 +33,10 @@ void UGRJumpAndAttackAbility::EndAbility(const FGameplayAbilitySpecHandle Handle
 	AGRLuwoAICharacter* Boss = Cast<AGRLuwoAICharacter>(SavedActorInfo->AvatarActor.Get());
 	if (Boss)
 	{
-		Boss->OnLandedEvent.RemoveDynamic(this, &UGRJumpAndAttackAbility::OnLanded);
+		if (Boss->OnLandedEvent.IsAlreadyBound(this, &UGRJumpAndAttackAbility::OnLanded))
+		{
+			Boss->OnLandedEvent.RemoveDynamic(this, &UGRJumpAndAttackAbility::OnLanded);
+		}
 	}
 }
 
@@ -43,45 +47,38 @@ void UGRJumpAndAttackAbility::OnHitNotify(FGameplayEventData Payload)
 	AActor* Instigator = GetAvatarActorFromActorInfo();
 	if (!Instigator) return;
 
-	// 예: 캡슐모양의 원기둥 비슷 모양 -막상 보니 거의 구의 형태와 비슷함
-	float Height=100.0f;
-	FVector Start = Instigator->GetActorLocation() - FVector(0,0, Height);
-	FVector End = Instigator->GetActorLocation() + FVector(0,0, Height);     
-	float Radius = 300.f;
-	float HalfHeight = Height * 0.5f;
+	FVector Origin = Instigator->GetActorLocation();
+	const float Radius = 500.f;
+	TArray<FOverlapResult> Overlaps;
 
-	FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(Radius, HalfHeight);
+	FCollisionShape SphereShape = FCollisionShape::MakeSphere(Radius);
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(Instigator);
+	
+	ECollisionChannel TraceChannel = ECC_Pawn;
 
-	TArray<FHitResult> Hits;
-	bool bHit = GetWorld()->SweepMultiByChannel(
-		Hits,
-		Start,
-		End,
-		FQuat::Identity,
-		ECC_Pawn,  
-		CapsuleShape,
-		FCollisionQueryParams(TEXT("MySweepTrace"), /*bTraceComplex=*/false, Instigator)
+	bool bOverlap = GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		Origin,               
+		FQuat::Identity,      
+		TraceChannel,
+		SphereShape,
+		QueryParams
 	);
 
-	//NOTE : 디버깅 드로우
+	
 #if WITH_EDITOR
-	DrawDebugCapsule(
-		GetWorld(),
-		(Start + End) * 0.5f,         // 캡슐의 센터 위치
-		HalfHeight,
-		Radius,
-		FQuat::Identity,
-		FColor::Red,
-		/*bPersistentLines=*/false,
-		/*LifeTime=*/1.0f,
-		/*DepthPriority=*/0,
-		/*Thickness=*/2.0f
-	);
+	DrawDebugSphere(GetWorld(), Origin, Radius, 16, FColor::Yellow, false, 1.0f);
 #endif
 	
-	for (auto& Hit : Hits)
+	if (!bOverlap)
 	{
-		AActor* Other = Hit.GetActor();
+		return;
+	}
+	
+	for (const FOverlapResult& Result : Overlaps)
+	{
+		AActor* Other = Result.GetActor();
 		if (!Other)
 		{
 			continue;
@@ -93,13 +90,13 @@ void UGRJumpAndAttackAbility::OnHitNotify(FGameplayEventData Payload)
 			continue;
 		}
 
-		IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(PlayerChar);
-		if (!ASI)
+		IAbilitySystemInterface* PlayerASI = Cast<IAbilitySystemInterface>(PlayerChar);
+		if (!PlayerASI)
 		{
 			continue;
 		}
 		
-		UAbilitySystemComponent* PlayerASC = ASI->GetAbilitySystemComponent();
+		UAbilitySystemComponent* PlayerASC = PlayerASI->GetAbilitySystemComponent();
 		if (!PlayerASC)
 		{
 			continue;
@@ -110,6 +107,14 @@ void UGRJumpAndAttackAbility::OnHitNotify(FGameplayEventData Payload)
 		{
 			continue;
 		}
+
+#if WITH_EDITOR
+		FVector PlayerLoc = PlayerChar->GetActorLocation();
+		if (GetWorld())
+		{
+			DrawDebugSphere(GetWorld(),PlayerLoc,20.f,12,FColor::Red,false,1.0f);
+		}
+#endif
 		
 		FGameplayEffectContextHandle Context = AIASC->MakeEffectContext();
 		Context.AddSourceObject(Instigator);
@@ -161,15 +166,21 @@ void UGRJumpAndAttackAbility::JumpToTargetLocation()
 	{
 		TargetLocation = NavLoc.Location;
 	}
+	else
+	{
+		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
+		return;
+	}
 	
 	FVector LaunchVel;
+	const float ArcParam=0.5f;
 	bool bHaveSolution = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
 		Boss,
 		LaunchVel,
 		Start,
 		TargetLocation,
 		/*OverrideGravityZ*/ Boss -> GetWorld()->GetGravityZ(),
-		/*곡선의 높이 조절 -낮으면 더 위로, 높으면 더 낮게*/ 0.5f);
+		/*곡선의 높이 조절 -낮으면 더 위로, 높으면 더 낮게*/ ArcParam);
 	
 	if (!bHaveSolution)
 	{
@@ -179,7 +190,10 @@ void UGRJumpAndAttackAbility::JumpToTargetLocation()
 	
 	Boss->LaunchCharacter(LaunchVel, true, true);
 	
-	Boss->OnLandedEvent.AddDynamic(this, &UGRJumpAndAttackAbility::OnLanded);
+	if (!Boss->OnLandedEvent.IsAlreadyBound(this, &UGRJumpAndAttackAbility::OnLanded))
+	{
+		Boss->OnLandedEvent.AddDynamic(this, &UGRJumpAndAttackAbility::OnLanded);
+	}
 }
 
 void UGRJumpAndAttackAbility::OnLanded()

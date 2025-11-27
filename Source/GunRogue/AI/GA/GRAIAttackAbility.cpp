@@ -7,6 +7,9 @@
 
 UGRAIAttackAbility::UGRAIAttackAbility()
 	:AttackMontage(nullptr)
+	,SavedSpecHandle(FGameplayAbilitySpecHandle())
+	,SavedActorInfo(nullptr)
+	,SavedActivationInfo(FGameplayAbilityActivationInfo())
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
