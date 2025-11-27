@@ -113,6 +113,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SwitchWeapon(int32 SlotIndex);
 
+	TArray<FGRItemHandle>& GetItemHandles() { return ItemHandles; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
 	TObjectPtr<UGRAbilitySystemComponent> AbilitySystemComponent;
