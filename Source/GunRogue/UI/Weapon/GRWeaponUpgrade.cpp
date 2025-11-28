@@ -86,7 +86,6 @@ void UGRWeaponUpgrade::SettingWeapon()
 void UGRWeaponUpgrade::NativeConstruct()
 {
 	Super::NativeConstruct();
-	SetWidgetFocusable();
 
 	if (UpgradeButton)
 	{
@@ -125,23 +124,6 @@ void UGRWeaponUpgrade::NativeDestruct()
 	}
 
 	Super::NativeDestruct();
-}
-
-FReply UGRWeaponUpgrade::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
-{
-	if (InKeyEvent.GetKey() == EKeys::Escape)
-	{
-		APlayerController* PlayerController = GetOwningPlayer();
-		AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(PlayerController);
-
-		if (IsValid(BattlePlayerController))
-		{
-			BattlePlayerController->HideUpgradeConsoleWidget();
-		}
-
-		return FReply::Handled();
-	}
-	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
 }
 
 void UGRWeaponUpgrade::UpGrade()
@@ -263,10 +245,6 @@ void UGRWeaponUpgrade::WeaponExplainUpdate(FText WeaponExplain)
 	WeaponExplainText->SetText(WeaponExplain);
 }
 
-void UGRWeaponUpgrade::SetWidgetFocusable()
-{
-	bIsFocusable = true;
-}
 
 //void UGRWeaponUpgrade::WeaponOptionUpdate()
 //{

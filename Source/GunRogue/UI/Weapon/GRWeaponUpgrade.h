@@ -20,7 +20,6 @@ class GUNROGUE_API UGRWeaponUpgrade : public UUserWidget
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 public:
 	UFUNCTION()
@@ -106,6 +105,5 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UBorder* BlindBorder;
-private:
-	void SetWidgetFocusable();
+
 };
