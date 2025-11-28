@@ -14,11 +14,12 @@
   <component name="ChangeListManager">
     <list default="true" id="992caa9f-6972-42fb-8d48-05e4f4623c58" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GunRogue/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestInventory/WBP_Inventory_Slot.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestInventory/WBP_Inventory_Slot.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestInventory/WBP_ItemWidget.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestInventory/WBP_ItemWidget.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestInventory/WBP_Inventory.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestInventory/WBP_Inventory.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestItem/ItemBasicTest/TestItemBasic_Map.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestItem/ItemBasicTest/TestItemBasic_Map.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestItem/ItemBasicTest/TestItem_1/DA_TestItemDefinition_1.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestItem/ItemBasicTest/TestItem_1/DA_TestItemDefinition_1.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestItem/ItemBasicTest/TestItem_2/DA_TestItemDefinition_2.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestItem/ItemBasicTest/TestItem_2/DA_TestItemDefinition_2.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventorySlot.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventorySlot.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventorySlot.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventorySlot.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventoryWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventoryWidget.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventoryWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventoryWidget.h" afterDir="false" />
     </list>
@@ -181,7 +182,7 @@
       <workItem from="1763723958986" duration="961000" />
       <workItem from="1764034811713" duration="623000" />
       <workItem from="1764209937039" duration="12921000" />
-      <workItem from="1764296096544" duration="595000" />
+      <workItem from="1764296096544" duration="6422000" />
     </task>
     <servers />
   </component>

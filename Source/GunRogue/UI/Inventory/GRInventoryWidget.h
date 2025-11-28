@@ -33,7 +33,14 @@ protected:
 
 	virtual void NativeConstruct() override;
 
+	virtual void NativeDestruct() override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	TSubclassOf<UGRInventorySlot> InventorySlotClass;
+
+private:
+
+	UFUNCTION()
+	void HandleSlotRightClick(int32 ClickedSlotIndex);
 	
 };

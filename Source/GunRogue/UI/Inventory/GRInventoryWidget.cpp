@@ -42,6 +42,8 @@ void UGRInventoryWidget::UpdateInventoryDisplay(const TArray<FGRItemHandle>& Ite
 					
 					CurrentSlot->SetSlotIndex(Index);
 					UE_LOG(LogTemp, Display, TEXT("새로운 슬롯 추가됨 인덱스: %d"), Index);
+
+					CurrentSlot->OnSlotRightClicked.AddDynamic(this, &ThisClass::HandleSlotRightClick);
 				}
 			}
 		}
@@ -84,7 +86,30 @@ void UGRInventoryWidget::NativeConstruct()
 				int32 Index = AllItemSlots.Num() - 1;
 				ItemSlot->SetSlotIndex(Index);
 				UE_LOG(LogTemp, Display, TEXT("아이템 이름: %d"),Index);
+
+				ItemSlot->OnSlotRightClicked.AddDynamic(this, &ThisClass::HandleSlotRightClick);
+
+				UE_LOG(LogTemp, Warning, TEXT("슬롯 %d 에 RightClick 델리게이트 바인딩 성공."), ItemSlot->SlotIndex);
 			}
 		}
 	}
+}
+
+void UGRInventoryWidget::NativeDestruct()
+{
+	for (UGRInventorySlot* ItemSlot : AllItemSlots)
+	{
+		if (ItemSlot)
+		{
+			// ItemSlot의 델리게이트에서 나 자신(this)의 바인딩을 제거
+			ItemSlot->OnSlotRightClicked.RemoveDynamic(this, &ThisClass::HandleSlotRightClick);
+		}
+	}
+	
+	Super::NativeDestruct();
+}
+
+void UGRInventoryWidget::HandleSlotRightClick(int32 ClickedSlotIndex)
+{
+	UE_LOG(LogTemp, Warning, TEXT("슬롯 인덱스 %d 에서 우클릭 핸들 발생 ---!"), ClickedSlotIndex);
 }

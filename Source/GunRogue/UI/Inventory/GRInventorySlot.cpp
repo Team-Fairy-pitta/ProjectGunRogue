@@ -37,3 +37,20 @@ void UGRInventorySlot::ClearSlot()
 	}
 	SlotIndex = -1;
 }
+
+FReply UGRInventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+
+	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		if (SlotIndex != -1)
+		{
+			OnSlotRightClicked.Broadcast(SlotIndex);
+
+			return FReply::Handled();
+		}
+	}
+
+	return Reply;
+}

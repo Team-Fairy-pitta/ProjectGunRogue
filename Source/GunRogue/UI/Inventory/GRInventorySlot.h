@@ -12,6 +12,9 @@ class UImage;
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSlotContextMenu, int32, SlotIndex);
+
 UCLASS()
 class GUNROGUE_API UGRInventorySlot : public UUserWidget
 {
@@ -26,6 +29,9 @@ public:
 	void SetSlotIndex(int32 Index) { SlotIndex = Index; }
 
 	void ClearSlot();
+
+	UPROPERTY(BlueprintAssignable, Category = "Slot|Events")
+	FOnSlotContextMenu OnSlotRightClicked;
 
 protected:
 
@@ -43,6 +49,8 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HoverDescription;
+
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
 	
 };
