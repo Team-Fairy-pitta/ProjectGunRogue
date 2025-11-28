@@ -21,19 +21,39 @@ void UGRInventoryWidget::UpdateInventoryDisplay(const TArray<FGRItemHandle>& Ite
 
 	for (int32 Index = 0; Index < ItemHandles.Num(); ++Index)
 	{
+		UGRInventorySlot* CurrentSlot = nullptr;
+		const FGRItemHandle& ItemHandle = ItemHandles[Index];
+		
 		if (AllItemSlots.IsValidIndex(Index))
 		{
-			UGRInventorySlot* CurrentSlot = AllItemSlots[Index];
-			const FGRItemHandle& ItemHandle = ItemHandles[Index];
-
-			if (CurrentSlot && ItemHandle.ItemDefinition)
+			CurrentSlot = AllItemSlots[Index];
+		}
+		else
+		{
+			if (InventorySlotClass.Get() && ItemSlotsContainer) 
 			{
-				UGRItemDefinition* Definition = ItemHandle.ItemDefinition;
-				CurrentSlot->SetSlotIndex(Index);
-				FString ItemNameString = Definition->ItemName.ToString();
-				UE_LOG(LogTemp, Display, TEXT("아이템 이름: %s 번호 : %d "), *ItemNameString, Index);
-				CurrentSlot->SetSlot(Definition->ItemIcon, Definition->ItemName, Definition->ItemDescription);
+				CurrentSlot = CreateWidget<UGRInventorySlot>(GetOwningPlayer(), InventorySlotClass);
+
+				if (CurrentSlot)
+				{
+					ItemSlotsContainer->AddChild(CurrentSlot); 
+					
+					AllItemSlots.Add(CurrentSlot);
+					
+					CurrentSlot->SetSlotIndex(Index);
+					UE_LOG(LogTemp, Display, TEXT("새로운 슬롯 추가됨 인덱스: %d"), Index);
+				}
 			}
+		}
+		if (CurrentSlot && ItemHandle.ItemDefinition)
+		{
+			UGRItemDefinition* Definition = ItemHandle.ItemDefinition;
+			
+			CurrentSlot->SetSlotIndex(Index);
+          
+			FString ItemNameString = Definition->ItemName.ToString();
+			UE_LOG(LogTemp, Display, TEXT("아이템 이름: %s 번호 : %d "), *ItemNameString, Index);
+			CurrentSlot->SetSlot(Definition->ItemIcon, Definition->ItemName, Definition->ItemDescription);
 		}
 	}
 }

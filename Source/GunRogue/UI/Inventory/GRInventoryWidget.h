@@ -32,5 +32,8 @@ protected:
 	TArray<UGRInventorySlot*> AllItemSlots;
 
 	virtual void NativeConstruct() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	TSubclassOf<UGRInventorySlot> InventorySlotClass;
 	
 };
