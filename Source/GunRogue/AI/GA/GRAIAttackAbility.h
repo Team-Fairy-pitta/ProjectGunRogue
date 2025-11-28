@@ -27,7 +27,7 @@ protected:
 	void WaitAttackGameplayEventTask();
 	
 	UFUNCTION()
-	virtual void OnHitNotify(FGameplayEventData Payload);
+	virtual void OnAttackTriggerNotify(FGameplayEventData Payload);
 
 	UFUNCTION()
 	void OnMontageEnded();

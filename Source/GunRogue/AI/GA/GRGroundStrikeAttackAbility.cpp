@@ -29,9 +29,9 @@ void UGRGroundStrikeAttackAbility::EndAbility(const FGameplayAbilitySpecHandle H
 }
 
 
-void UGRGroundStrikeAttackAbility::OnHitNotify(FGameplayEventData Payload)
+void UGRGroundStrikeAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
 {
-	Super::OnHitNotify(Payload);
+	Super::OnAttackTriggerNotify(Payload);
 	
 	AActor* Instigator = GetAvatarActorFromActorInfo();
 	if (!Instigator) return;

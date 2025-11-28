@@ -61,11 +61,11 @@ void UGRAIAttackAbility::WaitAttackGameplayEventTask()
 		false  // OnlyMatchExact
 	);
 
-	WaitEvent->EventReceived.AddDynamic(this, &UGRAIAttackAbility::OnHitNotify);
+	WaitEvent->EventReceived.AddDynamic(this, &UGRAIAttackAbility::OnAttackTriggerNotify);
 	WaitEvent->ReadyForActivation();
 }
 
-void UGRAIAttackAbility::OnHitNotify(FGameplayEventData Payload)
+void UGRAIAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
 {
 }
 
