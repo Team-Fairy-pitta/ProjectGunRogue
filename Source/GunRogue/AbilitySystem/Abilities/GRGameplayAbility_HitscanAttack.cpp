@@ -77,40 +77,32 @@ void UGRGameplayAbility_HitscanAttack::StartContinuousFire()
 
 	// FireRate에 따른 연사 간격 계산
 	const float FireRate = CombatSet->GetFireRate();
+
+	// 즉시 첫 발 발사
+	FireLineTrace();
+
+	// FireRate가 0 이하면 단발 무기 (타이머 설정 안 함)
 	if (FireRate <= 0.0f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Fire] Invalid FireRate: %.2f"), FireRate);
+		UE_LOG(LogTemp, Log, TEXT("[Fire] Single-shot weapon (FireRate: %.2f)"), FireRate);
 		return;
 	}
 
 	const float FireInterval = 1.0f / FireRate;
 
-	// 즉시 첫 발 발사
-	FireLineTrace();
-
-	// 타이머로 연사 시작
+	// 타이머로 연사 시작 (WeakThis 사용)
+	TWeakObjectPtr<UGRGameplayAbility_HitscanAttack> WeakThis(this);
 	GetWorld()->GetTimerManager().SetTimer(
 		FireTimerHandle,
-		[this]()
+		[WeakThis]()
 		{
-			if (HasAuthority(&CurrentActivationInfo))
+			if (WeakThis.IsValid())
 			{
-				FireLineTrace();
+				WeakThis->FireLineTrace();
 			}
 		},
 		FireInterval,
 		true  // Loop
-	);
-
-	// 탄퍼짐 회복 타이머 시작
-	GetWorld()->GetTimerManager().SetTimer(
-		SpreadRecoveryTimerHandle,
-		[this]()
-		{
-			UpdateSpreadRecovery(0.1f);
-		},
-		0.1f,
-		true
 	);
 }
 
@@ -119,39 +111,7 @@ void UGRGameplayAbility_HitscanAttack::StopContinuousFire()
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
-		GetWorld()->GetTimerManager().ClearTimer(SpreadRecoveryTimerHandle);
 	}
-}
-
-void UGRGameplayAbility_HitscanAttack::UpdateSpreadRecovery(float DeltaTime)
-{
-	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
-	if (!Character)
-	{
-		return;
-	}
-
-	IAbilitySystemInterface* SourceASI = Cast<IAbilitySystemInterface>(Character);
-	if (!SourceASI)
-	{
-		return;
-	}
-
-	UAbilitySystemComponent* SourceASC = SourceASI->GetAbilitySystemComponent();
-	if (!SourceASC)
-	{
-		return;
-	}
-
-	const UGRCombatAttributeSet* CombatSet = SourceASC->GetSet<UGRCombatAttributeSet>();
-	if (!CombatSet)
-	{
-		return;
-	}
-
-	// 탄퍼짐 회복
-	const float RecoveryRate = CombatSet->GetSpreadRecoveryRate();
-	CurrentSpread = FMath::Max(0.0f, CurrentSpread - RecoveryRate * DeltaTime);
 }
 
 void UGRGameplayAbility_HitscanAttack::FireLineTrace()
@@ -192,7 +152,7 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	// 무기 스탯 가져오기
 	const float Accuracy = CombatSet->GetAccuracy();
 	const float Recoil = CombatSet->GetRecoil();
-	const float MaxSpread = CombatSet->GetMaxSpread();
+	const float CurrentSpread = CombatSet->GetCurrentSpread();
 
 	// 카메라 위치/방향 가져오기
 	FVector CameraLocation;
@@ -236,6 +196,11 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		QueryParams
 	);
 
+
+	//non-const 캐스팅 필요 -> IncreaseSpread 함수가 non-const 멤버임
+	UGRCombatAttributeSet* MutableCombatSet = const_cast<UGRCombatAttributeSet*>(CombatSet);
+	MutableCombatSet->IncreaseSpread(SourceASC);
+
 #if WITH_EDITOR
 	// 디버그 라인 그리기 (에디터 전용)
 	const FColor DebugColor = bHit ? FColor::Red : FColor::Green;
@@ -247,15 +212,42 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		DrawDebugSphere(GetWorld(), HitResult.Location, 20.0f, 12, FColor::Orange,
 			false, DebugLineDuration);
 	}
+
+	// 탄퍼짐 디버그 정보 화면 출력
+	if (GEngine)
+	{
+		const float UpdatedSpread = MutableCombatSet->GetCurrentSpread();
+		const float MaxSpreadValue = MutableCombatSet->GetMaxSpread();
+		const float SpreadPercentage = (UpdatedSpread / MaxSpreadValue) * 100.0f;
+
+		const FString SpreadMessage = FString::Printf(
+			TEXT("Spread: %.2f / %.2f (%.0f%%)"),
+			UpdatedSpread,
+			MaxSpreadValue,
+			SpreadPercentage
+		);
+
+		FColor SpreadColor = FColor::Green;
+		if (SpreadPercentage > 70.0f)
+		{
+			SpreadColor = FColor::Red;
+		}
+		else if (SpreadPercentage > 40.0f)
+		{
+			SpreadColor = FColor::Yellow;
+		}
+
+		GEngine->AddOnScreenDebugMessage(1, 0.0f, SpreadColor, SpreadMessage);
+	}
 #endif
 
-	// 탄퍼짐 증가 (최대치 제한)
-	CurrentSpread = FMath::Min(CurrentSpread + SpreadIncreasePerShot, MaxSpread);
-
+	// [NOTE] 카메라 반동 적용 여부 검토중
+	/*
 	if (PC)
 	{
 		ApplyRecoil(PC, Recoil);
 	}
+	*/
 
 	if (!bHit)
 	{
@@ -267,6 +259,13 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	if (!HitActor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Fire] Hit but no actor"));
+		return;
+	}
+
+	// 피해 적용은 서버에서만
+	if (SourceASC->GetOwnerRole() != ROLE_Authority)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Fire] Client hit - not applying damage (will be handled by server)"));
 		return;
 	}
 
@@ -288,11 +287,10 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 
 	// 피해량 계산
 	const UGRCombatAttributeSet* TargetCombatSet = TargetASC->GetSet<UGRCombatAttributeSet>();
-
 	const float TargetReduction = TargetCombatSet ? TargetCombatSet->GetDamageReduction() : 0.0f;
-	const bool bIsCritical = FMath::RandRange(0.0f, 1.0f) < 0.1f;  // 임시: 10% 확률
+	const bool bIsCritical = FMath::RandRange(0.0f, 1.0f) < 0.1f;  // TODO: 치명타 로직 부위 공격으로 대체(현재 임시 치명타 확률 10%)
 
-	float CalculatedDamage = Damage;  // 기본값 (폴백)
+	float CalculatedDamage = FallbackDamage;  // 기본값 (폴백)
 
 	if (CombatSet)
 	{
@@ -300,7 +298,7 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Fire] No CombatAttributeSet - Using base damage: %.1f"), Damage);
+		UE_LOG(LogTemp, Warning, TEXT("[Fire] No CombatAttributeSet - Using base damage: %.1f"), FallbackDamage);
 	}
 
 	// GameplayEffect 적용

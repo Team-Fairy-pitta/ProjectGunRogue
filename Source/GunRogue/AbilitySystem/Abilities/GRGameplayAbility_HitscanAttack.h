@@ -37,15 +37,11 @@ protected:
 	float FireRange = 20000.0f; // 매직 넘버. 실내 전투라 사거리 중요하지 않음.
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Fire")
-	float Damage = 15.0f; // CombatAttribute 없을 때만 사용
+	float FallbackDamage = 15.0f; // CombatAttribute 없을 때만 사용
 
 	// 디버그 라인 표시 시간
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Fire|Debug")
 	float DebugLineDuration = 2.0f;
-
-	// 탄퍼짐 증가량 (발사 시마다 추가되는 각도)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Fire|Spread")
-	float SpreadIncreasePerShot = 1.0f;
 
 	void FireLineTrace();
 
@@ -56,12 +52,5 @@ protected:
 	// 연사 타이머
 	FTimerHandle FireTimerHandle;
 
-	// 현재 탄퍼짐 (각도)
-	float CurrentSpread = 0.0f;
-
-	// 탄퍼짐 회복 타이머
-	FTimerHandle SpreadRecoveryTimerHandle;
-
-	void UpdateSpreadRecovery(float DeltaTime);
 	void ApplyRecoil(APlayerController* PC, float RecoilAmount);
 };
