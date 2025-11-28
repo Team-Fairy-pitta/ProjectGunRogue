@@ -9,13 +9,33 @@
 #include "Item/GRItemDefinition.h"
 #include "Player/GRPlayerState.h"
 
-void UGRInventoryWidget::UpdateInventoryDisplay(const TArray<FGRItemHandle>& ItemHandles)
+void UGRInventoryWidget::UpdateInventoryDisplay()
 {
-	for (UGRInventorySlot* SlotItems : AllItemSlots)
+	APlayerController* PC = GetOwningPlayer();
+	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	TArray<FGRItemHandle>& ItemHandles = PS->GetItemHandles();
+
+	
+	for (int32 Index = AllItemSlots.Num() - 1; Index >= 0; --Index)
 	{
-		if (SlotItems)
+		UGRInventorySlot* CurrentSlot = AllItemSlots[Index];
+		
+		if (Index >= ItemHandles.Num())
 		{
-			SlotItems->ClearSlot();
+			if (CurrentSlot)
+			{
+				CurrentSlot->OnSlotRightClicked.RemoveDynamic(this, &ThisClass::HandleSlotRightClick);
+				
+				if (ItemSlotsContainer)
+				{
+					ItemSlotsContainer->RemoveChild(CurrentSlot);
+				}
+				
+				CurrentSlot->RemoveFromParent(); 
+			}
+			AllItemSlots.RemoveAt(Index);
+            
+			UE_LOG(LogTemp, Display, TEXT("슬롯 번호 %d 제거"), Index);
 		}
 	}
 
@@ -41,7 +61,7 @@ void UGRInventoryWidget::UpdateInventoryDisplay(const TArray<FGRItemHandle>& Ite
 					AllItemSlots.Add(CurrentSlot);
 					
 					CurrentSlot->SetSlotIndex(Index);
-					UE_LOG(LogTemp, Display, TEXT("새로운 슬롯 추가됨 인덱스: %d"), Index);
+					UE_LOG(LogTemp, Display, TEXT("새로운 슬롯 추가 번호 : %d"), Index);
 
 					CurrentSlot->OnSlotRightClicked.AddDynamic(this, &ThisClass::HandleSlotRightClick);
 				}
@@ -60,15 +80,6 @@ void UGRInventoryWidget::UpdateInventoryDisplay(const TArray<FGRItemHandle>& Ite
 	}
 }
 
-void UGRInventoryWidget::Active()
-{
-	APlayerController* PC = GetOwningPlayer();
-	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
-	TArray<FGRItemHandle>& Items = PS->GetItemHandles();
-	UpdateInventoryDisplay(Items);
-	UE_LOG(LogTemp, Display, TEXT("실행됨"));
-}
-
 void UGRInventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -85,11 +96,11 @@ void UGRInventoryWidget::NativeConstruct()
 
 				int32 Index = AllItemSlots.Num() - 1;
 				ItemSlot->SetSlotIndex(Index);
-				UE_LOG(LogTemp, Display, TEXT("아이템 이름: %d"),Index);
+				UE_LOG(LogTemp, Display, TEXT("아이템 번호: %d"),Index);
 
 				ItemSlot->OnSlotRightClicked.AddDynamic(this, &ThisClass::HandleSlotRightClick);
 
-				UE_LOG(LogTemp, Warning, TEXT("슬롯 %d 에 RightClick 델리게이트 바인딩 성공."), ItemSlot->SlotIndex);
+				UE_LOG(LogTemp, Warning, TEXT("슬롯 번호 %d 에 RightClick 델리게이트 바인딩 성공."), ItemSlot->SlotIndex);
 			}
 		}
 	}
@@ -101,7 +112,6 @@ void UGRInventoryWidget::NativeDestruct()
 	{
 		if (ItemSlot)
 		{
-			// ItemSlot의 델리게이트에서 나 자신(this)의 바인딩을 제거
 			ItemSlot->OnSlotRightClicked.RemoveDynamic(this, &ThisClass::HandleSlotRightClick);
 		}
 	}
@@ -111,5 +121,12 @@ void UGRInventoryWidget::NativeDestruct()
 
 void UGRInventoryWidget::HandleSlotRightClick(int32 ClickedSlotIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("슬롯 인덱스 %d 에서 우클릭 핸들 발생 ---!"), ClickedSlotIndex);
+	APlayerController* PC = GetOwningPlayer();
+	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	if (PS)
+	{
+		PS->UnequipItem(ClickedSlotIndex);
+		UpdateInventoryDisplay();
+	}
+	UE_LOG(LogTemp, Warning, TEXT("슬롯 인덱스 %d 에서 우클릭!"), ClickedSlotIndex);
 }

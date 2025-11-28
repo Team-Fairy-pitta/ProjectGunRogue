@@ -19,10 +19,7 @@ class GUNROGUE_API UGRInventoryWidget : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable, Category = " Inventroy")
-	void UpdateInventoryDisplay(const TArray<FGRItemHandle>& ItemHandles);
-
-	UFUNCTION(BlueprintCallable)
-	void Active();
+	void UpdateInventoryDisplay();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
