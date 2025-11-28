@@ -87,27 +87,31 @@ void UGRWeaponUpgrade::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (UpgradeButton)
-	{
-		UpgradeButton->OnClicked.AddDynamic(this, &UGRWeaponUpgrade::UpGrade);
-	}
-	if (RerollButton)
-	{
-		RerollButton->OnClicked.AddDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
-	}
-
-	if(SlotNumber == -1)
+	if (SlotNumber == -1)
 	{
 		BlindWeapon(true);
 		UE_LOG(LogTemp, Error, TEXT("SlotNumber is invalid"));
 		return;
 	}
 
+	if (UpgradeButton)
+	{
+		UpgradeButton->OnClicked.AddUniqueDynamic(this, &UGRWeaponUpgrade::UpGrade);
+	}
+
+	if (RerollButton)
+	{
+		RerollButton->OnClicked.AddUniqueDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
+	}
+
 	SettingWeapon();
 
 	if (AGRPlayerState* GRPS = GetOwningPlayerState<AGRPlayerState>())
 	{
-		GRPS->OnWeaponDataUpdata.AddUObject(this, &UGRWeaponUpgrade::SettingWeapon);
+		if (!WeaponDataUpdateHandle.IsValid())
+		{
+			WeaponDataUpdateHandle = GRPS->OnWeaponDataUpdata.AddUObject(this, &UGRWeaponUpgrade::SettingWeapon);
+		}
 	}
 
 }
@@ -118,9 +122,19 @@ void UGRWeaponUpgrade::NativeDestruct()
 	{
 		UpgradeButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::UpGrade);
 	}
+
 	if (RerollButton)
 	{
 		RerollButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
+	}
+
+	if (AGRPlayerState* GRPS = GetOwningPlayerState<AGRPlayerState>())
+	{
+		if (WeaponDataUpdateHandle.IsValid())
+		{
+			GRPS->OnWeaponDataUpdata.Remove(WeaponDataUpdateHandle);
+			WeaponDataUpdateHandle.Reset();
+		}
 	}
 
 	Super::NativeDestruct();

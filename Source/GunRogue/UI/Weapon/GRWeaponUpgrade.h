@@ -106,4 +106,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UBorder* BlindBorder;
 
+private:
+	FDelegateHandle WeaponDataUpdateHandle;
 };
