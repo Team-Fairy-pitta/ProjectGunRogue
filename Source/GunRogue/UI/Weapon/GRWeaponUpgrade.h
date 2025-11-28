@@ -10,6 +10,8 @@ class UTextBlock;
 class UImage;
 class AGRPlayerState;
 class UBorder;
+class UScrollBox;
+class UGROptionSlot;
 
 
 UCLASS()
@@ -23,10 +25,10 @@ protected:
 
 public:
 	UFUNCTION()
-	void Init(int32 GetSlotNumber);
+	void Init(int32 InWeaponSlotIndex);
 
 	UFUNCTION()
-	void BlindWeapon(bool bBlind);
+	void BlindWeapon(bool bInBlind);
 
 	UFUNCTION()
 	void SettingWeapon();
@@ -35,40 +37,37 @@ public:
 	void UpGrade();
 
 	UFUNCTION()
-	void AllRerollOption();
+	void RerollOption();
 
 private:
 	UFUNCTION()
-	void WeaponNameUpdate(FText WeaponName);
+	void WeaponNameUpdate(FText InWeaponName);
 
 	UFUNCTION()
-	void WeaponImageUpdate(UTexture2D* Image);
+	void WeaponImageUpdate(UTexture2D* InWeaponImage);
 
 	UFUNCTION()
-	void WeaponLevelUpdate(int32 Level);
+	void WeaponLevelUpdate(int32 InWeaponLevel);
 
 	UFUNCTION()
-	void WeaponDamageUpdate(float Damage);
+	void WeaponDamageUpdate(float InWeaponDamage);
 
 	UFUNCTION()
-	void WeaponWeakpointUpdate(float Weakpoint);
+	void WeaponWeakpointUpdate(float InWeakpoint);
 
 	UFUNCTION()
-	void WeaponLaunchspeedUpdate(float Launchspeed);
+	void WeaponLaunchspeedUpdate(float InWeaponLaunchspeed);
 
 	UFUNCTION()
-	void WeaponMagazineUpdate(float Magazine);
+	void WeaponMagazineUpdate(float InWeaponMagazine);
 
 	UFUNCTION()
-	void WeaponExplainUpdate(FText WeaponExplain);
+	void WeaponExplainUpdate(FText InWeaponExplain);
 
-	/*UFUNCTION()
-	void WeaponOptionUpdate();*/
+	void OnOptionSelected(int32 InOptionSlotIndex);
 
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot")
-	int32 SlotNumber = 0;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* UpgradeButton;
@@ -100,12 +99,21 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponExplainText;
 
-	//UPROPERTY(meta = (BindWidget))
-	//TArray<UTextBlock> WeaponOptionListText;
-
 	UPROPERTY(meta = (BindWidget))
 	UBorder* BlindBorder;
 
+	UPROPERTY(meta = (BindWidget))
+	UScrollBox* OptionList;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UGROptionSlot> OptionSlotClass;
+
 private:
 	FDelegateHandle WeaponDataUpdateHandle;
+
+	int32 WeaponSlotIndex = 0;
+
+	int32 OptionSlotIndex = 0;
+
+	TArray<UGROptionSlot*> OptionWidgets;
 };

@@ -128,10 +128,16 @@ public:
 	void OnRep_WeaponDataUpdata();
 
 	UFUNCTION()
-	void AllRerollOptionWeapon(int32 SlotIndex);
+	void AllRerollOptionWeapon(int32 InWeaponSlotIndex);
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_AllRerollOptionWeapon(int32 SlotIndex);
+	void ServerRPC_AllRerollOptionWeapon(int32 InWeaponSlotIndex);
+
+	UFUNCTION()
+	void RerollOptionWeapon(int32 InWeaponSlotIndex, int32 InOptionSlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_RerollOptionWeapon(int32 InWeaponSlotIndex, int32 InOptionSlotIndex);
 
 	FOnWeaponDataUpdata OnWeaponDataUpdata;
 

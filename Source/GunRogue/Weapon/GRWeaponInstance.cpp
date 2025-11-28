@@ -184,6 +184,34 @@ FWeaponOption FGRWeaponInstance::RandomOption() const
 	return NewOption;
 }
 
+void FGRWeaponInstance::RerollOption(int32 OptionSlotIndex)
+{
+	if (!WeaponDefinition || !WeaponDefinition->OptionPool)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponData, WeaponData->OptionPool이 없음"));
+		return;
+	}
+
+	if (CachedASC->GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
+	if (!Options.IsValidIndex(OptionSlotIndex))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invalid OptionSlotIndex: %d"), OptionSlotIndex);
+		return;
+	}
+
+	FWeaponOption NewOption = RandomOption();
+	if (NewOption.EffectClass)
+	{
+		Options[OptionSlotIndex] = NewOption;
+		ClearEffects();
+		ApplyAllEffects();
+	}
+}
+
 void FGRWeaponInstance::AllRerollOption()
 {
 	if (!WeaponDefinition || !WeaponDefinition->OptionPool)

@@ -51,6 +51,8 @@ public:
 
 	FWeaponOption RandomOption() const;
 
+	void RerollOption(int32 OptionSlotIndex);
+
 	void AllRerollOption();
 
 	int32 GetLevel() const { return UpgradeLevel; };

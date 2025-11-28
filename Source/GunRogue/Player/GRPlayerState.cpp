@@ -711,25 +711,64 @@ void AGRPlayerState::UpgradeWeapon(int32 SlotIndex)
 	ServerRPC_UpgradeWeapon(SlotIndex);
 }
 
-void AGRPlayerState::AllRerollOptionWeapon(int32 SlotIndex)
+void AGRPlayerState::AllRerollOptionWeapon(int32 InWeaponSlotIndex)
 {
-	ServerRPC_AllRerollOptionWeapon(SlotIndex);
+	ServerRPC_AllRerollOptionWeapon(InWeaponSlotIndex);
 }
 
-void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 SlotIndex)
+void AGRPlayerState::RerollOptionWeapon(int32 InWeaponSlotIndex, int32 InOptionSlotIndex)
+{
+	ServerRPC_RerollOptionWeapon(InWeaponSlotIndex, InOptionSlotIndex);
+}
+
+void AGRPlayerState::ServerRPC_RerollOptionWeapon_Implementation(int32 InWeaponSlotIndex, int32 InOptionSlotIndex)
 {
 	if (!HasAuthority())
 	{
 		return;
 	}
 
-	if (!WeaponSlots.IsValidIndex(SlotIndex))
+	if (!WeaponSlots.IsValidIndex(InWeaponSlotIndex))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Invalid weapon slot index: %d"), SlotIndex);
+		UE_LOG(LogTemp, Error, TEXT("Invalid weapon slot index: %d"), InWeaponSlotIndex);
 		return;
 	}
 
-	FGRWeaponHandle& WeaponHandle = WeaponSlots[SlotIndex];
+	FGRWeaponHandle& WeaponHandle = WeaponSlots[InWeaponSlotIndex];
+
+	UGRWeaponDefinition* WeaponDefinition = WeaponHandle.GetWeaponDefinition();
+
+	if (!IsValid(WeaponDefinition))
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is INVALID"));
+		return;
+	}
+
+	FGRWeaponInstance* WeaponInstance = WeaponHandle.GetWeaponInstanceRef();
+
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return;
+	}
+
+	WeaponInstance->RerollOption(InOptionSlotIndex);
+}
+
+void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeaponSlotIndex)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!WeaponSlots.IsValidIndex(InWeaponSlotIndex))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid weapon slot index: %d"), InWeaponSlotIndex);
+		return;
+	}
+
+	FGRWeaponHandle& WeaponHandle = WeaponSlots[InWeaponSlotIndex];
 
 	UGRWeaponDefinition* WeaponDefinition = WeaponHandle.GetWeaponDefinition();
 

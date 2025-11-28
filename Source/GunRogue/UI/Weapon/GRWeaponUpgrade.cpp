@@ -7,19 +7,20 @@
 #include "Weapon/GRWeaponDefinition.h"
 #include "Components/Image.h"
 #include "Components/Border.h"
+#include "Components/ScrollBox.h"
 
-void UGRWeaponUpgrade::Init(int32 GetSlotNumber)
+void UGRWeaponUpgrade::Init(int32 InWeaponSlotIndex)
 {
-	SlotNumber = GetSlotNumber;
+	WeaponSlotIndex = InWeaponSlotIndex;
 }
 
-void UGRWeaponUpgrade::BlindWeapon(bool bBlind)
+void UGRWeaponUpgrade::BlindWeapon(bool bInBlind)
 {
 	if (!BlindBorder)
 	{
 		return;
 	}
-	if (bBlind)
+	if (bInBlind)
 	{
 		BlindBorder->SetVisibility(ESlateVisibility::Visible);
 	}
@@ -42,8 +43,8 @@ void UGRWeaponUpgrade::SettingWeapon()
 		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
 
-			const UGRWeaponDefinition* WeaponDefinition = GRPS->GetWeaponDefinitionInSlot(SlotNumber);
-			const FGRWeaponInstance* WeaponInstance = GRPS->GetWeaponInstanceInSlot(SlotNumber);
+			const UGRWeaponDefinition* WeaponDefinition = GRPS->GetWeaponDefinitionInSlot(WeaponSlotIndex);
+			const FGRWeaponInstance* WeaponInstance = GRPS->GetWeaponInstanceInSlot(WeaponSlotIndex);
 
 			if (!WeaponDefinition)
 			{
@@ -87,10 +88,10 @@ void UGRWeaponUpgrade::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (SlotNumber == -1)
+	if (WeaponSlotIndex == -1)
 	{
 		BlindWeapon(true);
-		UE_LOG(LogTemp, Error, TEXT("SlotNumber is invalid"));
+		UE_LOG(LogTemp, Error, TEXT("WeaponSlotIndex is invalid"));
 		return;
 	}
 
@@ -101,7 +102,7 @@ void UGRWeaponUpgrade::NativeConstruct()
 
 	if (RerollButton)
 	{
-		RerollButton->OnClicked.AddUniqueDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
+		RerollButton->OnClicked.AddUniqueDynamic(this, &UGRWeaponUpgrade::RerollOption);
 	}
 
 	SettingWeapon();
@@ -125,7 +126,7 @@ void UGRWeaponUpgrade::NativeDestruct()
 
 	if (RerollButton)
 	{
-		RerollButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
+		RerollButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::RerollOption);
 	}
 
 	if (AGRPlayerState* GRPS = GetOwningPlayerState<AGRPlayerState>())
@@ -151,14 +152,19 @@ void UGRWeaponUpgrade::UpGrade()
 	{
 		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
-			GRPS->UpgradeWeapon(SlotNumber);
+			GRPS->UpgradeWeapon(WeaponSlotIndex);
 		}
 	}
 }
 
-void UGRWeaponUpgrade::AllRerollOption()
+void UGRWeaponUpgrade::RerollOption()
 {
 	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (OptionSlotIndex == 0)
 	{
 		return;
 	}
@@ -167,33 +173,35 @@ void UGRWeaponUpgrade::AllRerollOption()
 	{
 		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
-			GRPS->AllRerollOptionWeapon(SlotNumber);
+			GRPS->RerollOptionWeapon(WeaponSlotIndex, OptionSlotIndex);
 		}
 	}
-	//WeaponOptionUpdate();
+
+	// 옵션 UI 갱신
+
 }
 
-void UGRWeaponUpgrade::WeaponNameUpdate(FText WeaponName)
+void UGRWeaponUpgrade::WeaponNameUpdate(FText InWeaponName)
 {
 	if (!WeaponNameText)
 	{
 		return;
 	}
 
-	WeaponNameText->SetText(WeaponName);
+	WeaponNameText->SetText(InWeaponName);
 }
 
-void UGRWeaponUpgrade::WeaponImageUpdate(UTexture2D* Image)
+void UGRWeaponUpgrade::WeaponImageUpdate(UTexture2D* InWeaponImage)
 {
 	if (!WeaponIconIamge)
 	{
 		return;
 	}
 
-	WeaponIconIamge->SetBrushFromTexture(Image);
+	WeaponIconIamge->SetBrushFromTexture(InWeaponImage);
 }
 
-void UGRWeaponUpgrade::WeaponLevelUpdate(int32 Level)
+void UGRWeaponUpgrade::WeaponLevelUpdate(int32 InWeaponLevel)
 {
 	if (!WeaponLevelText)
 	{
@@ -202,21 +210,21 @@ void UGRWeaponUpgrade::WeaponLevelUpdate(int32 Level)
 
 	WeaponLevelText->SetText(FText::Format(
 		FText::FromString(TEXT("+{0}")),
-		FText::AsNumber(Level)
+		FText::AsNumber(InWeaponLevel)
 	));
 }
 
-void UGRWeaponUpgrade::WeaponDamageUpdate(float Damage)
+void UGRWeaponUpgrade::WeaponDamageUpdate(float InWeaponDamage)
 {
 	if (!WeaponDamageText)
 	{
 		return;
 	}
 
-	WeaponDamageText->SetText(FText::AsNumber(Damage));
+	WeaponDamageText->SetText(FText::AsNumber(InWeaponDamage));
 }
 
-void UGRWeaponUpgrade::WeaponWeakpointUpdate(float Weakpoint)
+void UGRWeaponUpgrade::WeaponWeakpointUpdate(float InWeakpoint)
 {
 	if (!WeaponWeakpointText)
 	{
@@ -225,42 +233,45 @@ void UGRWeaponUpgrade::WeaponWeakpointUpdate(float Weakpoint)
 
 	WeaponWeakpointText->SetText(FText::Format(
 		FText::FromString(TEXT("{0}%")),
-		FText::AsNumber(Weakpoint)
+		FText::AsNumber(InWeakpoint)
 	));
 }
 
-void UGRWeaponUpgrade::WeaponLaunchspeedUpdate(float Launchspeed)
+void UGRWeaponUpgrade::WeaponLaunchspeedUpdate(float InWeaponLaunchspeed)
 {
 	if (!WeaponLaunchspeedText)
 	{
 		return;
 	}
 
-	WeaponLaunchspeedText->SetText(FText::AsNumber(Launchspeed));
+	WeaponLaunchspeedText->SetText(FText::AsNumber(InWeaponLaunchspeed));
 }
 
-void UGRWeaponUpgrade::WeaponMagazineUpdate(float Magazine)
+void UGRWeaponUpgrade::WeaponMagazineUpdate(float InWeaponMagazine)
 {
 	if (!WeaponMagazineText)
 	{
 		return;
 	}
 
-	WeaponMagazineText->SetText(FText::AsNumber(Magazine));
+	WeaponMagazineText->SetText(FText::AsNumber(InWeaponMagazine));
 }
 
-void UGRWeaponUpgrade::WeaponExplainUpdate(FText WeaponExplain)
+void UGRWeaponUpgrade::WeaponExplainUpdate(FText InWeaponExplain)
 {
 	if (!WeaponExplainText)
 	{
 		return;
 	}
 
-	WeaponExplainText->SetText(WeaponExplain);
+	WeaponExplainText->SetText(InWeaponExplain);
+}
+
+void UGRWeaponUpgrade::OnOptionSelected(int32 InOptionSlotIndex)
+{
+	OptionSlotIndex = InOptionSlotIndex;
 }
 
 
-//void UGRWeaponUpgrade::WeaponOptionUpdate()
-//{
-//}
+
 
