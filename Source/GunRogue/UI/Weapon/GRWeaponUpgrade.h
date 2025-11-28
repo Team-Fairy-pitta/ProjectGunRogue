@@ -39,6 +39,9 @@ public:
 	UFUNCTION()
 	void RerollOption();
 
+	UFUNCTION()
+	void AllRerollOption();
+
 private:
 	UFUNCTION()
 	void WeaponNameUpdate(FText InWeaponName);

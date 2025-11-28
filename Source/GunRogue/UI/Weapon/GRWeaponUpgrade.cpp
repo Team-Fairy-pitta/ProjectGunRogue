@@ -102,7 +102,7 @@ void UGRWeaponUpgrade::NativeConstruct()
 
 	if (RerollButton)
 	{
-		RerollButton->OnClicked.AddUniqueDynamic(this, &UGRWeaponUpgrade::RerollOption);
+		RerollButton->OnClicked.AddUniqueDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
 	}
 
 	SettingWeapon();
@@ -126,7 +126,7 @@ void UGRWeaponUpgrade::NativeDestruct()
 
 	if (RerollButton)
 	{
-		RerollButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::RerollOption);
+		RerollButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
 	}
 
 	if (AGRPlayerState* GRPS = GetOwningPlayerState<AGRPlayerState>())
@@ -174,6 +174,27 @@ void UGRWeaponUpgrade::RerollOption()
 		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
 			GRPS->RerollOptionWeapon(WeaponSlotIndex, OptionSlotIndex);
+		}
+	}
+
+	// 옵션 UI 갱신
+
+}
+
+void UGRWeaponUpgrade::AllRerollOption()
+{
+	UE_LOG(LogTemp, Warning, TEXT("sd"));
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (APlayerController* PC = GetOwningPlayer())
+	{
+		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
+		{
+			GRPS->AllRerollOptionWeapon(WeaponSlotIndex);
 		}
 	}
 
@@ -271,7 +292,3 @@ void UGRWeaponUpgrade::OnOptionSelected(int32 InOptionSlotIndex)
 {
 	OptionSlotIndex = InOptionSlotIndex;
 }
-
-
-
-
