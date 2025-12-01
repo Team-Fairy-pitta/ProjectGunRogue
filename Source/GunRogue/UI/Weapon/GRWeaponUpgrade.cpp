@@ -109,6 +109,8 @@ void UGRWeaponUpgrade::NativeConstruct()
 		}
 	}
 
+	CurrentOptionSlotIndex = -1;
+	WeaponOptionUpdate();
 }
 
 void UGRWeaponUpgrade::NativeDestruct()
