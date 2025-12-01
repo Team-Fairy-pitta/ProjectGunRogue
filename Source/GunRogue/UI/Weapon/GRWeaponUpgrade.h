@@ -114,10 +114,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UGROptionSlot> OptionSlotClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot")
+	int32 WeaponSlotIndex = 0;
+
 private:
 	FDelegateHandle WeaponDataUpdateHandle;
 
-	int32 WeaponSlotIndex = 0;
+	
 
 	int32 OptionSlotIndex = -1;
 

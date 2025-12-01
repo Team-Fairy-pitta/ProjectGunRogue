@@ -19,6 +19,7 @@ class GUNROGUE_API UGROptionSlot : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	void SetSelected(bool bSelected);
 

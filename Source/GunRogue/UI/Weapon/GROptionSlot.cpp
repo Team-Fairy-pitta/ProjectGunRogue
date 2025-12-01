@@ -13,8 +13,18 @@ void UGROptionSlot::NativeConstruct()
 
 	if (SelectButton)
 	{
-		SelectButton->OnClicked.AddDynamic(this, &ThisClass::HandleClick);
+		SelectButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleClick);
 	}
+}
+
+void UGROptionSlot::NativeDestruct()
+{
+	if (SelectButton)
+	{
+		SelectButton->OnClicked.RemoveDynamic(this, &ThisClass::HandleClick);
+	}
+
+	Super::NativeDestruct();
 }
 
 void UGROptionSlot::HandleClick()
