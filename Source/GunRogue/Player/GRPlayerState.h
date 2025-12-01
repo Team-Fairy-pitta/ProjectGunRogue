@@ -115,6 +115,8 @@ public:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPC_PlayWeaponEquipAnimMontage();
+  
+	TArray<FGRItemHandle>& GetItemHandles() { return ItemHandles; }
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item|Class")
