@@ -20,14 +20,23 @@ AGRCharacter::AGRCharacter()
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->SetupAttachment(RootComponent);
 	SpringArmComponent->bUsePawnControlRotation = true;
+	SpringArmComponent->SetRelativeLocation(ThirdPerson_CameraArmLocation);
+	SpringArmComponent->TargetArmLength = ThirdPerson_CameraArmLength;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	LastControllerRotation = FQuat::Identity;
+	TargetCameraRotation = FQuat::Identity;
 }
 
 void AGRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	SetLastControllerRotation();
+	SetThirdPersonViewSmooth();
+	bIsCameraAttachedToHead = false;
 }
 
 void AGRCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -43,6 +52,14 @@ void AGRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	{
 		InputHandleComponent->SetupPlayerInputComponent(PlayerInputComponent);
 	}
+}
+
+void AGRCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	ApplySmoothCameraControl_Rotation(DeltaTime);
+	ApplySmoothCameraControl_CameraArm(DeltaTime);
 }
 
 AGRPlayerController* AGRCharacter::GetGRPlayerController() const

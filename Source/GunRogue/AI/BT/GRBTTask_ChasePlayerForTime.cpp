@@ -3,7 +3,7 @@
 
 #include "AI/BT/GRBTTask_ChasePlayerForTime.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "AI/GRBossLuwoAIController.h"
+#include "AI/Controller/GRBossLuwoAIController.h"
 #include "Navigation/PathFollowingComponent.h"
 
 UGRBTTask_ChasePlayerForTime::UGRBTTask_ChasePlayerForTime()

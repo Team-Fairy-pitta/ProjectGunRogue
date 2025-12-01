@@ -48,11 +48,33 @@ AGRItemActor::AGRItemActor()
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	
 	SetRootComponent(StaticMeshComponent);
 
+	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
+	SetRootComponent(SceneRoot);
+
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	StaticMeshComponent->SetupAttachment(SceneRoot);
+
+	FTransform MeshTransform;
+	MeshTransform.SetLocation(FVector(43.0f, 0.0f, 40.3f)); /* 아이템 Mesh 의 크기를 이용해 구한 상수값 */
+	MeshTransform.SetRotation(FQuat::MakeFromRotator(FRotator(30.0f, 0, 0)));
+	StaticMeshComponent->SetWorldTransform(MeshTransform);
+
+	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
+	SphereMesh->SetupAttachment(StaticMeshComponent);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereAsset(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+	if (SphereAsset.Succeeded())
+	{
+		SphereMesh->SetStaticMesh(SphereAsset.Object);
+		SphereMesh->SetRelativeLocation(FVector(0.0f, 0.0f, 35.0f));
+		SphereMesh->SetWorldScale3D(FVector(0.9f));
+	}
+
 	ItemInfoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("ItemInfoWidgetComponent"));
-	ItemInfoWidgetComponent->SetupAttachment(StaticMeshComponent);
+	ItemInfoWidgetComponent->SetupAttachment(SceneRoot);
 	ItemInfoWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	ItemInfoWidgetComponent->SetVisibility(false);
 	ItemInfoWidgetComponent->SetDrawSize(FVector2D(400, 300)); // Desired Size of UGRItemInfoWidget
@@ -83,17 +105,13 @@ void AGRItemActor::BeginPlay()
 
 	if (IsValid(ItemInfoWidgetComponent))
 	{
-		// TODO: 이 방법보다 좋은 방법은 없을까?
-		UClass* WidgetClass = LoadClass<UGRItemInfoWidget>(
-			nullptr, TEXT("/Game/GunRogue/Blueprints/Item/WBP_ItemInfoWidget.WBP_ItemInfoWidget_C"));
-
-		if (WidgetClass)
+		if (ItemInfoWidgetClass)
 		{
-			ItemInfoWidgetComponent->SetWidgetClass(WidgetClass);
+			ItemInfoWidgetComponent->SetWidgetClass(ItemInfoWidgetClass);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("Path of Blueprint Widget Class (UGRItemInfoWidget) is INVALID"));
+			UE_LOG(LogTemp, Error, TEXT("ItemInfoWidgetComponent is INVALID"));
 		}
 	}
 
@@ -123,9 +141,13 @@ bool AGRItemActor::IsNetRelevantFor(const AActor* RealViewer, const AActor* View
 	return DefaultNetRelevant;
 }
 
-void AGRItemActor::MulticastRPC_InitItem_Implementation(UGRItemDefinition* InItemDefinition)
+void AGRItemActor::MulticastRPC_InitItem_Implementation(UGRItemDefinition* InItemDefinition, EGRItemPlacement ItemPlacement)
 {
 	InitItem(InItemDefinition);
+	if (ItemPlacement == EGRItemPlacement::GROUND)
+	{
+		PlaceActorOnGround();
+	}
 }
 
 void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
@@ -138,7 +160,19 @@ void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
 		return;
 	}
 
-	if (StaticMeshComponent && ItemDefinition)
+	if (!StaticMeshComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("StaticMeshComponent is INVALID"));
+		return;
+	}
+
+	if (!SphereMesh)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SphereMesh is INVALID"));
+		return;
+	}
+
+	if (ItemDefinition)
 	{
 		StaticMeshComponent->SetStaticMesh(ItemDefinition->ItemMesh);
 	}
@@ -154,6 +188,22 @@ void AGRItemActor::InitItem(UGRItemDefinition* InItemDefinition)
 			const FText& ItemDescription = ItemDefinition->ItemDescription;
 			ItemInfoWidget->InitItemInfo(ItemIcon, ItemName, ItemDescription);
 		}
+	}
+
+	switch (ItemDefinition->Rarity)
+	{
+	case EItemRarity::NORMAL:
+		SphereMesh->SetMaterial(0, RarityMaterial_Normal);
+		break;
+	case EItemRarity::RARE:
+		SphereMesh->SetMaterial(0, RarityMaterial_Rare);
+		break;
+	case EItemRarity::EPIC:
+		SphereMesh->SetMaterial(0, RarityMaterial_Epic);
+		break;
+	default:
+		SphereMesh->SetVisibility(false);
+		break;
 	}
 }
 
@@ -248,4 +298,33 @@ bool AGRItemActor::CanInteract(AActor* OtherActor)
 		}
 	}
 	return false;
+}
+
+void AGRItemActor::PlaceActorOnGround()
+{
+	FVector NewLocation = GetGroundPointUsingLineTrace();
+	this->SetActorLocation(NewLocation);
+}
+
+FVector AGRItemActor::GetGroundPointUsingLineTrace()
+{
+	if (!GetWorld())
+	{
+		return this->GetActorLocation();
+	}
+
+	static const FVector FallDirection = FVector(0, 0, -1.0f);
+	static const float CheckDistance = 1000.0f;
+	FVector Start = this->GetActorLocation();
+	FVector Result = Start;
+	FVector End = Start + FallDirection * (CheckDistance);
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+	{
+		Result.Z = HitResult.ImpactPoint.Z;
+	}
+
+	return Result;
 }

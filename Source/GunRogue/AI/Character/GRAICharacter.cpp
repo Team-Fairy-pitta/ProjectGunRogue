@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/GRAICharacter.h"
-#include "GameFramework/CharacterMovementComponent.h" 
+#include "AI/Character/GRAICharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "AbilitySystemComponent.h"
 
 AGRAICharacter::AGRAICharacter()
 {
@@ -24,13 +25,18 @@ AGRAICharacter::AGRAICharacter()
 	}
 	bUseControllerRotationYaw = false;
 
+	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
+}
+
+UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const
+{
+	return ASC;
 }
 
 
 void AGRAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 

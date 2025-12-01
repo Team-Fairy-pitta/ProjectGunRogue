@@ -116,7 +116,10 @@ public:
 	TArray<FGRItemHandle>& GetItemHandles() { return ItemHandles; }
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "ITPlayerState|AbilitySystemComponent")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item|Class")
+	TSubclassOf<AGRItemActor> ItemActorClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "GRPlayerState|AbilitySystemComponent")
 	TObjectPtr<UGRAbilitySystemComponent> AbilitySystemComponent;
 
 	FGRAbilitySet_GrantedHandles GrantedHandles;
