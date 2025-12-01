@@ -67,6 +67,9 @@ private:
 	UFUNCTION()
 	void WeaponExplainUpdate(FText InWeaponExplain);
 
+	UFUNCTION()
+	void WeaponOptionUpdate();
+
 	void OnOptionSelected(int32 InOptionSlotIndex);
 
 
@@ -116,7 +119,7 @@ private:
 
 	int32 WeaponSlotIndex = 0;
 
-	int32 OptionSlotIndex = 0;
+	int32 OptionSlotIndex = -1;
 
 	TArray<UGROptionSlot*> OptionWidgets;
 };

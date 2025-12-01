@@ -2,6 +2,10 @@
 
 #include "Components/Button.h"
 #include "Components/Border.h"
+#include "Components/TextBlock.h"
+#include "AbilitySystem/GRGameplayEffect.h"
+#include "Weapon/GRWeaponInstance.h"
+
 
 void UGROptionSlot::NativeConstruct()
 {
@@ -18,7 +22,26 @@ void UGROptionSlot::HandleClick()
 	OnOptionClicked.ExecuteIfBound(OptionSlotIndex);
 }
 
+void UGROptionSlot::InitSlot(int32 InSlotIndex, const FWeaponOption& InOptionData)
+{
+	OptionSlotIndex = InSlotIndex;
+
+	if (InOptionData.EffectClass)
+	{
+		const UGRGameplayEffect* GRGE = InOptionData.EffectClass->GetDefaultObject<UGRGameplayEffect>();
+		if (GRGE)
+		{
+			FText Desc = GRGE->EffectDescription;
+
+			OptionText->SetText(Desc); 
+		}
+	}
+}
+
 void UGROptionSlot::SetSelected(bool bSelected)
 {
-	SelectBorder->SetBrushColor(bSelected ? FLinearColor::Yellow : FLinearColor::Black);
+	if (SelectBorder)
+	{
+		SelectBorder->SetBrushColor(bSelected ? FLinearColor::Yellow : FLinearColor::Black);
+	}
 }

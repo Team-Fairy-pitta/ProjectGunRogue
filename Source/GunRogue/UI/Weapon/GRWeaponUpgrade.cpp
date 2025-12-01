@@ -8,6 +8,7 @@
 #include "Components/Image.h"
 #include "Components/Border.h"
 #include "Components/ScrollBox.h"
+#include "UI/Weapon/GROptionSlot.h"
 
 void UGRWeaponUpgrade::Init(int32 InWeaponSlotIndex)
 {
@@ -79,7 +80,7 @@ void UGRWeaponUpgrade::SettingWeapon()
 			WeaponLaunchspeedUpdate(WeaponLaunchspeed);
 			WeaponMagazineUpdate(WeaponMagazine);
 			WeaponExplainUpdate(WeaponExplain);
-			//WeaponOptionUpdate();
+			WeaponOptionUpdate();
 		}
 	}
 }
@@ -102,7 +103,7 @@ void UGRWeaponUpgrade::NativeConstruct()
 
 	if (RerollButton)
 	{
-		RerollButton->OnClicked.AddUniqueDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
+		RerollButton->OnClicked.AddUniqueDynamic(this, &UGRWeaponUpgrade::RerollOption);
 	}
 
 	SettingWeapon();
@@ -126,7 +127,7 @@ void UGRWeaponUpgrade::NativeDestruct()
 
 	if (RerollButton)
 	{
-		RerollButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::AllRerollOption);
+		RerollButton->OnClicked.RemoveDynamic(this, &UGRWeaponUpgrade::RerollOption);
 	}
 
 	if (AGRPlayerState* GRPS = GetOwningPlayerState<AGRPlayerState>())
@@ -159,12 +160,14 @@ void UGRWeaponUpgrade::UpGrade()
 
 void UGRWeaponUpgrade::RerollOption()
 {
+	UE_LOG(LogTemp, Warning, TEXT("RerollOption"));
+
 	if (!GetWorld())
 	{
 		return;
 	}
 
-	if (OptionSlotIndex == 0)
+	if (OptionSlotIndex == -1)
 	{
 		return;
 	}
@@ -177,13 +180,12 @@ void UGRWeaponUpgrade::RerollOption()
 		}
 	}
 
-	// 옵션 UI 갱신
-
+	WeaponOptionUpdate();
 }
 
 void UGRWeaponUpgrade::AllRerollOption()
 {
-	UE_LOG(LogTemp, Warning, TEXT("sd"));
+	UE_LOG(LogTemp, Warning, TEXT("AllRerollOption"));
 
 	if (!GetWorld())
 	{
@@ -198,7 +200,7 @@ void UGRWeaponUpgrade::AllRerollOption()
 		}
 	}
 
-	// 옵션 UI 갱신
+	WeaponOptionUpdate();
 
 }
 
@@ -286,6 +288,42 @@ void UGRWeaponUpgrade::WeaponExplainUpdate(FText InWeaponExplain)
 	}
 
 	WeaponExplainText->SetText(InWeaponExplain);
+}
+
+void UGRWeaponUpgrade::WeaponOptionUpdate()
+{
+	if (!GetWorld() || !OptionSlotClass)
+	{
+		return;
+	}
+
+	OptionWidgets.Empty();
+	OptionList->ClearChildren();
+
+	AGRPlayerState* GRPS = GetOwningPlayerState<AGRPlayerState>();
+	if (!GRPS)
+	{
+		return;
+	}
+
+	const FGRWeaponInstance* WeaponInstance = GRPS->GetWeaponInstanceInSlot(WeaponSlotIndex);
+	if (!WeaponInstance)
+	{
+		return;
+	}
+
+	const TArray<FWeaponOption>& Options = WeaponInstance->Options;  
+
+	for (int32 i = 0; i < Options.Num(); i++)
+	{
+		UGROptionSlot* Entry = CreateWidget<UGROptionSlot>(GetWorld(), OptionSlotClass);
+
+		Entry->InitSlot(i, Options[i]);
+		Entry->OnOptionClicked.BindUObject(this, &ThisClass::OnOptionSelected);
+
+		OptionList->AddChild(Entry);
+		OptionWidgets.Add(Entry);
+	}
 }
 
 void UGRWeaponUpgrade::OnOptionSelected(int32 InOptionSlotIndex)

@@ -8,6 +8,7 @@
 class UButton;
 class UBorder;
 class UTextBlock;
+struct FWeaponOption;
 
 DECLARE_DELEGATE_OneParam(FOnOptionClicked, int32);
 
@@ -23,6 +24,8 @@ public:
 
 	UFUNCTION()
 	void HandleClick();
+
+	void InitSlot(int32 InSlotIndex, const FWeaponOption& InOptionData);
 	
 public:
 	UPROPERTY(meta = (BindWidget))
