@@ -9,6 +9,93 @@
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
 
+void AGRBattlePlayerController::InitBattleHUD()
+{
+	AGRPlayerState* GRPlayerState = GetPlayerState<AGRPlayerState>();
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRPlayerState (AGRPlayerState) is INVALID"));
+		return;
+	}
+
+	UGRAbilitySystemComponent* ASC = GRPlayerState->GetGRAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ASC (UGRAbilitySystemComponent) is INVALID"));
+		return;
+	}
+
+	const UAttributeSet* AttributeSet = ASC->GetAttributeSet(UGRHealthAttributeSet::StaticClass());
+	const UGRHealthAttributeSet* HealthSet = Cast<UGRHealthAttributeSet>(AttributeSet);
+	if (!IsValid(HealthSet))
+	{
+		UE_LOG(LogTemp, Error, TEXT("HealthSet (UGRHealthAttributeSet) is INVALID"));
+		return;
+	}
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetHealthAttribute()).AddUObject(this, &ThisClass::OnHealthChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &ThisClass::OnMaxHealthChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetShieldAttribute()).AddUObject(this, &ThisClass::OnShieldChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetMaxShieldAttribute()).AddUObject(this, &ThisClass::OnMaxShieldChanged);
+
+
+	float Health = HealthSet->GetHealth();
+	float MaxHealth = HealthSet->GetMaxHealth();
+	float Shield = HealthSet->GetShield();
+	float MaxShield = HealthSet->GetMaxShield();
+
+	UpdatePlayerHealth(Health);
+	UpdatePlayerMaxHealth(MaxHealth);
+	UpdatePlayerShield(Shield);
+	UpdatePlayerMaxShield(MaxShield);
+
+	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
+}
+
+void AGRBattlePlayerController::ShowBattleHUD()
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance is INVALID"));
+		return;
+	}
+	if (!HUDWidgetInstance->IsInViewport())
+	{
+		HUDWidgetInstance->AddToViewport();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
+}
+
+void AGRBattlePlayerController::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	UpdatePlayerHealth(Data.NewValue);
+}
+
+void AGRBattlePlayerController::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
+{
+	UpdatePlayerMaxHealth(Data.NewValue);
+}
+
+void AGRBattlePlayerController::OnShieldChanged(const FOnAttributeChangeData& Data)
+{
+	UpdatePlayerShield(Data.NewValue);
+}
+
+void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData& Data)
+{
+	UpdatePlayerMaxShield(Data.NewValue);
+}
+
 void AGRBattlePlayerController::UpdatePlayerHealth(float Value)
 {
 	if (!HUDWidgetInstance)

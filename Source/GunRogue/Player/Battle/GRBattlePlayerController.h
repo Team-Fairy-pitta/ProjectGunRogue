@@ -18,6 +18,13 @@ public:
 	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void OnRep_PlayerState() override;
 
+private:
+	void CreateWidgets();
+	void InitUISetup();
+
+/* Head Up Display 관련 코드 */
+#pragma region HUD
+public:
 	// Duration이 있는 (무제한 포함) Effect가 추가 되었을 때 호출됨 (Instance는 호출되지 않음)
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnActiveGameplayEffectAdded(TSubclassOf<UGameplayEffect> EffectClass);
@@ -39,9 +46,7 @@ protected:
 	void ShowBattleHUD();
 
 private:
-	void CreateWidgets();
 	void InitBattleHUD();
-	void InitUISetup();
 
 	void UpdatePlayerHealth(float Value);
 	void UpdatePlayerMaxHealth(float Value);
@@ -54,4 +59,6 @@ private:
 	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
 	void OnShieldChanged(const FOnAttributeChangeData& Data);
 	void OnMaxShieldChanged(const FOnAttributeChangeData& Data);
+
+#pragma endregion HUD
 };
