@@ -113,6 +113,9 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SwitchWeapon(int32 SlotIndex);
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPC_PlayWeaponEquipAnimMontage();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item|Class")
 	TSubclassOf<AGRItemActor> ItemActorClass;

@@ -303,6 +303,9 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 		WeaponActor->Destroy();
 	}
 
+	// 무기 장착 애님 몽타주 재생
+	MulticastRPC_PlayWeaponEquipAnimMontage();
+
 	UE_LOG(LogTemp, Display, TEXT("Player equipped weapon: %s in slot %d, Current active slot: %d"),
 		*WeaponDefinition->WeaponName.ToString(), EmptySlot, CurrentWeaponSlot);
 }
@@ -358,6 +361,9 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 	// 플레이어 앞에 무기 스폰
 	DropWeaponAtPlayerFront(DroppedWeaponDef);
 
+	// 무기 장착 애님 몽타주 재생 (무기를 drop하고, 다른 무기로 교체하는 경우에 재생됨)
+	MulticastRPC_PlayWeaponEquipAnimMontage();
+
 	UE_LOG(LogTemp, Display, TEXT("Player dropped weapon from slot %d"), SlotIndex);
 }
 
@@ -406,6 +412,9 @@ void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
 		UE_LOG(LogTemp, Display, TEXT("Switched to weapon: %s in slot %d"),
 			*WeaponDef->WeaponName.ToString(), SlotIndex);
 	}
+
+	// 다른 무기로 교체할 때도 Equip 애니메이션을 재생해야 함
+	MulticastRPC_PlayWeaponEquipAnimMontage();
 }
 
 int32 AGRPlayerState::FindEmptyWeaponSlot() const
@@ -486,6 +495,29 @@ void AGRPlayerState::SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition
 		WeaponActor->InitWeapon(WeaponDefinition);
 		WeaponActor->MulticastRPC_InitWeapon(WeaponDefinition);
 	}
+}
+
+void AGRPlayerState::MulticastRPC_PlayWeaponEquipAnimMontage_Implementation()
+{
+	UGRWeaponDefinition* Definition = GetCurrentWeaponDefinition();
+	if (!Definition)
+	{
+		return;
+	}
+
+	UAnimMontage* EquipAnimMontage = Definition->EquipAnimMontage;
+	if (!EquipAnimMontage)
+	{
+		return;
+	}
+
+	AGRCharacter* GRCharacter = GetGRCharacter();
+	if (!GRCharacter)
+	{
+		return;
+	}
+
+	GRCharacter->PlayAnimMontage(EquipAnimMontage);
 }
 
 void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)
