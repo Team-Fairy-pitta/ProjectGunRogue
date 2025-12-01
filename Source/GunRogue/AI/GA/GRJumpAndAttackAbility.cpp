@@ -21,7 +21,10 @@ void UGRJumpAndAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle H
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	JumpToTargetLocation();
+	if (ActorInfo->AvatarActor.Get()->HasAuthority())
+	{
+		JumpToTargetLocation();
+	}
 }
 
 void UGRJumpAndAttackAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -45,8 +48,16 @@ void UGRJumpAndAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
 	Super::OnAttackTriggerNotify(Payload);
 	
 	AActor* Instigator = GetAvatarActorFromActorInfo();
-	if (!Instigator) return;
+	if (!Instigator)
+	{
+		return;
+	}
 
+	if (!Instigator->HasAuthority())
+	{
+		return;
+	}
+	
 	FVector Origin = Instigator->GetActorLocation();
 	const float Radius = 500.f;
 	TArray<FOverlapResult> Overlaps;

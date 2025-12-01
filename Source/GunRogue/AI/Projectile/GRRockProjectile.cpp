@@ -2,7 +2,6 @@
 
 
 #include "GRRockProjectile.h"
-
 #include "AI/Character/GRLuwoAICharacter.h"
 #include "Components/SphereComponent.h"
 #include "Engine/OverlapResult.h"
@@ -15,12 +14,16 @@ AGRRockProjectile::AGRRockProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	bReplicates = true;
+	SetReplicateMovement(true);
+	
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("AIProjectile"));
 	CollisionComponent->SetSimulatePhysics(false);
 	CollisionComponent->SetNotifyRigidBodyCollision(true);
+	CollisionComponent->SetIsReplicated(true);
 	RootComponent = CollisionComponent;
-	
+
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetupAttachment(RootComponent);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -29,15 +32,23 @@ AGRRockProjectile::AGRRockProjectile()
 void AGRRockProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (CollisionComponent)
+
+	if (HasAuthority())
 	{
-		CollisionComponent->OnComponentHit.AddDynamic(this, &AGRRockProjectile::OnHit);
+		if (CollisionComponent)
+		{
+			CollisionComponent->OnComponentHit.AddDynamic(this, &AGRRockProjectile::OnHit);
+		}
 	}
 }
 
 void AGRRockProjectile::Throw(const FVector& LaunchVelocity)
 {
+	if(!HasAuthority())
+	{
+		return;
+	}
+	
 	if (CollisionComponent)
 	{
 		CollisionComponent->SetSimulatePhysics(true);
@@ -48,6 +59,11 @@ void AGRRockProjectile::Throw(const FVector& LaunchVelocity)
 void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if(!HasAuthority())
+	{
+		return;
+	}
+
 	if (!OtherActor || OtherActor == this)
 	{
 		return;

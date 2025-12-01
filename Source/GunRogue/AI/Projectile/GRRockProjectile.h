@@ -15,7 +15,7 @@ class GUNROGUE_API AGRRockProjectile : public AActor
 	
 public:
 	AGRRockProjectile();
-
+	
 	void Throw(const FVector& LaunchVelocity);
 	
 protected:

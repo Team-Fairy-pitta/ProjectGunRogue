@@ -24,19 +24,23 @@ void AGRLuwoAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (ASC)
+	if (HasAuthority())
 	{
-		ASC->InitAbilityActorInfo(this, this);
-		
-		for (auto& AbilityClass : AttackAbilityClassList)
+		if (ASC)
 		{
-			if (AbilityClass)
+			ASC->InitAbilityActorInfo(this, this);
+		
+			for (auto& AbilityClass : AttackAbilityClassList)
 			{
-				FGameplayAbilitySpec Spec(AbilityClass, /*Level*/1, /*InputID*/0, this);
-				ASC->GiveAbility(Spec);
+				if (AbilityClass)
+				{
+					FGameplayAbilitySpec Spec(AbilityClass, /*Level*/1, /*InputID*/0, this);
+					ASC->GiveAbility(Spec);
+				}
 			}
-		}
+		}	
 	}
+	
 }
 
 void AGRLuwoAICharacter::Landed(const FHitResult& Hit)

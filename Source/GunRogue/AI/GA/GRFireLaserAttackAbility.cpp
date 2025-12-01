@@ -18,9 +18,12 @@ void UGRFireLaserAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	SpawnProjectile();
-	PlayAttackMontageAndWaitTask();
-	WaitAttackGameplayEventTask();
+	if (ActorInfo->AvatarActor.Get()->HasAuthority())
+	{
+		SpawnProjectile();
+		PlayAttackMontageAndWaitTask();
+		WaitAttackGameplayEventTask();
+	}
 }
 
 void UGRFireLaserAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
@@ -57,6 +60,12 @@ void UGRFireLaserAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload
 
 	AActor* TargetActor = Cast<AActor>(BB->GetValueAsObject(AGRBossLuwoAIController::TargetPlayerKey));
 	if (!TargetActor)
+	{
+		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
+		return;
+	}
+
+	if (!Boss->HasAuthority())
 	{
 		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
 		return;

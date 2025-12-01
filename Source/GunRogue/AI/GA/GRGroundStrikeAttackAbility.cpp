@@ -17,8 +17,11 @@ void UGRGroundStrikeAttackAbility::ActivateAbility(const FGameplayAbilitySpecHan
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	PlayAttackMontageAndWaitTask();
-	WaitAttackGameplayEventTask();
+	if (ActorInfo->AvatarActor.Get()->HasAuthority())
+	{
+		PlayAttackMontageAndWaitTask();
+		WaitAttackGameplayEventTask();
+	}
 }
 
 void UGRGroundStrikeAttackAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -34,8 +37,16 @@ void UGRGroundStrikeAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payl
 	Super::OnAttackTriggerNotify(Payload);
 	
 	AActor* Instigator = GetAvatarActorFromActorInfo();
-	if (!Instigator) return;
+	if (!Instigator)
+	{
+		return;
+	}
 
+	if (!Instigator->HasAuthority())
+	{
+		return;
+	}
+	
 	FVector Origin = Instigator->GetActorLocation();
 	const float Radius = 500.f;
 	TArray<FOverlapResult> Overlaps;

@@ -16,7 +16,7 @@ class GUNROGUE_API AGRLaserProjectile : public AActor
 	
 public:	
 	AGRLaserProjectile();
-
+	
 	void Launch(const FVector& NormalizeDirection);
 
 protected:

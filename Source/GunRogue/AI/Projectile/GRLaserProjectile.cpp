@@ -15,6 +15,9 @@ AGRLaserProjectile::AGRLaserProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	bReplicates = true;
+	SetReplicateMovement(true);
+
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("AIProjectile"));
 	CollisionComponent->SetSimulatePhysics(false);
@@ -37,15 +40,23 @@ AGRLaserProjectile::AGRLaserProjectile()
 void AGRLaserProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (CollisionComponent)
+
+	if (HasAuthority())
 	{
-		CollisionComponent->OnComponentHit.AddDynamic(this, &AGRLaserProjectile::OnHit);
+		if (CollisionComponent)
+		{
+			CollisionComponent->OnComponentHit.AddDynamic(this, &AGRLaserProjectile::OnHit);
+		}
 	}
 }
 
 void AGRLaserProjectile::Launch(const FVector& NormalizeDirection)
 {
+	if(!HasAuthority())
+	{
+		return;
+	}
+	
 	if (CollisionComponent)
 	{
 		ProjectileMovement->Velocity = NormalizeDirection * Velocity;
@@ -56,6 +67,11 @@ void AGRLaserProjectile::Launch(const FVector& NormalizeDirection)
 void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                FVector NormalImpulse, const FHitResult& Hit)
 {
+	if(!HasAuthority())
+ 	{
+ 		return;
+ 	}
+
 	if (!OtherActor || OtherActor == this)
 	{
 		return;

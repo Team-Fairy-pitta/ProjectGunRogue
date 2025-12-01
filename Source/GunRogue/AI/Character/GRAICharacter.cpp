@@ -26,6 +26,13 @@ AGRAICharacter::AGRAICharacter()
 	bUseControllerRotationYaw = false;
 
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
+	ASC->SetIsReplicated(true);
+	ASC->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	SetNetUpdateFrequency(100.0f);
+
+	bReplicates = true;
+	SetReplicateMovement(true);
 }
 
 UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const

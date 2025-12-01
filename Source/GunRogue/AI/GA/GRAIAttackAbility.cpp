@@ -10,7 +10,6 @@ UGRAIAttackAbility::UGRAIAttackAbility()
 	,SavedSpecHandle(FGameplayAbilitySpecHandle())
 	,SavedActorInfo(nullptr)
 	,SavedActivationInfo(FGameplayAbilityActivationInfo())
-	,Projectile(nullptr)
 	,ProjectileClass(nullptr)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
@@ -76,6 +75,12 @@ void UGRAIAttackAbility::SpawnProjectile()
 		return;
 	}
 
+	if (!AvatarActor->HasAuthority())
+	{
+		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
+		return;
+	}
+	
 	USkeletalMeshComponent* MeshComp = Cast<USkeletalMeshComponent>(AvatarActor->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 	if (!MeshComp)
 	{

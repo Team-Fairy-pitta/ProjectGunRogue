@@ -19,9 +19,12 @@ void UGRBoulderTossAttackAbility::ActivateAbility(const FGameplayAbilitySpecHand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	SpawnProjectile();
-	PlayAttackMontageAndWaitTask();
-	WaitAttackGameplayEventTask();
+	if (ActorInfo->AvatarActor.Get()->HasAuthority())
+	{
+		SpawnProjectile();
+		PlayAttackMontageAndWaitTask();
+		WaitAttackGameplayEventTask();	
+	}
 }
 
 void UGRBoulderTossAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
@@ -63,6 +66,12 @@ void UGRBoulderTossAttackAbility::OnAttackTriggerNotify(FGameplayEventData Paylo
 		return;
 	}
 
+	if (!Boss->HasAuthority())
+	{
+		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
+		return;
+	}
+	
 	FVector StartLocation = RockProjectile->GetActorLocation();
 	FVector TargetLocation = TargetActor->GetActorLocation();
 
