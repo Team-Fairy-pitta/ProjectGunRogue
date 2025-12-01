@@ -118,9 +118,7 @@ public:
 	int32 WeaponSlotIndex = 0;
 
 private:
-	FDelegateHandle WeaponDataUpdateHandle;
-
-	
+	FDelegateHandle WeaponDataUpdateHandle;	
 
 	int32 OptionSlotIndex = -1;
 

@@ -1,7 +1,6 @@
 #include "UI/Weapon/GROptionSlot.h"
 
 #include "Components/Button.h"
-#include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "Weapon/GRWeaponInstance.h"
@@ -42,16 +41,18 @@ void UGROptionSlot::InitSlot(int32 InSlotIndex, const FWeaponOption& InOptionDat
 		if (GRGE)
 		{
 			FText Desc = GRGE->EffectDescription;
+			const float OptionValue = InOptionData.Value;
 
-			OptionText->SetText(Desc); 
+			FString Str = Desc.ToString();
+			Str = Str.Replace(TEXT("#"), *FString::Printf(TEXT("%.1f"), OptionValue));
+
+			OptionText->SetText(FText::Format(FText::FromString(TEXT("- {0}")),	FText::FromString(Str)));
 		}
 	}
 }
 
 void UGROptionSlot::SetSelected(bool bSelected)
 {
-	if (SelectBorder)
-	{
-		SelectBorder->SetBrushColor(bSelected ? FLinearColor::Yellow : FLinearColor::Black);
-	}
+	FLinearColor Color = bSelected ? FLinearColor::Red : FLinearColor::White;
+	OptionText->SetColorAndOpacity(Color);
 }

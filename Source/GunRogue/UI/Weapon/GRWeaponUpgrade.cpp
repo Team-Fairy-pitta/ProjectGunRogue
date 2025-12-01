@@ -89,13 +89,6 @@ void UGRWeaponUpgrade::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (WeaponSlotIndex == -1)
-	{
-		BlindWeapon(true);
-		UE_LOG(LogTemp, Error, TEXT("WeaponSlotIndex is invalid"));
-		return;
-	}
-
 	if (UpgradeButton)
 	{
 		UpgradeButton->OnClicked.AddUniqueDynamic(this, &UGRWeaponUpgrade::UpGrade);
@@ -323,10 +316,19 @@ void UGRWeaponUpgrade::WeaponOptionUpdate()
 
 		OptionList->AddChild(Entry);
 		OptionWidgets.Add(Entry);
+
+		bool bSelected = (i == OptionSlotIndex);
+		OptionWidgets[i]->SetSelected(bSelected);
 	}
 }
 
 void UGRWeaponUpgrade::OnOptionSelected(int32 InOptionSlotIndex)
 {
 	OptionSlotIndex = InOptionSlotIndex;
+
+	for (int32 i = 0; i < OptionWidgets.Num(); ++i)
+	{
+		bool bSelected = (i == OptionSlotIndex);
+		OptionWidgets[i]->SetSelected(bSelected);
+	}
 }

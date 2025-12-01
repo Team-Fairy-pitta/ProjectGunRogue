@@ -6,7 +6,6 @@
 
 
 class UButton;
-class UBorder;
 class UTextBlock;
 struct FWeaponOption;
 
@@ -31,9 +30,6 @@ public:
 public:
 	UPROPERTY(meta = (BindWidget))
 	UButton* SelectButton;
-
-	UPROPERTY(meta = (BindWidget))
-	UBorder* SelectBorder;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* OptionText;
