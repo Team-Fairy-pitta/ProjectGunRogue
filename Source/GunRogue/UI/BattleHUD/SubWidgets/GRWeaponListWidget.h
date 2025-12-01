@@ -17,9 +17,6 @@ class GUNROGUE_API UGRWeaponListWidget : public UUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRWeaponSlotWidget* ThirdWeapon;
-
-	UPROPERTY(meta = (BindWidget))
 	UGRWeaponSlotWidget* SecondWeapon;
 
 	UPROPERTY(meta = (BindWidget))
@@ -31,6 +28,11 @@ public:
 	void SetSelectedWeapon(int32 WeaponIndex);
 
 	void UpdateBulletCount(int32 WeaponIndex, int32 CurrentBullets, int32 MaxBullets);
+	void UpdateWeaponImage(int32 WeaponIndex, UTexture2D* WeaponImage);
+
+	void EnableWeaponSlot(int32 WeaponIndex);
+	void DisableWeaponSlot(int32 WeaponIndex);
+
 
 private:
 	UPROPERTY()

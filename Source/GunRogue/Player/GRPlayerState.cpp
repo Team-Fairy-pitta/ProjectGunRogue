@@ -337,6 +337,7 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 	// 현재 활성 무기였다면 CurrentWeaponSlot 초기화
 	if (CurrentWeaponSlot == SlotIndex)
 	{
+		int32 OldSlot = CurrentWeaponSlot;
 		CurrentWeaponSlot = -1;
 
 		// 다른 슬롯에 무기가 있다면 자동으로 전환
@@ -344,14 +345,19 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 		{
 			if (i != SlotIndex && WeaponSlots[i].IsEquipped())
 			{
-				int32 OldSlot = CurrentWeaponSlot;
-
+				int32 NewSlot = i;
 				ActivateWeaponInSlot(i);
-				CurrentWeaponSlot = i;
-				OnWeaponSwitched.Broadcast(OldSlot, CurrentWeaponSlot);
+				OnWeaponSwitched.Broadcast(OldSlot, NewSlot);
+				CurrentWeaponSlot = NewSlot;
 				UE_LOG(LogTemp, Display, TEXT("Auto-switched to weapon in slot %d"), i);
 				break;
 			}
+		}
+
+		// 다른 슬롯에 무기가 없다면 -1
+		if (CurrentWeaponSlot == -1)
+		{
+			OnWeaponSwitched.Broadcast(OldSlot, -1);
 		}
 	}
 

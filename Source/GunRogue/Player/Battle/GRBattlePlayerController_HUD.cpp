@@ -4,12 +4,14 @@
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
+#include "Weapon/GRWeaponDefinition.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRWeaponListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
 
-void AGRBattlePlayerController::InitBattleHUD()
+void AGRBattlePlayerController::InitializeBattleHUD()
 {
 	AGRPlayerState* GRPlayerState = GetPlayerState<AGRPlayerState>();
 	if (!IsValid(GRPlayerState))
@@ -57,6 +59,48 @@ void AGRBattlePlayerController::InitBattleHUD()
 	UpdatePlayerMaxShield(MaxShield);
 
 	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
+
+
+	if (!GRPlayerState->OnWeaponEquipped.IsAlreadyBound(this, &ThisClass::OnWeaponEquipped))
+	{
+		GRPlayerState->OnWeaponEquipped.AddDynamic(this, &ThisClass::OnWeaponEquipped);
+	}
+	if (!GRPlayerState->OnWeaponDropped.IsAlreadyBound(this, &ThisClass::OnWeaponDropped))
+	{
+		GRPlayerState->OnWeaponDropped.AddDynamic(this, &ThisClass::OnWeaponDropped);
+	}
+	if (!GRPlayerState->OnWeaponSwitched.IsAlreadyBound(this, &ThisClass::OnWeaponSwitched))
+	{
+		GRPlayerState->OnWeaponSwitched.AddDynamic(this, &ThisClass::OnWeaponSwitched);
+	}
+}
+
+void AGRBattlePlayerController::FinalizeBattleHUD()
+{
+	AGRPlayerState* GRPlayerState = GetPlayerState<AGRPlayerState>();
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRPlayerState (AGRPlayerState) is INVALID"));
+		return;
+	}
+
+	if (OtherPlayerStatusUpdateTimer.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(OtherPlayerStatusUpdateTimer);
+	}
+
+	if (GRPlayerState->OnWeaponEquipped.IsAlreadyBound(this, &ThisClass::OnWeaponEquipped))
+	{
+		GRPlayerState->OnWeaponEquipped.RemoveDynamic(this, &ThisClass::OnWeaponEquipped);
+	}
+	if (GRPlayerState->OnWeaponDropped.IsAlreadyBound(this, &ThisClass::OnWeaponDropped))
+	{
+		GRPlayerState->OnWeaponDropped.RemoveDynamic(this, &ThisClass::OnWeaponDropped);
+	}
+	if (GRPlayerState->OnWeaponSwitched.IsAlreadyBound(this, &ThisClass::OnWeaponSwitched))
+	{
+		GRPlayerState->OnWeaponSwitched.RemoveDynamic(this, &ThisClass::OnWeaponSwitched);
+	}
 }
 
 void AGRBattlePlayerController::ShowBattleHUD()
@@ -94,6 +138,60 @@ void AGRBattlePlayerController::OnShieldChanged(const FOnAttributeChangeData& Da
 void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData& Data)
 {
 	UpdatePlayerMaxShield(Data.NewValue);
+}
+
+void AGRBattlePlayerController::OnWeaponEquipped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition)
+{
+	if (!HUDWidgetInstance)
+	{
+		return;
+	}
+	if (!WeaponDefinition)
+	{
+		return;
+	}
+
+	UGRWeaponListWidget* WeaponListWidget = HUDWidgetInstance->GetWeaponListWidget();
+	if (!WeaponListWidget)
+	{
+		return;
+	}
+
+	WeaponListWidget->EnableWeaponSlot(SlotIndex);
+	WeaponListWidget->UpdateWeaponImage(SlotIndex, WeaponDefinition->WeaponIcon);
+}
+
+void AGRBattlePlayerController::OnWeaponDropped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition)
+{
+	if (!HUDWidgetInstance)
+	{
+		return;
+	}
+
+	UGRWeaponListWidget* WeaponListWidget = HUDWidgetInstance->GetWeaponListWidget();
+	if (!WeaponListWidget)
+	{
+		return;
+	}
+
+	WeaponListWidget->DisableWeaponSlot(SlotIndex);
+}
+
+void AGRBattlePlayerController::OnWeaponSwitched(int32 OldSlotIndex, int32 NewSlotIndex)
+{
+	if (!HUDWidgetInstance)
+	{
+		return;
+	}
+
+	UGRWeaponListWidget* WeaponListWidget = HUDWidgetInstance->GetWeaponListWidget();
+	if (!WeaponListWidget)
+	{
+		return;
+	}
+
+	WeaponListWidget->SetSelectedWeapon(NewSlotIndex);
+	WeaponListWidget->UpdateBulletCount(NewSlotIndex, 8, 8); // [TODO]: 실제 총알 값으로 바꿔야 함
 }
 
 void AGRBattlePlayerController::UpdatePlayerHealth(float Value)

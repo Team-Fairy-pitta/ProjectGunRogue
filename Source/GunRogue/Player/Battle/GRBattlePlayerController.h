@@ -4,6 +4,7 @@
 #include "GRBattlePlayerController.generated.h"
 
 class UGRBattleHUDWidget;
+class UGRWeaponDefinition;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 
@@ -46,7 +47,8 @@ protected:
 	void ShowBattleHUD();
 
 private:
-	void InitBattleHUD();
+	void InitializeBattleHUD();
+	void FinalizeBattleHUD();
 
 	void UpdatePlayerHealth(float Value);
 	void UpdatePlayerMaxHealth(float Value);
@@ -59,6 +61,15 @@ private:
 	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
 	void OnShieldChanged(const FOnAttributeChangeData& Data);
 	void OnMaxShieldChanged(const FOnAttributeChangeData& Data);
+
+	UFUNCTION()
+	void OnWeaponEquipped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
+
+	UFUNCTION()
+	void OnWeaponDropped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
+
+	UFUNCTION()
+	void OnWeaponSwitched(int32 OldSlotIndex, int32 NewSlotIndex);
 
 #pragma endregion HUD
 };

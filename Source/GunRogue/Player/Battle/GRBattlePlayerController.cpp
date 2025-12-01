@@ -37,10 +37,7 @@ void AGRBattlePlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (OtherPlayerStatusUpdateTimer.IsValid())
-	{
-		GetWorldTimerManager().ClearTimer(OtherPlayerStatusUpdateTimer);
-	}
+	FinalizeBattleHUD();
 }
 
 void AGRBattlePlayerController::OnRep_PlayerState()
@@ -70,7 +67,7 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 void AGRBattlePlayerController::InitUISetup()
 {
 	CreateWidgets();
-	InitBattleHUD();
+	InitializeBattleHUD();
 	ShowBattleHUD();
 }
 
