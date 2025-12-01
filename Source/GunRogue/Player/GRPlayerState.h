@@ -35,6 +35,7 @@ class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemIn
 public:
 	AGRPlayerState();
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	UFUNCTION(BlueprintCallable, Category = "ITPlayerState")
@@ -55,6 +56,17 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "GunRogue|Weapon|Events")
 	FOnWeaponSwitched OnWeaponSwitched;
+
+	// 무기 이벤트 RPC
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_BroadcastOnWeaponEquipped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_BroadcastOnWeaponDropped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_BroadcastOnWeaponSwitched(int32 OldSlotIndex, int32 NewSlotIndex);
+
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
