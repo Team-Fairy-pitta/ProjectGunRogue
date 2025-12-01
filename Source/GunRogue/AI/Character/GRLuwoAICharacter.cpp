@@ -10,7 +10,7 @@ AGRLuwoAICharacter::AGRLuwoAICharacter()
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
 	if (Capsule)
 	{
-		Capsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1,ECR_Ignore);
+		Capsule->BodyInstance.SetCollisionProfileName(TEXT("AIBoss"));
 	}
 
 	USkeletalMeshComponent* SkelMesh = GetMesh();
@@ -18,7 +18,6 @@ AGRLuwoAICharacter::AGRLuwoAICharacter()
 	{
 		SkelMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1,ECollisionResponse::ECR_Ignore);
 	}
-
 }
 
 void AGRLuwoAICharacter::BeginPlay()

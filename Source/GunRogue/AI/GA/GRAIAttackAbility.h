@@ -25,6 +25,7 @@ protected:
 		const FGameplayEventData* TriggerEventData) override;
 	void PlayAttackMontageAndWaitTask();
 	void WaitAttackGameplayEventTask();
+	void SpawnProjectile();
 	
 	UFUNCTION()
 	virtual void OnAttackTriggerNotify(FGameplayEventData Payload);
@@ -45,4 +46,12 @@ protected:
 	FGameplayAbilitySpecHandle SavedSpecHandle;
 	const FGameplayAbilityActorInfo* SavedActorInfo;
 	FGameplayAbilityActivationInfo SavedActivationInfo;
+
+	UPROPERTY(EditDefaultsOnly,Category = "Ability|Projectile",meta=(AllowPrivateAccess=true))
+	TSubclassOf<AActor> ProjectileClass;
+	
+	UPROPERTY()
+	TObjectPtr<AActor> Projectile;
+
+	FName ProjectileSocketName;
 };

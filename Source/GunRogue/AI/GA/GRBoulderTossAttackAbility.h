@@ -23,18 +23,6 @@ protected:
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData) override;
-
-	virtual void OnAttackTriggerNotify(FGameplayEventData Payload) override;
-
-private:
-	void SpawnProjectile();
-
-private:
-	UPROPERTY(EditDefaultsOnly,meta=(AllowPrivateAccess=true))
-	TSubclassOf<AActor> ProjectileClass;
 	
-	UPROPERTY()
-	TObjectPtr<AActor> Projectile;
-
-	FName ProjectileSocketName;
+	virtual void OnAttackTriggerNotify(FGameplayEventData Payload) override;
 };

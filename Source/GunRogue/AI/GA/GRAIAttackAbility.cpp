@@ -10,6 +10,8 @@ UGRAIAttackAbility::UGRAIAttackAbility()
 	,SavedSpecHandle(FGameplayAbilitySpecHandle())
 	,SavedActorInfo(nullptr)
 	,SavedActivationInfo(FGameplayAbilityActivationInfo())
+	,Projectile(nullptr)
+	,ProjectileClass(nullptr)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -63,6 +65,52 @@ void UGRAIAttackAbility::WaitAttackGameplayEventTask()
 
 	WaitEvent->EventReceived.AddDynamic(this, &UGRAIAttackAbility::OnAttackTriggerNotify);
 	WaitEvent->ReadyForActivation();
+}
+
+void UGRAIAttackAbility::SpawnProjectile()
+{
+	AActor* AvatarActor = SavedActorInfo->AvatarActor.Get();
+	if (!AvatarActor)
+	{
+		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
+		return;
+	}
+
+	USkeletalMeshComponent* MeshComp = Cast<USkeletalMeshComponent>(AvatarActor->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+	if (!MeshComp)
+	{
+		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
+		return;
+	}
+	
+	UWorld* World = AvatarActor->GetWorld();
+	if (!World)
+	{
+		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
+		return;
+	}
+	
+	if (!ProjectileClass)
+	{
+		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
+		return;
+	}
+	
+	FVector SpawnLocation =MeshComp->GetSocketLocation(ProjectileSocketName);
+	FRotator SpawnRotation =  MeshComp->GetSocketRotation(ProjectileSocketName);
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = AvatarActor;
+	SpawnParams.Instigator = Cast<APawn>(AvatarActor);
+	
+	AActor* ProjectileActor = World->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
+	if (!ProjectileActor)
+	{
+		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
+		return;
+	}
+	
+	Projectile = ProjectileActor;
 }
 
 void UGRAIAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)

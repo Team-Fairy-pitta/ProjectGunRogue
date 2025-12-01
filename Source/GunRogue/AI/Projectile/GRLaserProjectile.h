@@ -4,20 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "GRRockProjectile.generated.h"
+#include "GRLaserProjectile.generated.h"
 
 class USphereComponent;
+class UProjectileMovementComponent;
 
 UCLASS()
-class GUNROGUE_API AGRRockProjectile : public AActor
+class GUNROGUE_API AGRLaserProjectile : public AActor
 {
 	GENERATED_BODY()
 	
-public:
-	AGRRockProjectile();
+public:	
+	AGRLaserProjectile();
 
-	void Throw(const FVector& LaunchVelocity);
-	
+	void Launch(const FVector& NormalizeDirection);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -34,4 +35,10 @@ protected:
 private:
 	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
 	float DamageAmount;
+
+	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
+	float Velocity;
+
+	UPROPERTY(VisibleAnywhere,meta=(AllowPrivateAccess=true))
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 };

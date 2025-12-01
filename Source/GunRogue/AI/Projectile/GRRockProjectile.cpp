@@ -53,6 +53,8 @@ void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		return;
 	}
 	
+	//UE_LOG(LogTemp, Warning, TEXT("AGRRockProjectile::OnHit : Other Actor : %s"),*OtherActor->GetName());
+	
 	AGRLuwoAICharacter* LuwoChar=Cast<AGRLuwoAICharacter>(OtherActor);
 	if (LuwoChar)
 	{
@@ -106,7 +108,7 @@ void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 			continue;
 		}
 
-		UE_LOG(LogTemp,Warning,TEXT("[GRRockProjectile][OnHit] : Damage to PlayerCharacter"));
+		//UE_LOG(LogTemp,Warning,TEXT("[GRRockProjectile][OnHit] : Damage to PlayerCharacter"));
 		UGameplayStatics::ApplyDamage(PlayerChar, DamageAmount,GetInstigatorController() , this, UDamageType::StaticClass());
 		
 #if WITH_EDITOR

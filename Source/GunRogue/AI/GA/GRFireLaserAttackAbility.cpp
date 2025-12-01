@@ -1,19 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/GA/GRBoulderTossAttackAbility.h"
-#include "AI/Projectile/GRRockProjectile.h"
+#include "AI/GA/GRFireLaserAttackAbility.h"
 #include "AI/Character/GRLuwoAICharacter.h"
 #include "AI/Controller/GRBossLuwoAIController.h"
+#include "AI/Projectile/GRLaserProjectile.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Kismet/GameplayStatics.h"
 
-UGRBoulderTossAttackAbility::UGRBoulderTossAttackAbility()
+UGRFireLaserAttackAbility::UGRFireLaserAttackAbility()
 {
 	ProjectileSocketName = TEXT("ProjectilePosition");
 }
 
-void UGRBoulderTossAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+void UGRFireLaserAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
@@ -24,12 +23,12 @@ void UGRBoulderTossAttackAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	WaitAttackGameplayEventTask();
 }
 
-void UGRBoulderTossAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
+void UGRFireLaserAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
 {
 	Super::OnAttackTriggerNotify(Payload);
-
-	AGRRockProjectile* RockProjectile=Cast<AGRRockProjectile>(Projectile);
-	if (!RockProjectile)
+	
+	AGRLaserProjectile* LaserProjectile=Cast<AGRLaserProjectile>(Projectile);
+	if (!LaserProjectile)
 	{
 		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
 		return;
@@ -63,31 +62,13 @@ void UGRBoulderTossAttackAbility::OnAttackTriggerNotify(FGameplayEventData Paylo
 		return;
 	}
 
-	FVector StartLocation = RockProjectile->GetActorLocation();
+	FVector StartLocation = LaserProjectile->GetActorLocation();
 	FVector TargetLocation = TargetActor->GetActorLocation();
 
-	FVector LaunchVelocity;
-	const float ArcParam=0.5f;
-	bool bHaveSolution = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
-		 GetWorld(),
-		 LaunchVelocity,
-		 StartLocation,
-		 TargetLocation,
-		 GetWorld()->GetGravityZ(),
-		 ArcParam 
-	);
+	FVector LaunchDirection=(TargetLocation - StartLocation).GetSafeNormal();
 
-	if (bHaveSolution)
-	{
-		RockProjectile->Throw(LaunchVelocity);
-	}
-	else
-	{
-		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
-		return;
-	}
+	LaserProjectile->Launch(LaunchDirection);
 	
 	Projectile=nullptr;
 	
 }
-
