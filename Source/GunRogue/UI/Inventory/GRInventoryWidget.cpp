@@ -12,7 +12,16 @@
 void UGRInventoryWidget::UpdateInventoryDisplay()
 {
 	APlayerController* PC = GetOwningPlayer();
+	if (!IsValid(PC))
+	{
+		return;
+	}
+	
 	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	if (!IsValid(PS))
+	{
+		return;
+	}
 	TArray<FGRItemHandle>& ItemHandles = PS->GetItemHandles();
 
 	
@@ -122,7 +131,15 @@ void UGRInventoryWidget::NativeDestruct()
 void UGRInventoryWidget::HandleSlotRightClick(int32 ClickedSlotIndex)
 {
 	APlayerController* PC = GetOwningPlayer();
+	if (!IsValid(PC))
+	{
+		return;
+	}
 	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	if (!IsValid(PS))
+	{
+		return;
+	}
 	if (PS)
 	{
 		PS->UnequipItem(ClickedSlotIndex);
