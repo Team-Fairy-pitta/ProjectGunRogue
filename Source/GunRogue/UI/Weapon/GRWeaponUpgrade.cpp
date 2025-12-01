@@ -160,7 +160,7 @@ void UGRWeaponUpgrade::RerollOption()
 		return;
 	}
 
-	if (OptionSlotIndex == -1)
+	if (CurrentOptionSlotIndex == -1)
 	{
 		return;
 	}
@@ -169,7 +169,7 @@ void UGRWeaponUpgrade::RerollOption()
 	{
 		if (AGRPlayerState* GRPS = PC->GetPlayerState<AGRPlayerState>())
 		{
-			GRPS->RerollOptionWeapon(WeaponSlotIndex, OptionSlotIndex);
+			GRPS->RerollOptionWeapon(WeaponSlotIndex, CurrentOptionSlotIndex);
 		}
 	}
 
@@ -317,18 +317,26 @@ void UGRWeaponUpgrade::WeaponOptionUpdate()
 		OptionList->AddChild(Entry);
 		OptionWidgets.Add(Entry);
 
-		bool bSelected = (i == OptionSlotIndex);
+		bool bSelected = (i == CurrentOptionSlotIndex);
 		OptionWidgets[i]->SetSelected(bSelected);
 	}
 }
 
 void UGRWeaponUpgrade::OnOptionSelected(int32 InOptionSlotIndex)
 {
-	OptionSlotIndex = InOptionSlotIndex;
+	if (CurrentOptionSlotIndex == InOptionSlotIndex)
+	{
+		OptionWidgets[InOptionSlotIndex]->SetSelected(false);
+		CurrentOptionSlotIndex = -1;
+		return;
+	}
+
+		
+	CurrentOptionSlotIndex = InOptionSlotIndex;
 
 	for (int32 i = 0; i < OptionWidgets.Num(); ++i)
 	{
-		bool bSelected = (i == OptionSlotIndex);
+		bool bSelected = (i == CurrentOptionSlotIndex);
 		OptionWidgets[i]->SetSelected(bSelected);
 	}
 }

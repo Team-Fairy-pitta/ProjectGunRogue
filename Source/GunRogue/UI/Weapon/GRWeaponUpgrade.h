@@ -120,7 +120,7 @@ public:
 private:
 	FDelegateHandle WeaponDataUpdateHandle;	
 
-	int32 OptionSlotIndex = -1;
+	int32 CurrentOptionSlotIndex = -1;
 
 	TArray<UGROptionSlot*> OptionWidgets;
 };

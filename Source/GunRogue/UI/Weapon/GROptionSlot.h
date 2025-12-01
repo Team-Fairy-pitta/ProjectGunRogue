@@ -38,5 +38,4 @@ public:
 
 	FOnOptionClicked OnOptionClicked;
 
-
 };
