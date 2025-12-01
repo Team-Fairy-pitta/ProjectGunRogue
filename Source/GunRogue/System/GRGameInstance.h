@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Engine/GameInstance.h"
+#include "AdvancedFriendsGameInstance.h"
 #include "GRGameInstance.generated.h"
 
 UCLASS()
-class GUNROGUE_API UGRGameInstance : public UGameInstance
+class GUNROGUE_API UGRGameInstance : public UAdvancedFriendsGameInstance
 {
 	GENERATED_BODY()
 	

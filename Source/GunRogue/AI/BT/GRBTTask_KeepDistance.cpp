@@ -2,7 +2,7 @@
 
 
 #include "AI/BT/GRBTTask_KeepDistance.h"
-#include "AI/GRAIController.h"
+#include "AI/Controller/GRAIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Navigation/PathFollowingComponent.h"

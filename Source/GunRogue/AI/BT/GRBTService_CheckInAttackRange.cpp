@@ -4,7 +4,7 @@
 #include "AI/BT/GRBTService_CheckInAttackRange.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
-#include "AI/GRAIController.h"
+#include "AI/Controller/GRAIController.h"
 
 const FName UGRBTService_CheckInAttackRange::IsInAttackRangeKey="IsInAttackRange";
 
