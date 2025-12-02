@@ -11,8 +11,14 @@ void UGRKeySettingSlot::NativeConstruct()
 		UE_LOG(LogTemp, Error, TEXT("InputKeySelector is INVALID."));
 		return;
 	}
-	InputKeySelector->OnKeySelected.AddDynamic(this, &ThisClass::OnKeySelected);
-	InputKeySelector->OnIsSelectingKeyChanged.AddDynamic(this, &ThisClass::OnIsSelectingKeyChanged);
+	if (!InputKeySelector->OnKeySelected.IsAlreadyBound(this, &ThisClass::OnKeySelected))
+	{
+		InputKeySelector->OnKeySelected.AddDynamic(this, &ThisClass::OnKeySelected);
+	}
+	if (!InputKeySelector->OnIsSelectingKeyChanged.IsAlreadyBound(this, &ThisClass::OnIsSelectingKeyChanged))
+	{
+		InputKeySelector->OnIsSelectingKeyChanged.AddDynamic(this, &ThisClass::OnIsSelectingKeyChanged);
+	}
 	bIsKeyChanged = false;
 
 	if (!DefaultButton)
@@ -20,14 +26,57 @@ void UGRKeySettingSlot::NativeConstruct()
 		UE_LOG(LogTemp, Error, TEXT("DefaultButton is INVALID."));
 		return;
 	}
-	DefaultButton->OnClicked.AddDynamic(this, &ThisClass::OnDefaultButtonClicked);
+	if (!DefaultButton->OnClicked.IsAlreadyBound(this, &ThisClass::OnDefaultButtonClicked))
+	{
+		DefaultButton->OnClicked.AddDynamic(this, &ThisClass::OnDefaultButtonClicked);
+	}
+	
+	if (!ClearButton)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ClearButton is INVALID."));
+		return;
+	}
+	if (!ClearButton->OnClicked.IsAlreadyBound(this, &ThisClass::OnClearButtonClicked))
+	{
+		ClearButton->OnClicked.AddDynamic(this, &ThisClass::OnClearButtonClicked);
+	}
+}
+
+void UGRKeySettingSlot::NativeDestruct()
+{
+	if (!InputKeySelector)
+	{
+		UE_LOG(LogTemp, Error, TEXT("InputKeySelector is INVALID."));
+		return;
+	}
+	if (InputKeySelector->OnKeySelected.IsAlreadyBound(this, &ThisClass::OnKeySelected))
+	{
+		InputKeySelector->OnKeySelected.RemoveDynamic(this, &ThisClass::OnKeySelected);
+	}
+	if (InputKeySelector->OnIsSelectingKeyChanged.IsAlreadyBound(this, &ThisClass::OnIsSelectingKeyChanged))
+	{
+		InputKeySelector->OnIsSelectingKeyChanged.RemoveDynamic(this, &ThisClass::OnIsSelectingKeyChanged);
+	}
+
+	if (!DefaultButton)
+	{
+		UE_LOG(LogTemp, Error, TEXT("DefaultButton is INVALID."));
+		return;
+	}
+	if (DefaultButton->OnClicked.IsAlreadyBound(this, &ThisClass::OnDefaultButtonClicked))
+	{
+		DefaultButton->OnClicked.RemoveDynamic(this, &ThisClass::OnDefaultButtonClicked);
+	}
 
 	if (!ClearButton)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ClearButton is INVALID."));
 		return;
 	}
-	ClearButton->OnClicked.AddDynamic(this, &ThisClass::OnClearButtonClicked);
+	if (ClearButton->OnClicked.IsAlreadyBound(this, &ThisClass::OnClearButtonClicked))
+	{
+		ClearButton->OnClicked.RemoveDynamic(this, &ThisClass::OnClearButtonClicked);
+	}
 }
 
 void UGRKeySettingSlot::SetKeyMapping(const FPlayerKeyMapping& InMapping)

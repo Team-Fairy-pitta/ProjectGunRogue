@@ -1,9 +1,6 @@
-// GRTitleHUDWidget.cpp
-
-
 #include "UI/TitleHUD/GRTitleHUDWidget.h"
-
 #include "SubWidgets/GRTitleMenuButtonWidget.h"
+#include "Player/GameStart/GRGameStart_PlayerController.h"
 
 void UGRTitleHUDWidget::NativeConstruct()
 {
@@ -27,6 +24,28 @@ void UGRTitleHUDWidget::NativeConstruct()
 	}
 }
 
+void UGRTitleHUDWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (StartGameButton)
+	{
+		StartGameButton->OnTitleButtonClicked.RemoveDynamic(this, &UGRTitleHUDWidget::OnStartGameClicked);
+	}
+	if (CheckInvitationButton)
+	{
+		CheckInvitationButton->OnTitleButtonClicked.RemoveDynamic(this, &UGRTitleHUDWidget::OnCheckInvitationClicked);
+	}
+	if (SetGameButton)
+	{
+		SetGameButton->OnTitleButtonClicked.RemoveDynamic(this, &UGRTitleHUDWidget::OnSetGameClicked);
+	}
+	if (ExitGameButton)
+	{
+		ExitGameButton->OnTitleButtonClicked.RemoveDynamic(this, &UGRTitleHUDWidget::OnExitGameClicked);
+	}
+}
+
 void UGRTitleHUDWidget::OnStartGameClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Start Game Clicked"));
@@ -39,7 +58,14 @@ void UGRTitleHUDWidget::OnCheckInvitationClicked()
 
 void UGRTitleHUDWidget::OnSetGameClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Set Game Clicked"));
+	AGRGameStart_PlayerController* Controller = GetOwningPlayer<AGRGameStart_PlayerController>();
+	if (!IsValid(Controller))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Controller is NOT GameStart PC"));
+		return;
+	}
+
+	Controller->ShowSettingWidget();
 }
 
 void UGRTitleHUDWidget::OnExitGameClicked()
