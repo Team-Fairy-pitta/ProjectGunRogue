@@ -5,6 +5,7 @@
 #include "Components/WidgetComponent.h"
 #include "Character/GRCharacter.h"
 #include "Player/GRPlayerState.h"
+#include "Net/UnrealNetwork.h"
 
 AGRWeaponActor::AGRWeaponActor()
 {
@@ -41,20 +42,33 @@ void AGRWeaponActor::BeginPlay()
 		}
 	}
 
+	FGRWeaponInstance NewInstance;
+
 	if (WeaponDefinition)
 	{
-		InitWeapon(WeaponDefinition);
+		NewInstance.Validate();
+		InitWeapon(WeaponDefinition, NewInstance);
 	}
+
 }
 
-void AGRWeaponActor::MulticastRPC_InitWeapon_Implementation(UGRWeaponDefinition* InWeaponDefinition)
+void AGRWeaponActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	InitWeapon(InWeaponDefinition);
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, WeaponInstance);
 }
 
-void AGRWeaponActor::InitWeapon(UGRWeaponDefinition* InWeaponDefinition)
+
+void AGRWeaponActor::MulticastRPC_InitWeapon_Implementation(UGRWeaponDefinition* InWeaponDefinition, const FGRWeaponInstance& InWeaponInstance)
+{
+	InitWeapon(InWeaponDefinition, InWeaponInstance);
+}
+
+void AGRWeaponActor::InitWeapon(UGRWeaponDefinition* InWeaponDefinition, const FGRWeaponInstance& InWeaponInstance)
 {
 	WeaponDefinition = InWeaponDefinition;
+	WeaponInstance = InWeaponInstance;
 
 	if (!WeaponDefinition)
 	{
@@ -121,7 +135,7 @@ void AGRWeaponActor::InteractWith(AActor* OtherActor)
 	}
 
 	// PlayerState의 무기 장착 시도
-	GRPlayerState->TryEquipWeapon(WeaponDefinition, this);
+	GRPlayerState->TryEquipWeapon(WeaponDefinition, WeaponInstance, this);
 }
 
 void AGRWeaponActor::OnOver()

@@ -2,7 +2,7 @@
 
 
 #include "AI/BT/GRBTTask_SwapPatrolPointsIfClose.h"
-#include "AI/GRAIController.h"
+#include "AI/Controller/GRAIController.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 #include "BehaviorTree/BlackboardComponent.h"

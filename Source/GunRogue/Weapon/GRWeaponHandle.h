@@ -2,10 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/GRAbilitySet.h"
+#include "Weapon/GRWeaponInstance.h"
 #include "GRWeaponHandle.generated.h"
 
 class UGRAbilitySystemComponent;
 class UGRWeaponDefinition;
+struct FGRWeaponInstance;
 
 /*
 무기 인스턴스 핸들
@@ -18,7 +20,7 @@ struct GUNROGUE_API FGRWeaponHandle
 
 public:
 	// 무기 장착
-	void EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition* InWeaponDefinition);
+	void EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition* InWeaponDefinition, const FGRWeaponInstance& InWeaponInstance);
 
 	// 무기 해제
 	void UnequipWeapon();
@@ -35,6 +37,10 @@ public:
 	// 무기 정의 가져오기
 	UGRWeaponDefinition* GetWeaponDefinition() const { return WeaponDefinition; }
 
+	FGRWeaponInstance GetWeaponInstanceCopy() { return WeaponInstance; }
+	
+	FGRWeaponInstance* GetWeaponInstanceRef() { return &WeaponInstance; }
+
 	bool IsActive() const { return bIsActive; }
 
 private:
@@ -49,6 +55,9 @@ private:
 	// 무기 정의
 	UPROPERTY()
 	TObjectPtr<UGRWeaponDefinition> WeaponDefinition;
+
+	UPROPERTY()
+	FGRWeaponInstance WeaponInstance;
 
 	bool bIsActive = false;
 };

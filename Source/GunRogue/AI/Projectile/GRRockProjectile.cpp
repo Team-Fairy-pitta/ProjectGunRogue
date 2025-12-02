@@ -1,0 +1,143 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "GRRockProjectile.h"
+#include "AI/Character/GRLuwoAICharacter.h"
+#include "Components/SphereComponent.h"
+#include "Engine/OverlapResult.h"
+#include "Character/GRCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/DamageType.h"
+
+AGRRockProjectile::AGRRockProjectile()
+	:DamageAmount(100.0f)
+{
+	PrimaryActorTick.bCanEverTick = false;
+
+	bReplicates = true;
+	SetReplicateMovement(true);
+	
+	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("AIProjectile"));
+	CollisionComponent->SetSimulatePhysics(false);
+	CollisionComponent->SetNotifyRigidBodyCollision(true);
+	CollisionComponent->SetIsReplicated(true);
+	RootComponent = CollisionComponent;
+
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp->SetupAttachment(RootComponent);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AGRRockProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		if (CollisionComponent)
+		{
+			CollisionComponent->OnComponentHit.AddDynamic(this, &AGRRockProjectile::OnHit);
+		}
+	}
+}
+
+void AGRRockProjectile::Throw(const FVector& LaunchVelocity)
+{
+	if(!HasAuthority())
+	{
+		return;
+	}
+	
+	if (CollisionComponent)
+	{
+		CollisionComponent->SetSimulatePhysics(true);
+		CollisionComponent->AddImpulse(LaunchVelocity, NAME_None, true);
+	}
+}
+
+void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if(!HasAuthority())
+	{
+		return;
+	}
+
+	if (!OtherActor || OtherActor == this)
+	{
+		return;
+	}
+	
+	//UE_LOG(LogTemp, Warning, TEXT("AGRRockProjectile::OnHit : Other Actor : %s"),*OtherActor->GetName());
+	
+	AGRLuwoAICharacter* LuwoChar=Cast<AGRLuwoAICharacter>(OtherActor);
+	if (LuwoChar)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+	
+	FVector Origin = Hit.ImpactPoint;
+	const float Radius = 500.f;
+	TArray<FOverlapResult> Overlaps;
+
+	FCollisionShape SphereShape = FCollisionShape::MakeSphere(Radius);
+	FCollisionQueryParams QueryParams;
+	
+	ECollisionChannel TraceChannel = ECC_Pawn;
+
+	bool bOverlap = GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		Origin,               
+		FQuat::Identity,      
+		TraceChannel,
+		SphereShape,
+		QueryParams
+	);
+	
+#if WITH_EDITOR
+	DrawDebugSphere(GetWorld(), Origin, Radius, 16, FColor::Yellow, false, 1.0f);
+#endif
+	
+	if (!bOverlap)
+	{
+		return;
+	}
+	
+	for (const FOverlapResult& Result : Overlaps)
+	{
+		AActor* Other = Result.GetActor();
+		if (!Other)
+		{
+			continue;
+		}
+		
+		AGRCharacter* PlayerChar=Cast<AGRCharacter>(Other);
+		if (!PlayerChar)
+		{
+			continue;
+		}
+
+		//UE_LOG(LogTemp,Warning,TEXT("[GRRockProjectile][OnHit] : Damage to PlayerCharacter"));
+		UGameplayStatics::ApplyDamage(PlayerChar, DamageAmount,GetInstigatorController() , this, UDamageType::StaticClass());
+		
+#if WITH_EDITOR
+		FVector PlayerLoc = PlayerChar->GetActorLocation();
+		if (GetWorld())
+		{
+			DrawDebugSphere(GetWorld(),PlayerLoc,20.f,12,FColor::Red,false,1.0f);
+		}
+#endif
+	}
+
+	Destroy();
+}
+
+
+

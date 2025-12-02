@@ -3,6 +3,7 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/Weapon/GRWeaponUpgrade.h"
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
@@ -103,6 +104,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!HUDWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRBattleHUDWidget Widgets"));
+		return;
+	}
+
+	if (!UpgradeConsoleWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UpgradeConsoleWidgetClass (TSubclassOf<UGRWeaponUpgrade>) is INVALID"));
+		return;
+	}
+
+	UpgradeConsoleWidgetInstance = CreateWidget<UUserWidget>(this, UpgradeConsoleWidgetClass);
+	if (!UpgradeConsoleWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRWeaponUpgrade Widgets"));
 		return;
 	}
 }
