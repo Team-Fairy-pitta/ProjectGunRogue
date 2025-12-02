@@ -4,6 +4,7 @@
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
 #include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
+#include "UI/Inventory/GRInventoryWidgetMain.h"
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
@@ -97,6 +98,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!UpgradeConsoleWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRWeaponUpgrade Widgets"));
+		return;
+	}
+
+	if (!InventoryWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("InventoryWidgetClass (TSubclassOf<UGRInventoryWidgetMain>) is INVALID"));
+		return;
+	}
+
+	InventoryWidgetInstance = CreateWidget<UGRInventoryWidgetMain>(this, InventoryWidgetClass);
+	if (!InventoryWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRInventoryWidgetMain Widgets"));
 		return;
 	}
 }

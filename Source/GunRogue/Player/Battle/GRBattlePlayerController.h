@@ -104,7 +104,10 @@ protected:
 #pragma region Inventory
 public:
 	UFUNCTION(Client, Reliable)
-	void ClientRPC_ShowInventoryWidget();
+	void ClientRPC_ToggleInventoryWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void ToggleInventoryWidget();
 
 	UFUNCTION(BlueprintCallable)
 	void ShowInventoryWidget();

@@ -2,9 +2,21 @@
 #include "Player/GRPlayerState.h"
 #include "UI/Inventory/GRInventoryWidgetMain.h"
 
-void AGRBattlePlayerController::ClientRPC_ShowInventoryWidget_Implementation()
+void AGRBattlePlayerController::ClientRPC_ToggleInventoryWidget_Implementation()
 {
-	ShowInventoryWidget();
+	ToggleInventoryWidget();
+}
+
+void AGRBattlePlayerController::ToggleInventoryWidget()
+{
+	if (InventoryWidgetInstance->IsInViewport())
+	{
+		HideInventoryWidget();
+	}
+	else
+	{
+		ShowInventoryWidget();
+	}
 }
 
 void AGRBattlePlayerController::ShowInventoryWidget()
@@ -17,6 +29,7 @@ void AGRBattlePlayerController::ShowInventoryWidget()
 	if (!InventoryWidgetInstance->IsInViewport())
 	{
 		InventoryWidgetInstance->AddToViewport();
+		InventoryWidgetInstance->UpdateInventorySubWidgets();
 	}
 
 	FInputModeUIOnly Mode;
