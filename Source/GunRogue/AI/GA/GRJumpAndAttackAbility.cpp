@@ -21,7 +21,10 @@ void UGRJumpAndAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle H
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	JumpToTargetLocation();
+	if (ActorInfo->AvatarActor.Get()->HasAuthority())
+	{
+		JumpToTargetLocation();
+	}
 }
 
 void UGRJumpAndAttackAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -40,13 +43,21 @@ void UGRJumpAndAttackAbility::EndAbility(const FGameplayAbilitySpecHandle Handle
 	}
 }
 
-void UGRJumpAndAttackAbility::OnHitNotify(FGameplayEventData Payload)
+void UGRJumpAndAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
 {
-	Super::OnHitNotify(Payload);
+	Super::OnAttackTriggerNotify(Payload);
 	
 	AActor* Instigator = GetAvatarActorFromActorInfo();
-	if (!Instigator) return;
+	if (!Instigator)
+	{
+		return;
+	}
 
+	if (!Instigator->HasAuthority())
+	{
+		return;
+	}
+	
 	FVector Origin = Instigator->GetActorLocation();
 	const float Radius = 500.f;
 	TArray<FOverlapResult> Overlaps;
@@ -179,8 +190,8 @@ void UGRJumpAndAttackAbility::JumpToTargetLocation()
 		LaunchVel,
 		Start,
 		TargetLocation,
-		/*OverrideGravityZ*/ Boss -> GetWorld()->GetGravityZ(),
-		/*곡선의 높이 조절 -낮으면 더 위로, 높으면 더 낮게*/ ArcParam);
+		Boss -> GetWorld()->GetGravityZ(),
+		ArcParam);
 	
 	if (!bHaveSolution)
 	{

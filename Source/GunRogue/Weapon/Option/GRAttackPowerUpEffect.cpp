@@ -3,7 +3,7 @@
 
 UGRAttackPowerUpEffect::UGRAttackPowerUpEffect()
 {
-	DurationPolicy = EGameplayEffectDurationType::Instant;
+	DurationPolicy = EGameplayEffectDurationType::Infinite;
 
 	FGameplayModifierInfo Mod;
 	Mod.Attribute = UGRCombatAttributeSet::GetWeaponDamage_AdditiveAttribute();

@@ -1,8 +1,9 @@
 #include "Weapon/GRWeaponHandle.h"
+#include "Weapon/GRWeaponInstance.h"
 #include "Weapon/GRWeaponDefinition.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 
-void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition* InWeaponDefinition)
+void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition* InWeaponDefinition, const FGRWeaponInstance& InWeaponInstance)
 {
 	if (!IsValid(ASC))
 	{
@@ -18,6 +19,20 @@ void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefin
 
 	CachedASC = ASC;
 	WeaponDefinition = InWeaponDefinition;
+
+	WeaponInstance = InWeaponInstance;
+
+	WeaponInstance.Init(CachedASC, WeaponDefinition);
+	WeaponInstance.ApplyAllEffects();
+
+
+	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.CurrentLevel: %d"),
+		*WeaponDefinition->WeaponName.ToString(),
+		WeaponInstance.GetLevel());
+	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.CurrentDamage: %f"),
+		*WeaponDefinition->WeaponName.ToString(),
+		WeaponInstance.GetDamage());
+
 
 	// 슬롯에 저장만 하고 활성화는 별도로 호출
 	UE_LOG(LogTemp, Display, TEXT("Weapon Equipped to slot: %s"),
@@ -44,6 +59,8 @@ void FGRWeaponHandle::UnequipWeapon()
 	}
 
 	WeaponDefinition = nullptr;
+	WeaponInstance.ClearEffects();
+	WeaponInstance.Invalidate();
 	CachedASC = nullptr;
 }
 

@@ -10,6 +10,7 @@
 #include "Item/GRItemActor.h"
 #include "Item/GRItemDefinition.h"
 #include "Weapon/GRWeaponActor.h"
+#include "Weapon/GRWeaponInstance.h"
 #include "Weapon/GRWeaponDefinition.h"
 
 AGRPlayerState::AGRPlayerState()
@@ -80,9 +81,9 @@ int32 AGRPlayerState::GetItemNum()
 	return ItemHandles.Num();
 }
 
-void AGRPlayerState::TryEquipWeapon(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor)
+void AGRPlayerState::TryEquipWeapon(UGRWeaponDefinition* WeaponDefinition, FGRWeaponInstance& Instance, AActor* WeaponActor)
 {
-	ServerRPC_EquipWeapon(WeaponDefinition, WeaponActor);
+	ServerRPC_EquipWeapon(WeaponDefinition, Instance, WeaponActor);
 }
 
 void AGRPlayerState::DropWeapon(int32 SlotIndex)
@@ -118,12 +119,59 @@ UGRWeaponDefinition* AGRPlayerState::GetWeaponDefinitionInSlot(int32 SlotIndex) 
 	{
 		return nullptr;
 	}
+
 	return WeaponSlots[SlotIndex].GetWeaponDefinition();
 }
 
 UGRWeaponDefinition* AGRPlayerState::GetCurrentWeaponDefinition() const
 {
 	return GetWeaponDefinitionInSlot(CurrentWeaponSlot);
+}
+
+FGRWeaponInstance* AGRPlayerState::GetWeaponInstanceInSlot(int32 SlotIndex)
+{
+	if (!WeaponSlots.IsValidIndex(SlotIndex))
+	{
+		return nullptr;
+	}
+
+	return WeaponSlots[SlotIndex].GetWeaponInstanceRef();
+}
+
+void AGRPlayerState::ServerRPC_UpgradeWeapon_Implementation(int32 SlotIndex)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!WeaponSlots.IsValidIndex(SlotIndex))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid weapon slot index: %d"), SlotIndex);
+		return;
+	}
+
+	FGRWeaponHandle& WeaponHandle = WeaponSlots[SlotIndex];
+
+	UGRWeaponDefinition* WeaponDefinition = WeaponHandle.GetWeaponDefinition();
+
+	if (!IsValid(WeaponDefinition))
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is INVALID"));
+		return;
+	}
+
+	FGRWeaponInstance* WeaponInstance = WeaponHandle.GetWeaponInstanceRef();
+
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return;
+	}
+
+	WeaponInstance->UpgradeWeapon();
+
+	OnRep_WeaponDataUpdata();
 }
 
 void AGRPlayerState::ServerRPC_EquipItemActor_Implementation(UGRItemDefinition* ItemDefinition, AActor* ItemActor)
@@ -214,7 +262,7 @@ void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
 	OnUnequipItem(RemovedItemDefinition);
 }
 
-void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor)
+void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& Instance, AActor* WeaponActor)
 {
 	if (!HasAuthority())
 	{
@@ -245,6 +293,7 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 
 			// 현재 무기 버리기
 			UGRWeaponDefinition* DroppedWeaponDef = WeaponSlots[CurrentWeaponSlot].GetWeaponDefinition();
+			FGRWeaponInstance DroppedInstanceCopy = WeaponSlots[CurrentWeaponSlot].GetWeaponInstanceCopy();
 
 			// 비활성화 후 해제
 			DeactivateWeaponInSlot(CurrentWeaponSlot);
@@ -253,13 +302,13 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 			OnWeaponDropped.Broadcast(CurrentWeaponSlot, DroppedWeaponDef);
 
 			// 바닥에 무기 스폰
-			DropWeaponAtPlayerFront(DroppedWeaponDef);
+			DropWeaponAtPlayerFront(DroppedWeaponDef, DroppedInstanceCopy);
 
 			EmptySlot = CurrentWeaponSlot;
 
 			// 슬롯이 꽉 찼을 때만 새 무기로 자동 전환
 			// (현재 무기를 버렸으므로 새 무기를 활성화해야 함)
-			WeaponSlots[EmptySlot].EquipWeapon(AbilitySystemComponent, WeaponDefinition);
+			WeaponSlots[EmptySlot].EquipWeapon(AbilitySystemComponent, WeaponDefinition, Instance);
 			ActivateWeaponInSlot(EmptySlot);
 			CurrentWeaponSlot = EmptySlot;
 
@@ -274,7 +323,7 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 	else
 	{
 		// 빈 슬롯이 있는 경우 - 저장만 하고 스위칭 안 함
-		WeaponSlots[EmptySlot].EquipWeapon(AbilitySystemComponent, WeaponDefinition);
+		WeaponSlots[EmptySlot].EquipWeapon(AbilitySystemComponent, WeaponDefinition, Instance);
 
 		OnWeaponEquipped.Broadcast(EmptySlot, WeaponDefinition);
 
@@ -327,6 +376,7 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 	}
 
 	UGRWeaponDefinition* DroppedWeaponDef = WeaponSlots[SlotIndex].GetWeaponDefinition();
+	FGRWeaponInstance DroppedInstanceCopy = WeaponSlots[SlotIndex].GetWeaponInstanceCopy();
 
 	// 무기 해제
 	DeactivateWeaponInSlot(SlotIndex);
@@ -356,7 +406,7 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 	}
 
 	// 플레이어 앞에 무기 스폰
-	DropWeaponAtPlayerFront(DroppedWeaponDef);
+	DropWeaponAtPlayerFront(DroppedWeaponDef, DroppedInstanceCopy);
 
 	UE_LOG(LogTemp, Display, TEXT("Player dropped weapon from slot %d"), SlotIndex);
 }
@@ -446,7 +496,9 @@ void AGRPlayerState::DeactivateWeaponInSlot(int32 SlotIndex)
 	UE_LOG(LogTemp, Display, TEXT("Deactivated weapon in slot %d"), SlotIndex);
 }
 
-void AGRPlayerState::SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition,
+void AGRPlayerState::SpawnWeaponAtLocation(
+	UGRWeaponDefinition* WeaponDefinition,
+	const FGRWeaponInstance& WeaponInstance,
 	const FVector& Location,
 	const FRotator& Rotation)
 {
@@ -483,8 +535,8 @@ void AGRPlayerState::SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition
 	if (IsValid(WeaponActor))
 	{
 		PlaceActorOnGround(WeaponActor);
-		WeaponActor->InitWeapon(WeaponDefinition);
-		WeaponActor->MulticastRPC_InitWeapon(WeaponDefinition);
+		WeaponActor->InitWeapon(WeaponDefinition, WeaponInstance);
+		WeaponActor->MulticastRPC_InitWeapon(WeaponDefinition, WeaponInstance);
 	}
 }
 
@@ -596,7 +648,7 @@ void AGRPlayerState::OnUnequipItem(UGRItemDefinition* ItemDefinition)
 	}
 }
 
-void AGRPlayerState::DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition)
+void AGRPlayerState::DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& Instance)
 {
 	if (!HasAuthority())
 	{
@@ -614,7 +666,7 @@ void AGRPlayerState::DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefiniti
 		Pawn->GetActorForwardVector() * DropDistance;
 	const FRotator DropRotation = Pawn->GetActorRotation();
 
-	SpawnWeaponAtLocation(WeaponDefinition, DropLocation, DropRotation);
+	SpawnWeaponAtLocation(WeaponDefinition, Instance, DropLocation, DropRotation);
 }
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)
@@ -657,4 +709,92 @@ void AGRPlayerState::PlaceActorOnGround(AActor* SpawnedActor)
 	FVector NewLocation = GetGroundPointUsingLineTrace(SpawnedActor);
 	NewLocation.Z += BoxExtent.Z;
 	SpawnedActor->SetActorLocation(NewLocation);
+}
+
+void AGRPlayerState::UpgradeWeapon(int32 SlotIndex)
+{
+	ServerRPC_UpgradeWeapon(SlotIndex);
+}
+
+void AGRPlayerState::AllRerollOptionWeapon(int32 InWeaponSlotIndex)
+{
+	ServerRPC_AllRerollOptionWeapon(InWeaponSlotIndex);
+}
+
+void AGRPlayerState::RerollOptionWeapon(int32 InWeaponSlotIndex, int32 InOptionSlotIndex)
+{
+	ServerRPC_RerollOptionWeapon(InWeaponSlotIndex, InOptionSlotIndex);
+}
+
+void AGRPlayerState::ServerRPC_RerollOptionWeapon_Implementation(int32 InWeaponSlotIndex, int32 InOptionSlotIndex)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!WeaponSlots.IsValidIndex(InWeaponSlotIndex))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid weapon slot index: %d"), InWeaponSlotIndex);
+		return;
+	}
+
+	FGRWeaponHandle& WeaponHandle = WeaponSlots[InWeaponSlotIndex];
+
+	UGRWeaponDefinition* WeaponDefinition = WeaponHandle.GetWeaponDefinition();
+
+	if (!IsValid(WeaponDefinition))
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is INVALID"));
+		return;
+	}
+
+	FGRWeaponInstance* WeaponInstance = WeaponHandle.GetWeaponInstanceRef();
+
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return;
+	}
+
+	WeaponInstance->RerollOption(InOptionSlotIndex);
+}
+
+void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeaponSlotIndex)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!WeaponSlots.IsValidIndex(InWeaponSlotIndex))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid weapon slot index: %d"), InWeaponSlotIndex);
+		return;
+	}
+
+	FGRWeaponHandle& WeaponHandle = WeaponSlots[InWeaponSlotIndex];
+
+	UGRWeaponDefinition* WeaponDefinition = WeaponHandle.GetWeaponDefinition();
+
+	if (!IsValid(WeaponDefinition))
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDefinition is INVALID"));
+		return;
+	}
+
+	FGRWeaponInstance* WeaponInstance = WeaponHandle.GetWeaponInstanceRef();
+
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return;
+	}
+
+	WeaponInstance->AllRerollOption();
+}
+
+void AGRPlayerState::OnRep_WeaponDataUpdata()
+{
+	OnWeaponDataUpdata.Broadcast();
 }
