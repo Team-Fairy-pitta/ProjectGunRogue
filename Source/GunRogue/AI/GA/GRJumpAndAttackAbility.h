@@ -29,7 +29,7 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		bool bReplicateEndAbility, bool bWasCancelled) override;
 
-	virtual void OnHitNotify(FGameplayEventData Payload) override;
+	virtual void OnAttackTriggerNotify(FGameplayEventData Payload) override;
 
 private:
 	void JumpToTargetLocation();

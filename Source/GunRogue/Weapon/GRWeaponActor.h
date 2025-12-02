@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Character/Interaction/GRInteractableActor.h"
+#include "Weapon/GRWeaponInstance.h"
 #include "GRWeaponActor.generated.h"
 
 class UGRWeaponDefinition;
@@ -18,12 +19,13 @@ public:
 	AGRWeaponActor();
 
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	// 무기 초기화
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRPC_InitWeapon(UGRWeaponDefinition* InWeaponDefinition);
+	void MulticastRPC_InitWeapon(UGRWeaponDefinition* InWeaponDefinition, const FGRWeaponInstance& InWeaponInstance);
 
-	void InitWeapon(UGRWeaponDefinition* InWeaponDefinition);
+	void InitWeapon(UGRWeaponDefinition* InWeaponDefinition, const FGRWeaponInstance& InWeaponInstance);
 
 	// IGRInteractableActor 구현
 	virtual TArray<TObjectPtr<UStaticMeshComponent>> GetMeshComponents() override;
@@ -43,4 +45,7 @@ protected:
 	// 무기 정보 위젯
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UWidgetComponent> WeaponInfoWidgetComponent;
+
+	UPROPERTY(Replicated)
+	FGRWeaponInstance WeaponInstance;
 };

@@ -120,6 +120,19 @@ void AGRBattlePlayerController::ShowBattleHUD()
 	bShowMouseCursor = false;
 }
 
+void AGRBattlePlayerController::HideBattleHUD()
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance is INVALID"));
+		return;
+	}
+	if (HUDWidgetInstance->IsInViewport())
+	{
+		HUDWidgetInstance->RemoveFromParent();
+	}
+}
+
 void AGRBattlePlayerController::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	UpdatePlayerHealth(Data.NewValue);
