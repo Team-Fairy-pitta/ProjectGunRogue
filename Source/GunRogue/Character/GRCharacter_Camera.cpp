@@ -63,6 +63,7 @@ void AGRCharacter::ApplySmoothCameraControl_Rotation(float DeltaTime)
 	}
 
 	float Rate = SmoothAlpha * DeltaTime * SmoothSpeed;
+	Rate = FMath::Clamp(Rate, 0.0f, 1.0f);
 	FQuat DeltaQuat = FQuat::Slerp(Current, TargetCameraRotation, Rate);
 	DeltaQuat.Normalize();
 	FRotator DeltaRotator = DeltaQuat.Rotator();
@@ -77,6 +78,7 @@ void AGRCharacter::ApplySmoothCameraControl_CameraArm(float DeltaTime)
 		return;
 	}
 	float Rate = SmoothAlpha * DeltaTime * SmoothSpeed;
+	Rate = FMath::Clamp(Rate, 0.0f, 1.0f);
 
 	float CurrentArmLength = SpringArmComponent->TargetArmLength;
 	if (!FMath::IsNearlyEqual(TargetCameraArmLength, CurrentArmLength))
