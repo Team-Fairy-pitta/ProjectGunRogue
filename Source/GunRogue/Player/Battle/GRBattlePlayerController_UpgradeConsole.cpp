@@ -1,6 +1,6 @@
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
-#include "UI/Weapon/GRWeaponUpgrade.h"
+#include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
 
 void AGRBattlePlayerController::ClientRPC_ShowUpgradeConsoleWidget_Implementation()
 {
