@@ -8,6 +8,7 @@
 class UAbilitySystemComponent;
 class UTestWeaponAsset;
 class ATestWeaponPickup;
+class UCameraComponent;
 
 UCLASS()
 class GRTEST_API ATestGRCharacter : public AGRCharacter
@@ -19,7 +20,7 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	//virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystem;

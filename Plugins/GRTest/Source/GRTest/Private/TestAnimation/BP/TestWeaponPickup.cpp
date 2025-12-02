@@ -8,7 +8,9 @@
 #include "Components/SkeletalMeshComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"   
-#include "AbilitySystemComponent.h"             
+#include "AbilitySystemComponent.h"       
+#include "GameplayTagsManager.h"
+#include "GameplayTagContainer.h"
 
 ATestWeaponPickup::ATestWeaponPickup()
 {
@@ -24,6 +26,9 @@ ATestWeaponPickup::ATestWeaponPickup()
 
 	WeaponMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMeshComponent->SetupAttachment(PickupSphere);
+
+	LeftHandIK = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHandIK"));
+	LeftHandIK->SetupAttachment(WeaponMeshComponent);
 
 	PickupSphere->OnComponentBeginOverlap.AddDynamic(this, &ATestWeaponPickup::OnPickupSphereBeginOverlap);
 }
@@ -57,15 +62,5 @@ void ATestWeaponPickup::OnPickupSphereBeginOverlap(
 		return;
 	}
 
-	Character->CurrentWeaponAsset = WeaponData;
-
-	Character->CurrentWeapon = this;
-
-	Character->bHasWeapon = true;
-	Character->PushWeaponStateToAnimBP();
-
-	if (UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent())
-	{
-		ASC->TryActivateAbilityByClass(UTestGAEquipMontage::StaticClass());
-	}
+	Character->EquipWeapon(this);
 }
