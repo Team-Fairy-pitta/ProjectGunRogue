@@ -10,28 +10,60 @@ void ATestAugPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (BattleHUDClass)
-	{
-		BattleHUDWidget = CreateWidget<UGRBattleHUDWidget>(this, BattleHUDClass);
-		if (BattleHUDWidget)
-		{
-			BattleHUDWidget->AddToViewport();
-		}
-	}
+	CreateWidgets();
+	ShowBattleHUD();
 }
 
 void ATestAugPlayerController::ShowAugmentHUD()
 {
-	if (AugmentHUDClass)
+	if (!AugmentHUDWidget)
 	{
-		AugmentHUDWidget = CreateWidget<UGRAugmentHUDWidget>(this, AugmentHUDClass);
-		if (AugmentHUDWidget)
-		{
-			AugmentHUDWidget->AddToViewport();
-		}
+		return;
+	}
 
-		FInputModeUIOnly UIMode;
-		SetInputMode(UIMode);
-		bShowMouseCursor = true;
+	if (!AugmentHUDWidget->IsInViewport())
+	{
+		AugmentHUDWidget->AddToViewport();
+	}
+
+	FInputModeUIOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = true;
+}
+
+void ATestAugPlayerController::ShowBattleHUD()
+{
+	if (!BattleHUDWidget)
+	{
+		return;
+	}
+
+	if (!BattleHUDWidget->IsInViewport())
+	{
+		BattleHUDWidget->AddToViewport();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
+}
+
+void ATestAugPlayerController::CreateWidgets()
+{
+	if (!BattleHUDClass || !AugmentHUDClass)
+	{
+		return;
+	}
+
+	BattleHUDWidget= CreateWidget<UGRBattleHUDWidget>(this, BattleHUDClass);
+	if (!BattleHUDWidget)
+	{
+		return;
+	}
+
+	AugmentHUDWidget = CreateWidget<UGRAugmentHUDWidget>(this, AugmentHUDClass);
+	if (!AugmentHUDWidget)
+	{
+		return;
 	}
 }

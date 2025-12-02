@@ -31,6 +31,8 @@ protected:
 	UGRAugmentTooltipWidget* AugmentTooltipWidget;
 
 	virtual void NativeConstruct() override;
+
+	virtual void NativeDestruct() override;
 	
 public:
 	UFUNCTION()

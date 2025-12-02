@@ -29,6 +29,26 @@ void UGRAugmentHUDWidget::NativeConstruct()
 	}
 }
 
+void UGRAugmentHUDWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (AugmentContainer)
+	{
+		for (UWidget* Child : AugmentContainer->GetAllChildren())
+		{
+			if (UGRAugmentSlotWidget* AugmentSlot = Cast<UGRAugmentSlotWidget>(Child))
+			{
+				AugmentSlot->OnAugmentSlotHovered.RemoveDynamic(this, &UGRAugmentHUDWidget::ShowTooltip);
+				AugmentSlot->OnAugmentSlotUnhovered.RemoveDynamic(this, &UGRAugmentHUDWidget::HideTooltip);
+				AugmentSlot->OnAugmentSlotClicked.RemoveDynamic(this, &UGRAugmentHUDWidget::RemoveAugmentHUD);
+
+				AugmentSlot->RemoveFromParent();
+			}
+		}
+	}
+}
+
 void UGRAugmentHUDWidget::ShowTooltip(UGRAugmentSlotWidget* AugmentSlot)
 {
 	if (!AugmentTooltipWidget)
