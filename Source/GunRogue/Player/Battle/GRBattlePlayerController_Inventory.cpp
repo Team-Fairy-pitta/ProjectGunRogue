@@ -1,6 +1,6 @@
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
-#include "UI/Inventory/GRInventoryItemWidget.h"
+#include "UI/Inventory/GRInventoryWidgetMain.h"
 
 void AGRBattlePlayerController::ClientRPC_ShowInventoryWidget_Implementation()
 {
@@ -11,7 +11,7 @@ void AGRBattlePlayerController::ShowInventoryWidget()
 {
 	if (!InventoryWidgetInstance)
 	{
-		UE_LOG(LogTemp, Error, TEXT("UpgradeConsoleWidgetInstance is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("InventoryWidgetInstance is INVALID"));
 		return;
 	}
 	if (!InventoryWidgetInstance->IsInViewport())
