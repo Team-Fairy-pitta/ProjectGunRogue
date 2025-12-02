@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Inventory/GRInventoryWidget.h"
+#include "UI/Inventory/GRInventoryItemWidget.h"
 
-#include "GRInventorySlot.h"
+#include "GRInventoryItemSlot.h"
 #include "Components/WrapBox.h"
 #include "Item/GRItemActor.h"
 #include "Item/GRItemDefinition.h"
 #include "Player/GRPlayerState.h"
 
-void UGRInventoryWidget::UpdateInventoryDisplay()
+void UGRInventoryItemWidget::UpdateInventoryDisplay()
 {
 	APlayerController* PC = GetOwningPlayer();
 	if (!IsValid(PC))
@@ -27,7 +27,7 @@ void UGRInventoryWidget::UpdateInventoryDisplay()
 	
 	for (int32 Index = AllItemSlots.Num() - 1; Index >= 0; --Index)
 	{
-		UGRInventorySlot* CurrentSlot = AllItemSlots[Index];
+		UGRInventoryItemSlot* CurrentSlot = AllItemSlots[Index];
 		
 		if (Index >= ItemHandles.Num())
 		{
@@ -50,7 +50,7 @@ void UGRInventoryWidget::UpdateInventoryDisplay()
 
 	for (int32 Index = 0; Index < ItemHandles.Num(); ++Index)
 	{
-		UGRInventorySlot* CurrentSlot = nullptr;
+		UGRInventoryItemSlot* CurrentSlot = nullptr;
 		const FGRItemHandle& ItemHandle = ItemHandles[Index];
 		
 		if (AllItemSlots.IsValidIndex(Index))
@@ -61,7 +61,7 @@ void UGRInventoryWidget::UpdateInventoryDisplay()
 		{
 			if (InventorySlotClass.Get() && ItemSlotsContainer) 
 			{
-				CurrentSlot = CreateWidget<UGRInventorySlot>(GetOwningPlayer(), InventorySlotClass);
+				CurrentSlot = CreateWidget<UGRInventoryItemSlot>(GetOwningPlayer(), InventorySlotClass);
 
 				if (CurrentSlot)
 				{
@@ -89,7 +89,7 @@ void UGRInventoryWidget::UpdateInventoryDisplay()
 	}
 }
 
-void UGRInventoryWidget::NativeConstruct()
+void UGRInventoryItemWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
@@ -99,7 +99,7 @@ void UGRInventoryWidget::NativeConstruct()
 	{
 		for (UWidget* Child : ItemSlotsContainer->GetAllChildren())
 		{
-			if (UGRInventorySlot* ItemSlot = Cast<UGRInventorySlot>(Child))
+			if (UGRInventoryItemSlot* ItemSlot = Cast<UGRInventoryItemSlot>(Child))
 			{
 				AllItemSlots.Add(ItemSlot);
 
@@ -115,9 +115,9 @@ void UGRInventoryWidget::NativeConstruct()
 	}
 }
 
-void UGRInventoryWidget::NativeDestruct()
+void UGRInventoryItemWidget::NativeDestruct()
 {
-	for (UGRInventorySlot* ItemSlot : AllItemSlots)
+	for (UGRInventoryItemSlot* ItemSlot : AllItemSlots)
 	{
 		if (ItemSlot)
 		{
@@ -128,7 +128,7 @@ void UGRInventoryWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void UGRInventoryWidget::HandleSlotRightClick(int32 ClickedSlotIndex)
+void UGRInventoryItemWidget::HandleSlotRightClick(int32 ClickedSlotIndex)
 {
 	APlayerController* PC = GetOwningPlayer();
 	if (!IsValid(PC))

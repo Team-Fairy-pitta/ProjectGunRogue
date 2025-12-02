@@ -6,7 +6,6 @@
 class UGRBattleHUDWidget;
 class UGRWeaponDefinition;
 class UGRWeaponUpgradeWidgetSetting;
-class UGRInventoryWidget;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 
@@ -114,9 +113,9 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
-	TSubclassOf<UGRInventoryWidget> InventoryWidgetClass;
+	TSubclassOf<UUserWidget> InventoryWidgetClass;
 
 	UPROPERTY()
-	TObjectPtr<UGRInventoryWidget> InventoryWidgetInstance;
+	TObjectPtr<UUserWidget> InventoryWidgetInstance;
 #pragma endregion Inventory
 };

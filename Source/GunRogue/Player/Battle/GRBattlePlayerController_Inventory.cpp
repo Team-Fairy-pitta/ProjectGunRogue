@@ -1,6 +1,6 @@
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
-#include "UI/Inventory/GRInventoryWidget.h"
+#include "UI/Inventory/GRInventoryItemWidget.h"
 
 void AGRBattlePlayerController::ClientRPC_ShowInventoryWidget_Implementation()
 {
