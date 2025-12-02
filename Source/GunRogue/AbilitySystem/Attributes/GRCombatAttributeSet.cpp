@@ -29,6 +29,10 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	MaxSpread = 10.0f;
 	SpreadIncreasePerShot = 2.0f;
 	CurrentSpread = 0.0f;
+
+	CurrentAmmo = 0.0f;
+	MaxAmmo = 30.0f;
+	ReloadTime = 2.0f;
 }
 
 void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -57,6 +61,10 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SpreadIncreasePerShot, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentSpread, COND_None, REPNOTIFY_Always);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentAmmo, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ReloadTime, COND_None, REPNOTIFY_Always);
 }
 
 void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -72,6 +80,18 @@ void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	{
 		NewValue = FMath::Max(NewValue, 0.0f);
 	}
+	else if (Attribute == GetCurrentAmmoAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxAmmo());
+	}
+	else if (Attribute == GetMaxAmmoAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 1.0f);
+	}
+	else if (Attribute == GetReloadTimeAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 0.1f);
+	}
 }
 
 void UGRCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -81,6 +101,10 @@ void UGRCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 	if (Data.EvaluatedData.Attribute == GetCurrentSpreadAttribute())
 	{
 		SetCurrentSpread(FMath::Clamp(GetCurrentSpread(), 0.0f, GetMaxSpread()));
+	}
+	else if (Data.EvaluatedData.Attribute == GetCurrentAmmoAttribute())
+	{
+		SetCurrentAmmo(FMath::Clamp(GetCurrentAmmo(), 0.0f, GetMaxAmmo()));
 	}
 }
 
@@ -326,6 +350,64 @@ void UGRCombatAttributeSet::ApplySpreadRecovery(UAbilitySystemComponent* OwningA
 		CurrentSpreadValue, NewSpread, RecoveryAmount);
 }
 
+bool UGRCombatAttributeSet::ConsumeAmmo(UAbilitySystemComponent* OwningASC)
+{
+	if (!OwningASC)
+	{
+		return false;
+	}
+
+	if (OwningASC->GetOwnerRole() != ROLE_Authority)
+	{
+		return false;
+	}
+
+	const float CurrentAmmoValue = GetCurrentAmmo();
+
+	if (CurrentAmmoValue <= 0.0f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Ammo] No ammo left!"));
+		return false;
+	}
+
+	const float NewAmmo = CurrentAmmoValue - 1.0f;
+
+	SetCurrentAmmo(NewAmmo);
+
+	UE_LOG(LogTemp, Log, TEXT("[Ammo] Consumed: %.0f / %.0f"), NewAmmo, GetMaxAmmo());
+
+	return true;
+}
+
+void UGRCombatAttributeSet::ReloadAmmo(UAbilitySystemComponent* OwningASC)
+{
+	if (!OwningASC)
+	{
+		return;
+	}
+
+	// 서버에서만 실행
+	if (OwningASC->GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
+	const float CurrentAmmoValue = GetCurrentAmmo();
+	const float MaxAmmoValue = GetMaxAmmo();
+
+	// 이미 가득 찬 경우
+	if (CurrentAmmoValue >= MaxAmmoValue)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Ammo] Already full: %.0f / %.0f"), CurrentAmmoValue, MaxAmmoValue);
+		return;
+	}
+
+	SetCurrentAmmo(MaxAmmoValue);
+
+	UE_LOG(LogTemp, Log, TEXT("[Ammo] Reloaded: %.0f -> %.0f"), CurrentAmmoValue, MaxAmmoValue);
+}
+
+
 // OnRep 함수들
 void UGRCombatAttributeSet::OnRep_WeaponDamage_Base(const FGameplayAttributeData& OldValue)
 {
@@ -415,4 +497,19 @@ void UGRCombatAttributeSet::OnRep_SpreadIncreasePerShot(const FGameplayAttribute
 void UGRCombatAttributeSet::OnRep_CurrentSpread(const FGameplayAttributeData& OldCurrentSpread)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, CurrentSpread, OldCurrentSpread);
+}
+
+void UGRCombatAttributeSet::OnRep_CurrentAmmo(const FGameplayAttributeData& OldCurrentAmmo)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, CurrentAmmo, OldCurrentAmmo);
+}
+
+void UGRCombatAttributeSet::OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAmmo)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, MaxAmmo, OldMaxAmmo);
+}
+
+void UGRCombatAttributeSet::OnRep_ReloadTime(const FGameplayAttributeData& OldReloadTime)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, ReloadTime, OldReloadTime);
 }
