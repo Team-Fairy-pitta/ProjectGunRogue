@@ -14,9 +14,11 @@ ATestWeaponPickup::ATestWeaponPickup()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	PickupSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
-	RootComponent = PickupSphere;
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = Root;
 
+	PickupSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
+	PickupSphere->SetupAttachment(Root);
 	PickupSphere->SetSphereRadius(60.f);
 	PickupSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 
@@ -50,11 +52,20 @@ void ATestWeaponPickup::OnPickupSphereBeginOverlap(
 	}
 
 	ATestGRCharacter* Character = Cast<ATestGRCharacter>(OtherActor);
+	if (!Character)
+	{
+		return;
+	}
 
 	Character->CurrentWeaponAsset = WeaponData;
+
+	Character->CurrentWeapon = this;
+
 	Character->bHasWeapon = true;
 	Character->PushWeaponStateToAnimBP();
 
-	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
-	ASC->TryActivateAbilityByClass(UTestGAEquipMontage::StaticClass());
+	if (UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent())
+	{
+		ASC->TryActivateAbilityByClass(UTestGAEquipMontage::StaticClass());
+	}
 }

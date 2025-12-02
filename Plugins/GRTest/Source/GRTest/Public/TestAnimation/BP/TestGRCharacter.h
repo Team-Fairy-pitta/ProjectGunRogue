@@ -7,6 +7,7 @@
 
 class UAbilitySystemComponent;
 class UTestWeaponAsset;
+class ATestWeaponPickup;
 
 UCLASS()
 class GRTEST_API ATestGRCharacter : public AGRCharacter
@@ -18,7 +19,7 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	virtual void BeginPlay() override;
+	//virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystem;
@@ -26,8 +27,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TObjectPtr<UTestWeaponAsset> CurrentWeaponAsset;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TObjectPtr<ATestWeaponPickup> CurrentWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	bool bHasWeapon = false;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void EquipWeapon(ATestWeaponPickup* NewWeapon);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon")
 	void PushWeaponStateToAnimBP();
