@@ -2,8 +2,7 @@
 
 
 #include "AI/BT/GRBTTask_SelectRandomPlayer.h"
-
-#include "AI/GRBossLuwoAIController.h"
+#include "AI/Controller/GRBossLuwoAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Character/GRCharacter.h"

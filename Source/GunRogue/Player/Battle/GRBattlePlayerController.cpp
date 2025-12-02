@@ -5,6 +5,7 @@
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
 #include "UI/Level1/GRLevel1SelectWidget.h"
+#include "UI/Weapon/GRWeaponUpgrade.h"
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
@@ -121,6 +122,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!Level1SelectWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create Level1SelectWidget Widgets"));
+		return;
+	}
+
+	if (!UpgradeConsoleWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UpgradeConsoleWidgetClass (TSubclassOf<UGRWeaponUpgrade>) is INVALID"));
+		return;
+	}
+
+	UpgradeConsoleWidgetInstance = CreateWidget<UUserWidget>(this, UpgradeConsoleWidgetClass);
+	if (!UpgradeConsoleWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRWeaponUpgrade Widgets"));
 		return;
 	}
 }

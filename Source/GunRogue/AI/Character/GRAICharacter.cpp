@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/GRAICharacter.h"
+#include "AI/Character/GRAICharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystemComponent.h"
 
@@ -26,6 +26,13 @@ AGRAICharacter::AGRAICharacter()
 	bUseControllerRotationYaw = false;
 
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
+	ASC->SetIsReplicated(true);
+	ASC->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	SetNetUpdateFrequency(100.0f);
+
+	bReplicates = true;
+	SetReplicateMovement(true);
 }
 
 UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const

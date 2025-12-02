@@ -3,13 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AI/GRAICharacter.h"
+#include "AI/Character/GRAICharacter.h"
 #include "GRLuwoAICharacter.generated.h"
 
 /**
  * 
  */
 class UGameplayAbility;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterLanded);
 
 UCLASS()
 class GUNROGUE_API AGRLuwoAICharacter : public AGRAICharacter
@@ -21,8 +23,14 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void Landed(const FHitResult& Hit) override;
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterLanded OnLandedEvent;
 	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities",meta=(AllowPrivateAccess))
-	TSubclassOf<UGameplayAbility> GroundStrikeAbilityClass;
+	TArray<TSubclassOf<UGameplayAbility>> AttackAbilityClassList;
 };

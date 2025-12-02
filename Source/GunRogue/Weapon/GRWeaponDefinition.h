@@ -4,6 +4,7 @@
 #include "Engine/DataAsset.h"
 #include "Weapon/GRWeaponTypes.h"
 #include "AbilitySystem/GRAbilitySet.h"
+#include "Weapon/GRWeaponOptionPool.h"
 #include "GRWeaponDefinition.generated.h"
 
 class UTexture2D;
@@ -43,4 +44,22 @@ public:
 	// 무기가 부여하는 어빌리티(사격, 재장전, 특수능력 등)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ability")
 	TObjectPtr<UGRAbilitySet> AbilitySet;
+
+	// 무기 기본 데미지
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	float BaseDamage = 10.f;
+
+	// 무기 최대 레벨
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	int32 MaxLevel = 15;
+
+	// 무기 레벨업 당 증가하는 데미지
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	float UpgradeDamageIncrease = 2.f;
+
+	// 무기 옵션 풀
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	UGRWeaponOptionPool* OptionPool = nullptr;
+
+	
 };

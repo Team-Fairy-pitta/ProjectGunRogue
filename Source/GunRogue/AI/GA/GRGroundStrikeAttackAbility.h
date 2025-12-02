@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/GRGameplayAbility.h"
+#include "GRAIAttackAbility.h"
 #include "GRGroundStrikeAttackAbility.generated.h"
 
 /**
@@ -11,7 +11,7 @@
  */
 
 UCLASS()
-class GUNROGUE_API UGRGroundStrikeAttackAbility : public UGRGameplayAbility
+class GUNROGUE_API UGRGroundStrikeAttackAbility : public UGRAIAttackAbility
 {
 	GENERATED_BODY()
 
@@ -29,20 +29,6 @@ protected:
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		bool bReplicateEndAbility, bool bWasCancelled) override;
-	
-	UFUNCTION()
-	void OnHitNotify(FGameplayEventData Payload);
 
-	UFUNCTION()
-	void OnMontageEnded();
-
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Animation")
-	UAnimMontage* AttackMontage;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Animation")
-	FGameplayTag HitEventTag;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Effects")
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	virtual void OnAttackTriggerNotify(FGameplayEventData Payload) override;
 };

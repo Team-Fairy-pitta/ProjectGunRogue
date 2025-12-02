@@ -154,20 +154,22 @@ void UGRInputHandleComponent::Input_Move(const FInputActionValue& InputActionVal
 
 void UGRInputHandleComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
 {
-	ACharacter* Character = GetOwnerCharacter();
+	AGRCharacter* GRCharacter = GetOwnerCharacter();
 
-	if (IsValid(Character))
+	if (IsValid(GRCharacter))
 	{
 		const FVector2D Value = InputActionValue.Get<FVector2D>();
 
 		if (!FMath::IsNearlyZero(Value.X))
 		{
-			Character->AddControllerYawInput(Value.X);
+			GRCharacter->AddControllerYawInput(Value.X);
 		}
 		if (!FMath::IsNearlyZero(Value.Y))
 		{
-			Character->AddControllerPitchInput(Value.Y);
+			GRCharacter->AddControllerPitchInput(Value.Y);
 		}
+
+		GRCharacter->SetLastControllerRotation();
 	}
 }
 
