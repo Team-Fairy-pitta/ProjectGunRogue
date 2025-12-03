@@ -10,6 +10,8 @@
 class UTexture2D;
 class UStaticMesh;
 class USkeletalMesh;
+class UAnimSequence;
+class UAnimMontage;
 
 UCLASS()
 class GUNROGUE_API UGRWeaponDefinition : public UDataAsset
@@ -45,6 +47,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ability")
 	TObjectPtr<UGRAbilitySet> AbilitySet;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TObjectPtr<UAnimSequence> IdleAnimSequence;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TObjectPtr<UAnimMontage> EquipAnimMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TObjectPtr<UAnimMontage> ReloadAnimMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TObjectPtr<UAnimMontage> FireAnimMontage;
+
+	/* 무기 강화 파트에서 사용하고 있는 값 */
+	/* [NOTE] 무기의 Status Effect 랑 어떻게 통합할 수 있을까..? */
 	// 무기 기본 데미지
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	float BaseDamage = 10.f;
@@ -60,6 +76,4 @@ public:
 	// 무기 옵션 풀
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	UGRWeaponOptionPool* OptionPool = nullptr;
-
-	
 };

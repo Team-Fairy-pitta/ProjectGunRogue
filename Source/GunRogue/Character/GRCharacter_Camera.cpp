@@ -63,6 +63,7 @@ void AGRCharacter::ApplySmoothCameraControl_Rotation(float DeltaTime)
 	}
 
 	float Rate = SmoothAlpha * DeltaTime * SmoothSpeed;
+	Rate = FMath::Clamp(Rate, 0.0f, 1.0f);
 	FQuat DeltaQuat = FQuat::Slerp(Current, TargetCameraRotation, Rate);
 	DeltaQuat.Normalize();
 	FRotator DeltaRotator = DeltaQuat.Rotator();
@@ -77,6 +78,7 @@ void AGRCharacter::ApplySmoothCameraControl_CameraArm(float DeltaTime)
 		return;
 	}
 	float Rate = SmoothAlpha * DeltaTime * SmoothSpeed;
+	Rate = FMath::Clamp(Rate, 0.0f, 1.0f);
 
 	float CurrentArmLength = SpringArmComponent->TargetArmLength;
 	if (!FMath::IsNearlyEqual(TargetCameraArmLength, CurrentArmLength))
@@ -90,7 +92,7 @@ void AGRCharacter::ApplySmoothCameraControl_CameraArm(float DeltaTime)
 			SetCharacterVisibilityForCamera(true);
 		}
 		/* Magic Number: 1인칭 시점에서 캐릭터 표시 */
-		else if (SpringArmComponent->TargetArmLength <= 5)
+		else if (SpringArmComponent->TargetArmLength <= 1.0f)
 		{
 			SetCharacterVisibilityForCamera(true);
 		}
@@ -147,7 +149,7 @@ void AGRCharacter::AttachCameraArmToHead()
 	if (SpringArmComponent && GetMesh())
 	{
 		FName SocketName(TEXT("J_Bip_C_Head"));
-		SpringArmComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, SocketName);
+		SpringArmComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
 		bIsCameraAttachedToHead = true;
 	}
 }

@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Inventory/GRInventorySlot.h"
+#include "UI/Inventory/GRInventoryItemSlot.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
-void UGRInventorySlot::SetSlot(UTexture2D* ItemImage, FText ItemName, FText ItemDescription)
+void UGRInventoryItemSlot::SetSlot(UTexture2D* ItemImage, FText ItemName, FText ItemDescription)
 {
 	if (ItemSlotIcon)
 	{
@@ -29,7 +29,7 @@ void UGRInventorySlot::SetSlot(UTexture2D* ItemImage, FText ItemName, FText Item
 	
 }
 
-void UGRInventorySlot::ClearSlot()
+void UGRInventoryItemSlot::ClearSlot()
 {
 	if (ItemSlotIcon)
 	{
@@ -38,7 +38,7 @@ void UGRInventorySlot::ClearSlot()
 	SlotIndex = -1;
 }
 
-FReply UGRInventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+FReply UGRInventoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 

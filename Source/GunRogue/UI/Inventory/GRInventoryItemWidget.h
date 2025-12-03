@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "GRInventoryWidget.generated.h"
+#include "GRInventoryItemWidget.generated.h"
 
-class UGRInventorySlot;
+class UGRInventoryItemSlot;
 class UWrapBox;
 struct FGRItemHandle;
 /**
  * 
  */
 UCLASS()
-class GUNROGUE_API UGRInventoryWidget : public UUserWidget
+class GUNROGUE_API UGRInventoryItemWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -26,14 +26,14 @@ protected:
 	UWrapBox* ItemSlotsContainer;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
-	TArray<UGRInventorySlot*> AllItemSlots;
+	TArray<UGRInventoryItemSlot*> AllItemSlots;
 
 	virtual void NativeConstruct() override;
 
 	virtual void NativeDestruct() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	TSubclassOf<UGRInventorySlot> InventorySlotClass;
+	TSubclassOf<UGRInventoryItemSlot> InventorySlotClass;
 
 private:
 

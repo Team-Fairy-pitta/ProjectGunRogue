@@ -68,6 +68,7 @@ void AGRStreamingDoorController::SetLoadLevelCompleted()
 	if (bRequiresLevelCompletion)
 	{
 		bHasLevelCompleted = true;
+		CheckDoorOpenCondition();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("setloadlevelcompleted"));
 }

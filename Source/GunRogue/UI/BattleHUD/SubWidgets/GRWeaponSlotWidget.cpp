@@ -4,6 +4,7 @@
 #include "GRWeaponSlotWidget.h"
 #include "Components/Border.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 
 void UGRWeaponSlotWidget::SetSelected(bool bSelected)
 {
@@ -48,4 +49,47 @@ void UGRWeaponSlotWidget::SetWeaponIndex(int32 Index)
 	}
 
 	GunIndexText->SetText(FText::AsNumber(Index));
+}
+
+void UGRWeaponSlotWidget::SetWeaponImage(UTexture2D* WeaponImage)
+{
+	if (!GunImage)
+	{
+		return;
+	}
+	if (!WeaponImage)
+	{
+		return;
+	}
+	GunImage->SetBrushFromTexture(WeaponImage);
+}
+
+void UGRWeaponSlotWidget::SetEnable()
+{
+	if (!GunImage)
+	{
+		return;
+	}
+	GunImage->SetVisibility(ESlateVisibility::Visible);
+
+	if (!GunIndexText)
+	{
+		return;
+	}
+	GunIndexText->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UGRWeaponSlotWidget::SetDisable()
+{
+	if (!GunImage)
+	{
+		return;
+	}
+	GunImage->SetVisibility(ESlateVisibility::Hidden);
+
+	if (!GunIndexText)
+	{
+		return;
+	}
+	GunIndexText->SetVisibility(ESlateVisibility::Hidden);
 }

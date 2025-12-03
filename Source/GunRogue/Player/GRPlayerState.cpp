@@ -30,6 +30,12 @@ AGRPlayerState::AGRPlayerState()
 
 void AGRPlayerState::BeginPlay()
 {
+	Super::BeginPlay();
+}
+
+void AGRPlayerState::EndPlay(EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
 }
 
 void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -299,7 +305,7 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 			DeactivateWeaponInSlot(CurrentWeaponSlot);
 			WeaponSlots[CurrentWeaponSlot].UnequipWeapon();
 
-			OnWeaponDropped.Broadcast(CurrentWeaponSlot, DroppedWeaponDef);
+			ClientRPC_BroadcastOnWeaponDropped(CurrentWeaponSlot, DroppedWeaponDef);
 
 			// 바닥에 무기 스폰
 			DropWeaponAtPlayerFront(DroppedWeaponDef, DroppedInstanceCopy);
@@ -312,7 +318,7 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 			ActivateWeaponInSlot(EmptySlot);
 			CurrentWeaponSlot = EmptySlot;
 
-			OnWeaponEquipped.Broadcast(EmptySlot, WeaponDefinition);
+			ClientRPC_BroadcastOnWeaponEquipped(EmptySlot, WeaponDefinition);
 		}
 		else
 		{
@@ -325,7 +331,8 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 		// 빈 슬롯이 있는 경우 - 저장만 하고 스위칭 안 함
 		WeaponSlots[EmptySlot].EquipWeapon(AbilitySystemComponent, WeaponDefinition, Instance);
 
-		OnWeaponEquipped.Broadcast(EmptySlot, WeaponDefinition);
+		ClientRPC_BroadcastOnWeaponEquipped(EmptySlot, WeaponDefinition);
+
 
 		// 첫 번째 무기라면 자동으로 활성화
 		if (CurrentWeaponSlot == -1)
@@ -335,7 +342,7 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 			ActivateWeaponInSlot(EmptySlot);
 			CurrentWeaponSlot = EmptySlot;
 
-			OnWeaponSwitched.Broadcast(OldSlot, CurrentWeaponSlot);
+			ClientRPC_BroadcastOnWeaponSwitched(OldSlot, CurrentWeaponSlot);
 
 			UE_LOG(LogTemp, Display, TEXT("First weapon equipped and activated in slot %d"), EmptySlot);
 		}
@@ -351,6 +358,9 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 	{
 		WeaponActor->Destroy();
 	}
+
+	// 무기 장착 애님 몽타주 재생
+	MulticastRPC_PlayWeaponEquipAnimMontage();
 
 	UE_LOG(LogTemp, Display, TEXT("Player equipped weapon: %s in slot %d, Current active slot: %d"),
 		*WeaponDefinition->WeaponName.ToString(), EmptySlot, CurrentWeaponSlot);
@@ -382,11 +392,12 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 	DeactivateWeaponInSlot(SlotIndex);
 	WeaponSlots[SlotIndex].UnequipWeapon();
 
-	OnWeaponDropped.Broadcast(SlotIndex, DroppedWeaponDef);
+	ClientRPC_BroadcastOnWeaponDropped(SlotIndex, DroppedWeaponDef);
 
 	// 현재 활성 무기였다면 CurrentWeaponSlot 초기화
 	if (CurrentWeaponSlot == SlotIndex)
 	{
+		int32 OldSlot = CurrentWeaponSlot;
 		CurrentWeaponSlot = -1;
 
 		// 다른 슬롯에 무기가 있다면 자동으로 전환
@@ -394,19 +405,27 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 		{
 			if (i != SlotIndex && WeaponSlots[i].IsEquipped())
 			{
-				int32 OldSlot = CurrentWeaponSlot;
-
+				int32 NewSlot = i;
 				ActivateWeaponInSlot(i);
-				CurrentWeaponSlot = i;
-				OnWeaponSwitched.Broadcast(OldSlot, CurrentWeaponSlot);
+				ClientRPC_BroadcastOnWeaponSwitched(OldSlot, NewSlot);
+				CurrentWeaponSlot = NewSlot;
 				UE_LOG(LogTemp, Display, TEXT("Auto-switched to weapon in slot %d"), i);
 				break;
 			}
+		}
+
+		// 다른 슬롯에 무기가 없다면 -1
+		if (CurrentWeaponSlot == -1)
+		{
+			ClientRPC_BroadcastOnWeaponSwitched(OldSlot, -1);
 		}
 	}
 
 	// 플레이어 앞에 무기 스폰
 	DropWeaponAtPlayerFront(DroppedWeaponDef, DroppedInstanceCopy);
+
+	// 무기 장착 애님 몽타주 재생 (무기를 drop하고, 다른 무기로 교체하는 경우에 재생됨)
+	MulticastRPC_PlayWeaponEquipAnimMontage();
 
 	UE_LOG(LogTemp, Display, TEXT("Player dropped weapon from slot %d"), SlotIndex);
 }
@@ -448,7 +467,7 @@ void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
 	ActivateWeaponInSlot(SlotIndex);
 	CurrentWeaponSlot = SlotIndex;
 
-	OnWeaponSwitched.Broadcast(OldSlot, CurrentWeaponSlot);
+	ClientRPC_BroadcastOnWeaponSwitched(OldSlot, CurrentWeaponSlot);
 
 	UGRWeaponDefinition* WeaponDef = WeaponSlots[SlotIndex].GetWeaponDefinition();
 	if (WeaponDef)
@@ -456,6 +475,24 @@ void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
 		UE_LOG(LogTemp, Display, TEXT("Switched to weapon: %s in slot %d"),
 			*WeaponDef->WeaponName.ToString(), SlotIndex);
 	}
+
+	// 다른 무기로 교체할 때도 Equip 애니메이션을 재생해야 함
+	MulticastRPC_PlayWeaponEquipAnimMontage();
+}
+
+void AGRPlayerState::ClientRPC_BroadcastOnWeaponEquipped_Implementation(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition)
+{
+	OnWeaponEquipped.Broadcast(SlotIndex, WeaponDefinition);
+}
+
+void AGRPlayerState::ClientRPC_BroadcastOnWeaponDropped_Implementation(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition)
+{
+	OnWeaponDropped.Broadcast(SlotIndex, WeaponDefinition);
+}
+
+void AGRPlayerState::ClientRPC_BroadcastOnWeaponSwitched_Implementation(int32 OldSlotIndex, int32 NewSlotIndex)
+{
+	OnWeaponSwitched.Broadcast(OldSlotIndex, NewSlotIndex);
 }
 
 int32 AGRPlayerState::FindEmptyWeaponSlot() const
@@ -538,6 +575,29 @@ void AGRPlayerState::SpawnWeaponAtLocation(
 		WeaponActor->InitWeapon(WeaponDefinition, WeaponInstance);
 		WeaponActor->MulticastRPC_InitWeapon(WeaponDefinition, WeaponInstance);
 	}
+}
+
+void AGRPlayerState::MulticastRPC_PlayWeaponEquipAnimMontage_Implementation()
+{
+	UGRWeaponDefinition* Definition = GetCurrentWeaponDefinition();
+	if (!Definition)
+	{
+		return;
+	}
+
+	UAnimMontage* EquipAnimMontage = Definition->EquipAnimMontage;
+	if (!EquipAnimMontage)
+	{
+		return;
+	}
+
+	AGRCharacter* GRCharacter = GetGRCharacter();
+	if (!GRCharacter)
+	{
+		return;
+	}
+
+	GRCharacter->PlayAnimMontage(EquipAnimMontage);
 }
 
 void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)

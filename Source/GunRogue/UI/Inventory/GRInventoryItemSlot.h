@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "GRInventorySlot.generated.h"
+#include "GRInventoryItemSlot.generated.h"
 
 class UTextBlock;
 class UButton;
@@ -16,7 +16,7 @@ class UImage;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSlotContextMenu, int32, SlotIndex);
 
 UCLASS()
-class GUNROGUE_API UGRInventorySlot : public UUserWidget
+class GUNROGUE_API UGRInventoryItemSlot : public UUserWidget
 {
 	GENERATED_BODY()
 

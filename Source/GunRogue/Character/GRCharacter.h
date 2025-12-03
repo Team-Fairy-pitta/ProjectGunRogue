@@ -77,6 +77,7 @@ public:
 #pragma region SmoothCameraControl
 public:
 	void SetLastControllerRotation();
+	void SetCharacterVisibilityForCamera(bool InVisibility);
 
 	UFUNCTION(BlueprintCallable)
 	void AddControllerYawSmooth_Temporal(float Value);
@@ -102,7 +103,6 @@ public:
 protected:
 	void ApplySmoothCameraControl_Rotation(float DeltaTime);
 	void ApplySmoothCameraControl_CameraArm(float DeltaTime);
-	void SetCharacterVisibilityForCamera(bool InVisibility);
 	void AttachCameraArmToCapsule();
 	void AttachCameraArmToHead();
 
@@ -112,7 +112,7 @@ protected:
 	// [NOTE] [TODO] 적절한 카메라 위치를 찾아야 함
 	// [NOTE] 이유는 모르겠는데 X가 좌우, Y가 위아래, Z가 앞뒤로 적용되며, 부호도 이상함.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
-	FVector FirstPerson_CameraArmLocation = FVector(15.0f, 0.0f, 70.0f);
+	FVector FirstPerson_CameraArmLocation = FVector(0.0f, -6.0f, 4.0f);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CameraControl")
 	float ThirdPerson_CameraArmLength = 150.0f;
