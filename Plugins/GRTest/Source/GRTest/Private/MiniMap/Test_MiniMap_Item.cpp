@@ -16,10 +16,14 @@ ATest_MiniMap_Item::ATest_MiniMap_Item()
 void ATest_MiniMap_Item::BeginPlay()
 {
 	Super::BeginPlay();
+	if (AbilitySystem)
+	{
+		FGameplayTag MiniMapShowTag = FGameplayTag::RequestGameplayTag(FName("MiniMap.Show"));
+		AbilitySystem->AddLooseGameplayTag(MiniMapShowTag);
 
-	AbilitySystem->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("MiniMap.Show"));
-
-	AbilitySystem->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("MiniMap.Item"));
+		FGameplayTag MiniMapItemTag = FGameplayTag::RequestGameplayTag(FName("MiniMap.Type.Item"));
+		AbilitySystem->AddLooseGameplayTag(MiniMapItemTag);
+	}
 	
 }
 
