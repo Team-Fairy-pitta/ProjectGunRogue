@@ -3,8 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Weapon/GRWeaponTypes.h"
-#include "AbilitySystem/GRAbilitySet.h"
-#include "Weapon/GRWeaponOptionPool.h"
+#include "Character/Attachment/GRCharacterAttachment.h"
 #include "GRWeaponDefinition.generated.h"
 
 class UTexture2D;
@@ -12,6 +11,8 @@ class UStaticMesh;
 class USkeletalMesh;
 class UAnimSequence;
 class UAnimMontage;
+class UGRAbilitySet;
+class UGRWeaponOptionPool;
 
 UCLASS()
 class GUNROGUE_API UGRWeaponDefinition : public UDataAsset
@@ -39,9 +40,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Mesh")
 	TObjectPtr<UStaticMesh> WeaponPickupMesh;
 
-	// 무기 스켈레탈 메시 (장착했을 때)
+	// 장착했을 때, 캐릭터에 붙여야 하는 Attachment 정보
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Mesh")
-	TObjectPtr<USkeletalMesh> WeaponEquippedMesh;
+	FGRCharacterAttachment WeaponAttachment;
 
 	// 무기가 부여하는 어빌리티(사격, 재장전, 특수능력 등)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ability")
