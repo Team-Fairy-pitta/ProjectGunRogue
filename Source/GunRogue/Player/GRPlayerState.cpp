@@ -3,6 +3,7 @@
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Character/GRCharacter.h"
 #include "Character/GRPawnData.h"
+#include "Character/Attachment/GRAttachmentComponent.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/GRAbilitySet.h"
 #include "AbilitySystem/GRGameplayEffect.h"
@@ -343,6 +344,7 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 			CurrentWeaponSlot = EmptySlot;
 
 			ClientRPC_BroadcastOnWeaponSwitched(OldSlot, CurrentWeaponSlot);
+			UpdateWeaponAttachToCharacter();
 
 			UE_LOG(LogTemp, Display, TEXT("First weapon equipped and activated in slot %d"), EmptySlot);
 		}
@@ -407,8 +409,9 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 			{
 				int32 NewSlot = i;
 				ActivateWeaponInSlot(i);
-				ClientRPC_BroadcastOnWeaponSwitched(OldSlot, NewSlot);
 				CurrentWeaponSlot = NewSlot;
+				ClientRPC_BroadcastOnWeaponSwitched(OldSlot, NewSlot);
+				UpdateWeaponAttachToCharacter();
 				UE_LOG(LogTemp, Display, TEXT("Auto-switched to weapon in slot %d"), i);
 				break;
 			}
@@ -418,6 +421,7 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 		if (CurrentWeaponSlot == -1)
 		{
 			ClientRPC_BroadcastOnWeaponSwitched(OldSlot, -1);
+			UpdateWeaponAttachToCharacter();
 		}
 	}
 
@@ -468,6 +472,7 @@ void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
 	CurrentWeaponSlot = SlotIndex;
 
 	ClientRPC_BroadcastOnWeaponSwitched(OldSlot, CurrentWeaponSlot);
+	UpdateWeaponAttachToCharacter();
 
 	UGRWeaponDefinition* WeaponDef = WeaponSlots[SlotIndex].GetWeaponDefinition();
 	if (WeaponDef)
@@ -493,6 +498,49 @@ void AGRPlayerState::ClientRPC_BroadcastOnWeaponDropped_Implementation(int32 Slo
 void AGRPlayerState::ClientRPC_BroadcastOnWeaponSwitched_Implementation(int32 OldSlotIndex, int32 NewSlotIndex)
 {
 	OnWeaponSwitched.Broadcast(OldSlotIndex, NewSlotIndex);
+}
+
+void AGRPlayerState::UpdateWeaponAttachToCharacter()
+{
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UpdateWeaponAttachToCharacter requires Authority"));
+		return;
+	}
+
+	AGRCharacter* GRCharacter = GetGRCharacter();
+	if (!IsValid(GRCharacter))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GRCharacter is INVALID"));
+		return;
+	}
+
+	UGRAttachmentComponent* AttachmentComponent = GRCharacter->AttachmentComponent;
+	if (!AttachmentComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UGRAttachmentComponent is INVALID"));
+		return;
+	}
+
+	const UGRWeaponDefinition* CurrentWeaponDefinition = GetCurrentWeaponDefinition();
+	if (CurrentWeaponDefinition)
+	{
+		// 기존에 Attach 되어있는 무기 제거
+		if (CurrentWeaponAttachmentHandle.IsValid())
+		{
+			AttachmentComponent->RemoveCharacterAttachment(CurrentWeaponAttachmentHandle);
+		}
+
+		// 새 무기 Attach
+		CurrentWeaponAttachmentHandle = AttachmentComponent->AddCharacterAttachment(CurrentWeaponDefinition->WeaponAttachment);
+	}
+	else
+	{
+		if (CurrentWeaponAttachmentHandle.IsValid())
+		{
+			AttachmentComponent->RemoveCharacterAttachment(CurrentWeaponAttachmentHandle);
+		}
+	}
 }
 
 int32 AGRPlayerState::FindEmptyWeaponSlot() const

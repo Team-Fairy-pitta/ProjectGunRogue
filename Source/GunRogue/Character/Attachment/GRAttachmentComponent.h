@@ -13,7 +13,7 @@ class GUNROGUE_API UGRAttachmentComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	UGRAttachmentComponent();
+	UGRAttachmentComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|CharacterAttachment")

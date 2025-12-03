@@ -92,3 +92,10 @@ struct FGRCharacterAttachmentList : public FFastArraySerializer
 
 	int32 AttachmentHandleCounter = 0;
 };
+
+// FFastArraySerializer를 위해 명시적으로 작성해야 하는 코드
+template<>
+struct TStructOpsTypeTraits<FGRCharacterAttachmentList> : public TStructOpsTypeTraitsBase2<FGRCharacterAttachmentList>
+{
+	enum { WithNetDeltaSerializer = true };
+};

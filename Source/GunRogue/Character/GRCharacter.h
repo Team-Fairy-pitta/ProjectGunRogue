@@ -12,6 +12,7 @@ class AGRPlayerState;
 class UGRAbilitySystemComponent;
 class UGRInputHandleComponent;
 class UGRInteractionComponent;
+class UGRAttachmentComponent;
 class UGRPawnData;
 
 UCLASS()
@@ -46,6 +47,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UGRInteractionComponent> InteractionComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRAttachmentComponent> AttachmentComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;

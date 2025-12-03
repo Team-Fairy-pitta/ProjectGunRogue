@@ -2,7 +2,8 @@
 #include "Character/GRCharacter.h"
 #include "Net/UnrealNetwork.h"
 
-UGRAttachmentComponent::UGRAttachmentComponent(): AppliedCharacterAttachmentList(this)
+UGRAttachmentComponent::UGRAttachmentComponent(const FObjectInitializer& ObjectInitialize)
+	: Super(ObjectInitialize), AppliedCharacterAttachmentList(this)
 {
 	SetIsReplicatedByDefault(true);
 }
