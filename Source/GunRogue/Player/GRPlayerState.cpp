@@ -320,6 +320,10 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 			CurrentWeaponSlot = EmptySlot;
 
 			ClientRPC_BroadcastOnWeaponEquipped(EmptySlot, WeaponDefinition);
+			UpdateWeaponAttachToCharacter();
+
+			// 무기 장착 애님 몽타주 재생
+			MulticastRPC_PlayWeaponEquipAnimMontage();
 		}
 		else
 		{
@@ -334,7 +338,6 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 
 		ClientRPC_BroadcastOnWeaponEquipped(EmptySlot, WeaponDefinition);
 
-
 		// 첫 번째 무기라면 자동으로 활성화
 		if (CurrentWeaponSlot == -1)
 		{
@@ -345,6 +348,9 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 
 			ClientRPC_BroadcastOnWeaponSwitched(OldSlot, CurrentWeaponSlot);
 			UpdateWeaponAttachToCharacter();
+
+			// 무기 장착 애님 몽타주 재생
+			MulticastRPC_PlayWeaponEquipAnimMontage();
 
 			UE_LOG(LogTemp, Display, TEXT("First weapon equipped and activated in slot %d"), EmptySlot);
 		}
@@ -360,9 +366,6 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 	{
 		WeaponActor->Destroy();
 	}
-
-	// 무기 장착 애님 몽타주 재생
-	MulticastRPC_PlayWeaponEquipAnimMontage();
 
 	UE_LOG(LogTemp, Display, TEXT("Player equipped weapon: %s in slot %d, Current active slot: %d"),
 		*WeaponDefinition->WeaponName.ToString(), EmptySlot, CurrentWeaponSlot);
