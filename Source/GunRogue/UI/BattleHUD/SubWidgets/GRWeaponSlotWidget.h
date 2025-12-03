@@ -8,6 +8,8 @@
 
 class UTextBlock;
 class UBorder;
+class UImage;
+class UTexture2D;
 /**
  * 
  */
@@ -26,12 +28,20 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UBorder* WeaponSlotBorder;
 
+	UPROPERTY(meta = (BindWidget))
+	UImage* GunImage;
+
 public:
 	void SetSelected(bool bSelected);
 
 	void SetBulletCount(int32 CurrentBullets, int32 MaxBullets);
 
 	void SetWeaponIndex(int32 Index);
+
+	void SetWeaponImage(UTexture2D* WeaponImage);
+
+	void SetEnable();
+	void SetDisable();
 
 private:
 	bool bIsSelected = false;

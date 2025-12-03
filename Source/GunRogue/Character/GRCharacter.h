@@ -74,7 +74,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Spectate")
 	bool IsTargetDead(ACharacter* TargetCharacter) const;
 
-
 #pragma region SmoothCameraControl
 public:
 	void SetLastControllerRotation();

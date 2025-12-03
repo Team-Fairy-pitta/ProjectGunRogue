@@ -3,28 +3,44 @@
 
 #include "AI/Character/GRLuwoAICharacter.h"
 #include "AbilitySystemComponent.h"
+#include "Components/CapsuleComponent.h"
 
 AGRLuwoAICharacter::AGRLuwoAICharacter()
 {
+	UCapsuleComponent* Capsule = GetCapsuleComponent();
+	if (Capsule)
+	{
+		Capsule->BodyInstance.SetCollisionProfileName(TEXT("AIBoss"));
+	}
+
+	USkeletalMeshComponent* SkelMesh = GetMesh();
+	if (SkelMesh)
+	{
+		SkelMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1,ECollisionResponse::ECR_Ignore);
+	}
 }
 
 void AGRLuwoAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (ASC)
+	if (HasAuthority())
 	{
-		ASC->InitAbilityActorInfo(this, this);
-		
-		for (auto& AbilityClass : AttackAbilityClassList)
+		if (ASC)
 		{
-			if (AbilityClass)
+			ASC->InitAbilityActorInfo(this, this);
+		
+			for (auto& AbilityClass : AttackAbilityClassList)
 			{
-				FGameplayAbilitySpec Spec(AbilityClass, /*Level*/1, /*InputID*/0, this);
-				ASC->GiveAbility(Spec);
+				if (AbilityClass)
+				{
+					FGameplayAbilitySpec Spec(AbilityClass, /*Level*/1, /*InputID*/0, this);
+					ASC->GiveAbility(Spec);
+				}
 			}
-		}
+		}	
 	}
+	
 }
 
 void AGRLuwoAICharacter::Landed(const FHitResult& Hit)

@@ -4,6 +4,7 @@
 #include "Engine/DataAsset.h"
 #include "Weapon/GRWeaponTypes.h"
 #include "AbilitySystem/GRAbilitySet.h"
+#include "Weapon/GRWeaponOptionPool.h"
 #include "GRWeaponDefinition.generated.h"
 
 class UTexture2D;
@@ -57,4 +58,22 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
 	TObjectPtr<UAnimMontage> FireAnimMontage;
+
+	/* 무기 강화 파트에서 사용하고 있는 값 */
+	/* [NOTE] 무기의 Status Effect 랑 어떻게 통합할 수 있을까..? */
+	// 무기 기본 데미지
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	float BaseDamage = 10.f;
+
+	// 무기 최대 레벨
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	int32 MaxLevel = 15;
+
+	// 무기 레벨업 당 증가하는 데미지
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	float UpgradeDamageIncrease = 2.f;
+
+	// 무기 옵션 풀
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	UGRWeaponOptionPool* OptionPool = nullptr;
 };

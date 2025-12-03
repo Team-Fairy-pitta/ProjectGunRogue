@@ -13,8 +13,11 @@ class UGRAbilitySystemComponent;
 class UGRWeaponDefinition;
 class AGRWeaponActor;
 struct FGameplayEffectSpec;
+struct FGRWeaponInstance;
 
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
+
+DECLARE_MULTICAST_DELEGATE(FOnWeaponDataUpdata);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
@@ -35,6 +38,7 @@ class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemIn
 public:
 	AGRPlayerState();
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	UFUNCTION(BlueprintCallable, Category = "ITPlayerState")
@@ -56,6 +60,17 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GunRogue|Weapon|Events")
 	FOnWeaponSwitched OnWeaponSwitched;
 
+	// 무기 이벤트 RPC
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_BroadcastOnWeaponEquipped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_BroadcastOnWeaponDropped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_BroadcastOnWeaponSwitched(int32 OldSlotIndex, int32 NewSlotIndex);
+
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	FOnAbilitySystemComponentInit OnAbilitySystemComponentInit;
@@ -75,7 +90,7 @@ public:
 	int32 GetItemNum();
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
-	void TryEquipWeapon(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor);
+	void TryEquipWeapon(UGRWeaponDefinition* WeaponDefinition, FGRWeaponInstance& Instance, AActor* WeaponActor);
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
 	void DropWeapon(int32 SlotIndex);
@@ -98,6 +113,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
 	UGRWeaponDefinition* GetCurrentWeaponDefinition() const;
 
+	FGRWeaponInstance* GetWeaponInstanceInSlot(int32 SlotIndex);
+
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_EquipItemActor(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
 
@@ -105,7 +122,7 @@ public:
 	void ServerRPC_UnequipItemActor(int32 ItemIndex);
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_EquipWeapon(UGRWeaponDefinition* WeaponDefinition, AActor* WeaponActor);
+	void ServerRPC_EquipWeapon(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& Instance, AActor* WeaponActor);
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_DropWeapon(int32 SlotIndex);
@@ -116,6 +133,29 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPC_PlayWeaponEquipAnimMontage();
   
+	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
+	void UpgradeWeapon(int32 SlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_UpgradeWeapon(int32 SlotIndex);
+
+	UFUNCTION()
+	void OnRep_WeaponDataUpdata();
+
+	UFUNCTION()
+	void AllRerollOptionWeapon(int32 InWeaponSlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_AllRerollOptionWeapon(int32 InWeaponSlotIndex);
+
+	UFUNCTION()
+	void RerollOptionWeapon(int32 InWeaponSlotIndex, int32 InOptionSlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_RerollOptionWeapon(int32 InWeaponSlotIndex, int32 InOptionSlotIndex);
+
+	FOnWeaponDataUpdata OnWeaponDataUpdata;
+
 	TArray<FGRItemHandle>& GetItemHandles() { return ItemHandles; }
 
 protected:
@@ -133,7 +173,7 @@ protected:
 	UPROPERTY()
 	TSet<UGRItemDefinition*> ItemDefinitionSet;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponDataUpdata)
 	TArray<FGRWeaponHandle> WeaponSlots;
 
 	UPROPERTY(Replicated)
@@ -147,7 +187,7 @@ private:
 
 	void OnEquipItem(UGRItemDefinition* ItemDefinition);
 	void OnUnequipItem(UGRItemDefinition* ItemDefinition);
-	void DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition);
+	void DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& Instance);
 
 	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
 	void PlaceActorOnGround(AActor* SpawnedActor);
@@ -156,7 +196,7 @@ private:
 	int32 FindEmptyWeaponSlot() const;
 	void ActivateWeaponInSlot(int32 SlotIndex);
 	void DeactivateWeaponInSlot(int32 SlotIndex);
-	void SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition, const FVector& Location, const FRotator& Rotation);
+	void SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& WeaponInstance, const FVector& Location, const FRotator& Rotation);
 
 	bool bIsAbilitySystemComponentInit = false;
 };

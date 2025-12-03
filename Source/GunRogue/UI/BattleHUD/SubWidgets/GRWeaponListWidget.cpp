@@ -9,7 +9,7 @@ void UGRWeaponListWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	WeaponSlots = { FirstWeapon, SecondWeapon, ThirdWeapon};
+	WeaponSlots = { FirstWeapon, SecondWeapon};
 
 	for (int32 i = 0; i < WeaponSlots.Num(); i++)
 	{
@@ -17,6 +17,7 @@ void UGRWeaponListWidget::NativeConstruct()
 		{
 			WeaponSlots[i]->SetWeaponIndex(i + 1);
 			WeaponSlots[i]->SetSelected(false);
+			WeaponSlots[i]->SetDisable();
 		}
 	}
 }
@@ -40,6 +41,39 @@ void UGRWeaponListWidget::UpdateBulletCount(int32 WeaponIndex, int32 CurrentBull
 		if (WeaponSlots[WeaponIndex])
 		{
 			WeaponSlots[WeaponIndex]->SetBulletCount(CurrentBullets, MaxBullets);
+		}
+	}
+}
+
+void UGRWeaponListWidget::UpdateWeaponImage(int32 WeaponIndex, UTexture2D* WeaponImage)
+{
+	if (WeaponSlots.IsValidIndex(WeaponIndex))
+	{
+		if (WeaponSlots[WeaponIndex])
+		{
+			WeaponSlots[WeaponIndex]->SetWeaponImage(WeaponImage);
+		}
+	}
+}
+
+void UGRWeaponListWidget::EnableWeaponSlot(int32 WeaponIndex)
+{
+	if (WeaponSlots.IsValidIndex(WeaponIndex))
+	{
+		if (WeaponSlots[WeaponIndex])
+		{
+			WeaponSlots[WeaponIndex]->SetEnable();
+		}
+	}
+}
+
+void UGRWeaponListWidget::DisableWeaponSlot(int32 WeaponIndex)
+{
+	if (WeaponSlots.IsValidIndex(WeaponIndex))
+	{
+		if (WeaponSlots[WeaponIndex])
+		{
+			WeaponSlots[WeaponIndex]->SetDisable();
 		}
 	}
 }
