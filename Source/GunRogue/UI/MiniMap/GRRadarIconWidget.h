@@ -6,6 +6,7 @@
 #include "GRRadarIconWidget.generated.h"
 
 class UImage;
+class UGRRadarMapIconDataAsset;
 
 UCLASS()
 class GUNROGUE_API UGRRadarIconWidget : public UUserWidget
@@ -20,20 +21,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UImage* IconImage;
 
-	UPROPERTY(EditAnywhere)
-	float RadarScale = 0.05f;
-
-	// 아이콘 설정용 텍스처
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* PlayerTexture;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* EnemyTexture;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* ItemTexture;
-
-
-private:
-	FGameplayTag RadarTag;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Radar")
+	UGRRadarMapIconDataAsset* IconDataAsset;
 };

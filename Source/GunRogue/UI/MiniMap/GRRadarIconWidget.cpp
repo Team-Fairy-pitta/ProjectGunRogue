@@ -3,38 +3,38 @@
 #include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "MiniMap/GRRadarMapIconDataAsset.h"
+
 
 void UGRRadarIconWidget::InitIcon(const FGameplayTag& InTag)
 {
-	RadarTag = InTag;
 
-	if (InTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Minimap.Type.Player")))
+	if (!IconDataAsset)
 	{
-		IconImage->SetBrushFromTexture(PlayerTexture);
+		UE_LOG(LogTemp, Error, TEXT("IconDataAsset is not assigned!"));
+		return;
 	}
-	else if (InTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Minimap.Type.Enemy")))
+
+	const FRadarIconData* Data = IconDataAsset->FindIconData(InTag);
+	if (!Data)
 	{
-		IconImage->SetBrushFromTexture(EnemyTexture);
+		UE_LOG(LogTemp, Warning, TEXT("No icon found for Tag: %s"), *InTag.ToString());
+		return;
 	}
-	else if (InTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Minimap.Type.Item")))
-	{
-		IconImage->SetBrushFromTexture(ItemTexture);
-	}
+
+	IconImage->SetBrushFromTexture(Data->IconTexture);
+	IconImage->SetColorAndOpacity(Data->IconColor);
+	IconImage->SetRenderScale(Data->IconScale);
 }
 
 void UGRRadarIconWidget::UpdateRadarPosition(const FVector2D& RadarPos)
 {
-	//FVector2D MapCenter(960, 540); // 또는 부모 위젯의 중심 계산
-	//FVector2D Pixel = MapCenter + RadarPos * RadarScale * 1000.f;
-
-	//SetRenderTranslation(Pixel);
-
-	const float RadarSize = 250.f;
+	const float RadarSize = 300.f;
 	const float Radius = RadarSize * 0.5f;
 
 	FVector2D PixelPos(
-		RadarPos.X * Radius + Radius,
-		-RadarPos.Y * Radius + Radius
+		RadarPos.X * Radius + Radius - 50,
+		-RadarPos.Y * Radius + Radius - 20
 	);
 
 	SetRenderTranslation(PixelPos);

@@ -56,6 +56,16 @@ void UGRRadarMapComponent::ScanRadar()
 		FoundActors
 	);
 
+	DrawDebugSphere(
+		GetWorld(),
+		GetOwner()->GetActorLocation(),          // 중심
+		ScanRadius,      // 반경
+		16,              // 세그먼트 수 (높을수록 동그랗게 보임)
+		FColor::Green,   // 색상
+		false,           // Persistent? false면 한 프레임만, true면 영구 표시
+		0.1f             // 표시 시간(초)
+	);
+
 	TArray<FRadarTargetInfo> TargetList;
 
 	for (AActor* HitActor : FoundActors)
@@ -80,26 +90,26 @@ void UGRRadarMapComponent::ScanRadar()
 
 		if (!Tags.HasTag(TagMinimapShow))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Minimap.Show continue"));
 			continue;
 		}
 
+		// Minimap.Type.* 태그 추출
+		FGameplayTag BaseTag = FGameplayTag::RequestGameplayTag("Minimap.Type");
 		FGameplayTag RadarTypeTag;
 
-		if (Tags.HasTag(FGameplayTag::RequestGameplayTag("Minimap.Type.Player")))
+		for (const FGameplayTag& T : Tags)
 		{
-			RadarTypeTag = FGameplayTag::RequestGameplayTag("Minimap.Type.Player");
+			if (T.MatchesTag(BaseTag))
+			{
+				RadarTypeTag = T;
+				break;
+			}
 		}
-		else if (Tags.HasTag(FGameplayTag::RequestGameplayTag("Minimap.Type.Enemy")))
+
+		if (!RadarTypeTag.IsValid())
 		{
-			RadarTypeTag = FGameplayTag::RequestGameplayTag("Minimap.Type.Enemy");
+			continue;
 		}
-		else if (Tags.HasTag(FGameplayTag::RequestGameplayTag("Minimap.Type.Item")))
-		{
-			RadarTypeTag = FGameplayTag::RequestGameplayTag("Minimap.Type.Item");
-			
-		}
-		UE_LOG(LogTemp, Warning, TEXT("Tag"));
 
 		FRadarTargetInfo Info;
 		Info.TargetActor = HitActor;
@@ -109,14 +119,14 @@ void UGRRadarMapComponent::ScanRadar()
 		TargetList.Add(Info);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Update"));
 	RadarMapWidget->UpdateRadar(TargetList);
 
 }
 
 FVector2D UGRRadarMapComponent::ConvertWorldToRadarPosition(const FVector& WorldLocation) const
 {
-	FVector OwnerLoc = GetOwner()->GetActorLocation();
+	// 카메라 기준
+	/*FVector OwnerLoc = GetOwner()->GetActorLocation();
 
 	FRotator CamRot = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraRotation();
 
@@ -125,6 +135,20 @@ FVector2D UGRRadarMapComponent::ConvertWorldToRadarPosition(const FVector& World
 
 	float X = FMath::Clamp(LocalDir.Y / ScanRadius, -1.f, 1.f);
 	float Y = FMath::Clamp(LocalDir.X / ScanRadius, -1.f, 1.f);
+
+	return FVector2D(X, Y);*/
+
+	// 플레이어 캐릭터 기준
+	FVector OwnerLoc = GetOwner()->GetActorLocation();
+
+	FRotator OwnerRot = GetOwner()->GetActorRotation();
+
+	FVector Dir = WorldLocation - OwnerLoc;
+
+	FVector LocalDir = OwnerRot.UnrotateVector(Dir);
+
+	float X = FMath::Clamp(LocalDir.Y / ScanRadius, -1.f, 1.f); 
+	float Y = FMath::Clamp(LocalDir.X / ScanRadius, -1.f, 1.f); 
 
 	return FVector2D(X, Y);
 }
