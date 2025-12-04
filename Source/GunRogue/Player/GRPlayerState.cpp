@@ -343,11 +343,10 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 		if (CurrentWeaponSlot == -1)
 		{
 			int32 OldSlot = CurrentWeaponSlot;
-
-			ActivateWeaponInSlot(EmptySlot);
 			CurrentWeaponSlot = EmptySlot;
 
 			ClientRPC_BroadcastOnWeaponSwitched(OldSlot, CurrentWeaponSlot);
+			ActivateWeaponInSlot(CurrentWeaponSlot);
 			UpdateWeaponAttachToCharacter();
 
 			// 무기 장착 애님 몽타주 재생
@@ -416,9 +415,10 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 			if (i != SlotIndex && WeaponSlots[i].IsEquipped())
 			{
 				int32 NewSlot = i;
-				ActivateWeaponInSlot(i);
 				CurrentWeaponSlot = NewSlot;
+
 				ClientRPC_BroadcastOnWeaponSwitched(OldSlot, NewSlot);
+				ActivateWeaponInSlot(NewSlot);
 				UpdateWeaponAttachToCharacter();
 				UE_LOG(LogTemp, Display, TEXT("Auto-switched to weapon in slot %d"), i);
 				break;
@@ -488,10 +488,10 @@ void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
 	int32 OldSlot = CurrentWeaponSlot;
 
 	// 새 무기 활성화
-	ActivateWeaponInSlot(SlotIndex);
 	CurrentWeaponSlot = SlotIndex;
 
 	ClientRPC_BroadcastOnWeaponSwitched(OldSlot, CurrentWeaponSlot);
+	ActivateWeaponInSlot(CurrentWeaponSlot);
 	UpdateWeaponAttachToCharacter();
 
 	UGRWeaponDefinition* WeaponDef = WeaponSlots[SlotIndex].GetWeaponDefinition();

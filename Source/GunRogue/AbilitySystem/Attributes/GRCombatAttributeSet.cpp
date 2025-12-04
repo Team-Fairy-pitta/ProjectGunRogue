@@ -31,7 +31,7 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	CurrentSpread = 0.0f;
 
 	CurrentAmmo = 0.0f;
-	MaxAmmo = 30.0f;
+	MaxAmmo = 0.0f; /* 무기를 들고 있지 않을 때, 탄창의 크기를 0으로 한다. */
 	ReloadTime = 2.0f;
 }
 
@@ -470,6 +470,11 @@ void UGRCombatAttributeSet::OnRep_CurrentAmmo(const FGameplayAttributeData& OldC
 void UGRCombatAttributeSet::OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAmmo)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, MaxAmmo, OldMaxAmmo);
+
+	// 클라이언트에서도 델리게이트 호출
+	const int32 Current = FMath::RoundToInt(GetCurrentAmmo());
+	const int32 Max = FMath::RoundToInt(GetMaxAmmo());
+	OnAmmoChanged.Broadcast(Current, Max);
 }
 
 void UGRCombatAttributeSet::OnRep_ReloadTime(const FGameplayAttributeData& OldReloadTime)
