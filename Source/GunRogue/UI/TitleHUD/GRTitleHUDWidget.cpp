@@ -1,6 +1,7 @@
 #include "UI/TitleHUD/GRTitleHUDWidget.h"
 #include "SubWidgets/GRTitleMenuButtonWidget.h"
 #include "Player/GameStart/GRGameStart_PlayerController.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void UGRTitleHUDWidget::NativeConstruct()
 {
@@ -53,6 +54,8 @@ void UGRTitleHUDWidget::OnStartGameClicked()
 
 void UGRTitleHUDWidget::OnCheckInvitationClicked()
 {
+	// [NOTE] 초대 확인 비활성화
+	// Steam overlay로 충분히 스팀 초대를 받을 수 있기 때문에, 구현 우선 순위를 최하위로 낮추겠습니다.
 	UE_LOG(LogTemp, Warning, TEXT("Check Invitation Clicked"));
 }
 
@@ -70,5 +73,5 @@ void UGRTitleHUDWidget::OnSetGameClicked()
 
 void UGRTitleHUDWidget::OnExitGameClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Exit Game Clicked"));
+	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, true);
 }
