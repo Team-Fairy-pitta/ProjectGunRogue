@@ -6,6 +6,7 @@
 #include "GRRadarMapWidget.generated.h"
 
 class UGRRadarIconWidget;
+class UCanvasPanel;
 
 UCLASS()
 class GUNROGUE_API UGRRadarMapWidget : public UUserWidget
@@ -24,4 +25,7 @@ public:
 
 	UPROPERTY()
 	TMap<AActor*, UGRRadarIconWidget*> IconMap;
+
+	UPROPERTY(meta = (BindWidget))
+	UCanvasPanel* IconCanvas;
 };

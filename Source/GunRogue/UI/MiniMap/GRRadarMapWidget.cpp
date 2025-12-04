@@ -1,6 +1,7 @@
 #include "UI/MiniMap/GRRadarMapWidget.h"
 
 #include "UI/MiniMap/GRRadarIconWidget.h"
+#include "Components/CanvasPanel.h"
 
 void UGRRadarMapWidget::UpdateRadar(const TArray<FRadarTargetInfo>& Targets)
 {
@@ -15,7 +16,7 @@ void UGRRadarMapWidget::UpdateRadar(const TArray<FRadarTargetInfo>& Targets)
 		if (!IconMap.Contains(Info.TargetActor))
 		{
 			Icon = CreateWidget<UGRRadarIconWidget>(this, IconWidgetClass);
-			Icon->AddToViewport();
+			IconCanvas->AddChild(Icon);
 
 			Icon->InitIcon(Info.RadarTag);
 

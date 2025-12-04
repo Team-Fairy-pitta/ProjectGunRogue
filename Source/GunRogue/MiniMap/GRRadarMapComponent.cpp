@@ -117,14 +117,14 @@ void UGRRadarMapComponent::ScanRadar()
 FVector2D UGRRadarMapComponent::ConvertWorldToRadarPosition(const FVector& WorldLocation) const
 {
 	FVector OwnerLoc = GetOwner()->GetActorLocation();
-	FRotator OwnerRot = GetOwner()->GetActorRotation();
+
+	FRotator CamRot = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraRotation();
 
 	FVector Dir = WorldLocation - OwnerLoc;
+	FVector LocalDir = CamRot.UnrotateVector(Dir);
 
-	FVector LocalDir = OwnerRot.UnrotateVector(Dir);
-
-	float X = FMath::Clamp(LocalDir.X / ScanRadius, -1.f, 1.f);
-	float Y = FMath::Clamp(LocalDir.Y / ScanRadius, -1.f, 1.f);
+	float X = FMath::Clamp(LocalDir.Y / ScanRadius, -1.f, 1.f);
+	float Y = FMath::Clamp(LocalDir.X / ScanRadius, -1.f, 1.f);
 
 	return FVector2D(X, Y);
 }

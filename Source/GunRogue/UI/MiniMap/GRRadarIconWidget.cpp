@@ -29,5 +29,13 @@ void UGRRadarIconWidget::UpdateRadarPosition(const FVector2D& RadarPos)
 
 	//SetRenderTranslation(Pixel);
 
-	SetRenderTranslation(RadarPos * 200.f);
+	const float RadarSize = 250.f;
+	const float Radius = RadarSize * 0.5f;
+
+	FVector2D PixelPos(
+		RadarPos.X * Radius + Radius,
+		-RadarPos.Y * Radius + Radius
+	);
+
+	SetRenderTranslation(PixelPos);
 }
