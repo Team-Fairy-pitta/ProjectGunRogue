@@ -61,7 +61,7 @@ void AGRNextMapLoader::LoadMap(TSoftObjectPtr<UWorld> LevelAsset)
 	{
 		LoadLocation = Arrow->GetComponentLocation();
 	}
-	
+
 	ULevelStreamingDynamic* StreamedLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
 		this,
 		LevelAsset,
@@ -85,6 +85,11 @@ void AGRNextMapLoader::OnLevelLoadCompleted()
 		TargetController->SetLoadLevelCompleted();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("CallbackDebug On"));
+}
+
+void AGRNextMapLoader::SetLevelToLoad(TSoftObjectPtr<UWorld> InLevelToLoad)
+{
+	LevelToLoad = InLevelToLoad;
 }
 
 void AGRNextMapLoader::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

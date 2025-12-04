@@ -1,6 +1,7 @@
 #include "Weapon/GRWeaponInstance.h"
 
 #include "AbilitySystem/GRAbilitySystemComponent.h"
+#include "Weapon/GRWeaponOptionPool.h"
 #include "Weapon/GRWeaponDefinition.h"
 
 

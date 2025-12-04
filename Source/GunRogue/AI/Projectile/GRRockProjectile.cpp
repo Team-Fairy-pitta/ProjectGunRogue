@@ -70,9 +70,8 @@ void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	}
 	
 	//UE_LOG(LogTemp, Warning, TEXT("AGRRockProjectile::OnHit : Other Actor : %s"),*OtherActor->GetName());
-	
-	AGRLuwoAICharacter* LuwoChar=Cast<AGRLuwoAICharacter>(OtherActor);
-	if (LuwoChar)
+
+	if (OtherActor->IsA(AGRLuwoAICharacter::StaticClass()))
 	{
 		return;
 	}

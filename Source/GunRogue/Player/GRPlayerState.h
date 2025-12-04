@@ -4,6 +4,7 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/GRAbilitySet.h"
 #include "Item/GRItemActor.h"
+#include "Character/Attachment/GRCharacterAttachment.h"
 #include "Weapon/GRWeaponHandle.h"
 #include "GRPlayerState.generated.h"
 
@@ -38,6 +39,7 @@ class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemIn
 public:
 	AGRPlayerState();
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	UFUNCTION(BlueprintCallable, Category = "ITPlayerState")
@@ -58,6 +60,19 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "GunRogue|Weapon|Events")
 	FOnWeaponSwitched OnWeaponSwitched;
+
+	// 무기 이벤트 RPC
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_BroadcastOnWeaponEquipped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_BroadcastOnWeaponDropped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_BroadcastOnWeaponSwitched(int32 OldSlotIndex, int32 NewSlotIndex);
+
+	// 무기 Actor 장착 및 해체 처리
+	void UpdateWeaponAttachToCharacter();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
@@ -120,6 +135,9 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SwitchWeapon(int32 SlotIndex);
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPC_PlayWeaponEquipAnimMontage();
+  
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
 	void UpgradeWeapon(int32 SlotIndex);
 
@@ -165,6 +183,9 @@ protected:
 
 	UPROPERTY(Replicated)
 	int32 CurrentWeaponSlot = -1; // -1은 무기 없음
+
+	UPROPERTY()
+	FGRCharacterAttachmentHandle CurrentWeaponAttachmentHandle;
 
 private:
 	UFUNCTION()

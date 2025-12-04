@@ -22,6 +22,7 @@ public:
 	UFUNCTION()
 	void OnLevelLoadCompleted();
 
+	void SetLevelToLoad(TSoftObjectPtr<UWorld> InLevelToLoad);
 
 
 protected:
