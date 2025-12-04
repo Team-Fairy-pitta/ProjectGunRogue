@@ -4,6 +4,7 @@
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "Weapon/GRWeaponDefinition.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRWeaponListWidget.h"
@@ -73,6 +74,18 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 	{
 		GRPlayerState->OnWeaponSwitched.AddDynamic(this, &ThisClass::OnWeaponSwitched);
 	}
+
+	UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(ASC->GetSet<UGRCombatAttributeSet>());
+	if (!CombatSet)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CombatSet (UGRCombatAttributeSet) is INVALID"));
+		return;
+	}
+
+	if (!CombatSet->OnAmmoChanged.IsAlreadyBound(this, &ThisClass::OnAmmoChanged))
+	{
+		CombatSet->OnAmmoChanged.AddDynamic(this, &ThisClass::OnAmmoChanged);
+	}
 }
 
 void AGRBattlePlayerController::FinalizeBattleHUD()
@@ -100,6 +113,25 @@ void AGRBattlePlayerController::FinalizeBattleHUD()
 	if (GRPlayerState->OnWeaponSwitched.IsAlreadyBound(this, &ThisClass::OnWeaponSwitched))
 	{
 		GRPlayerState->OnWeaponSwitched.RemoveDynamic(this, &ThisClass::OnWeaponSwitched);
+	}
+
+	UGRAbilitySystemComponent* ASC = GRPlayerState->GetGRAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ASC (UGRAbilitySystemComponent) is INVALID"));
+		return;
+	}
+
+	UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(ASC->GetSet<UGRCombatAttributeSet>());
+	if (!CombatSet)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CombatSet (UGRCombatAttributeSet) is INVALID"));
+		return;
+	}
+
+	if (CombatSet->OnAmmoChanged.IsAlreadyBound(this, &ThisClass::OnAmmoChanged))
+	{
+		CombatSet->OnAmmoChanged.RemoveDynamic(this, &ThisClass::OnAmmoChanged);
 	}
 }
 
@@ -153,6 +185,22 @@ void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData&
 	UpdatePlayerMaxShield(Data.NewValue);
 }
 
+void AGRBattlePlayerController::OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo)
+{
+	if (!HUDWidgetInstance)
+	{
+		return;
+	}
+
+	UGRWeaponListWidget* WeaponListWidget = HUDWidgetInstance->GetWeaponListWidget();
+	if (!WeaponListWidget)
+	{
+		return;
+	}
+
+	WeaponListWidget->UpdateBulletCount(CurrentAmmo, MaxAmmo);
+}
+
 void AGRBattlePlayerController::OnWeaponEquipped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition)
 {
 	if (!HUDWidgetInstance)
@@ -204,7 +252,6 @@ void AGRBattlePlayerController::OnWeaponSwitched(int32 OldSlotIndex, int32 NewSl
 	}
 
 	WeaponListWidget->SetSelectedWeapon(NewSlotIndex);
-	WeaponListWidget->UpdateBulletCount(NewSlotIndex, 8, 8); // [TODO]: 실제 총알 값으로 바꿔야 함
 }
 
 void AGRBattlePlayerController::UpdatePlayerHealth(float Value)
