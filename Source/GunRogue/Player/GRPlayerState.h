@@ -17,6 +17,7 @@ struct FGRWeaponInstance;
 
 //Augment
 class UGRAugmentDefinition;
+struct FAugmentEntry;
 
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
@@ -35,19 +36,6 @@ namespace WeaponSlot
 	constexpr int32 FirstSlot = 0;     // 1번 슬롯 (인덱스 0)
 	constexpr int32 SecondarySlot = 1;   // 2번 슬롯 (인덱스 1)
 }
-
-//Augment
-USTRUCT(BlueprintType)
-struct FAugmentEntry
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	FName AugmentID;
-
-	UPROPERTY()
-	int32 Level;
-};
 
 UCLASS()
 class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemInterface

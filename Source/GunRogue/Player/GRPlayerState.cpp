@@ -12,8 +12,7 @@
 #include "Weapon/GRWeaponActor.h"
 #include "Weapon/GRWeaponInstance.h"
 #include "Weapon/GRWeaponDefinition.h"
-
-#include "Augment/GRAugmentDefinition.h"
+#include "Player/GREntryStructs.h"
 
 AGRPlayerState::AGRPlayerState()
 {
