@@ -31,4 +31,7 @@ struct FAugmentAdditionalValue
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText AugmentAdditionalDescription;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AugmentAdditionalValue;
 };

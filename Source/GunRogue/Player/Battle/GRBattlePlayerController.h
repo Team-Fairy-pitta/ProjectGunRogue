@@ -76,4 +76,24 @@ protected:
 	TObjectPtr<UUserWidget> UpgradeConsoleWidgetInstance;
 
 #pragma endregion UpgradeConsole
+
+#pragma region Augment
+public:
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowAugmentWidget();
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowAugmentWidget();
+
+	UFUNCTION()
+	void RequestSelectAugment(FName AugmentID);
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UUserWidget> AugmentWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> AugmentWidgetInstance;
+	
+#pragma endregion Augment
 };

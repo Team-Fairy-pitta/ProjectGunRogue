@@ -9,6 +9,7 @@
 class UHorizontalBox;
 class UGRAugmentSlotWidget;
 class UGRAugmentTooltipWidget;
+class UTextBlock;
 /**
  * 
  */
@@ -18,6 +19,9 @@ class GUNROGUE_API UGRAugmentHUDWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CharacterName;
+	
 	UPROPERTY(meta = (BindWidget))
 	UHorizontalBox* AugmentContainer;
 
@@ -35,6 +39,10 @@ protected:
 	virtual void NativeDestruct() override;
 	
 public:
+	void SetCharacterName(FText InText);
+
+	void UpdateTooltip(UGRAugmentSlotWidget* AugmentSlot);
+	
 	UFUNCTION()
 	void ShowTooltip(UGRAugmentSlotWidget* AugmentSlot);
 

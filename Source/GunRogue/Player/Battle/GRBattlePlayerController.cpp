@@ -119,6 +119,19 @@ void AGRBattlePlayerController::CreateWidgets()
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRWeaponUpgrade Widgets"));
 		return;
 	}
+
+	if (!AugmentWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AugmentWidgetClass (TSubclassOf<UGRAugmentHUD> is INVALID"));
+		return;
+	}
+
+	AugmentWidgetInstance = CreateWidget<UUserWidget>(this, AugmentWidgetClass);
+	if (!AugmentWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRAugment Widgets"));
+		return;
+	}
 }
 
 void AGRBattlePlayerController::InitBattleHUD()

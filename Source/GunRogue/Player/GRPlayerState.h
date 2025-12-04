@@ -15,6 +15,9 @@ class AGRWeaponActor;
 struct FGameplayEffectSpec;
 struct FGRWeaponInstance;
 
+//Augment
+class UGRAugmentDefinition;
+
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
 DECLARE_MULTICAST_DELEGATE(FOnWeaponDataUpdata);
@@ -23,12 +26,28 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponSwitched, int32, OldSlotIndex, int32, NewSlotIndex);
 
+//Augment
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAugmentChanged, FName, AugmentID, int32, NewLevel);
+
 namespace WeaponSlot
 {
 	constexpr int32 MaxWeaponSlots = 2;  // 무기 슬롯 개수
 	constexpr int32 FirstSlot = 0;     // 1번 슬롯 (인덱스 0)
 	constexpr int32 SecondarySlot = 1;   // 2번 슬롯 (인덱스 1)
 }
+
+//Augment
+USTRUCT(BlueprintType)
+struct FAugmentEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FName AugmentID;
+
+	UPROPERTY()
+	int32 Level;
+};
 
 UCLASS()
 class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemInterface
@@ -184,4 +203,28 @@ private:
 	void SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& WeaponInstance, const FVector& Location, const FRotator& Rotation);
 
 	bool bIsAbilitySystemComponentInit = false;
+
+#pragma region Augment;
+public:
+	UPROPERTY(ReplicatedUsing = OnRep_OwnedAugments)
+	TArray<FAugmentEntry> OwnedAugments;
+	
+	UPROPERTY(BlueprintAssignable)
+	FAugmentChanged OnAugmentChanged;
+	
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_OnAugmentSelected(FName AugmentID);
+
+	int32 GetAugmentLevel(FName AugmentID);
+	
+	UFUNCTION()
+	void OnRep_OwnedAugments();
+
+protected:
+	void AddAugment(FName AugmentID);
+	void LevelUpAugment(FName AugmentID);
+	
+	TArray<FAugmentEntry> PreviousOwnedAugments;
+	
+#pragma endregion
 };
