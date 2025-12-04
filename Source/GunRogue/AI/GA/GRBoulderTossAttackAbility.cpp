@@ -10,7 +10,7 @@
 
 UGRBoulderTossAttackAbility::UGRBoulderTossAttackAbility()
 {
-	ProjectileSocketName = TEXT("ProjectilePosition");
+	ProjectileSocketName = FName("SpawnRockLocation");
 }
 
 void UGRBoulderTossAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -21,7 +21,6 @@ void UGRBoulderTossAttackAbility::ActivateAbility(const FGameplayAbilitySpecHand
 
 	if (ActorInfo->AvatarActor.Get()->HasAuthority())
 	{
-		SpawnProjectile();
 		PlayAttackMontageAndWaitTask();
 		WaitAttackGameplayEventTask();	
 	}
@@ -31,6 +30,8 @@ void UGRBoulderTossAttackAbility::OnAttackTriggerNotify(FGameplayEventData Paylo
 {
 	Super::OnAttackTriggerNotify(Payload);
 
+	SpawnProjectile();
+	
 	AGRRockProjectile* RockProjectile=Cast<AGRRockProjectile>(Projectile);
 	if (!RockProjectile)
 	{

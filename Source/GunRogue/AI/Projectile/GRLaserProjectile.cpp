@@ -79,8 +79,7 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	
 	//UE_LOG(LogTemp, Warning, TEXT("AGRRockProjectile::OnHit : Other Actor : %s"),*OtherActor->GetName());
 	
-	AGRLuwoAICharacter* LuwoChar=Cast<AGRLuwoAICharacter>(OtherActor);
-	if (LuwoChar)
+	if (OtherActor->IsA(AGRLuwoAICharacter::StaticClass()))
 	{
 		return;
 	}
@@ -92,20 +91,18 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	}
 
 	AGRCharacter* PlayerChar=Cast<AGRCharacter>(OtherActor);
-	if (!PlayerChar)
+	if (PlayerChar)
 	{
-		return;
-	}
-	
-	UGameplayStatics::ApplyDamage(PlayerChar, DamageAmount,GetInstigatorController() , this, UDamageType::StaticClass());
+		UGameplayStatics::ApplyDamage(PlayerChar, DamageAmount,GetInstigatorController() , this, UDamageType::StaticClass());
 
 #if WITH_EDITOR
-	FVector PlayerLoc = PlayerChar->GetActorLocation();
-	if (GetWorld())
-	{
-		DrawDebugSphere(GetWorld(),PlayerLoc,20.f,12,FColor::Red,false,1.0f);
-	}
+		FVector PlayerLoc = PlayerChar->GetActorLocation();
+		if (GetWorld())
+		{
+			DrawDebugSphere(GetWorld(),PlayerLoc,20.f,12,FColor::Red,false,1.0f);
+		}
 #endif
+	}
 
 	Destroy();
 }
