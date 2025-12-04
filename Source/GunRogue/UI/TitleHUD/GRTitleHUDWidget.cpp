@@ -1,6 +1,7 @@
 #include "UI/TitleHUD/GRTitleHUDWidget.h"
 #include "SubWidgets/GRTitleMenuButtonWidget.h"
 #include "Player/GameStart/GRGameStart_PlayerController.h"
+#include "System/GRGameInstance.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 void UGRTitleHUDWidget::NativeConstruct()
@@ -49,7 +50,14 @@ void UGRTitleHUDWidget::NativeDestruct()
 
 void UGRTitleHUDWidget::OnStartGameClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Start Game Clicked"));
+	UGRGameInstance* GRGameInstance = GetGameInstance<UGRGameInstance>();
+	if (!GRGameInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRGameInstance is INVALID"));
+		return;
+	}
+
+	GRGameInstance->CreateSession();
 }
 
 void UGRTitleHUDWidget::OnCheckInvitationClicked()
