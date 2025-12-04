@@ -895,6 +895,7 @@ void AGRPlayerState::OnRep_OwnedAugments()
 		if (!PrevEntry || PrevEntry->Level != Entry.Level)
 		{
 			OnAugmentChanged.Broadcast(Entry.AugmentID, Entry.Level);
+			UE_LOG(LogTemp, Warning, TEXT("OnRep_OwnedAugments called"));
 		}
 	}
 	
