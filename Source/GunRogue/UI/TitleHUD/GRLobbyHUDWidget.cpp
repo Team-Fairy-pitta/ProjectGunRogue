@@ -23,25 +23,29 @@ void UGRLobbyHUDWidget::NativeConstruct()
 
 	if (PlayerInfoButton)
 	{
-		PlayerInfoButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnPlayerInfoClicked);
+		PlayerInfoButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnPlayerInfoClicked);
 	}
 	if (PlayerPerksButton)
 	{
-		PlayerPerksButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnPlayerPerksClicked);
+		PlayerPerksButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnPlayerPerksClicked);
 	}
 	if (StartGameButton)
 	{
 		StartGameButton->SetVisibility(ESlateVisibility::Visible);
-		StartGameButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnStartGameClicked);
+		StartGameButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnStartGameClicked);
 	}
 	if (ReadyGameButton)
 	{
 		ReadyGameButton->SetVisibility(ESlateVisibility::Collapsed);
-		ReadyGameButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnReadyGameClicked);
+		ReadyGameButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnReadyGameClicked);
 	}
 	if (ExitLobbyButton)
 	{
-		ExitLobbyButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnExitLobbyClicked);
+		ExitLobbyButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnExitLobbyClicked);
+	}
+	if (InviteButton)
+	{
+		InviteButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnInviteClicked);
 	}
 	
 	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
@@ -127,4 +131,9 @@ void UGRLobbyHUDWidget::OnReadyGameClicked()
 void UGRLobbyHUDWidget::OnExitLobbyClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Exit Lobby clicked"));
+}
+
+void UGRLobbyHUDWidget::OnInviteClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnInviteClicked"));
 }

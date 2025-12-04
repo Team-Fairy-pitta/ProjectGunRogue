@@ -57,6 +57,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UGRLobbyBaseButtonWidget* ExitLobbyButton;
 
+	UPROPERTY(meta = (BindWidget))
+	UGRLobbyBaseButtonWidget* InviteButton;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button")
 	UGRLobbyCharacterSelectSlotWidget* CurrentClickedSlot = nullptr;
 
@@ -87,4 +90,7 @@ private:
 
 	UFUNCTION()
 	void OnExitLobbyClicked();
+
+	UFUNCTION()
+	void OnInviteClicked();
 };
