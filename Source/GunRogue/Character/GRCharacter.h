@@ -142,16 +142,4 @@ protected:
 	bool bIsCameraAttachedToHead;
 
 #pragma endregion SmoothCameraControl
-
-#pragma region ControlPitch
-public:
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "GunRogue|Aim")
-	float NormalPitch = 0.0f;
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "GunRogue|Aim")
-	void ServerSetNormalPitch(float NewPitch);
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-#pragma endregion ControlPitch
 };

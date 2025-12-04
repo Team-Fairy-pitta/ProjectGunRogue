@@ -32,25 +32,6 @@ AGRCharacter::AGRCharacter()
 	TargetCameraRotation = FQuat::Identity;
 }
 
-void AGRCharacter::ServerSetNormalPitch_Implementation(float NewPitch)
-{
-	float WrappedPitch = NewPitch;
-
-	if (WrappedPitch > 180.0f)
-	{
-		WrappedPitch -= 360.0f;
-	}
-
-	NormalPitch = WrappedPitch;
-}
-
-void AGRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AGRCharacter, NormalPitch);
-}
-
 void AGRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -81,12 +62,6 @@ void AGRCharacter::Tick(float DeltaTime)
 
 	ApplySmoothCameraControl_Rotation(DeltaTime);
 	ApplySmoothCameraControl_CameraArm(DeltaTime);
-
-	if (IsLocallyControlled())
-	{
-		const FRotator ControlRot = GetControlRotation();
-		ServerSetNormalPitch(ControlRot.Pitch);
-	}
 }
 
 AGRPlayerController* AGRCharacter::GetGRPlayerController() const
