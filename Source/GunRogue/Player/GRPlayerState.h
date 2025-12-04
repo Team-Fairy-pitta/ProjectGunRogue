@@ -103,6 +103,8 @@ public:
 
 	FGRWeaponInstance* GetWeaponInstanceInSlot(int32 SlotIndex);
 
+	FGRWeaponHandle* GetActiveWeaponHandle();
+
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_EquipItemActor(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
 

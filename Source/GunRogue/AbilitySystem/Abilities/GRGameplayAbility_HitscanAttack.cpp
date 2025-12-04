@@ -1,8 +1,10 @@
 #include "AbilitySystem/Abilities/GRGameplayAbility_HitscanAttack.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
-#include "AbilitySystem/Abilities/GRGameplayAbility_Reload.h"
+#include "Weapon/GRWeaponHandle.h"
+#include "Weapon/GRWeaponInstance.h"
 #include "Character/GRCharacter.h"
+#include "Player/GRPlayerState.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerController.h"
@@ -153,25 +155,77 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		return;
 	}
 
-	if (!CombatSet->CheckHasAmmo())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Fire] No ammo!"));
-		StopContinuousFire();
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
-	}
+	const bool bIsServer = (SourceASC->GetOwnerRole() == ROLE_Authority);
+	FGRWeaponInstance* WeaponInstance = nullptr;
 
-	// 탄약 소모 (서버에서만)
-	if (SourceASC->GetOwnerRole() == ROLE_Authority)
+	// WeaponHandle에서 직접 WeaponInstance 가져오기
+	if (bIsServer)
 	{
-		if (!CombatSet->ConsumeAmmo(SourceASC))
+		AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
+		if (!GRCharacter)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[Fire] Failed to consume ammo"));
+			return;
+		}
+
+		AGRPlayerState* PS = GRCharacter->GetPlayerState<AGRPlayerState>();
+		if (!PS)
+		{
+			return;
+		}
+
+		FGRWeaponHandle* WeaponHandle = PS->GetActiveWeaponHandle();
+		if (!WeaponHandle || !WeaponHandle->IsActive())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No active weapon! (Server)"));
 			StopContinuousFire();
 			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 			return;
 		}
+
+		WeaponInstance = WeaponHandle->GetWeaponInstanceRef();
+		if (!WeaponInstance || !WeaponInstance->IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No valid weapon instance! (Server)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		// 🔧 서버에서만 실제 탄약 체크/소모
+		if (!WeaponInstance->CheckHasAmmo())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No ammo! (Server)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		if (!WeaponInstance->ConsumeAmmo())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] Failed to consume ammo (Server)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		// UI 표시용 AttributeSet 업데이트 (서버 기준 값 복제됨)
+		CombatSet->UpdateAmmoDisplay(WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
 	}
+	else
+	{
+		// CombatAttributeSet 기반으로만 탄약 여부를 가볍게 체크해서 조기 종료
+		if (!CombatSet->CheckHasAmmo())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No ammo! (Client UI)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		// 실제 탄약 수는 서버가 WeaponInstance에서 관리
+		// 클라는 여기서 그냥 발사/시각 피드백만 수행
+	}
+
 
 	if (!DamageEffect)
 	{

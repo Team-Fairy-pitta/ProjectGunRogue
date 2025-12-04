@@ -6,6 +6,7 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/GRAbilitySet.h"
 #include "AbilitySystem/GRGameplayEffect.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "Item/GRItemActor.h"
 #include "Item/GRItemDefinition.h"
@@ -346,6 +347,8 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 		}
 	}
 
+	//OnRep_WeaponDataUpdata();
+
 	// 무기 액터 제거
 	if (IsValid(WeaponActor))
 	{
@@ -354,6 +357,8 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 
 	UE_LOG(LogTemp, Display, TEXT("Player equipped weapon: %s in slot %d, Current active slot: %d"),
 		*WeaponDefinition->WeaponName.ToString(), EmptySlot, CurrentWeaponSlot);
+
+
 }
 
 void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
@@ -409,6 +414,18 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 	DropWeaponAtPlayerFront(DroppedWeaponDef, DroppedInstanceCopy);
 
 	UE_LOG(LogTemp, Display, TEXT("Player dropped weapon from slot %d"), SlotIndex);
+
+	// 드랍 결과, 활성 무기가 없다면 Ammo/ReloadTime 0으로 리셋
+	if (CurrentWeaponSlot == -1 && AbilitySystemComponent)
+	{
+		UGRCombatAttributeSet* CombatSet =
+			const_cast<UGRCombatAttributeSet*>(AbilitySystemComponent->GetSet<UGRCombatAttributeSet>());
+		if (CombatSet)
+		{
+			CombatSet->UpdateAmmoDisplay(0, 0);   // Ammo 0 / 0
+			CombatSet->SetReloadTime(0.1f);       // 기본 재장전 시간(원하면 프로젝트 기본값으로)
+		}
+	}
 }
 
 void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
@@ -538,6 +555,16 @@ void AGRPlayerState::SpawnWeaponAtLocation(
 		WeaponActor->InitWeapon(WeaponDefinition, WeaponInstance);
 		WeaponActor->MulticastRPC_InitWeapon(WeaponDefinition, WeaponInstance);
 	}
+}
+
+FGRWeaponHandle* AGRPlayerState::GetActiveWeaponHandle()
+{
+	if (WeaponSlots.IsValidIndex(CurrentWeaponSlot))
+	{
+		return &WeaponSlots[CurrentWeaponSlot];
+	}
+
+	return nullptr;
 }
 
 void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)
@@ -796,5 +823,27 @@ void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeap
 
 void AGRPlayerState::OnRep_WeaponDataUpdata()
 {
+	if (!HasAuthority() && WeaponSlots.IsValidIndex(CurrentWeaponSlot))
+	{
+		FGRWeaponHandle& ActiveHandle = WeaponSlots[CurrentWeaponSlot];
+		if (ActiveHandle.IsEquipped() && ActiveHandle.IsActive())
+		{
+			FGRWeaponInstance* WeaponInstance = ActiveHandle.GetWeaponInstanceRef();
+			if (WeaponInstance && WeaponInstance->IsValid() && AbilitySystemComponent)
+			{
+				UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(
+					AbilitySystemComponent->GetSet<UGRCombatAttributeSet>()
+					);
+				if (CombatSet)
+				{
+					CombatSet->UpdateAmmoDisplay(WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
+					CombatSet->SetReloadTime(WeaponInstance->GetReloadTime());
+					UE_LOG(LogTemp, Display, TEXT("[OnRep] CLIENT UI updated - Ammo: %d/%d"),
+						WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
+				}
+			}
+		}
+	}
+
 	OnWeaponDataUpdata.Broadcast();
 }

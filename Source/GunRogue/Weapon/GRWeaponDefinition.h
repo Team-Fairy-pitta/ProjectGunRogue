@@ -61,5 +61,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	UGRWeaponOptionPool* OptionPool = nullptr;
 
+	// 탄창 크기 (최대 탄약)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ammo")
+	int32 MaxAmmo = 30;
+
+	// 재장전 시간 (초)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ammo")
+	float ReloadTime = 2.0f;
+
 	
 };

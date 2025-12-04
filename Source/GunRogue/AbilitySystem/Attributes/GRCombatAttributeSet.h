@@ -11,6 +11,7 @@
     GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
     GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChanged, int32, CurrentAmmo, int32, MaxAmmo);
 
 UCLASS()
 class GUNROGUE_API UGRCombatAttributeSet : public UAttributeSet
@@ -27,15 +28,16 @@ public:
 	// 탄퍼짐 증가 (사격 시 호출)
 	void IncreaseSpread(UAbilitySystemComponent* OwningASC);
 
-	// 탄약 소모 (사격 시 호출)
-	bool ConsumeAmmo(UAbilitySystemComponent* OwningASC);
-
-	// 재장전 실행
-	void ReloadAmmo(UAbilitySystemComponent* OwningASC);
-
 	// 탄약, 장전 가능 여부 확인
 	bool CheckHasAmmo() const { return GetCurrentAmmo() > 0.0f; }
 	bool CheckCanReload() const { return GetCurrentAmmo() < GetMaxAmmo(); }
+
+	// 탄약 델리게이트 (블루프린트에서 바인딩 가능)
+	UPROPERTY(BlueprintAssignable, Category = "GunRogue|Ammo")
+	FOnAmmoChanged OnAmmoChanged;
+
+	// AttributeSet 업데이트 (UI 표시용)
+	void UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAmmo);
 
 	// 무기 기본 공격력
 	UPROPERTY(BlueprintReadOnly, Category = "Combat|WeaponDamage", ReplicatedUsing = OnRep_WeaponDamage_Base)

@@ -9,6 +9,7 @@ FGRWeaponInstance::FGRWeaponInstance()
 	bIsValid = 0;
 	UpgradeLevel = 0;
 	UpgradeDamage = 0.f;
+	CurrentAmmo = 0;
 }
 
 FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
@@ -18,6 +19,9 @@ FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
 	UpgradeDamage = Other.UpgradeDamage;
 	Options = Other.Options;
 	AppliedEffects = Other.AppliedEffects;
+	CurrentAmmo = Other.CurrentAmmo;
+	CachedASC = nullptr;
+	WeaponDefinition = nullptr;
 }
 
 FGRWeaponInstance& FGRWeaponInstance::operator=(const FGRWeaponInstance& Other)
@@ -27,6 +31,9 @@ FGRWeaponInstance& FGRWeaponInstance::operator=(const FGRWeaponInstance& Other)
 	this->UpgradeDamage = Other.UpgradeDamage;
 	this->Options = Other.Options;
 	this->AppliedEffects = Other.AppliedEffects;
+	this->CurrentAmmo = Other.CurrentAmmo;
+	this->CachedASC = nullptr;
+	this->WeaponDefinition = nullptr;
 	return *this;
 }
 
@@ -39,6 +46,7 @@ void FGRWeaponInstance::Init(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition
 	{
 		UpgradeDamage = WeaponDefinition->BaseDamage;
 	}
+
 }
 
 void FGRWeaponInstance::UpgradeWeapon()
@@ -239,3 +247,56 @@ void FGRWeaponInstance::AllRerollOption()
 	ApplyAllEffects();
 }
 
+// ⭐ 탄약 관련 구현
+int32 FGRWeaponInstance::GetMaxAmmo() const
+{
+	return WeaponDefinition ? WeaponDefinition->MaxAmmo : 30;
+}
+
+float FGRWeaponInstance::GetReloadTime() const
+{
+	return WeaponDefinition ? WeaponDefinition->ReloadTime : 2.0f;
+}
+
+bool FGRWeaponInstance::CheckCanReload() const
+{
+	const int32 MaxAmmoValue = GetMaxAmmo();
+	return CurrentAmmo < MaxAmmoValue;
+}
+
+bool FGRWeaponInstance::ConsumeAmmo()
+{
+	if (CachedASC && CachedASC->GetOwnerRole() != ROLE_Authority)
+	{
+		return true;
+	}
+
+	if (CurrentAmmo <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[WeaponInstance] No ammo left!"));
+		return false;
+	}
+
+	CurrentAmmo--;
+	UE_LOG(LogTemp, Verbose, TEXT("[WeaponInstance] Ammo consumed: %d / %d"),
+		CurrentAmmo, GetMaxAmmo());
+	return true;
+}
+
+void FGRWeaponInstance::Reload()
+{
+	const int32 MaxAmmoValue = GetMaxAmmo();
+
+	if (CurrentAmmo >= MaxAmmoValue)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[WeaponInstance] Already full: %d / %d"),
+			CurrentAmmo, MaxAmmoValue);
+		return;
+	}
+
+	const int32 OldAmmo = CurrentAmmo;
+	CurrentAmmo = MaxAmmoValue;
+
+	UE_LOG(LogTemp, Log, TEXT("[WeaponInstance] Reloaded: %d -> %d"),
+		OldAmmo, CurrentAmmo);
+}

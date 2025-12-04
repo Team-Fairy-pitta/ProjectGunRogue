@@ -1,6 +1,8 @@
 #include "AbilitySystem/Abilities/GRGameplayAbility_Reload.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
+#include "Player/GRPlayerState.h"
+#include "Weapon/GRWeaponInstance.h"
 #include "AbilitySystemInterface.h"
 #include "Character/GRCharacter.h"
 #include "TimerManager.h"
@@ -8,7 +10,7 @@
 UGRGameplayAbility_Reload::UGRGameplayAbility_Reload()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 }
 
 bool UGRGameplayAbility_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -134,10 +136,53 @@ void UGRGameplayAbility_Reload::PerformReload()
 		ASC->GetSet<UGRCombatAttributeSet>()
 		);
 
-	if (CombatSet)
+	const bool bIsServer = (ASC->GetOwnerRole() == ROLE_Authority); // 🔧 수정: 서버/클라 분기
+
+	if (bIsServer)
 	{
-		// 재장전 실행
-		CombatSet->ReloadAmmo(ASC);
+		// 서버: PlayerState → WeaponHandle → WeaponInstance 경로로 실제 탄약 채우기
+		AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
+		if (!GRCharacter)
+		{
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+			return;
+		}
+
+		AGRPlayerState* PS = GRCharacter->GetPlayerState<AGRPlayerState>();
+		if (!PS)
+		{
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+			return;
+		}
+
+		FGRWeaponHandle* WeaponHandle = PS->GetActiveWeaponHandle();
+		if (!WeaponHandle || !WeaponHandle->IsActive())
+		{
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+			return;
+		}
+
+		FGRWeaponInstance* WeaponInstance = WeaponHandle->GetWeaponInstanceRef();
+		if (!WeaponInstance || !WeaponInstance->IsValid())
+		{
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+			return;
+		}
+
+		// 실제 재장전 (서버)
+		WeaponInstance->Reload();
+
+		// AttributeSet 업데이트 (서버 기준 값이 복제됨)
+		CombatSet->UpdateAmmoDisplay(WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
+
+		UE_LOG(LogTemp, Log, TEXT("[Reload] SERVER Completed: %d / %d"),
+			WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
+	}
+	else
+	{
+		// 클라: CombatSet에 보이는 값 기반으로 “재장전 애니/사운드” 등 피드백만 처리
+		// 실제 탄약 수는 서버에서 WeaponInstance에 적용되고, 복제 도착 시 OnRep_WeaponDataUpdata()에서 맞춰짐
+		UE_LOG(LogTemp, Log, TEXT("[Reload] CLIENT predicted reload finished (real ammo on server)"));
 	}
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);

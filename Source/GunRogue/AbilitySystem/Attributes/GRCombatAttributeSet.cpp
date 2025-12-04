@@ -350,61 +350,19 @@ void UGRCombatAttributeSet::ApplySpreadRecovery(UAbilitySystemComponent* OwningA
 		CurrentSpreadValue, NewSpread, RecoveryAmount);
 }
 
-bool UGRCombatAttributeSet::ConsumeAmmo(UAbilitySystemComponent* OwningASC)
+void UGRCombatAttributeSet::UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAmmo)
 {
-	if (!OwningASC)
-	{
-		return false;
-	}
+	SetMaxAmmo(static_cast<float>(InMaxAmmo));
 
-	if (OwningASC->GetOwnerRole() != ROLE_Authority)
-	{
-		return false;
-	}
+	const float ClampedCurrent = FMath::Clamp(static_cast<float>(InCurrentAmmo),0.0f,GetMaxAmmo()// 새 무기의 MaxAmmo
+	);
+	SetCurrentAmmo(ClampedCurrent);
 
-	const float CurrentAmmoValue = GetCurrentAmmo();
+	// 델리게이트 브로드캐스트 (UI 업데이트)
+	OnAmmoChanged.Broadcast(ClampedCurrent, InMaxAmmo);
 
-	if (CurrentAmmoValue <= 0.0f)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Ammo] No ammo left!"));
-		return false;
-	}
-
-	const float NewAmmo = CurrentAmmoValue - 1.0f;
-
-	SetCurrentAmmo(NewAmmo);
-
-	UE_LOG(LogTemp, Log, TEXT("[Ammo] Consumed: %.0f / %.0f"), NewAmmo, GetMaxAmmo());
-
-	return true;
-}
-
-void UGRCombatAttributeSet::ReloadAmmo(UAbilitySystemComponent* OwningASC)
-{
-	if (!OwningASC)
-	{
-		return;
-	}
-
-	// 서버에서만 실행
-	if (OwningASC->GetOwnerRole() != ROLE_Authority)
-	{
-		return;
-	}
-
-	const float CurrentAmmoValue = GetCurrentAmmo();
-	const float MaxAmmoValue = GetMaxAmmo();
-
-	// 이미 가득 찬 경우
-	if (CurrentAmmoValue >= MaxAmmoValue)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Ammo] Already full: %.0f / %.0f"), CurrentAmmoValue, MaxAmmoValue);
-		return;
-	}
-
-	SetCurrentAmmo(MaxAmmoValue);
-
-	UE_LOG(LogTemp, Log, TEXT("[Ammo] Reloaded: %.0f -> %.0f"), CurrentAmmoValue, MaxAmmoValue);
+	UE_LOG(LogTemp, Verbose, TEXT("[CombatAttributeSet] Ammo display updated: %d / %d"),
+		InCurrentAmmo, InMaxAmmo);
 }
 
 
@@ -502,6 +460,11 @@ void UGRCombatAttributeSet::OnRep_CurrentSpread(const FGameplayAttributeData& Ol
 void UGRCombatAttributeSet::OnRep_CurrentAmmo(const FGameplayAttributeData& OldCurrentAmmo)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, CurrentAmmo, OldCurrentAmmo);
+
+	// 클라이언트에서도 델리게이트 호출
+	const int32 Current = FMath::RoundToInt(GetCurrentAmmo());
+	const int32 Max = FMath::RoundToInt(GetMaxAmmo());
+	OnAmmoChanged.Broadcast(Current, Max);
 }
 
 void UGRCombatAttributeSet::OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAmmo)
