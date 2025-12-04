@@ -9,6 +9,7 @@
 class UGRLobbyCharacterSelectSlotWidget;
 class UGRLobbyPlayerListWidget;
 class UGRLobbyBaseButtonWidget;
+class UGRSteamFriendsList;
 /**
  * 
  */
@@ -59,6 +60,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UGRLobbyBaseButtonWidget* InviteButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UGRSteamFriendsList* SteamFriendsList;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button")
 	UGRLobbyCharacterSelectSlotWidget* CurrentClickedSlot = nullptr;

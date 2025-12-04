@@ -11,8 +11,11 @@ void AGRGameStart_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CreateWidgets();
-	ShowTitleWidget();
+	if (IsLocalController())
+	{
+		CreateWidgets();
+		ShowTitleWidget();
+	}
 }
 
 void AGRGameStart_PlayerController::CreateWidgets()

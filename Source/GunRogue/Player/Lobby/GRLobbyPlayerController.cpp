@@ -10,8 +10,11 @@ void AGRLobbyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CreateWidgets();
-	ShowLobbyWidget();
+	if (IsLocalController())
+	{
+		CreateWidgets();
+		ShowLobbyWidget();
+	}
 }
 
 void AGRLobbyPlayerController::CreateWidgets()

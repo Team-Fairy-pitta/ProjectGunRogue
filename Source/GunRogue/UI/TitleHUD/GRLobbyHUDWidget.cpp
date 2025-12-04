@@ -6,6 +6,7 @@
 #include "Components/Border.h"
 #include "SubWidgets/GRLobbyBaseButtonWidget.h"
 #include "UI/TitleHUD/SubWidgets/GRLobbyCharacterSelectSlotWidget.h"
+#include "UI/SteamInvite/GRSteamFriendsList.h"
 #include "Components/SizeBox.h"
 
 void UGRLobbyHUDWidget::NativeConstruct()
@@ -135,5 +136,20 @@ void UGRLobbyHUDWidget::OnExitLobbyClicked()
 
 void UGRLobbyHUDWidget::OnInviteClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnInviteClicked"));
+	if (!SteamFriendsList)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SteamFriendsList is INVALID"));
+		return;
+	}
+
+	ESlateVisibility ListVisibility = SteamFriendsList->GetVisibility();
+
+	if (ListVisibility == ESlateVisibility::Collapsed)
+	{
+		SteamFriendsList->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		SteamFriendsList->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
