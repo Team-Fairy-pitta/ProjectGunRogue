@@ -106,20 +106,6 @@ void AGRBattlePlayerController::CreateWidgets()
 		return;
 	}
 
-	if (!AugmentWidgetClass)
-	{
-		UE_LOG(LogTemp, Error, TEXT("AugmentWidgetClass (TSubclassOf<UGRAugmentHUD> is INVALID"));
-		return;
-	}
-
-	AugmentWidgetInstance = CreateWidget<UUserWidget>(this, AugmentWidgetClass);
-	if (!AugmentWidgetInstance)
-	{
-		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRAugment Widgets"));
-		return;
-	}
-}
-
 	if (!UpgradeConsoleWidgetClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("UpgradeConsoleWidgetClass (TSubclassOf<UGRWeaponUpgradeWidgetSetting>) is INVALID"));
@@ -143,6 +129,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!InventoryWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRInventoryWidgetMain Widgets"));
+		return;
+	}
+
+	if (!AugmentWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AugmentWidgetClass (TSubclassOf<UGRAugmentHUD> is INVALID"));
+		return;
+	}
+
+	AugmentWidgetInstance = CreateWidget<UUserWidget>(this, AugmentWidgetClass);
+	if (!AugmentWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRAugment Widgets"));
 		return;
 	}
 }
