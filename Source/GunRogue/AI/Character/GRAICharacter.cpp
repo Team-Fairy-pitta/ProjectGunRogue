@@ -4,6 +4,7 @@
 #include "AI/Character/GRAICharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Components/CapsuleComponent.h"
 
 AGRAICharacter::AGRAICharacter()
 {
@@ -33,6 +34,18 @@ AGRAICharacter::AGRAICharacter()
 
 	bReplicates = true;
 	SetReplicateMovement(true);
+
+	UCapsuleComponent* Capsule = GetCapsuleComponent();
+	if (Capsule)
+	{
+		Capsule->BodyInstance.SetCollisionProfileName(TEXT("AIBoss"));
+	}
+
+	USkeletalMeshComponent* SkelMesh = GetMesh();
+	if (SkelMesh)
+	{
+		SkelMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1,ECollisionResponse::ECR_Ignore);
+	}
 }
 
 UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const
@@ -44,6 +57,23 @@ UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const
 void AGRAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		if (ASC)
+		{
+			ASC->InitAbilityActorInfo(this, this);
+		
+			for (auto& AbilityClass : AttackAbilityClassList)
+			{
+				if (AbilityClass)
+				{
+					FGameplayAbilitySpec Spec(AbilityClass, /*Level*/1, /*InputID*/0, this);
+					ASC->GiveAbility(Spec);
+				}
+			}
+		}	
+	}
 }
 
 

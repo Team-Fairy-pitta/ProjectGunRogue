@@ -123,7 +123,7 @@ void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	}
 	
 	FGameplayEffectContextHandle BossEffectContext = BossASC->MakeEffectContext();
-	BossEffectContext.AddInstigator(GetInstigator(), this);   // 필요 시 instigator 설정
+	BossEffectContext.AddInstigator(GetInstigator(), this); 
 		
 	FGameplayEffectSpecHandle BossSpecHandle = BossASC->MakeOutgoingSpec(DamageGEClass,1.f,BossEffectContext);
 	

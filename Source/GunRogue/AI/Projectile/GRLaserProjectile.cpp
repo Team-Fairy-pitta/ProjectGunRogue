@@ -3,7 +3,7 @@
 
 #include "AI/Projectile/GRLaserProjectile.h"
 #include "Components/SphereComponent.h"
-#include "AI/Character/GRLuwoAICharacter.h"
+#include "AI/Character/GRAICharacter.h"
 #include "Character/GRCharacter.h"
 #include "GameFramework/DamageType.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -78,8 +78,8 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	}
 	
 	//UE_LOG(LogTemp, Warning, TEXT("AGRRockProjectile::OnHit : Other Actor : %s"),*OtherActor->GetName());
-	
-	if (OtherActor->IsA(AGRLuwoAICharacter::StaticClass()))
+
+	if (OtherActor->IsA(AGRAICharacter::StaticClass()))
 	{
 		return;
 	}
@@ -102,7 +102,7 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	}
 
 	FGameplayEffectContextHandle BossEffectContext = BossASC->MakeEffectContext();
-	BossEffectContext.AddInstigator(GetInstigator(), this);   // 필요 시 instigator 설정
+	BossEffectContext.AddInstigator(GetInstigator(), this); 
 		
 	FGameplayEffectSpecHandle BossSpecHandle = BossASC->MakeOutgoingSpec(DamageGEClass,1.f,BossEffectContext);
 	

@@ -14,24 +14,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="992caa9f-6972-42fb-8d48-05e4f4623c58" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRRockProjectile.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRRockProjectile.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GunRogue/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GunRogue.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/GunRogue.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/AM_Test_GroundStrikeAttack.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/AM_Test_GroundStrikeAttack.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BP_GRAILuwoGamemode.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BP_GRAILuwoGamemode.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BP_Test_Boss_Luwo_AICharacter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BP_Test_Boss_Luwo_AICharacter.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BT_Test_Boss_Luwo_AI.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BT_Test_Boss_Luwo_AI.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/TestMap_AI_BossLuwo.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/TestMap_AI_BossLuwo.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestThirdPerson/Characters/Mannequins/Meshes/SKM_Manny.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestThirdPerson/Characters/Mannequins/Meshes/SKM_Manny.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestThirdPerson/Characters/Mannequins/Meshes/SK_Mannequin.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestThirdPerson/Characters/Mannequins/Meshes/SK_Mannequin.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRGroundStrikeAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRGroundStrikeAttackAbility.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRGroundStrikeAttackAbility.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRGroundStrikeAttackAbility.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRJumpAndAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRJumpAndAttackAbility.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRJumpAndAttackAbility.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRJumpAndAttackAbility.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/BT/BT_Boss_Luwo_AI.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/BT/BT_Boss_Luwo_AI.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Normal/AICharacter/BP_Move_KeepDistance_AICharcter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Normal/AICharacter/BP_Move_KeepDistance_AICharcter.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Normal/Animation/ABP_NormalAI.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Normal/Animation/ABP_NormalAI.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/BT_TestAI.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/BT_TestAI.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/BT_Test_AICharcter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/BT_Test_AICharcter.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/TestMap_AI.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/TestMap_AI.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_UseAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_UseAttackAbility.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_UseAttackAbility.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_UseAttackAbility.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRLuwoAICharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRLuwoAICharacter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRLuwoAICharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRLuwoAICharacter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRAIController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRAIController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRLaserProjectile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRLaserProjectile.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRRockProjectile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRRockProjectile.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -169,7 +168,7 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "feature/ai/luwo-attack-far",
+    "git-widget-placeholder": "feature/ai/create-boss-ge",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -311,6 +310,7 @@
       <workItem from="1764034811713" duration="623000" />
       <workItem from="1764134920838" duration="19819000" />
       <workItem from="1764223268791" duration="22930000" />
+      <workItem from="1764931221642" duration="429000" />
     </task>
     <servers />
   </component>
