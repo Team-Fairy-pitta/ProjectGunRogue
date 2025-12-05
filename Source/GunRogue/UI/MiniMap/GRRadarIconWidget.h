@@ -15,7 +15,7 @@ class GUNROGUE_API UGRRadarIconWidget : public UUserWidget
 
 public:
 	void InitIcon(const FGameplayTag& InTag);
-	void UpdateRadarPosition(const FVector2D& RadarPos);
+	void UpdateRadarPosition(const FVector2D& ActorPos);
 
 protected:
 	UPROPERTY(meta = (BindWidget))

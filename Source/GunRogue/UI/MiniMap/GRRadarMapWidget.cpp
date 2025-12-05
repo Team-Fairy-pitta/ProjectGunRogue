@@ -9,6 +9,11 @@ void UGRRadarMapWidget::UpdateRadar(const TArray<FRadarTargetInfo>& Targets)
 
 	for (const FRadarTargetInfo& Info : Targets)
 	{
+		if (!IsValid(Info.TargetActor))
+		{
+			continue;
+		}
+
 		CurrentTargets.Add(Info.TargetActor);
 
 		UGRRadarIconWidget* Icon = nullptr;
@@ -27,7 +32,7 @@ void UGRRadarMapWidget::UpdateRadar(const TArray<FRadarTargetInfo>& Targets)
 			Icon = IconMap[Info.TargetActor];
 		}
 
-		Icon->UpdateRadarPosition(Info.RadarPosition);
+		Icon->UpdateRadarPosition(Info.NormalizedTargetDirection);
 	}
 
 	// 제거할 아이콘 찾기

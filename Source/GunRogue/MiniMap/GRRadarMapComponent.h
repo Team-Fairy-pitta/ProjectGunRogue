@@ -16,7 +16,7 @@ struct FRadarTargetInfo
 	AActor* TargetActor = nullptr;
 
 	UPROPERTY(BlueprintReadOnly)
-	FVector2D RadarPosition = FVector2D::ZeroVector;
+	FVector2D NormalizedTargetDirection = FVector2D::ZeroVector;
 
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag RadarTag;
@@ -34,7 +34,7 @@ public:
 
 	void ScanRadar();
 
-	FVector2D ConvertWorldToRadarPosition(const FVector& WorldLocation) const;
+	FVector2D GetNormalizedTargetDirection(FVector TargetLocation) const;
 
 protected:
 	virtual void BeginPlay() override;

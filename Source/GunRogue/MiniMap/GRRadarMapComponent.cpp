@@ -5,6 +5,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "MiniMap/GRRadarTagComponent.h"
+#include "GameFramework/Character.h"
 
 
 UGRRadarMapComponent::UGRRadarMapComponent()
@@ -126,8 +127,8 @@ void UGRRadarMapComponent::ScanRadar()
 
 		FRadarTargetInfo Info;
 		Info.TargetActor = HitActor;
-		Info.RadarTag = RadarTypeTag;  
-		Info.RadarPosition = ConvertWorldToRadarPosition(HitActor->GetActorLocation());
+		Info.RadarTag = RadarTypeTag;
+		Info.NormalizedTargetDirection = GetNormalizedTargetDirection(HitActor->GetActorLocation());
 
 		TargetList.Add(Info);
 	}
@@ -136,32 +137,29 @@ void UGRRadarMapComponent::ScanRadar()
 
 }
 
-FVector2D UGRRadarMapComponent::ConvertWorldToRadarPosition(const FVector& WorldLocation) const
+FVector2D UGRRadarMapComponent::GetNormalizedTargetDirection(FVector TargetLocation) const
 {
-	// 카메라 기준
-	/*FVector OwnerLoc = GetOwner()->GetActorLocation();
+	FVector OwnerLocation = GetOwner()->GetActorLocation();
+	OwnerLocation.Z = 0;
+	TargetLocation.Z = 0;
 
-	FRotator CamRot = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraRotation();
+	AActor* Owner = GetOwner();
+	FRotator OwnerRotator;
 
-	FVector Dir = WorldLocation - OwnerLoc;
-	FVector LocalDir = CamRot.UnrotateVector(Dir);
+	ACharacter* Character = Cast<ACharacter>(Owner);
+	if (IsValid(Character))
+	{
+		OwnerRotator = Character->GetControlRotation();
+	}
+	else
+	{
+		OwnerRotator = GetOwner()->GetActorRotation();
+	}
+	OwnerRotator.Pitch = 0;
 
-	float X = FMath::Clamp(LocalDir.Y / ScanRadius, -1.f, 1.f);
-	float Y = FMath::Clamp(LocalDir.X / ScanRadius, -1.f, 1.f);
+	FVector Direction = TargetLocation - OwnerLocation;
+	Direction = OwnerRotator.UnrotateVector(Direction);
 
-	return FVector2D(X, Y);*/
-
-	// 플레이어 캐릭터 기준
-	FVector OwnerLoc = GetOwner()->GetActorLocation();
-
-	FRotator OwnerRot = GetOwner()->GetActorRotation();
-
-	FVector Dir = WorldLocation - OwnerLoc;
-
-	FVector LocalDir = OwnerRot.UnrotateVector(Dir);
-
-	float X = FMath::Clamp(LocalDir.Y / ScanRadius, -1.f, 1.f); 
-	float Y = FMath::Clamp(LocalDir.X / ScanRadius, -1.f, 1.f); 
-
-	return FVector2D(X, Y);
+	FVector2D Direction2D(Direction.X, Direction.Y);
+	return Direction2D / (2 * ScanRadius);
 }

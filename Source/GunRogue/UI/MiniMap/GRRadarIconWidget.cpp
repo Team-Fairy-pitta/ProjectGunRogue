@@ -27,15 +27,16 @@ void UGRRadarIconWidget::InitIcon(const FGameplayTag& InTag)
 	IconImage->SetRenderScale(Data->IconScale);
 }
 
-void UGRRadarIconWidget::UpdateRadarPosition(const FVector2D& RadarPos)
+void UGRRadarIconWidget::UpdateRadarPosition(const FVector2D& ActorPos)
 {
 	const float RadarSize = 300.f;
 	const float Radius = RadarSize * 0.5f;
 
-	FVector2D PixelPos(
-		RadarPos.X * Radius + Radius - 50,
-		-RadarPos.Y * Radius + Radius - 20
-	);
+	FVector2D RadarPosition(ActorPos.Y, -ActorPos.X);
 
-	SetRenderTranslation(PixelPos);
+	RadarPosition *= RadarSize;
+	RadarPosition.X += RadarSize / 2.0f;
+	RadarPosition.Y += RadarSize / 2.0f;
+
+	SetRenderTranslation(RadarPosition);
 }
