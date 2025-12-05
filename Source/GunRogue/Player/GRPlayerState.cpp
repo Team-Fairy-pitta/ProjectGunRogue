@@ -988,6 +988,8 @@ void AGRPlayerState::ServerRPC_OnAugmentSelected_Implementation(FName AugmentID)
 	{
 		AddAugment(AugmentID);
 	}
+
+	OnRep_OwnedAugments();
 }
 
 void AGRPlayerState::AddAugment(FName AugmentID)
@@ -1044,5 +1046,14 @@ void AGRPlayerState::OnRep_OwnedAugments()
 	}
 	
 	PreviousOwnedAugments = OwnedAugments;
+
+	AGRBattlePlayerController* BattlePlayerController = GetOwner<AGRBattlePlayerController>();
+	if (!IsValid(BattlePlayerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GetOwner() is NOT AGRBattlePlayerController"));
+		return;
+	}
+
+	BattlePlayerController->HideAugmentWidget();
 }
 #pragma endregion

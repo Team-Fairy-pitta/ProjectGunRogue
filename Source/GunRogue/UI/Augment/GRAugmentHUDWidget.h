@@ -49,9 +49,6 @@ public:
 	UFUNCTION()
 	void HideTooltip(UGRAugmentSlotWidget* AugmentSlot);
 
-	UFUNCTION()
-	void RemoveAugmentHUD(UGRAugmentSlotWidget* AugmentSlot);
-
 private:
 	void CreateAugmentSlot();
 };

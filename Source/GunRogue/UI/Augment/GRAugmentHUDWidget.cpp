@@ -52,7 +52,6 @@ void UGRAugmentHUDWidget::NativeDestruct()
 			{
 				AugmentSlot->OnAugmentSlotHovered.RemoveDynamic(this, &UGRAugmentHUDWidget::ShowTooltip);
 				AugmentSlot->OnAugmentSlotUnhovered.RemoveDynamic(this, &UGRAugmentHUDWidget::HideTooltip);
-				AugmentSlot->OnAugmentSlotClicked.RemoveDynamic(this, &UGRAugmentHUDWidget::RemoveAugmentHUD);
 
 				AugmentSlot->RemoveFromParent();
 			}
@@ -127,23 +126,6 @@ void UGRAugmentHUDWidget::HideTooltip(UGRAugmentSlotWidget* AugmentSlot)
 	AugmentTooltipWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UGRAugmentHUDWidget::RemoveAugmentHUD(UGRAugmentSlotWidget* AugmentSlot)
-{
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC)
-	{
-		return;
-	}
-
-	AGRBattlePlayerController* BattlePC = Cast<AGRBattlePlayerController>(PC);
-	if (!BattlePC)
-	{
-		return;
-	}
-
-	BattlePC->HideAugmentWidget();
-}
-
 void UGRAugmentHUDWidget::CreateAugmentSlot()
 {
 	if (!AugmentSlotClass || !AugmentContainer)
@@ -201,6 +183,5 @@ void UGRAugmentHUDWidget::CreateAugmentSlot()
 		NewAugmentSlot->SetAugmentSlot(Augment, CurrentLevel);
 		NewAugmentSlot->OnAugmentSlotHovered.AddDynamic(this, &UGRAugmentHUDWidget::ShowTooltip);
 		NewAugmentSlot->OnAugmentSlotUnhovered.AddDynamic(this, &UGRAugmentHUDWidget::HideTooltip);
-		NewAugmentSlot->OnAugmentSlotClicked.AddDynamic(this, &UGRAugmentHUDWidget::RemoveAugmentHUD);
 	}
 }
