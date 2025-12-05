@@ -4,6 +4,8 @@
 #include "AbilitySystemComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "MiniMap/GRRadarTagComponent.h"
+
 
 UGRRadarMapComponent::UGRRadarMapComponent()
 {
@@ -106,34 +108,14 @@ void UGRRadarMapComponent::ScanRadar()
 			continue;
 		}
 
-		UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+		UGRRadarTagComponent* RadarTagComp = HitActor->FindComponentByClass<UGRRadarTagComponent>();
 
-		if (!ASC)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("ASC continue"));
-			continue;
-		}
-
-		FGameplayTagContainer Tags;
-		ASC->GetOwnedGameplayTags(Tags);
-
-		if (!Tags.HasTag(TagMinimapShow))
+		if (!RadarTagComp)
 		{
 			continue;
 		}
 
-		// Minimap.Type.* 태그 추출
-		FGameplayTag BaseTag = FGameplayTag::RequestGameplayTag("Minimap.Type");
-		FGameplayTag RadarTypeTag;
-
-		for (const FGameplayTag& T : Tags)
-		{
-			if (T.MatchesTag(BaseTag))
-			{
-				RadarTypeTag = T;
-				break;
-			}
-		}
+		FGameplayTag RadarTypeTag = RadarTagComp->RadarTag;
 
 		if (!RadarTypeTag.IsValid())
 		{
@@ -142,8 +124,8 @@ void UGRRadarMapComponent::ScanRadar()
 
 		FRadarTargetInfo Info;
 		Info.TargetActor = HitActor;
+		Info.RadarTag = RadarTypeTag;  
 		Info.RadarPosition = ConvertWorldToRadarPosition(HitActor->GetActorLocation());
-		Info.RadarTag = RadarTypeTag;
 
 		TargetList.Add(Info);
 	}
