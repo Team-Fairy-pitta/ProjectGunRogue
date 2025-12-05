@@ -42,9 +42,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Radar")
 	float ScanRadius = 2000.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Radar")
-	float UpdateInterval = 0.1f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Radar UI")
 	TSubclassOf<UGRRadarMapWidget> RadarMapWidgetClass;
 

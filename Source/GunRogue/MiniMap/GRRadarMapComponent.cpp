@@ -29,7 +29,7 @@ void UGRRadarMapComponent::BeginPlay()
 		ScanTimer, 
 		this, 
 		&UGRRadarMapComponent::ScanRadar, 
-		UpdateInterval, 
+		0.1f, 
 		true
 	);
 }
@@ -58,12 +58,12 @@ void UGRRadarMapComponent::ScanRadar()
 
 	DrawDebugSphere(
 		GetWorld(),
-		GetOwner()->GetActorLocation(),          // 중심
-		ScanRadius,      // 반경
-		16,              // 세그먼트 수 (높을수록 동그랗게 보임)
-		FColor::Green,   // 색상
-		false,           // Persistent? false면 한 프레임만, true면 영구 표시
-		0.1f             // 표시 시간(초)
+		GetOwner()->GetActorLocation(),          
+		ScanRadius,      
+		16,              
+		FColor::Green,   
+		false,           
+		0.1f             
 	);
 
 	TArray<FRadarTargetInfo> TargetList;
