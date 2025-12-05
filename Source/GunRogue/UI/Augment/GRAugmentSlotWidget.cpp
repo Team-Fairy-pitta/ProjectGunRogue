@@ -10,6 +10,7 @@
 #include "Components/ProgressBar.h"
 #include "Player/Battle/GRBattlePlayerController.h"
 
+
 void UGRAugmentSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -86,7 +87,7 @@ void UGRAugmentSlotWidget::SetSlotDescription()
 	{
 		return;
 	}
-	
+
 	TArray<FFormatArgumentValue> Args;
 	for (const FAugmentValues& Val : CurrentAugment->AugmentValues)
 	{

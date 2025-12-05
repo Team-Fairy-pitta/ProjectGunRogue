@@ -2,6 +2,7 @@
 #include "Weapon/GRWeaponInstance.h"
 #include "Weapon/GRWeaponDefinition.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 
 void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition* InWeaponDefinition, const FGRWeaponInstance& InWeaponInstance)
 {
@@ -25,13 +26,17 @@ void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefin
 	WeaponInstance.Init(CachedASC, WeaponDefinition);
 	WeaponInstance.ApplyAllEffects();
 
-
 	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.CurrentLevel: %d"),
 		*WeaponDefinition->WeaponName.ToString(),
 		WeaponInstance.GetLevel());
 	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.CurrentDamage: %f"),
 		*WeaponDefinition->WeaponName.ToString(),
 		WeaponInstance.GetDamage());
+
+	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s Ammo: %d / %d"),
+		*WeaponDefinition->WeaponName.ToString(),
+		WeaponInstance.GetCurrentAmmo(),
+		WeaponInstance.GetMaxAmmo());
 
 
 	// 슬롯에 저장만 하고 활성화는 별도로 호출
@@ -82,6 +87,22 @@ void FGRWeaponHandle::ActivateWeapon()
 	if (IsValid(WeaponDefinition->AbilitySet))
 	{
 		WeaponDefinition->AbilitySet->GiveToAbilitySystem(CachedASC, &GrantedHandles);
+	}
+
+	// 무기 장착 시 AttributeSet에 탄약 정보 로드 (UI 표시용)
+	UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(
+		CachedASC->GetSet<UGRCombatAttributeSet>()
+		);
+	if (CombatSet && WeaponInstance.IsValid())
+	{
+		CombatSet->UpdateAmmoDisplay(WeaponInstance.GetCurrentAmmo(), WeaponInstance.GetMaxAmmo());
+		CombatSet->SetReloadTime(WeaponInstance.GetReloadTime());
+
+		UE_LOG(LogTemp, Display, TEXT("[ActivateWeapon] %s - Ammo: %d/%d, ReloadTime: %.2f"),
+			*WeaponDefinition->WeaponName.ToString(),
+			WeaponInstance.GetCurrentAmmo(),
+			WeaponInstance.GetMaxAmmo(),
+			WeaponInstance.GetReloadTime());
 	}
 
 	bIsActive = true;

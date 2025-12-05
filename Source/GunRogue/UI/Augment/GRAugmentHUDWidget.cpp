@@ -74,7 +74,7 @@ void UGRAugmentHUDWidget::UpdateTooltip(UGRAugmentSlotWidget* AugmentSlot)
 	if (!PC)
 	{
 		return;
-	}
+		}
 
 	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
 	if (!PS)
@@ -178,7 +178,7 @@ void UGRAugmentHUDWidget::CreateAugmentSlot()
 	for (UGRAugmentDefinition* Augment : RandomAugments)
 	{
 		if (!Augment)
-		{
+	{
 			continue;
 		}
 
@@ -189,7 +189,7 @@ void UGRAugmentHUDWidget::CreateAugmentSlot()
 		{
 			continue;
 		}
-		
+
 		if (UHorizontalBoxSlot* HorizontalBoxSlot = AugmentContainer->AddChildToHorizontalBox(NewAugmentSlot))
 		{
 			HorizontalBoxSlot->SetPadding(FMargin(0,0,20, 0));

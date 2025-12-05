@@ -79,7 +79,7 @@ protected:
 
 private:
 	FLinearColor DefaultBrushColor;
-
+	
 	UPROPERTY()
 	UGRAugmentDefinition* CurrentAugment = nullptr;
 

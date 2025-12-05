@@ -9,7 +9,7 @@
 #if WITH_EDITOR
 #include "PackageTools.h"
 #include "ObjectTools.h"
-#include "Editor.h"
+//#include "Editor.h"
 #include "Misc/PackageName.h"
 #include "UObject/SavePackage.h"
 #endif

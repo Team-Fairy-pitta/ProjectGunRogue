@@ -8,20 +8,27 @@
 #include "Components/SkeletalMeshComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"   
-#include "AbilitySystemComponent.h"             
+#include "AbilitySystemComponent.h"       
+#include "GameplayTagsManager.h"
+#include "GameplayTagContainer.h"
 
 ATestWeaponPickup::ATestWeaponPickup()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	PickupSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
-	RootComponent = PickupSphere;
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = Root;
 
+	PickupSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
+	PickupSphere->SetupAttachment(Root);
 	PickupSphere->SetSphereRadius(60.f);
 	PickupSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 
 	WeaponMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMeshComponent->SetupAttachment(PickupSphere);
+
+	LeftHandIK = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHandIK"));
+	LeftHandIK->SetupAttachment(WeaponMeshComponent);
 
 	PickupSphere->OnComponentBeginOverlap.AddDynamic(this, &ATestWeaponPickup::OnPickupSphereBeginOverlap);
 }
@@ -50,11 +57,10 @@ void ATestWeaponPickup::OnPickupSphereBeginOverlap(
 	}
 
 	ATestGRCharacter* Character = Cast<ATestGRCharacter>(OtherActor);
+	if (!Character)
+	{
+		return;
+	}
 
-	Character->CurrentWeaponAsset = WeaponData;
-	Character->bHasWeapon = true;
-	Character->PushWeaponStateToAnimBP();
-
-	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
-	ASC->TryActivateAbilityByClass(UTestGAEquipMontage::StaticClass());
+	Character->EquipWeapon(this);
 }

@@ -59,6 +59,17 @@ public:
 
 	float GetDamage() const { return UpgradeDamage; };
 
+	// 탄약 관련 함수
+	int32 GetCurrentAmmo() const { return CurrentAmmo; }
+	int32 GetMaxAmmo() const;
+	float GetReloadTime() const;
+
+	bool CheckHasAmmo() const { return CurrentAmmo > 0; }
+	bool CheckCanReload() const;
+
+	bool ConsumeAmmo();
+	void Reload();
+
 public:
 
 	UPROPERTY()
@@ -73,7 +84,9 @@ public:
 	UPROPERTY()
 	TObjectPtr<UGRWeaponDefinition> WeaponDefinition = nullptr;
 
-	
+	// 현재 탄약 (이 무기 인스턴스의 탄약 상태)
+	UPROPERTY()
+	int32 CurrentAmmo;
 
 protected:
 	UPROPERTY()

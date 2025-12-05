@@ -52,5 +52,10 @@ protected:
 	// 연사 타이머
 	FTimerHandle FireTimerHandle;
 
-	void ApplyRecoil(APlayerController* PC, float RecoilAmount);
+	void ApplyRecoil(float RecoilAmount);
+	void StartRecoilRecovery();
+	void StopRecoilRecovery();
+
+	FTimerHandle RecoilRecoveryTimerHandle;
+	bool bIsRecoilRecoveryActive;
 };
