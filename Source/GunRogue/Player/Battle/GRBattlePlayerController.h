@@ -64,7 +64,7 @@ private:
 	void UpdatePlayerMaxHealth(float Value);
 	void UpdatePlayerShield(float Value);
 	void UpdatePlayerMaxShield(float Value);
-
+	
 	void OnUpdateOtherPlayerStatus();
 
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
@@ -80,6 +80,9 @@ private:
 
 	UFUNCTION()
 	void OnWeaponSwitched(int32 OldSlotIndex, int32 NewSlotIndex);
+
+	UFUNCTION()
+	void OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo);
 
 #pragma endregion HUD
 

@@ -1,6 +1,7 @@
 #include "Character/GRCharacter.h"
 #include "Character/GRInputHandleComponent.h"
 #include "Character/Interaction/GRInteractionComponent.h"
+#include "Character/Attachment/GRAttachmentComponent.h"
 #include "Player/GRPlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
@@ -8,7 +9,7 @@
 #include "Camera/CameraComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
-
+#include "Net/UnrealNetwork.h"
 
 AGRCharacter::AGRCharacter()
 {
@@ -16,6 +17,7 @@ AGRCharacter::AGRCharacter()
 
 	InputHandleComponent = CreateDefaultSubobject<UGRInputHandleComponent>(TEXT("InputHandleComponent"));
 	InteractionComponent = CreateDefaultSubobject<UGRInteractionComponent>(TEXT("GRInteractionComponent"));
+	AttachmentComponent = CreateDefaultSubobject<UGRAttachmentComponent>(TEXT("AttachmentComponent"));
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->SetupAttachment(RootComponent);

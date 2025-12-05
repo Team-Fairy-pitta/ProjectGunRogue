@@ -3,13 +3,16 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Weapon/GRWeaponTypes.h"
-#include "AbilitySystem/GRAbilitySet.h"
-#include "Weapon/GRWeaponOptionPool.h"
+#include "Character/Attachment/GRCharacterAttachment.h"
 #include "GRWeaponDefinition.generated.h"
 
 class UTexture2D;
 class UStaticMesh;
 class USkeletalMesh;
+class UAnimSequence;
+class UAnimMontage;
+class UGRAbilitySet;
+class UGRWeaponOptionPool;
 
 UCLASS()
 class GUNROGUE_API UGRWeaponDefinition : public UDataAsset
@@ -37,14 +40,28 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Mesh")
 	TObjectPtr<UStaticMesh> WeaponPickupMesh;
 
-	// 무기 스켈레탈 메시 (장착했을 때)
+	// 장착했을 때, 캐릭터에 붙여야 하는 Attachment 정보
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Mesh")
-	TObjectPtr<USkeletalMesh> WeaponEquippedMesh;
+	FGRCharacterAttachment WeaponAttachment;
 
 	// 무기가 부여하는 어빌리티(사격, 재장전, 특수능력 등)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ability")
 	TObjectPtr<UGRAbilitySet> AbilitySet;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TObjectPtr<UAnimSequence> IdleAnimSequence;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TObjectPtr<UAnimMontage> EquipAnimMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TObjectPtr<UAnimMontage> ReloadAnimMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TObjectPtr<UAnimMontage> FireAnimMontage;
+
+	/* 무기 강화 파트에서 사용하고 있는 값 */
+	/* [NOTE] 무기의 Status Effect 랑 어떻게 통합할 수 있을까..? */
 	// 무기 기본 데미지
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	float BaseDamage = 10.f;
@@ -61,5 +78,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	UGRWeaponOptionPool* OptionPool = nullptr;
 
-	
+	// 탄창 크기 (최대 탄약)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ammo")
+	int32 MaxAmmo = 30;
+
+	// 재장전 시간 (초)
+	/* [NOTE] 재장전 시간은 애님 몽타주 재생 시간을 이용해야 함. 따라서 나중에 제거해야함 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ammo")
+	float ReloadTime = 2.0f;
 };

@@ -11,6 +11,7 @@
     GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
     GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChanged, int32, CurrentAmmo, int32, MaxAmmo);
 
 UCLASS()
 class GUNROGUE_API UGRCombatAttributeSet : public UAttributeSet
@@ -26,6 +27,17 @@ public:
 
 	// 탄퍼짐 증가 (사격 시 호출)
 	void IncreaseSpread(UAbilitySystemComponent* OwningASC);
+
+	// 탄약, 장전 가능 여부 확인
+	bool CheckHasAmmo() const { return GetCurrentAmmo() > 0.0f; }
+	bool CheckCanReload() const { return GetCurrentAmmo() < GetMaxAmmo(); }
+
+	// 탄약 델리게이트 (블루프린트에서 바인딩 가능)
+	UPROPERTY(BlueprintAssignable, Category = "GunRogue|Ammo")
+	FOnAmmoChanged OnAmmoChanged;
+
+	// AttributeSet 업데이트 (UI 표시용)
+	void UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAmmo);
 
 	// 무기 기본 공격력
 	UPROPERTY(BlueprintReadOnly, Category = "Combat|WeaponDamage", ReplicatedUsing = OnRep_WeaponDamage_Base)
@@ -130,6 +142,21 @@ public:
 	static constexpr float SPREAD_RECOVERY_DELAY = 0.2f;      // 사격 멈추고 회복시작 하기까지 딜레이(인터벌보다 커야 사격 중 회복 안 됨)
 	static constexpr float SPREAD_RECOVERY_INTERVAL = 0.1f;   // 0.1초마다 회복 틱
 
+	// 현재 탄약
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Ammo", ReplicatedUsing = OnRep_CurrentAmmo)
+	FGameplayAttributeData CurrentAmmo;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, CurrentAmmo)
+
+	// 최대 탄약 (탄창 크기)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Ammo", ReplicatedUsing = OnRep_MaxAmmo)
+	FGameplayAttributeData MaxAmmo;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, MaxAmmo)
+
+	// 재장전 시간 (초)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Ammo", ReplicatedUsing = OnRep_ReloadTime)
+	FGameplayAttributeData ReloadTime;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ReloadTime)
+
 
 	// 무기 데미지 계산 (무기 공격력만)
 	float CalculateWeaponDamage() const;
@@ -197,6 +224,15 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_CurrentSpread(const FGameplayAttributeData& OldCurrentSpread);
+
+	UFUNCTION()
+	virtual void OnRep_CurrentAmmo(const FGameplayAttributeData& OldCurrentAmmo);
+
+	UFUNCTION()
+	virtual void OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAmmo);
+
+	UFUNCTION()
+	virtual void OnRep_ReloadTime(const FGameplayAttributeData& OldReloadTime);
 
 
 private:

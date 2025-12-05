@@ -21,11 +21,16 @@ public class GunRogue : ModuleRules
 			"GameplayTasks",
 			"GameplayAbilities",
 
+			// UI
 			"UMG", "Slate", "SlateCore",
 
-			//AI
+			// AI
 			"AIModule", "NavigationSystem",
 			
+			// Network
+			"NetCore",
+
+			// Steam
 			"AdvancedSessions",
 		});
 

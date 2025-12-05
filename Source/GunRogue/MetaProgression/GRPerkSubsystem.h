@@ -6,6 +6,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GRPerkSubsystem.generated.h"
 
+class UAbilitySystemComponent;
+class UGameplayEffect;
 /**
  * 
  */
@@ -42,6 +44,8 @@ public:
 	
 	bool TryUpgradePerk(FName PerkID, const UDataTable* PerkTable);
 
+	void ApplyAllPerksToASC(UAbilitySystemComponent* ASC, const UDataTable* PerkTable, TSubclassOf<UGameplayEffect> GE);
+	
 private:
 	UPROPERTY()
 	TMap<FName, int32> PerkInfoRows;
