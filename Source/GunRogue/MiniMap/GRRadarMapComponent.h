@@ -30,6 +30,8 @@ class GUNROGUE_API UGRRadarMapComponent : public UActorComponent
 public:
 	UGRRadarMapComponent();
 
+	void InitializeWidget();
+
 	void ScanRadar();
 
 	FVector2D ConvertWorldToRadarPosition(const FVector& WorldLocation) const;

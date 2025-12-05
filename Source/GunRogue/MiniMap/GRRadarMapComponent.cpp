@@ -10,28 +10,57 @@ UGRRadarMapComponent::UGRRadarMapComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void UGRRadarMapComponent::InitializeWidget()
+{
+	if (RadarMapWidget)
+	{
+		return;
+	}
+
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (!OwnerPawn || !OwnerPawn->IsLocallyControlled())
+	{
+		return;
+	}
+
+	if (!RadarMapWidgetClass)
+	{
+		return;
+	}
+
+	APlayerController* PC = Cast<APlayerController>(OwnerPawn->GetController());
+	if (!PC)
+	{
+		return;
+	}
+
+	RadarMapWidget = CreateWidget<UGRRadarMapWidget>(PC, RadarMapWidgetClass);
+	if (RadarMapWidget)
+	{
+		RadarMapWidget->AddToViewport();
+		UE_LOG(LogTemp, Warning, TEXT("Radar Widget Initialized for %s"), *OwnerPawn->GetName());
+	}
+}
+
 void UGRRadarMapComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TagMinimapShow = FGameplayTag::RequestGameplayTag("MiniMap.Show");
+	TagMinimapShow = FGameplayTag::RequestGameplayTag("Minimap.Show");
 
-	if (RadarMapWidgetClass)
+	InitializeWidget();
+
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (OwnerPawn && OwnerPawn->IsLocallyControlled())
 	{
-		RadarMapWidget = CreateWidget<UGRRadarMapWidget>(GetWorld(), RadarMapWidgetClass);
-		if (RadarMapWidget)
-		{
-			RadarMapWidget->AddToViewport();
-		}
+		GetWorld()->GetTimerManager().SetTimer(
+			ScanTimer,
+			this,
+			&UGRRadarMapComponent::ScanRadar,
+			0.1f,
+			true
+		);
 	}
-
-	GetWorld()->GetTimerManager().SetTimer(
-		ScanTimer, 
-		this, 
-		&UGRRadarMapComponent::ScanRadar, 
-		0.1f, 
-		true
-	);
 }
 
 void UGRRadarMapComponent::ScanRadar()
