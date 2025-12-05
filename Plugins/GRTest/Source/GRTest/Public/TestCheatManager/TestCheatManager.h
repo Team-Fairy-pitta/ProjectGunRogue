@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameFramework/CheatManager.h"
-#include "Editor.h"
+//#include "Editor.h"
 #include "TestCheatManager.generated.h"
 
 

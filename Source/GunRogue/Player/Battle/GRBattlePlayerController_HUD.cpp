@@ -4,10 +4,255 @@
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
+#include "Weapon/GRWeaponDefinition.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRWeaponListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
+
+void AGRBattlePlayerController::InitializeBattleHUD()
+{
+	AGRPlayerState* GRPlayerState = GetPlayerState<AGRPlayerState>();
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRPlayerState (AGRPlayerState) is INVALID"));
+		return;
+	}
+
+	UGRAbilitySystemComponent* ASC = GRPlayerState->GetGRAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ASC (UGRAbilitySystemComponent) is INVALID"));
+		return;
+	}
+
+	const UAttributeSet* AttributeSet = ASC->GetAttributeSet(UGRHealthAttributeSet::StaticClass());
+	const UGRHealthAttributeSet* HealthSet = Cast<UGRHealthAttributeSet>(AttributeSet);
+	if (!IsValid(HealthSet))
+	{
+		UE_LOG(LogTemp, Error, TEXT("HealthSet (UGRHealthAttributeSet) is INVALID"));
+		return;
+	}
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetHealthAttribute()).AddUObject(this, &ThisClass::OnHealthChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &ThisClass::OnMaxHealthChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetShieldAttribute()).AddUObject(this, &ThisClass::OnShieldChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(
+		UGRHealthAttributeSet::GetMaxShieldAttribute()).AddUObject(this, &ThisClass::OnMaxShieldChanged);
+
+
+	float Health = HealthSet->GetHealth();
+	float MaxHealth = HealthSet->GetMaxHealth();
+	float Shield = HealthSet->GetShield();
+	float MaxShield = HealthSet->GetMaxShield();
+
+	UpdatePlayerHealth(Health);
+	UpdatePlayerMaxHealth(MaxHealth);
+	UpdatePlayerShield(Shield);
+	UpdatePlayerMaxShield(MaxShield);
+
+	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
+
+
+	if (!GRPlayerState->OnWeaponEquipped.IsAlreadyBound(this, &ThisClass::OnWeaponEquipped))
+	{
+		GRPlayerState->OnWeaponEquipped.AddDynamic(this, &ThisClass::OnWeaponEquipped);
+	}
+	if (!GRPlayerState->OnWeaponDropped.IsAlreadyBound(this, &ThisClass::OnWeaponDropped))
+	{
+		GRPlayerState->OnWeaponDropped.AddDynamic(this, &ThisClass::OnWeaponDropped);
+	}
+	if (!GRPlayerState->OnWeaponSwitched.IsAlreadyBound(this, &ThisClass::OnWeaponSwitched))
+	{
+		GRPlayerState->OnWeaponSwitched.AddDynamic(this, &ThisClass::OnWeaponSwitched);
+	}
+
+	UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(ASC->GetSet<UGRCombatAttributeSet>());
+	if (!CombatSet)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CombatSet (UGRCombatAttributeSet) is INVALID"));
+		return;
+	}
+
+	if (!CombatSet->OnAmmoChanged.IsAlreadyBound(this, &ThisClass::OnAmmoChanged))
+	{
+		CombatSet->OnAmmoChanged.AddDynamic(this, &ThisClass::OnAmmoChanged);
+	}
+}
+
+void AGRBattlePlayerController::FinalizeBattleHUD()
+{
+	AGRPlayerState* GRPlayerState = GetPlayerState<AGRPlayerState>();
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRPlayerState (AGRPlayerState) is INVALID"));
+		return;
+	}
+
+	if (OtherPlayerStatusUpdateTimer.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(OtherPlayerStatusUpdateTimer);
+	}
+
+	if (GRPlayerState->OnWeaponEquipped.IsAlreadyBound(this, &ThisClass::OnWeaponEquipped))
+	{
+		GRPlayerState->OnWeaponEquipped.RemoveDynamic(this, &ThisClass::OnWeaponEquipped);
+	}
+	if (GRPlayerState->OnWeaponDropped.IsAlreadyBound(this, &ThisClass::OnWeaponDropped))
+	{
+		GRPlayerState->OnWeaponDropped.RemoveDynamic(this, &ThisClass::OnWeaponDropped);
+	}
+	if (GRPlayerState->OnWeaponSwitched.IsAlreadyBound(this, &ThisClass::OnWeaponSwitched))
+	{
+		GRPlayerState->OnWeaponSwitched.RemoveDynamic(this, &ThisClass::OnWeaponSwitched);
+	}
+
+	UGRAbilitySystemComponent* ASC = GRPlayerState->GetGRAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ASC (UGRAbilitySystemComponent) is INVALID"));
+		return;
+	}
+
+	UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(ASC->GetSet<UGRCombatAttributeSet>());
+	if (!CombatSet)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CombatSet (UGRCombatAttributeSet) is INVALID"));
+		return;
+	}
+
+	if (CombatSet->OnAmmoChanged.IsAlreadyBound(this, &ThisClass::OnAmmoChanged))
+	{
+		CombatSet->OnAmmoChanged.RemoveDynamic(this, &ThisClass::OnAmmoChanged);
+	}
+}
+
+void AGRBattlePlayerController::ShowBattleHUD()
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance is INVALID"));
+		return;
+	}
+	if (!HUDWidgetInstance->IsInViewport())
+	{
+		HUDWidgetInstance->AddToViewport();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
+}
+
+void AGRBattlePlayerController::HideBattleHUD()
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance is INVALID"));
+		return;
+	}
+	if (HUDWidgetInstance->IsInViewport())
+	{
+		HUDWidgetInstance->RemoveFromParent();
+	}
+}
+
+void AGRBattlePlayerController::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	UpdatePlayerHealth(Data.NewValue);
+}
+
+void AGRBattlePlayerController::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
+{
+	UpdatePlayerMaxHealth(Data.NewValue);
+}
+
+void AGRBattlePlayerController::OnShieldChanged(const FOnAttributeChangeData& Data)
+{
+	UpdatePlayerShield(Data.NewValue);
+}
+
+void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData& Data)
+{
+	UpdatePlayerMaxShield(Data.NewValue);
+}
+
+void AGRBattlePlayerController::OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo)
+{
+	if (!HUDWidgetInstance)
+	{
+		return;
+	}
+
+	UGRWeaponListWidget* WeaponListWidget = HUDWidgetInstance->GetWeaponListWidget();
+	if (!WeaponListWidget)
+	{
+		return;
+	}
+
+	WeaponListWidget->UpdateBulletCount(CurrentAmmo, MaxAmmo);
+}
+
+void AGRBattlePlayerController::OnWeaponEquipped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition)
+{
+	if (!HUDWidgetInstance)
+	{
+		return;
+	}
+	if (!WeaponDefinition)
+	{
+		return;
+	}
+
+	UGRWeaponListWidget* WeaponListWidget = HUDWidgetInstance->GetWeaponListWidget();
+	if (!WeaponListWidget)
+	{
+		return;
+	}
+
+	WeaponListWidget->EnableWeaponSlot(SlotIndex);
+	WeaponListWidget->UpdateWeaponImage(SlotIndex, WeaponDefinition->WeaponIcon);
+}
+
+void AGRBattlePlayerController::OnWeaponDropped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition)
+{
+	if (!HUDWidgetInstance)
+	{
+		return;
+	}
+
+	UGRWeaponListWidget* WeaponListWidget = HUDWidgetInstance->GetWeaponListWidget();
+	if (!WeaponListWidget)
+	{
+		return;
+	}
+
+	WeaponListWidget->DisableWeaponSlot(SlotIndex);
+}
+
+void AGRBattlePlayerController::OnWeaponSwitched(int32 OldSlotIndex, int32 NewSlotIndex)
+{
+	if (!HUDWidgetInstance)
+	{
+		return;
+	}
+
+	UGRWeaponListWidget* WeaponListWidget = HUDWidgetInstance->GetWeaponListWidget();
+	if (!WeaponListWidget)
+	{
+		return;
+	}
+
+	WeaponListWidget->SetSelectedWeapon(NewSlotIndex);
+}
 
 void AGRBattlePlayerController::UpdatePlayerHealth(float Value)
 {

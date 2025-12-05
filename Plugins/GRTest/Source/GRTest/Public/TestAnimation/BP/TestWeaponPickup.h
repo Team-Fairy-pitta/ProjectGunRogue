@@ -29,6 +29,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UTestWeaponAsset* WeaponData;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USceneComponent* LeftHandIK;
+
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:

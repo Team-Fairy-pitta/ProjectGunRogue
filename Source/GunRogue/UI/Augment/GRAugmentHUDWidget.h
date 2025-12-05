@@ -1,0 +1,49 @@
+// GRAugmentHUDWidget.h
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
+#include "GRAugmentHUDWidget.generated.h"
+
+class UHorizontalBox;
+class UGRAugmentSlotWidget;
+class UGRAugmentTooltipWidget;
+/**
+ * 
+ */
+UCLASS()
+class GUNROGUE_API UGRAugmentHUDWidget : public UUserWidget
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	UHorizontalBox* AugmentContainer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Augment")
+	TSubclassOf<UGRAugmentSlotWidget> AugmentSlotClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Augment")
+	TSubclassOf<UGRAugmentTooltipWidget> AugmentTooltipClass;
+
+	UPROPERTY()
+	UGRAugmentTooltipWidget* AugmentTooltipWidget;
+
+	virtual void NativeConstruct() override;
+
+	virtual void NativeDestruct() override;
+	
+public:
+	UFUNCTION()
+	void ShowTooltip(UGRAugmentSlotWidget* AugmentSlot);
+
+	UFUNCTION()
+	void HideTooltip(UGRAugmentSlotWidget* AugmentSlot);
+
+	UFUNCTION()
+	void RemoveAugmentHUD(UGRAugmentSlotWidget* AugmentSlot);
+
+private:
+	void CreateAugmentSlot();
+};

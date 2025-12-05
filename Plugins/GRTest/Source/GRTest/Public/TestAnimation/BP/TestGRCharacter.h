@@ -7,6 +7,8 @@
 
 class UAbilitySystemComponent;
 class UTestWeaponAsset;
+class ATestWeaponPickup;
+class UCameraComponent;
 
 UCLASS()
 class GRTEST_API ATestGRCharacter : public AGRCharacter
@@ -26,8 +28,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TObjectPtr<UTestWeaponAsset> CurrentWeaponAsset;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TObjectPtr<ATestWeaponPickup> CurrentWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	bool bHasWeapon = false;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void EquipWeapon(ATestWeaponPickup* NewWeapon);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon")
 	void PushWeaponStateToAnimBP();

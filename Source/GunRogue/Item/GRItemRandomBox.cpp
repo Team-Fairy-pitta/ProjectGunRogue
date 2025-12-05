@@ -4,6 +4,7 @@
 #include "Character/GRCharacter.h"
 #include "Player/GRPlayerState.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 
 AGRItemRandomBox::AGRItemRandomBox()
@@ -19,11 +20,29 @@ AGRItemRandomBox::AGRItemRandomBox()
 
 	BoxLid = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BoxLid"));
 	BoxLid->SetupAttachment(SceneRoot);
+
+	InteractWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidgetComponent"));
+	InteractWidgetComponent->SetupAttachment(SceneRoot);
+	InteractWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	InteractWidgetComponent->SetVisibility(false);
+	InteractWidgetComponent->SetDrawSize(FVector2D(300, 100)); // Desired Size of UGR*****
 }
 
 void AGRItemRandomBox::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsValid(InteractWidgetComponent))
+	{
+		if (InteractWidgetClass)
+		{
+			InteractWidgetComponent->SetWidgetClass(InteractWidgetClass);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("InteractWidgetClass is INVALID"));
+		}
+	}
 }
 
 void AGRItemRandomBox::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -79,10 +98,18 @@ void AGRItemRandomBox::InteractWith(AActor* OtherActor)
 
 void AGRItemRandomBox::OnOver()
 {
+	if (InteractWidgetComponent)
+	{
+		InteractWidgetComponent->SetVisibility(true);
+	}
 }
 
 void AGRItemRandomBox::OnOut()
 {
+	if (InteractWidgetComponent)
+	{
+		InteractWidgetComponent->SetVisibility(false);
+	}
 }
 
 bool AGRItemRandomBox::CanInteract(AActor* OtherActor)
@@ -256,11 +283,12 @@ void AGRItemRandomBox::SpawnItemsToSpecificPlayer(AGRPlayerState* GRPlayerState,
 		return;
 	}
 
+	// ItemBox, Item 크기에 맞춰 계산한 아이템 스폰 위치값
 	static TArray<FVector> SpawnLocations =
 	{
-		FVector(0, 0, 100),
-		FVector(0, -100, 100),
-		FVector(0, 100, 100)
+		FVector(0, 0, 70),
+		FVector(0, -90, 70),
+		FVector(0, 90, 70)
 	};
 
 	SpawnedActors.Add(GRPlayerState);
@@ -301,15 +329,21 @@ void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, 
 		return;
 	}
 
+	if (!ItemActorClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ItemActorClass (TSubclassOf<AGRItemActor>) is INVALID"));
+		return;
+	}
+
 	FRotator SpawnRotation = FRotator::ZeroRotator;
 	FActorSpawnParameters SpawnParam;
 	SpawnParam.Owner = GRPlayerState; /* 특정 플레이어에게만 아이템을 보여줌 */
 
-	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(AGRItemActor::StaticClass(), Location, SpawnRotation, SpawnParam);
+	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(ItemActorClass, Location, SpawnRotation, SpawnParam);
 	if (ItemActor)
 	{
 		ItemActor->OnPickup.AddUObject(this, &ThisClass::OnPickupAnyItem);
-		ItemActor->MulticastRPC_InitItem(ItemDefinition);
+		ItemActor->MulticastRPC_InitItem(ItemDefinition, EGRItemPlacement::AIR);
 		SpawnedActors[GRPlayerState].Actors.Add(ItemActor);
 	}
 }

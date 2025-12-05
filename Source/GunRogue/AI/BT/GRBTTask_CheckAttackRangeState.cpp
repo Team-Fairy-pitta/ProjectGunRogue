@@ -2,10 +2,8 @@
 
 
 #include "AI/BT/GRBTTask_CheckAttackRangeState.h"
-
-#include "AI/GRAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "AI/GRBossLuwoAIController.h"
+#include "AI/Controller/GRBossLuwoAIController.h"
 
 UGRBTTask_CheckAttackRangeState::UGRBTTask_CheckAttackRangeState()
 	:CloseRange(500.0f)

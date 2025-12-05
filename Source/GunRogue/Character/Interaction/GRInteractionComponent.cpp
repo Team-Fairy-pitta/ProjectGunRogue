@@ -115,6 +115,23 @@ AActor* UGRInteractionComponent::TraceForInteractable()
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
 	AActor* HitActor = bHit ? HitResult.GetActor() : nullptr;
+
+	// [NOTE] 상호 작용 디버깅이 필요하다면, 아래 코드를 활성화
+#if 0
+	if (bHit)
+	{
+		DrawDebugLine(
+			GetWorld(), StartLocation, HitResult.ImpactPoint, FColor::Green,
+			false, 1.0f, 0.0f, 3.0f);
+	}
+	else
+	{
+		DrawDebugLine(
+			GetWorld(), StartLocation, EndLocation, FColor::Red,
+			false, 1.0f, 0.0f, 3.0f);
+	}
+#endif
+
 	return HitActor;
 }
 

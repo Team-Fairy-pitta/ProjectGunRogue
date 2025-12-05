@@ -19,6 +19,9 @@ namespace GunRogue::InputTag
 
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_WeaponSlot1, "InputTag.WeaponSlot1", "");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_WeaponSlot2, "InputTag.WeaponSlot2", "");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Fire, "InputTag.Fire", "");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Reload, "InputTag.Reload", "");
 }
 
 UGRInputHandleComponent::UGRInputHandleComponent()
@@ -154,20 +157,22 @@ void UGRInputHandleComponent::Input_Move(const FInputActionValue& InputActionVal
 
 void UGRInputHandleComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
 {
-	ACharacter* Character = GetOwnerCharacter();
+	AGRCharacter* GRCharacter = GetOwnerCharacter();
 
-	if (IsValid(Character))
+	if (IsValid(GRCharacter))
 	{
 		const FVector2D Value = InputActionValue.Get<FVector2D>();
 
 		if (!FMath::IsNearlyZero(Value.X))
 		{
-			Character->AddControllerYawInput(Value.X);
+			GRCharacter->AddControllerYawInput(Value.X);
 		}
 		if (!FMath::IsNearlyZero(Value.Y))
 		{
-			Character->AddControllerPitchInput(Value.Y);
+			GRCharacter->AddControllerPitchInput(Value.Y);
 		}
+
+		GRCharacter->SetLastControllerRotation();
 	}
 }
 
