@@ -14,7 +14,7 @@
 #include "Weapon/GRWeaponActor.h"
 #include "Weapon/GRWeaponInstance.h"
 #include "Weapon/GRWeaponDefinition.h"
-#include "Player/GREntryStructs.h"
+#include "Augment/GRAugmentStructs.h"
 
 AGRPlayerState::AGRPlayerState()
 {
@@ -982,7 +982,7 @@ void AGRPlayerState::ServerRPC_OnAugmentSelected_Implementation(FName AugmentID)
 
 	if (FoundIndex != INDEX_NONE)
 	{
-		LevelUpAugment(AugmentID);
+		LevelUpAugment(FoundIndex);
 	}
 	else
 	{
@@ -992,35 +992,21 @@ void AGRPlayerState::ServerRPC_OnAugmentSelected_Implementation(FName AugmentID)
 
 void AGRPlayerState::AddAugment(FName AugmentID)
 {
-	for (int32 i = 0; i < OwnedAugments.Num(); i++)
-	{
-		if (OwnedAugments[i].AugmentID == AugmentID)
-		{
-			FAugmentEntry Entry = OwnedAugments[i];
-			Entry.Level = 1;
-			OwnedAugments[i] = Entry;
-			return;
-		}
-	}
-
 	FAugmentEntry NewEntry;
 	NewEntry.AugmentID = AugmentID;
 	NewEntry.Level = 1;
+	
 	OwnedAugments.Add(NewEntry);
 }
 
-void AGRPlayerState::LevelUpAugment(FName AugmentID)
+void AGRPlayerState::LevelUpAugment(int32 Index)
 {
-	for (int32 i = 0; i < OwnedAugments.Num(); i++)
+	if (!OwnedAugments.IsValidIndex(Index))
 	{
-		if (OwnedAugments[i].AugmentID == AugmentID)
-		{
-			FAugmentEntry Entry = OwnedAugments[i];
-			Entry.Level++;
-			OwnedAugments[i] = Entry;
-			return;
-		}
+		return;
 	}
+	
+	OwnedAugments[Index].Level++;
 }
 
 int32 AGRPlayerState::GetAugmentLevel(FName AugmentID)

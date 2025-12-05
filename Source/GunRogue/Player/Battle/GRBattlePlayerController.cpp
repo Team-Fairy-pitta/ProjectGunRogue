@@ -7,6 +7,7 @@
 #include "UI/Level1/GRLevel1SelectWidget.h"
 #include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
 #include "UI/Inventory/GRInventoryWidgetMain.h"
+#include "UI/Augment/GRAugmentHUDWidget.h"
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
@@ -138,7 +139,7 @@ void AGRBattlePlayerController::CreateWidgets()
 		return;
 	}
 
-	AugmentWidgetInstance = CreateWidget<UUserWidget>(this, AugmentWidgetClass);
+	AugmentWidgetInstance = CreateWidget<UGRAugmentHUDWidget>(this, AugmentWidgetClass);
 	if (!AugmentWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRAugment Widgets"));

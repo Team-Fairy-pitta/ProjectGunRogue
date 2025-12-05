@@ -24,6 +24,23 @@ void AGRBattlePlayerController::ShowAugmentWidget()
 	bShowMouseCursor = true;
 }
 
+void AGRBattlePlayerController::HideAugmentWidget()
+{
+	if (!AugmentWidgetInstance)
+	{
+		return;
+	}
+
+	if (AugmentWidgetInstance->IsInViewport())
+	{
+		AugmentWidgetInstance->RemoveFromParent();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
+}
+
 void AGRBattlePlayerController::RequestSelectAugment(FName AugmentID)
 {
 	AGRPlayerState* PS = GetPlayerState<AGRPlayerState>();

@@ -11,6 +11,7 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "Player/GRPlayerState.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 
 void UGRAugmentHUDWidget::NativeConstruct()
 {
@@ -37,6 +38,12 @@ void UGRAugmentHUDWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
 
+	if (AugmentTooltipWidget)
+	{
+		AugmentTooltipWidget->RemoveFromParent();
+		AugmentTooltipWidget = nullptr;
+	}
+	
 	if (AugmentContainer)
 	{
 		for (UWidget* Child : AugmentContainer->GetAllChildren())
@@ -128,17 +135,13 @@ void UGRAugmentHUDWidget::RemoveAugmentHUD(UGRAugmentSlotWidget* AugmentSlot)
 		return;
 	}
 
-	FInputModeGameOnly GameMode;
-	PC->SetInputMode(GameMode);
-	PC->bShowMouseCursor = false;
-	
-	if (AugmentTooltipWidget)
+	AGRBattlePlayerController* BattlePC = Cast<AGRBattlePlayerController>(PC);
+	if (!BattlePC)
 	{
-		AugmentTooltipWidget->RemoveFromParent();
-		AugmentTooltipWidget = nullptr;
+		return;
 	}
 
-	RemoveFromParent();
+	BattlePC->HideAugmentWidget();
 }
 
 void UGRAugmentHUDWidget::CreateAugmentSlot()

@@ -233,7 +233,7 @@ public:
 
 protected:
 	void AddAugment(FName AugmentID);
-	void LevelUpAugment(FName AugmentID);
+	void LevelUpAugment(int32 Index);
 	
 	TArray<FAugmentEntry> PreviousOwnedAugments;
 	
