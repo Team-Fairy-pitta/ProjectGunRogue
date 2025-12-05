@@ -48,8 +48,6 @@ void UGRRadarMapComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TagMinimapShow = FGameplayTag::RequestGameplayTag("Minimap.Show");
-
 	InitializeWidget();
 
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
@@ -81,7 +79,11 @@ void UGRRadarMapComponent::ScanRadar()
 		GetWorld(),
 		GetOwner()->GetActorLocation(),
 		ScanRadius,
-		{ UEngineTypes::ConvertToObjectType(ECC_WorldDynamic) },
+		{ 
+			UEngineTypes::ConvertToObjectType(ECC_Pawn),
+			UEngineTypes::ConvertToObjectType(ECC_WorldDynamic),
+			UEngineTypes::ConvertToObjectType(ECC_PhysicsBody)
+		},
 		AActor::StaticClass(),
 		{ GetOwner() },
 		FoundActors
