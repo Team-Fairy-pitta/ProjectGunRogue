@@ -22,6 +22,7 @@ class GUNROGUE_API UGRKeySettingWidget : public UUserWidget
 	
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	UFUNCTION(BlueprintCallable)
 	void InitKeyMappings();

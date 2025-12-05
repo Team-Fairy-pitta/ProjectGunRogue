@@ -19,6 +19,9 @@ namespace GunRogue::InputTag
 
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_WeaponSlot1, "InputTag.WeaponSlot1", "");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_WeaponSlot2, "InputTag.WeaponSlot2", "");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Fire, "InputTag.Fire", "");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Reload, "InputTag.Reload", "");
 }
 
 UGRInputHandleComponent::UGRInputHandleComponent()

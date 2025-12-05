@@ -9,7 +9,7 @@
 
 UGRFireLaserAttackAbility::UGRFireLaserAttackAbility()
 {
-	ProjectileSocketName = TEXT("ProjectilePosition");
+	ProjectileSocketName = FName("SpawnLaserLocation");
 }
 
 void UGRFireLaserAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -20,7 +20,6 @@ void UGRFireLaserAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle
 
 	if (ActorInfo->AvatarActor.Get()->HasAuthority())
 	{
-		SpawnProjectile();
 		PlayAttackMontageAndWaitTask();
 		WaitAttackGameplayEventTask();
 	}
@@ -29,6 +28,8 @@ void UGRFireLaserAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle
 void UGRFireLaserAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
 {
 	Super::OnAttackTriggerNotify(Payload);
+
+	SpawnProjectile();
 	
 	AGRLaserProjectile* LaserProjectile=Cast<AGRLaserProjectile>(Projectile);
 	if (!LaserProjectile)
@@ -70,7 +71,7 @@ void UGRFireLaserAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload
 		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
 		return;
 	}
-
+	
 	FVector StartLocation = LaserProjectile->GetActorLocation();
 	FVector TargetLocation = TargetActor->GetActorLocation();
 

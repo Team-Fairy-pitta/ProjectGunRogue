@@ -6,6 +6,8 @@
 #include "PerkInfoRow.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerState.h"
+#include "AbilitySystemComponent.h"
+#include "GameplayEffect.h"
 
 void UGRPerkSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -154,4 +156,44 @@ bool UGRPerkSubsystem::TryUpgradePerk(FName PerkID, const UDataTable* PerkTable)
 	SetPerkLevel(PerkID, CurrentLevel + 1);
 	
 	return true;
+}
+
+void UGRPerkSubsystem::ApplyAllPerksToASC(UAbilitySystemComponent* ASC, const UDataTable* PerkTable, TSubclassOf<UGameplayEffect> GE)
+{
+	if (!ASC || !PerkTable || !GE)
+	{
+		return;
+	}
+
+	FGameplayTag PerkRootTag = FGameplayTag::RequestGameplayTag(FName("Perk"));
+	ASC->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(PerkRootTag));
+
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GE, 1.f, ASC->MakeEffectContext());
+	if (!SpecHandle.IsValid())
+	{
+		return;
+	}
+
+	SpecHandle.Data->DynamicGrantedTags.AddTag(PerkRootTag);
+
+	UE_LOG(LogTemp, Warning, TEXT("PerkInfoRows.Num() = %d"), PerkInfoRows.Num());
+	
+	for (auto& Pair : PerkInfoRows)
+	{
+		FName PerkID = Pair.Key;
+		FPerkInfoRow* Row = PerkTable->FindRow<FPerkInfoRow>(PerkID, TEXT(""));
+
+		if (!Row) continue;
+
+		float LevelBonus  = GetPerkBonus(PerkID, PerkTable);
+		UE_LOG(LogTemp, Warning, TEXT("Setting SetByCaller %s = %f"),
+	   *Row->PerkTag.ToString(), LevelBonus);
+
+		if (LevelBonus > 0.0f)
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(Row->PerkTag, LevelBonus);
+		}
+	}
+	
+	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }

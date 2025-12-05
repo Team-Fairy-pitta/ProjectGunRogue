@@ -29,4 +29,7 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable)
 	void CreateLobbyPlayerSlot();
+
+	UFUNCTION(BlueprintCallable)
+	void ClearLobbyPlayerSlot();
 };

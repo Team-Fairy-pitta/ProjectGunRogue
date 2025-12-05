@@ -37,6 +37,9 @@ public:
 	FName AugmentCategory;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText AugmentCategoryName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FAugmentValues> AugmentValues;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

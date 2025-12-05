@@ -7,6 +7,8 @@
 #include "TestMPPlayerController.generated.h"
 
 class UGRPerkHUDWidget;
+class UGameplayEffect;
+class UGRPerkSlotWidget;
 /**
  * 
  */
@@ -16,10 +18,13 @@ class GRTEST_API ATestMPPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* InPawn) override;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetMetaGoodsInText();
+
+	UFUNCTION()
+	void ApplyPerkToASCOnSlotClicked(UGRPerkSlotWidget* PerkSlotWidget);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Perk")
@@ -29,7 +34,9 @@ protected:
 	UGRPerkHUDWidget* PerkHUDWidget;
 
 private:
-	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category="Perk")
 	UDataTable* PerkTable;
+
+	UPROPERTY(EditAnywhere, Category="Perk")
+	TSubclassOf<UGameplayEffect> PerkGE;
 };

@@ -92,7 +92,7 @@ void AGRCharacter::ApplySmoothCameraControl_CameraArm(float DeltaTime)
 			SetCharacterVisibilityForCamera(true);
 		}
 		/* Magic Number: 1인칭 시점에서 캐릭터 표시 */
-		else if (SpringArmComponent->TargetArmLength <= 5)
+		else if (SpringArmComponent->TargetArmLength <= 1.0f)
 		{
 			SetCharacterVisibilityForCamera(true);
 		}
@@ -149,7 +149,7 @@ void AGRCharacter::AttachCameraArmToHead()
 	if (SpringArmComponent && GetMesh())
 	{
 		FName SocketName(TEXT("J_Bip_C_Head"));
-		SpringArmComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, SocketName);
+		SpringArmComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
 		bIsCameraAttachedToHead = true;
 	}
 }

@@ -8,4 +8,7 @@ class GUNROGUE_API UGRGameInstance : public UAdvancedFriendsGameInstance
 {
 	GENERATED_BODY()
 	
+public:
+	UFUNCTION(BlueprintNativeEvent)
+	void CreateSession();
 };
