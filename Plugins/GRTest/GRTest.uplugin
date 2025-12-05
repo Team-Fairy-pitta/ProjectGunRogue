@@ -17,7 +17,7 @@
 	"Modules": [
 		{
 			"Name": "GRTest",
-			"Type": "Runtime",
+			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}
 	]
