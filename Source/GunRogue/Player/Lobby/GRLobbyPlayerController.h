@@ -15,9 +15,9 @@ public:
 	virtual void BeginPlay() override;
 
 	void ShowLobbyWidget();
+	void HideLobbyWidget();
 
-	void ShowESCMenuWidget();
-	void HideESCMenuWidget();
+	void StartGame();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
@@ -26,11 +26,11 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UGRLobbyHUDWidget> LobbyWidgetInstance;
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
-	//TSubclassOf<UGRSettingWidget> SettingWidgetClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Map")
+	TSoftObjectPtr<UWorld> GameStartMap;
 
-	//UPROPERTY()
-	//TObjectPtr<UGRSettingWidget> SettingWidgetInstance;
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_StartGame();
 
 private:
 	void CreateWidgets();

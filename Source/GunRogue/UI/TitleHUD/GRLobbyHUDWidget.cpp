@@ -8,6 +8,7 @@
 #include "UI/TitleHUD/SubWidgets/GRLobbyCharacterSelectSlotWidget.h"
 #include "UI/SteamInvite/GRSteamFriendsList.h"
 #include "Components/SizeBox.h"
+#include "Player/Lobby/GRLobbyPlayerController.h"
 
 void UGRLobbyHUDWidget::NativeConstruct()
 {
@@ -121,7 +122,15 @@ void UGRLobbyHUDWidget::OnPlayerPerksClicked()
 
 void UGRLobbyHUDWidget::OnStartGameClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Start game clicked"));
+	// [NOTE] TODO: 준비 완료를 확인한 뒤에 게임을 시작해야 함
+	// 테스트를 위해 바로 시작
+
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+	LobbyPlayerController->StartGame();
 }
 
 void UGRLobbyHUDWidget::OnReadyGameClicked()

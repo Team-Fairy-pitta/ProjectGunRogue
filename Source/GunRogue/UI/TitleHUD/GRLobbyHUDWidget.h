@@ -22,7 +22,7 @@ public:
 	UGRLobbyPlayerListWidget* GetLobbyPlayerListWidget() const { return LobbyPlayerList; }
 	
 protected:
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
 	UGRLobbyPlayerListWidget* LobbyPlayerList;
 
 	UPROPERTY(meta = (BindWidget))

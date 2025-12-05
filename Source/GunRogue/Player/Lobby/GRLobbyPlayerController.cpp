@@ -50,10 +50,61 @@ void AGRLobbyPlayerController::ShowLobbyWidget()
 	bShowMouseCursor = true;
 }
 
-void AGRLobbyPlayerController::ShowESCMenuWidget()
+void AGRLobbyPlayerController::HideLobbyWidget()
 {
+	if (!LobbyWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyWidgetInstance is INVALID"));
+		return;
+	}
+	if (LobbyWidgetInstance->IsInViewport())
+	{
+		LobbyWidgetInstance->RemoveFromParent();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
 }
 
-void AGRLobbyPlayerController::HideESCMenuWidget()
+void AGRLobbyPlayerController::StartGame()
 {
+	if (GetNetMode() == ENetMode::NM_ListenServer)
+	{
+		ServerRPC_StartGame();
+	}
+	else if (GetNetMode() == ENetMode::NM_Client)
+	{
+		// [NOTE] 고려하지 않음
+	}
+	else if (GetNetMode() == ENetMode::NM_Standalone)
+	{
+		// [NOTE] 고려하지 않음
+	}
+	else
+	{
+		// [NOTE] 고려하지 않음
+	}
+}
+
+void AGRLobbyPlayerController::ServerRPC_StartGame_Implementation()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (GameStartMap.IsNull())
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameStartMap is NULL"));
+		return;
+	}
+
+	FString MapPath = GameStartMap.GetLongPackageName() + TEXT("?listen");
+	GetWorld()->ServerTravel(MapPath);
 }
