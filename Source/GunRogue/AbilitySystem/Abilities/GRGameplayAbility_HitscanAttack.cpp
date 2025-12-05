@@ -3,7 +3,9 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "Weapon/GRWeaponHandle.h"
 #include "Weapon/GRWeaponInstance.h"
+#include "Weapon/GRWeaponDefinition.h"
 #include "Character/GRCharacter.h"
+#include "Character/Attachment/GRAttachmentComponent.h"
 #include "Player/GRPlayerState.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
@@ -156,20 +158,28 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	}
 
 	const bool bIsServer = (SourceASC->GetOwnerRole() == ROLE_Authority);
+
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
+	AGRPlayerState* PS = GRCharacter ? GRCharacter->GetPlayerState<AGRPlayerState>() : nullptr;
+	UGRWeaponDefinition* WeaponDef = PS ? PS->GetCurrentWeaponDefinition() : nullptr;
 	FGRWeaponInstance* WeaponInstance = nullptr;
+
+	// 사격 애니메이션 재생
+	if (WeaponDef && WeaponDef->FireAnimMontage)
+	{
+		Character->PlayAnimMontage(WeaponDef->FireAnimMontage, 1.0f);
+		UE_LOG(LogTemp, Verbose, TEXT("[Fire] Playing FireAnimMontage: %s"),
+			*WeaponDef->FireAnimMontage->GetName());
+	}
 
 	// WeaponHandle에서 직접 WeaponInstance 가져오기
 	if (bIsServer)
 	{
-		AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
-		if (!GRCharacter)
-		{
-			return;
-		}
-
-		AGRPlayerState* PS = GRCharacter->GetPlayerState<AGRPlayerState>();
 		if (!PS)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No PlayerState! (Server)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 			return;
 		}
 
@@ -191,7 +201,7 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 			return;
 		}
 
-		// 🔧 서버에서만 실제 탄약 체크/소모
+		// 서버에서만 실제 탄약 체크/소모
 		if (!WeaponInstance->CheckHasAmmo())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[Fire] No ammo! (Server)"));
@@ -226,7 +236,6 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		// 클라는 여기서 그냥 발사/시각 피드백만 수행
 	}
 
-
 	if (!DamageEffect)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Fire] No DamageEffect class"));
@@ -253,6 +262,40 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		CameraRotation = Character->GetActorRotation();
 	}
 
+	// Muzzle 소켓 위치 가져오기
+	FVector MuzzleLocation = CameraLocation; // 못 찾으면 카메라 위치 사용(폴백)
+	bool bHasMuzzleSocket = false;
+
+	if (GRCharacter)
+	{
+		// SkeletalMesh 무기 확인
+		USkeletalMeshComponent* WeaponMesh = GRCharacter->GetEquippedWeaponMesh();
+		if (WeaponMesh)
+		{
+			// 총구 소켓 이름들
+			TArray<FName> PossibleSocketNames = {
+				FName("Muzzle"),
+				FName("muzzle")
+			};
+
+			for (const FName& SocketName : PossibleSocketNames)
+			{
+				if (WeaponMesh->DoesSocketExist(SocketName))
+				{
+					MuzzleLocation = WeaponMesh->GetSocketLocation(SocketName);
+					bHasMuzzleSocket = true;
+					UE_LOG(LogTemp, Verbose, TEXT("[Fire] Using socket '%s'"), *SocketName.ToString());
+					break;
+				}
+			}
+		}
+	}
+
+	if (!bHasMuzzleSocket)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Fire] Muzzle socket not found - using camera location"));
+	}
+
 	// 탄퍼짐 적용 (Accuracy 낮을수록, CurrentSpread 높을수록 더 퍼짐)
 	const float SpreadAngle = CurrentSpread * (1.0f - Accuracy);
 	const float RandomPitch = FMath::RandRange(-SpreadAngle, SpreadAngle);
@@ -262,16 +305,30 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	AdjustedRotation.Pitch += RandomPitch;
 	AdjustedRotation.Yaw += RandomYaw;
 
-	// LineTrace 실행
-	FVector TraceStart = CameraLocation;
-	FVector TraceEnd = CameraLocation + (AdjustedRotation.Vector() * FireRange);
-
-	FHitResult HitResult;
+	// 카메라에서 타겟 포인트 찾기
+	FVector CameraTraceEnd = CameraLocation + (AdjustedRotation.Vector() * FireRange);
+	FHitResult CameraHit;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(Character);
 	QueryParams.bTraceComplex = false;
 	QueryParams.bReturnPhysicalMaterial = false;
 
+	GetWorld()->LineTraceSingleByChannel(
+		CameraHit,
+		CameraLocation,
+		CameraTraceEnd,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	FVector TargetPoint = CameraHit.bBlockingHit ? CameraHit.Location : CameraTraceEnd;
+
+	// 총구에서 타겟 포인트로 발사(Line Trace 실행)
+	FVector MuzzleToTarget = (TargetPoint - MuzzleLocation).GetSafeNormal();
+	FVector TraceStart = MuzzleLocation;
+	FVector TraceEnd = MuzzleLocation + (MuzzleToTarget * FireRange);
+
+	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(
 		HitResult,
 		TraceStart,
@@ -279,7 +336,6 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		ECC_Visibility,
 		QueryParams
 	);
-
 
 	// 탄퍼짐 수치 증가. non-const 캐스팅 필요 -> IncreaseSpread 함수가 non-const 멤버임
 	UGRCombatAttributeSet* MutableCombatSet = const_cast<UGRCombatAttributeSet*>(CombatSet);

@@ -133,3 +133,91 @@ bool AGRCharacter::IsTargetDead(ACharacter* TargetCharacter) const
 	
 	return false;
 }
+
+USkeletalMeshComponent* AGRCharacter::GetEquippedWeaponMesh() const
+{
+	// 캐릭터에 붙어있는 모든 ChildActorComponent 찾기
+	TArray<UChildActorComponent*> ChildActorComponents;
+	GetComponents<UChildActorComponent>(ChildActorComponents);
+
+	// 메시에 Muzzle 소켓이 포함되었으면 무기로 간주
+	TArray<FName> MuzzleSocketNames = {
+		FName("Muzzle"),
+		FName("muzzle")
+	};
+
+	for (UChildActorComponent* ChildComp : ChildActorComponents)
+	{
+		if (!ChildComp)
+		{
+			continue;
+		}
+
+		AActor* ChildActor = ChildComp->GetChildActor();
+		if (!ChildActor)
+		{
+			continue;
+		}
+
+		// ChildActor에서 SkeletalMeshComponent 찾기
+		USkeletalMeshComponent* WeaponMesh = ChildActor->FindComponentByClass<USkeletalMeshComponent>();
+		if (WeaponMesh)
+		{
+			// Muzzle 소켓이 있는지 확인
+			for (const FName& SocketName : MuzzleSocketNames)
+			{
+				if (WeaponMesh->DoesSocketExist(SocketName))
+				{
+					// Muzzle 소켓이 있는 메시만 반환
+					return WeaponMesh;
+				}
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+UStaticMeshComponent* AGRCharacter::GetEquippedWeaponStaticMesh() const
+{
+	// 캐릭터에 붙어있는 모든 ChildActorComponent 찾기
+	TArray<UChildActorComponent*> ChildActorComponents;
+	GetComponents<UChildActorComponent>(ChildActorComponents);
+
+	// 메시에 Muzzle 소켓이 포함되었으면 무기로 간주
+	TArray<FName> MuzzleSocketNames = {
+		FName("Muzzle"),
+		FName("muzzle")
+	};
+
+	for (UChildActorComponent* ChildComp : ChildActorComponents)
+	{
+		if (!ChildComp)
+		{
+			continue;
+		}
+
+		AActor* ChildActor = ChildComp->GetChildActor();
+		if (!ChildActor)
+		{
+			continue;
+		}
+
+		// ChildActor에서 StaticMeshComponent 찾기
+		UStaticMeshComponent* WeaponMesh = ChildActor->FindComponentByClass<UStaticMeshComponent>();
+		if (WeaponMesh)
+		{
+			// Muzzle 소켓이 있는지 확인
+			for (const FName& SocketName : MuzzleSocketNames)
+			{
+				if (WeaponMesh->DoesSocketExist(SocketName))
+				{
+					// Muzzle 소켓이 있는 메시만 반환
+					return WeaponMesh;
+				}
+			}
+		}
+	}
+
+	return nullptr;
+}

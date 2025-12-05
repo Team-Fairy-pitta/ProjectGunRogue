@@ -78,6 +78,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Spectate")
 	bool IsTargetDead(ACharacter* TargetCharacter) const;
 
+	// 장착된 무기 메시 헬퍼
+	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
+	USkeletalMeshComponent* GetEquippedWeaponMesh() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
+	UStaticMeshComponent* GetEquippedWeaponStaticMesh() const;
+
 #pragma region SmoothCameraControl
 public:
 	void SetLastControllerRotation();
