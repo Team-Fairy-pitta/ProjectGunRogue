@@ -13,6 +13,25 @@ void UGRPerkSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	PerkDataTablePath = FSoftObjectPath("Game/GunRogue/Blueprints/MetaProgression/PerkInfoRow.PerkInfoRow");
+
+	if (PerkDataTablePath.IsNull())
+	{
+		UE_LOG(LogTemp, Error, TEXT("PerkSubsystem DataTable path is null"));
+		return;
+	}
+
+	UDataTable* Table = Cast<UDataTable>(PerkDataTablePath.TryLoad());
+	if (!Table)
+	{
+		return;
+	}
+
+	TArray<FPerkInfoRow*> Rows;
+	Table->GetAllRows(TEXT("AugmentInit"), Rows);
+
+	
+
 	//LoadPerks();
 }
 

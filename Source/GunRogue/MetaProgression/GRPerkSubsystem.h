@@ -18,6 +18,9 @@ class GUNROGUE_API UGRPerkSubsystem : public UGameInstanceSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	UPROPERTY()
+	FSoftObjectPath PerkDataTablePath;
 	
 	void LoadPerks();
 	void SavePerks();
