@@ -58,6 +58,16 @@ void UGRLobbyHUDWidget::NativeConstruct()
 			CharacterSlots[i]->OnCharacterSelectClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnCharacterSelected);
 		}
 	}
+
+	APlayerController* PlayerController = GetOwningPlayer();
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
+	// [NOTE] Dedicated Server에서는 게임을 시작할 수 없음
+	bool bIsHost = PlayerController->GetNetMode() == ENetMode::NM_ListenServer;
+	UpdateLobbyButtonVisibility(bIsHost);
 }
 
 void UGRLobbyHUDWidget::UpdateLobbyButtonVisibility(bool bHost)

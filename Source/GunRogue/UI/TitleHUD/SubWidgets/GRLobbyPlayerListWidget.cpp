@@ -3,8 +3,47 @@
 
 #include "UI/TitleHUD/SubWidgets/GRLobbyPlayerListWidget.h"
 #include "GRLobbyPlayerSlotWidget.h"
+#include "GameFramework/PlayerState.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+
+void UGRLobbyPlayerListWidget::UpdateHostPlayerInfo(APlayerState* HostPlayer)
+{
+	if (!HostPlayer)
+	{
+		return;
+	}
+
+	if (LobbyPlayerSlots.Num() < 1)
+	{
+		CreateLobbyPlayerSlot();
+	}
+
+	FString PlayerName = HostPlayer->GetPlayerName();
+	FText PlayerNameText = FText::FromString(FString::Printf(TEXT("[Host] %s"), *PlayerName));
+	LobbyPlayerSlots[0]->SetPlayerNameText(PlayerNameText);
+}
+
+void UGRLobbyPlayerListWidget::UpdateGuestPlayersInfo(TArray<FGuestPlayer>& GuestPlayers)
+{
+	// Host + Guest
+	ResizeLobbyPlayerSlot(GuestPlayers.Num() + 1);
+
+	int32 Index = 1;
+	for (const FGuestPlayer& Guest : GuestPlayers)
+	{
+		if (!Guest.GuestPlayerState)
+		{
+			continue;
+		}
+
+		FString PlayerName = Guest.GuestPlayerState->GetPlayerName();
+		FString IsReadyText = Guest.bIsReady ? TEXT("Ready!") : TEXT("...");
+		FText PlayerNameText = FText::FromString(FString::Printf(TEXT("%s %s"), *PlayerName, *IsReadyText));
+		LobbyPlayerSlots[Index]->SetPlayerNameText(PlayerNameText);
+		Index += 1;
+	}
+}
 
 void UGRLobbyPlayerListWidget::CreateLobbyPlayerSlot()
 {
@@ -43,4 +82,30 @@ void UGRLobbyPlayerListWidget::ClearLobbyPlayerSlot()
 		PlayerSlot->RemoveFromParent();
 	}
 	LobbyPlayerSlots.Empty();
+}
+
+void UGRLobbyPlayerListWidget::ResizeLobbyPlayerSlot(int32 Num)
+{
+	if (!LobbyPlayerSlotClass || !LobbyPlayerContainer)
+	{
+		return;
+	}
+
+	APlayerController* PlayerController = GetOwningPlayer();
+	if (!PlayerController)
+	{
+		return;
+	}
+
+	while (LobbyPlayerSlots.Num() > Num)
+	{
+		int32 LastIndex = LobbyPlayerSlots.Num() - 1;
+		LobbyPlayerSlots.RemoveAt(LastIndex);
+		LobbyPlayerContainer->RemoveChildAt(LastIndex);
+	}
+
+	while (LobbyPlayerSlots.Num() < Num)
+	{
+		CreateLobbyPlayerSlot();
+	}
 }

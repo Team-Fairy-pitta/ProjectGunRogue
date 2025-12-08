@@ -1,5 +1,6 @@
 #include "Player/Lobby/GRLobbyPlayerController.h"
 #include "UI/TitleHUD/GRLobbyHUDWidget.h"
+#include "UI/TitleHUD/SubWidgets/GRLobbyPlayerListWidget.h"
 
 AGRLobbyPlayerController::AGRLobbyPlayerController()
 {
@@ -85,6 +86,42 @@ void AGRLobbyPlayerController::StartGame()
 	{
 		// [NOTE] 고려하지 않음
 	}
+}
+
+void AGRLobbyPlayerController::UpdateHostPlayerInfo(APlayerState* HostPlayer)
+{
+	if (!LobbyWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyWidgetInstance is INVALID"));
+		return;
+	}
+
+	UGRLobbyPlayerListWidget* PlayerListWidget = LobbyWidgetInstance->GetLobbyPlayerListWidget();
+	if (!PlayerListWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerListWidget is INVALID"));
+		return;
+	}
+
+	PlayerListWidget->UpdateHostPlayerInfo(HostPlayer);
+}
+
+void AGRLobbyPlayerController::UpdateGuestPlayersInfo(TArray<FGuestPlayer>& GuestPlayers)
+{
+	if (!LobbyWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyWidgetInstance is INVALID"));
+		return;
+	}
+
+	UGRLobbyPlayerListWidget* PlayerListWidget = LobbyWidgetInstance->GetLobbyPlayerListWidget();
+	if (!PlayerListWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerListWidget is INVALID"));
+		return;
+	}
+
+	PlayerListWidget->UpdateGuestPlayersInfo(GuestPlayers);
 }
 
 void AGRLobbyPlayerController::ServerRPC_StartGame_Implementation()

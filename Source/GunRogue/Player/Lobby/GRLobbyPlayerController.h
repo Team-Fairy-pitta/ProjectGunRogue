@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Player/GRPlayerController.h"
+#include "GameModes/Lobby/GRLobbyGameState.h"
 #include "GRLobbyPlayerController.generated.h"
 
 class UGRLobbyHUDWidget;
@@ -18,6 +19,9 @@ public:
 	void HideLobbyWidget();
 
 	void StartGame();
+
+	void UpdateHostPlayerInfo(APlayerState* HostPlayer);
+	void UpdateGuestPlayersInfo(TArray<FGuestPlayer>& GuestPlayers);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")

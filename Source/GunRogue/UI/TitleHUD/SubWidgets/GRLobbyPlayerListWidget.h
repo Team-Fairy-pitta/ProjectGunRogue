@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "GameModes/Lobby/GRLobbyGameState.h"
 #include "GRLobbyPlayerListWidget.generated.h"
 
 class UGRLobbyPlayerSlotWidget;
@@ -32,4 +33,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ClearLobbyPlayerSlot();
+
+	void ResizeLobbyPlayerSlot(int32 Num);
+
+	void UpdateHostPlayerInfo(APlayerState* HostPlayer);
+	void UpdateGuestPlayersInfo(TArray<FGuestPlayer>& GuestPlayers);
 };
