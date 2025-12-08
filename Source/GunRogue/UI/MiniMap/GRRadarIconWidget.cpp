@@ -5,7 +5,6 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "MiniMap/GRRadarMapIconDataAsset.h"
 
-
 void UGRRadarIconWidget::InitIcon(const FGameplayTag& InTag)
 {
 
@@ -27,11 +26,8 @@ void UGRRadarIconWidget::InitIcon(const FGameplayTag& InTag)
 	IconImage->SetRenderScale(Data->IconScale);
 }
 
-void UGRRadarIconWidget::UpdateRadarPosition(const FVector2D& ActorPos)
+void UGRRadarIconWidget::UpdateRadarPosition(const FVector2D& ActorPos, const float RadarSize)
 {
-	const float RadarSize = 300.f;
-	const float Radius = RadarSize * 0.5f;
-
 	FVector2D RadarPosition(ActorPos.Y, -ActorPos.X);
 
 	RadarPosition *= RadarSize;

@@ -18,6 +18,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateRadar(const TArray<FRadarTargetInfo>& Targets);
 
+	float GetRadarSize() const;
+
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Radar UI")

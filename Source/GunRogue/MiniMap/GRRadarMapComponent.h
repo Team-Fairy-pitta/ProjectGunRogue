@@ -51,7 +51,4 @@ public:
 	UGRRadarMapWidget* RadarMapWidget;
 
 	FTimerHandle ScanTimer;
-
-	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag TagMinimapShow;
 };

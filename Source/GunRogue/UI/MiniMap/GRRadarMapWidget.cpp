@@ -32,7 +32,7 @@ void UGRRadarMapWidget::UpdateRadar(const TArray<FRadarTargetInfo>& Targets)
 			Icon = IconMap[Info.TargetActor];
 		}
 
-		Icon->UpdateRadarPosition(Info.NormalizedTargetDirection);
+		Icon->UpdateRadarPosition(Info.NormalizedTargetDirection, GetRadarSize());
 	}
 
 	// 제거할 아이콘 찾기
@@ -55,4 +55,16 @@ void UGRRadarMapWidget::UpdateRadar(const TArray<FRadarTargetInfo>& Targets)
 			IconMap.Remove(Actor);
 		}
 	}
+}
+
+float UGRRadarMapWidget::GetRadarSize() const 
+{
+	if (!IconCanvas)
+	{
+		return 0.0f;
+	}
+
+	FVector2D Size = IconCanvas->GetCachedGeometry().GetLocalSize();
+
+	return FMath::Min(Size.X, Size.Y);
 }
