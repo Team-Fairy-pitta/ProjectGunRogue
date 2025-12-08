@@ -5,7 +5,6 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "AI/Character/GRAICharacter.h"
 #include "Character/GRCharacter.h"
 
 const FName AGRNormalAIController::IsPlayerDetectedKey="IsPlayerDetected";
@@ -23,6 +22,8 @@ AGRNormalAIController::AGRNormalAIController()
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	//AI는 마지막 본 위치 기준으로 지정한 거리만큼은 계속 인지된 것으로 처리하게 됩니다.
+	//SightConfig->AutoSuccessRangeFromLastSeenLocation = 1000.f;
 
 	AIPerceptionComp->ConfigureSense(*SightConfig);
 }
@@ -61,16 +62,7 @@ void AGRNormalAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AGRNormalAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	////Note : AI끼리 서로 인지될 수 있으므로 예외처리. 추후 삭제.
-	AGRAICharacter* AICharacter = Cast<AGRAICharacter>(Actor);
-	if (AICharacter)
-	{
-		return;
-	}
-	
-	//NOTE : 테스트를 위해 ThirdPersonCharacter도 판별을 하기 위해 AGRCharacter에서 ACharacter로 변경.추후 변경.
-	//AGRCharacter* NewPlayer = Cast<AGRCharacter>(Actor);
-	ACharacter* NewPlayer = Cast<ACharacter>(Actor);
+	AGRCharacter* NewPlayer = Cast<AGRCharacter>(Actor);
 	if (!NewPlayer)
 	{
 		return;
@@ -81,10 +73,8 @@ void AGRNormalAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus
 		return;
 	}
 	
-	//NOTE : 테스트를 위해 ThirdPersonCharacter도 판별을 하기 위해 AGRCharacter에서 ACharacter로 변경. 추후 변경.
-	//AGRCharacter* TargetPlayer=Cast<AGRCharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
-	ACharacter* TargetPlayer = Cast<ACharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
-	
+	AGRCharacter* TargetPlayer=Cast<AGRCharacter>(BlackboardComp->GetValueAsObject(TargetPlayerKey));
+
 	if (Stimulus.WasSuccessfullySensed())
 	{
 		if (!TargetPlayer)
@@ -119,16 +109,7 @@ void AGRNormalAIController::UpdateClosestPlayer()
 	
 	for (AActor* PerceivedActor : PerceivedActors)
 	{
-		////Note : AI끼리 서로 인지될 수 있으므로 예외처리. 추후 삭제.
-		AGRAICharacter* AICharacter = Cast<AGRAICharacter>(PerceivedActor);
-		if (AICharacter)
-		{
-			continue;
-		}
-		
-		//NOTE : 테스트를 위해 ThirdPersonCharacter도 판별을 하기 위해 AGRCharacter에서 ACharacter로 변경. 추후 변경
-		//AGRCharacter* PerceivedPlayer=Cast<AGRCharacter>(PerceivedActor);
-		ACharacter* PerceivedPlayer=Cast<ACharacter>(PerceivedActor);
+		AGRCharacter* PerceivedPlayer=Cast<AGRCharacter>(PerceivedActor);
 		if (!PerceivedPlayer)
 		{
 			continue;

@@ -1,15 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/Notify/GRAttackAnimNotify_GameplayEvent.h"
+#include "AI/Notify/GRAttackAnimNotifyState_Event.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
-void UGRAttackAnimNotify_GameplayEvent::Notify(USkeletalMeshComponent* MeshComp,UAnimSequenceBase* Animation,const FAnimNotifyEventReference& EventReference)
+void UGRAttackAnimNotifyState_Event::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+	float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation,EventReference);
-	
+	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
+
 	if (!MeshComp)
 	{
 		return;
@@ -38,4 +39,3 @@ void UGRAttackAnimNotify_GameplayEvent::Notify(USkeletalMeshComponent* MeshComp,
 	EventData.Target = Owner;
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Owner, EventTag, EventData);
 }
-
