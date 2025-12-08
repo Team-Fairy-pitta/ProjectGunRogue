@@ -18,6 +18,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Minimap")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Minimap", Meta = (Categories = "MiniMap"))
 	FGameplayTag RadarTag;
 };

@@ -64,6 +64,17 @@ void UGRRadarMapComponent::BeginPlay()
 	}
 }
 
+void UGRRadarMapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (OwnerPawn && OwnerPawn->IsLocallyControlled())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ScanTimer);
+	}
+}
+
 void UGRRadarMapComponent::ScanRadar()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Scan"));
@@ -90,6 +101,7 @@ void UGRRadarMapComponent::ScanRadar()
 		FoundActors
 	);
 
+#if WITH_EDITOR
 	DrawDebugSphere(
 		GetWorld(),
 		GetOwner()->GetActorLocation(),          
@@ -99,6 +111,7 @@ void UGRRadarMapComponent::ScanRadar()
 		false,           
 		0.1f             
 	);
+#endif
 
 	TArray<FRadarTargetInfo> TargetList;
 
