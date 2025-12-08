@@ -4,6 +4,8 @@
 #include "Engine/DataAsset.h"
 #include "Weapon/GRWeaponTypes.h"
 #include "Character/Attachment/GRCharacterAttachment.h"
+#include "NiagaraSystem.h"
+#include "Particles/ParticleSystem.h"
 #include "GRWeaponDefinition.generated.h"
 
 class UTexture2D;
@@ -13,6 +15,7 @@ class UAnimSequence;
 class UAnimMontage;
 class UGRAbilitySet;
 class UGRWeaponOptionPool;
+class USoundBase;
 
 UCLASS()
 class GUNROGUE_API UGRWeaponDefinition : public UDataAsset
@@ -65,9 +68,43 @@ public:
 	TObjectPtr<UAnimMontage> FireAnimMontage;
 
 	// ======== 사운드 ========
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Sound")
+	TObjectPtr<USoundBase> FireSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Sound")
+	TObjectPtr<USoundBase> EmptyFireSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Sound")
+	TObjectPtr<USoundBase> ReloadSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Sound")
+	TObjectPtr<USoundBase> ImpactSound;
+
 
 	// ======== 이펙트 ========
+	// 머즐 플래시 - Niagara (우선)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UNiagaraSystem> MuzzleFlashNiagara;
 
+	// 머즐 플래시 - Cascade (Niagara 없을 때 사용)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UParticleSystem> MuzzleFlashCascade;
+
+	// 히트 이펙트 - Niagara
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UNiagaraSystem> ImpactEffectNiagara;
+
+	// 히트 이펙트 - Cascade
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UParticleSystem> ImpactEffectCascade;
+
+	// 총알 궤적 (Tracer) - Niagara
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UNiagaraSystem> BulletTracerNiagara;
+
+	// 총알 궤적 (Tracer) - Cascade
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UParticleSystem> BulletTracerCascade;
 
 	// ======== 무기 스탯 ========
 	/* 무기 강화 파트에서 사용하고 있는 값 */

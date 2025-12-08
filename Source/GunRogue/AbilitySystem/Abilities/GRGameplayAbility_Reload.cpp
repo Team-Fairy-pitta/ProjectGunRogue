@@ -7,6 +7,8 @@
 #include "AbilitySystemInterface.h"
 #include "Character/GRCharacter.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 UGRGameplayAbility_Reload::UGRGameplayAbility_Reload()
 {
@@ -90,6 +92,18 @@ void UGRGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle
 			*WeaponDefinition->WeaponName.ToString());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
+	}
+
+	// 재장전 사운드 재생
+	if (WeaponDefinition->ReloadSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			WeaponDefinition->ReloadSound,
+			Character->GetActorLocation(),
+			1.0f,
+			1.0f
+		);
 	}
 
 	// PlayMontageAndWait 태스크 생성
