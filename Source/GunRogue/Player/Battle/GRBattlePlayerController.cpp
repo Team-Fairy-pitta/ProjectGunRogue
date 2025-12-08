@@ -74,6 +74,8 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 
 void AGRBattlePlayerController::InitUISetup()
 {
+	RequestApplyAllPerks();
+	
 	CreateWidgets();
 	InitializeBattleHUD();
 	ShowBattleHUD();

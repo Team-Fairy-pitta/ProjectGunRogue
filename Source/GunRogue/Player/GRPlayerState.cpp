@@ -15,12 +15,21 @@
 #include "Weapon/GRWeaponInstance.h"
 #include "Weapon/GRWeaponDefinition.h"
 #include "Augment/GRAugmentStructs.h"
+#include "Lobby/GRLobbyPlayerController.h"
+#include "MetaProgression/GRPerkSubsystem.h"
+#include "MetaProgression/GRPerkStructs.h"
+#include "MetaProgression/PerkInfoRow.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
+#include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 
 AGRPlayerState::AGRPlayerState()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UGRAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	HealthAttributeSet = CreateDefaultSubobject<UGRHealthAttributeSet>(TEXT("HealthAttributeSet"));
+	CombatAttributeSet = CreateDefaultSubobject<UGRCombatAttributeSet>(TEXT("CombatAttributeSet"));
 
 	// AbilitySystem 네트워크 관련: needs to be updated at a high frequency.
 	SetNetUpdateFrequency(100.0f);
@@ -34,11 +43,17 @@ AGRPlayerState::AGRPlayerState()
 void AGRPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("AGRPlayerState::BeginPlay"));
+	InitPerkFromSave();
 }
 
 void AGRPlayerState::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+
+	UE_LOG(LogTemp, Warning, TEXT("AGRPlayerState::EndPlay"));
+	SavePerkToSave();
 }
 
 void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -50,6 +65,9 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ThisClass, CurrentWeaponSlot);
 
 	DOREPLIFETIME(ThisClass, OwnedAugments);
+
+	DOREPLIFETIME(ThisClass, PerkInfoRows);
+	DOREPLIFETIME(ThisClass, MetaGoods);
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
@@ -1056,4 +1074,207 @@ void AGRPlayerState::OnRep_OwnedAugments()
 
 	BattlePlayerController->HideAugmentWidget();
 }
+#pragma endregion
+
+#pragma region Perk;
+void AGRPlayerState::InitPerkFromSave()
+{
+	InitPlayerID();
+	
+	if (PlayerID.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerState: PlayerID not ready yet"));
+		return;
+	}
+
+	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerState: PerkSubsystem not"));
+		return;
+	}
+
+	TArray<FPerkEntry> TempPerkInfoRows;
+	int32 TempMetaGoods;
+
+	if (PerkSubsystem->LoadPerks(PlayerID, TempPerkInfoRows, TempMetaGoods))
+	{
+		LoadPerkFromSave(TempPerkInfoRows, TempMetaGoods);
+	}
+}
+
+void AGRPlayerState::LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods)
+{
+	PerkInfoRows = LoadedPerkInfoRows;
+	MetaGoods = LoadedMetaGoods;
+}
+
+void AGRPlayerState::SavePerkToSave()
+{
+	UGRPerkSubsystem* PerkSubsystem  = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		return;
+	}
+
+	PerkSubsystem->SavePerks(PlayerID, PerkInfoRows, MetaGoods);
+}
+
+void AGRPlayerState::InitPlayerID()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	if (World->IsPlayInEditor())
+	{
+		PlayerID = FString::Printf(TEXT("TestPlayer_01"));
+	}
+	else
+	{
+		// if (GetUniqueId().IsValid())
+		// {
+		// 	PlayerID = GetUniqueId().ToString();
+		// }
+	}
+}
+
+int32 AGRPlayerState::GetPerkLevel(FName PerkID) const
+{
+	for (const FPerkEntry& Entry : PerkInfoRows)
+	{
+		if (Entry.PerkID == PerkID)
+		{
+			return Entry.Level;
+		}
+	}
+
+	return 0;
+}
+
+void AGRPlayerState::SetPerkLevel(FName PerkID, int32 Level)
+{
+	for (FPerkEntry& Entry : PerkInfoRows)
+	{
+		if (Entry.PerkID == PerkID)
+		{
+			Entry.Level = Level;
+			break;
+		}
+	}
+}
+
+void AGRPlayerState::SetMetaGoods(int32 Amount)
+{
+	MetaGoods = Amount;
+}
+
+bool AGRPlayerState::TryUpgradePerk(FName PerkID)
+{
+	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		return false;
+	}
+
+	UDataTable* PerkTable = PerkSubsystem->GetPerkTable();
+	if (!PerkTable)
+	{
+		return false;
+	}
+
+	FPerkInfoRow* Row = PerkTable->FindRow<FPerkInfoRow>(PerkID, TEXT(""));
+	if (!Row)
+	{
+		return false;
+	}
+
+	int32 CurrentLevel = GetPerkLevel(PerkID);
+	if (CurrentLevel >= Row->MaxLevel)
+	{
+		return false;
+	}
+
+	int32 Cost = (CurrentLevel + 1) * Row->CostPerLevel;
+	if (MetaGoods < Cost)
+	{
+		return false;
+	}
+
+	SetMetaGoods(GetMetaGoods()- Cost);
+	SetPerkLevel(PerkID, CurrentLevel + 1);
+	
+	return true;
+}
+
+void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
+
+	ApplyAllPerksToASC(ASC,PerkGE);
+}
+
+void AGRPlayerState::ApplyAllPerksToASC(UAbilitySystemComponent* ASC, TSubclassOf<UGameplayEffect> GE)
+{
+	if (!ASC || !GE)
+	{
+		return;
+	}
+
+	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		return;
+	}
+
+	UDataTable* PerkTable = PerkSubsystem->GetPerkTable();
+	if (!PerkTable)
+	{
+		return;
+	}
+
+	FGameplayTag PerkRootTag = FGameplayTag::RequestGameplayTag(FName("Perk"));
+	ASC->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(PerkRootTag));
+
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GE, 1.f, ASC->MakeEffectContext());
+	if (!SpecHandle.IsValid())
+	{
+		return;
+	}
+
+	SpecHandle.Data->DynamicGrantedTags.AddTag(PerkRootTag);
+
+	UE_LOG(LogTemp, Warning, TEXT("PerkInfoRows.Num() = %d"), PerkInfoRows.Num());
+	
+	for (const FPerkEntry& Entry : PerkInfoRows)
+	{
+		FName PerkID = Entry.PerkID;
+		int32 Level = Entry.Level;
+
+		FPerkInfoRow* Row = PerkTable->FindRow<FPerkInfoRow>(PerkID, TEXT(""));
+		if (!Row)
+		{
+			continue;
+		}
+
+		float LevelBonus = Row->ValuePerLevel * Level;
+
+		UE_LOG(LogTemp, Warning, TEXT("Setting SetByCaller %s = %f"), *Row->PerkTag.ToString(), LevelBonus);
+		
+		if (LevelBonus > 0.0f)
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(Row->PerkTag, LevelBonus);
+		}
+	}
+	
+	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+}
+
+
 #pragma endregion

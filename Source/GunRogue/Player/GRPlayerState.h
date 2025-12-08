@@ -20,6 +20,12 @@ struct FGRWeaponInstance;
 class UGRAugmentDefinition;
 struct FAugmentEntry;
 
+//Perk
+class UGameplayEffect;
+struct FPerkEntry;
+class UGRHealthAttributeSet;
+class UGRCombatAttributeSet;
+
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
 DECLARE_MULTICAST_DELEGATE(FOnWeaponDataUpdata);
@@ -238,4 +244,52 @@ protected:
 	TArray<FAugmentEntry> PreviousOwnedAugments;
 	
 #pragma endregion
+
+#pragma region Perk;
+public:
+	UPROPERTY(Replicated)
+	TArray<FPerkEntry> PerkInfoRows;
+	
+	UPROPERTY(Replicated)
+	int32 MetaGoods;
+	
+	void InitPerkFromSave();
+	
+	void LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods);
+
+	void SavePerkToSave();
+
+	void InitPlayerID();
+
+	int32 GetPerkLevel(FName PerkID) const;
+	
+	int32 GetMetaGoods() const { return MetaGoods;}
+	
+	void SetPerkLevel(FName PerkID, int32 Level);
+	
+	void SetMetaGoods(int32 Amount);
+	
+	bool TryUpgradePerk(FName PerkID);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ApplyAllPerksToASC();
+	
+	void ApplyAllPerksToASC(UAbilitySystemComponent* ASC, TSubclassOf<UGameplayEffect> GE);
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AttributeSet")
+	TObjectPtr<UGRHealthAttributeSet> HealthAttributeSet;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AttributeSet")
+	TObjectPtr<UGRCombatAttributeSet> CombatAttributeSet;
+
+private:
+	FString PlayerID;
+
+	UPROPERTY(EditAnywhere, Category="Perk")
+	TSubclassOf<UGameplayEffect> PerkGE;
+
+#pragma endregion
 };
+
+

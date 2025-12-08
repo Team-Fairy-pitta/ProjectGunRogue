@@ -1,5 +1,6 @@
 #include "Player/Lobby/GRLobbyPlayerController.h"
 #include "UI/TitleHUD/GRLobbyHUDWidget.h"
+#include "UI/MetaProgression/GRPerkHUDWidget.h"
 
 AGRLobbyPlayerController::AGRLobbyPlayerController()
 {
@@ -29,6 +30,19 @@ void AGRLobbyPlayerController::CreateWidgets()
 	if (!LobbyWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRLobbyHUDWidget Widgets"));
+		return;
+	}
+
+	if (!PerkWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PerkWidgetClass (TSubclassOf<UGRPerkHUDWidget>) is INVALID"));
+		return;
+	}
+
+	PerkWidgetInstance = CreateWidget<UGRPerkHUDWidget>(this, PerkWidgetClass);
+	if (!PerkWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRPerkHUDWidget Widgets"));
 		return;
 	}
 }

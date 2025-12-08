@@ -8,7 +8,6 @@
 
 class UHorizontalBox;
 class UGRPerkSlotWidget;
-class UGRPerkSubsystem;
 class UTextBlock;
 class UGRPerkHUDWidget;
 /**
@@ -28,18 +27,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Perk")
 	TSubclassOf<UGRPerkSlotWidget> PerkSlotClass;
-
-	UPROPERTY()
-	UGRPerkSubsystem* PerkSubsystem;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Perk")
-	UDataTable* PerkTable;
-
 	UPROPERTY()
 	UGRPerkHUDWidget* PerkHUD;
+
+	virtual void NativeDestruct() override;
 	
 public:
-	void SetupList(UGRPerkSubsystem* InSubsystem, UGRPerkHUDWidget* InHUD);
+	void SetupList(UGRPerkHUDWidget* InHUD);
 
 	void SetPerkCategoryText(FName InCategory);
 

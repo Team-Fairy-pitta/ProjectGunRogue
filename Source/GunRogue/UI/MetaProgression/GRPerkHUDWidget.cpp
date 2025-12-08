@@ -11,13 +11,13 @@
 #include "Components/VerticalBoxSlot.h"
 #include "GRPerkTooltipWidget.h"
 #include "MetaProgression/PerkInfoRow.h"
+#include "Player/GRPlayerState.h"
+#include "Components/Button.h"
+#include "Player/Lobby/GRLobbyPlayerController.h"
 
 void UGRPerkHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	UE_LOG(LogTemp, Warning, TEXT("GameInstance: %s"), *GetNameSafe(GetGameInstance()));
-	PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
 	
 	UpdateGoodsText();
 	CreatePerkList();
@@ -32,6 +32,32 @@ void UGRPerkHUDWidget::NativeConstruct()
 			{
 				PerkTooltipWidget->AddToViewport(100);
 				PerkTooltipWidget->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+	}
+
+	if (ExitPerkButton)
+	{
+		ExitPerkButton->OnClicked.AddDynamic(this, &ThisClass::OnExitPerkClicked); 
+	}
+}
+
+void UGRPerkHUDWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (ExitPerkButton)
+	{
+		ExitPerkButton->OnClicked.RemoveDynamic(this, &UGRPerkHUDWidget::OnExitPerkClicked);
+	}
+
+	if (PerkListContainer)
+	{
+		for (UWidget* Child : PerkListContainer->GetAllChildren())
+		{
+			if (UGRPerkListWidget* PerkListSlot = Cast<UGRPerkListWidget>(Child))
+			{
+				PerkListSlot->RemoveFromParent();
 			}
 		}
 	}
@@ -79,7 +105,7 @@ void UGRPerkHUDWidget::HideTooltip()
 	PerkTooltipWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UGRPerkHUDWidget::UpdateUIOnClicked(UGRPerkSlotWidget* PerkSlot)
+void UGRPerkHUDWidget::UpdateHUDAndTooltip(UGRPerkSlotWidget* PerkSlot)
 {
 	UpdateGoodsText();
 
@@ -91,7 +117,19 @@ void UGRPerkHUDWidget::UpdateUIOnClicked(UGRPerkSlotWidget* PerkSlot)
 
 void UGRPerkHUDWidget::UpdateTooltip(UGRPerkSlotWidget* PerkSlot)
 {
-	if (!PerkTooltipWidget || !PerkTable)
+	if (!PerkTooltipWidget)
+	{
+		return;
+	}
+	
+	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		return;
+	}
+
+	UDataTable* PerkTable = PerkSubsystem->GetPerkTable();
+	if (!PerkTable)
 	{
 		return;
 	}
@@ -104,7 +142,19 @@ void UGRPerkHUDWidget::UpdateTooltip(UGRPerkSlotWidget* PerkSlot)
 		return;
 	}
 
-	int32 CurrentLevel = PerkSubsystem->GetPerkLevel(PerkID);
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+	{
+		return;
+	}
+
+	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	int32 CurrentLevel = PS->GetPerkLevel(PerkID);
 	int32 Cost = (CurrentLevel + 1) * Row->CostPerLevel;
 	
 	PerkTooltipWidget->SetPerkTooltipHeader(Row->PerkName);
@@ -116,20 +166,24 @@ void UGRPerkHUDWidget::UpdateTooltip(UGRPerkSlotWidget* PerkSlot)
 
 void UGRPerkHUDWidget::UpdateGoodsText()
 {
-	if (!PerkSubsystem)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PerkSubsystem is nullptr"));
-	}
 	if (!GoodsText)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GoodsText is nullptr"));
+		return;
 	}
-	if (!PerkSubsystem || !GoodsText)
+
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+	{
+		return;
+	}
+
+	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	if (!PS)
 	{
 		return;
 	}
 	
-	GoodsText->SetGoodsCountText(PerkSubsystem->GetMetaGoods());
+	GoodsText->SetGoodsCountText(PS->GetMetaGoods());
 }
 
 void UGRPerkHUDWidget::CreatePerkList()
@@ -160,8 +214,19 @@ void UGRPerkHUDWidget::CreatePerkList()
 		}
 
 		UE_LOG(LogTemp, Warning, TEXT("Creating PerkList %d : %s"), i, *PerkCategories[i].ToString());
-		NewPerkList->SetupList(PerkSubsystem, this);
+		NewPerkList->SetupList(this);
 		NewPerkList->SetPerkCategoryText(PerkCategories[i]);
 		NewPerkList->CreateAllSlot(PerkCategories[i]);
 	}
+}
+
+void UGRPerkHUDWidget::OnExitPerkClicked()
+{
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+	LobbyPlayerController->HidePerkWidget();
+	LobbyPlayerController->ShowLobbyWidget();
 }

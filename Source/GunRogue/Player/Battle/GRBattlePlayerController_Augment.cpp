@@ -51,3 +51,14 @@ void AGRBattlePlayerController::RequestSelectAugment(FName AugmentID)
 
 	PS->ServerRPC_OnAugmentSelected(AugmentID);
 }
+
+void AGRBattlePlayerController::RequestApplyAllPerks()
+{
+	AGRPlayerState* PS = GetPlayerState<AGRPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	PS->ServerRPC_ApplyAllPerksToASC();
+}

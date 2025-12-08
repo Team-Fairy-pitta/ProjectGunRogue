@@ -184,4 +184,12 @@ protected:
 	TObjectPtr<UGRAugmentHUDWidget> AugmentWidgetInstance;
 	
 #pragma endregion Augment
+
+/* 성장 관련 코드 */
+#pragma region Perk
+public:
+	UFUNCTION()
+	void RequestApplyAllPerks();
+	
+#pragma endregion Perk
 };

@@ -45,6 +45,8 @@ protected:
 	
 	virtual void NativeConstruct() override;
 
+	virtual void NativeDestruct() override;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Button Event")
 	bool bIsClicked = false;
