@@ -97,13 +97,7 @@ void UGRGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle
 	// 재장전 사운드 재생
 	if (WeaponDefinition->ReloadSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this,
-			WeaponDefinition->ReloadSound,
-			Character->GetActorLocation(),
-			1.0f,
-			1.0f
-		);
+		Character->Multicast_PlayReloadSound();
 	}
 
 	// PlayMontageAndWait 태스크 생성

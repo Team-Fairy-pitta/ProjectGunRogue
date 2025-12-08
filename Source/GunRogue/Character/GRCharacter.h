@@ -85,6 +85,31 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
 	UStaticMeshComponent* GetEquippedWeaponStaticMesh() const;
 
+	// 무기 이펙트/사운드 관련 RPC
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_PlayImpactFX(const FVector& ImpactLocation);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayImpactFX(const FVector& ImpactLocation);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_PlayEmptyFireFX(const FVector& MuzzleLocation);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayEmptyFireFX(const FVector& MuzzleLocation);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_PlayReloadSound();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayReloadSound();
+
 #pragma region SmoothCameraControl
 public:
 	void SetLastControllerRotation();

@@ -14,11 +14,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystemInterface.h"
 #include "TimerManager.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
-#include "Particles/ParticleSystem.h"
-#include "Particles/ParticleSystemComponent.h"
-#include "Sound/SoundBase.h"
 
 UGRGameplayAbility_HitscanAttack::UGRGameplayAbility_HitscanAttack()
 {
@@ -251,7 +246,10 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		if (!WeaponInstance->CheckHasAmmo())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[Fire] No ammo! (Server)"));
-			PlayEmptyFireSound(MuzzleLocation);
+			if (GRCharacter)
+			{
+				GRCharacter->ServerRPC_PlayEmptyFireFX(MuzzleLocation);
+			}
 			StopContinuousFire();
 			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 			return;
@@ -274,7 +272,6 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		if (!CombatSet->CheckHasAmmo())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[Fire] No ammo! (Client UI)"));
-			PlayEmptyFireSound(MuzzleLocation);
 			StopContinuousFire();
 			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 			return;
@@ -291,8 +288,6 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		UE_LOG(LogTemp, Verbose, TEXT("[Fire] Playing FireAnimMontage: %s"),
 			*WeaponDef->FireAnimMontage->GetName());
 	}
-
-	PlayFireSoundAndEffect(MuzzleLocation);
 
 	if (!DamageEffect)
 	{
@@ -348,7 +343,12 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 
 	// 총알 궤적 재생 (히트 여부 관계없이)
 	FVector TracerEndPoint = bHit ? HitResult.Location : TraceEnd;
-	PlayBulletTracer(MuzzleLocation, TracerEndPoint);
+	if (bIsServer && GRCharacter)
+	{
+		// 발사 FX/사운드
+		GRCharacter->ServerRPC_PlayFireFX(MuzzleLocation, TracerEndPoint);
+	}
+
 
 	// 탄퍼짐 수치 증가. non-const 캐스팅 필요 -> IncreaseSpread 함수가 non-const 멤버임
 	UGRCombatAttributeSet* MutableCombatSet = const_cast<UGRCombatAttributeSet*>(CombatSet);
@@ -376,7 +376,10 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		return;
 	}
 
-	PlayImpactSoundAndEffect(HitResult.Location);
+	if (bIsServer && GRCharacter)
+	{
+		GRCharacter->ServerRPC_PlayImpactFX(HitResult.Location);
+	}
 
 	AActor* HitActor = HitResult.GetActor();
 	if (!HitActor)
@@ -535,222 +538,4 @@ void UGRGameplayAbility_HitscanAttack::StopRecoilRecovery()
 		GetWorld()->GetTimerManager().ClearTimer(RecoilRecoveryTimerHandle);
 		bIsRecoilRecoveryActive = false;
 	}
-}
-
-// ========== 사운드/이펙트 재생 함수 구현 ==========
-
-void UGRGameplayAbility_HitscanAttack::PlayFireSoundAndEffect(const FVector& MuzzleLocation)
-{
-	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
-	if (!GRCharacter)
-	{
-		return;
-	}
-
-	AGRPlayerState* PS = GRCharacter->GetPlayerState<AGRPlayerState>();
-	if (!PS)
-	{
-		return;
-	}
-
-	UGRWeaponDefinition* WeaponDef = PS->GetCurrentWeaponDefinition();
-	if (!WeaponDef)
-	{
-		return;
-	}
-
-	// 발사 사운드 재생
-	if (WeaponDef->FireSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this,
-			WeaponDef->FireSound,
-			MuzzleLocation,
-			1.0f,
-			1.0f
-		);
-	}
-
-	// 머즐 플래시 재생 (Niagara 우선)
-	if (WeaponDef->MuzzleFlashNiagara)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			this,
-			WeaponDef->MuzzleFlashNiagara,
-			MuzzleLocation,
-			FRotator::ZeroRotator,
-			FVector(1.0f),
-			true,
-			true,
-			ENCPoolMethod::AutoRelease
-		);
-	}
-	else if (WeaponDef->MuzzleFlashCascade)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(
-			this,
-			WeaponDef->MuzzleFlashCascade,
-			MuzzleLocation,
-			FRotator::ZeroRotator,
-			FVector(1.0f),
-			true,
-			EPSCPoolMethod::AutoRelease
-		);
-	}
-}
-
-void UGRGameplayAbility_HitscanAttack::PlayBulletTracer(const FVector& StartLocation, const FVector& EndLocation)
-{
-	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
-	if (!GRCharacter)
-	{
-		return;
-	}
-
-	AGRPlayerState* PS = GRCharacter->GetPlayerState<AGRPlayerState>();
-	if (!PS)
-	{
-		return;
-	}
-
-	UGRWeaponDefinition* WeaponDef = PS->GetCurrentWeaponDefinition();
-	if (!WeaponDef)
-	{
-		return;
-	}
-
-	// 총구 → 타겟 방향 계산
-	FVector Direction = (EndLocation - StartLocation).GetSafeNormal();
-	FRotator TracerRotation = Direction.Rotation();
-
-	// Niagara Tracer
-	if (WeaponDef->BulletTracerNiagara)
-	{
-		UNiagaraComponent* TracerComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			this,
-			WeaponDef->BulletTracerNiagara,
-			StartLocation,
-			TracerRotation,
-			FVector(1.0f),
-			true,
-			true,
-			ENCPoolMethod::AutoRelease
-		);
-
-		if (TracerComponent)
-		{
-			// Niagara 파라미터 설정 (총구 → 히트 지점)
-			TracerComponent->SetVectorParameter(FName("BeamStart"), StartLocation);
-			TracerComponent->SetVectorParameter(FName("BeamEnd"), EndLocation);
-		}
-	}
-	// Cascade Tracer (폴백)
-	else if (WeaponDef->BulletTracerCascade)
-	{
-		UParticleSystemComponent* TracerComponent = UGameplayStatics::SpawnEmitterAtLocation(
-			this,
-			WeaponDef->BulletTracerCascade,
-			StartLocation,
-			TracerRotation,
-			FVector(1.0f),
-			true,
-			EPSCPoolMethod::AutoRelease
-		);
-
-		if (TracerComponent)
-		{
-			// Cascade 파라미터 설정
-			TracerComponent->SetVectorParameter(FName("BeamEnd"), EndLocation);
-		}
-	}
-}
-
-void UGRGameplayAbility_HitscanAttack::PlayImpactSoundAndEffect(const FVector& ImpactLocation)
-{
-	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
-	if (!GRCharacter)
-	{
-		return;
-	}
-
-	AGRPlayerState* PS = GRCharacter->GetPlayerState<AGRPlayerState>();
-	if (!PS)
-	{
-		return;
-	}
-
-	UGRWeaponDefinition* WeaponDef = PS->GetCurrentWeaponDefinition();
-	if (!WeaponDef)
-	{
-		return;
-	}
-
-	// 히트 사운드 재생
-	if (WeaponDef->ImpactSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this,
-			WeaponDef->ImpactSound,
-			ImpactLocation,
-			0.8f,
-			1.0f
-		);
-	}
-
-	// 히트 이펙트 재생 (Niagara 우선)
-	if (WeaponDef->ImpactEffectNiagara)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			this,
-			WeaponDef->ImpactEffectNiagara,
-			ImpactLocation,
-			FRotator::ZeroRotator,
-			FVector(1.0f),
-			true,
-			true,
-			ENCPoolMethod::AutoRelease
-		);
-	}
-	else if (WeaponDef->ImpactEffectCascade)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(
-			this,
-			WeaponDef->ImpactEffectCascade,
-			ImpactLocation,
-			FRotator::ZeroRotator,
-			FVector(1.0f),
-			true,
-			EPSCPoolMethod::AutoRelease
-		);
-	}
-}
-
-void UGRGameplayAbility_HitscanAttack::PlayEmptyFireSound(const FVector& Location)
-{
-	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
-	if (!GRCharacter)
-	{
-		return;
-	}
-
-	AGRPlayerState* PS = GRCharacter->GetPlayerState<AGRPlayerState>();
-	if (!PS)
-	{
-		return;
-	}
-
-	UGRWeaponDefinition* WeaponDef = PS->GetCurrentWeaponDefinition();
-	if (!WeaponDef || !WeaponDef->EmptyFireSound)
-	{
-		return;
-	}
-
-	// 탄약 없을 때 사운드 재생 (딸깍 소리)
-	UGameplayStatics::PlaySoundAtLocation(
-		this,
-		WeaponDef->EmptyFireSound,
-		Location,
-		1.0f,
-		1.0f
-	);
 }
