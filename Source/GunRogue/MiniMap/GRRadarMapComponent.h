@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
 #include "GRRadarMapComponent.generated.h"
@@ -30,14 +29,13 @@ class GUNROGUE_API UGRRadarMapComponent : public UActorComponent
 public:
 	UGRRadarMapComponent();
 
-	void InitializeWidget();
+	void InitRadarWidget();
 
 	void ScanRadar();
 
 	FVector2D GetNormalizedTargetDirection(FVector TargetLocation) const;
 
 protected:
-	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
@@ -45,11 +43,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Radar")
 	float ScanRadius = 2000.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Radar UI")
-	TSubclassOf<UGRRadarMapWidget> RadarMapWidgetClass;
-
 	UPROPERTY(BlueprintReadOnly)
-	UGRRadarMapWidget* RadarMapWidget;
+	TObjectPtr<UGRRadarMapWidget> RadarMapWidgetInstance;
 
 	FTimerHandle ScanTimer;
 };

@@ -6,6 +6,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "MiniMap/GRRadarTagComponent.h"
 #include "GameFramework/Character.h"
+#include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 
 
 UGRRadarMapComponent::UGRRadarMapComponent()
@@ -13,9 +15,9 @@ UGRRadarMapComponent::UGRRadarMapComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UGRRadarMapComponent::InitializeWidget()
+void UGRRadarMapComponent::InitRadarWidget()
 {
-	if (RadarMapWidget)
+	if (RadarMapWidgetInstance)
 	{
 		return;
 	}
@@ -26,42 +28,28 @@ void UGRRadarMapComponent::InitializeWidget()
 		return;
 	}
 
-	if (!RadarMapWidgetClass)
+	AGRBattlePlayerController* GRPC = Cast<AGRBattlePlayerController>(OwnerPawn->GetController());
+	if (!GRPC)
 	{
 		return;
 	}
 
-	APlayerController* PC = Cast<APlayerController>(OwnerPawn->GetController());
-	if (!PC)
+	UGRBattleHUDWidget* HUDWidget = Cast<UGRBattleHUDWidget>(GRPC->GetBattleHUDWidget());
+
+	if(!HUDWidget)
 	{
 		return;
 	}
 
-	RadarMapWidget = CreateWidget<UGRRadarMapWidget>(PC, RadarMapWidgetClass);
-	if (RadarMapWidget)
-	{
-		RadarMapWidget->AddToViewport();
-		UE_LOG(LogTemp, Warning, TEXT("Radar Widget Initialized for %s"), *OwnerPawn->GetName());
-	}
-}
+	RadarMapWidgetInstance = HUDWidget->GetMinimapWidget();
 
-void UGRRadarMapComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	InitializeWidget();
-
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (OwnerPawn && OwnerPawn->IsLocallyControlled())
-	{
-		GetWorld()->GetTimerManager().SetTimer(
-			ScanTimer,
-			this,
-			&UGRRadarMapComponent::ScanRadar,
-			0.1f,
-			true
-		);
-	}
+	GetWorld()->GetTimerManager().SetTimer(
+		ScanTimer,
+		this,
+		&UGRRadarMapComponent::ScanRadar,
+		0.1f,
+		true
+	);
 }
 
 void UGRRadarMapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -79,7 +67,7 @@ void UGRRadarMapComponent::ScanRadar()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Scan"));
 
-	if (!RadarMapWidget || !GetOwner())
+	if (!RadarMapWidgetInstance || !GetOwner())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Map return"));
 		return;		
@@ -146,7 +134,7 @@ void UGRRadarMapComponent::ScanRadar()
 		TargetList.Add(Info);
 	}
 
-	RadarMapWidget->UpdateRadar(TargetList);
+	RadarMapWidgetInstance->UpdateRadar(TargetList);
 
 }
 

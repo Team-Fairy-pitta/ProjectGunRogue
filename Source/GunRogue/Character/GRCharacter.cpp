@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "MiniMap/GRRadarMapComponent.h"
 
 
 AGRCharacter::AGRCharacter()
@@ -24,6 +25,9 @@ AGRCharacter::AGRCharacter()
 	SpringArmComponent->TargetArmLength = ThirdPerson_CameraArmLength;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	RadarMapComponent = CreateDefaultSubobject<UGRRadarMapComponent>(TEXT("RadarMapComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	LastControllerRotation = FQuat::Identity;

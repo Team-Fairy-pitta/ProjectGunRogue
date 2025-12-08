@@ -12,7 +12,7 @@ struct FRadarIconData
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (Categories = "MiniMap"))
 	FGameplayTag Tag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

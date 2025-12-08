@@ -7,6 +7,7 @@
 #include "UI/Level1/GRLevel1SelectWidget.h"
 #include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
 #include "UI/Inventory/GRInventoryWidgetMain.h"
+#include "MiniMap/GRRadarMapComponent.h"
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
@@ -76,6 +77,16 @@ void AGRBattlePlayerController::InitUISetup()
 	CreateWidgets();
 	InitializeBattleHUD();
 	ShowBattleHUD();
+
+	APawn* OwnerPawn = GetPawn();
+	if (OwnerPawn)
+	{
+		UGRRadarMapComponent* RadarComponent = OwnerPawn->FindComponentByClass<UGRRadarMapComponent>();
+		if (RadarComponent)
+		{
+			RadarComponent->InitRadarWidget();
+		}
+	}
 }
 
 void AGRBattlePlayerController::CreateWidgets()
