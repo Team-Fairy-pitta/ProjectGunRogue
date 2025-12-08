@@ -9,12 +9,22 @@ AGRLobbyGameState::AGRLobbyGameState()
 	HostPlayerState = nullptr;
 }
 
+void AGRLobbyGameState::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
 void AGRLobbyGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGRLobbyGameState, HostPlayerState);
 	DOREPLIFETIME(AGRLobbyGameState, GuestPlayerStates);
+}
+
+void AGRLobbyGameState::OnRep_ReplicatedHasBegunPlay()
+{
+	Super::OnRep_ReplicatedHasBegunPlay();
 }
 
 void AGRLobbyGameState::AddPlayerState(APlayerState* PlayerState)
@@ -38,13 +48,17 @@ void AGRLobbyGameState::AddPlayerState(APlayerState* PlayerState)
 		if (PlayerController->IsLocalController())
 		{
 			HostPlayerState = PlayerState;
-			OnRep_HostPlayerState();
+
+			// [NOTE] PlayerController가 준비되지 않았기 때문에, 다음 Tick에서 호출해야 함
+			GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_HostPlayerState);
 		}
 		else
 		{
 			FGuestPlayer& NewGuest = GuestPlayerStates.AddDefaulted_GetRef();
 			NewGuest.GuestPlayerState = PlayerState;
-			OnRep_GuestPlayerStates();
+
+			// [NOTE] 게스트의 이름이 지정될 때 까지 기다림 (다음 Tick에서 호출해야 함)
+			GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_GuestPlayerStates);
 		}
 	}
 }

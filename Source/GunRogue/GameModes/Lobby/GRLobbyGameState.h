@@ -25,7 +25,10 @@ class GUNROGUE_API AGRLobbyGameState : public AGRGameState
 	
 public:
 	AGRLobbyGameState();
+	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void OnRep_ReplicatedHasBegunPlay() override;
 
 	virtual void AddPlayerState(APlayerState* PlayerState) override;
 	virtual void RemovePlayerState(APlayerState* PlayerState) override;
