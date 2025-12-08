@@ -20,6 +20,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
 	TArray<TSoftObjectPtr<UWorld>> RandomLevelPool;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
+	TSoftObjectPtr<UWorld> BossLevel;
+
 	UPROPERTY()
 	FGRLevel1Data Level1Data;
 };

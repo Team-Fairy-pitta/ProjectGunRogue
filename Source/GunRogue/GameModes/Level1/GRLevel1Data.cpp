@@ -28,17 +28,20 @@ FGRLevel1Node* FGRLevel1Data::GetNode(int32 Index)
 	}
 }
 
-int32 FGRLevel1Data::RowCount = 4;
-int32 FGRLevel1Data::ColCount = 4;
+int32 FGRLevel1Data::RowCount;
+int32 FGRLevel1Data::ColCount;
 
 FGRLevel1Data::FGRLevel1Data()
 {
 	bIsValid = 0;
-	TotalRoomCount = RowCount * ColCount;
 }
 
 void FGRLevel1Data::InitAtClient()
 {
+	RowCount = 2;
+	ColCount = 2;
+	TotalRoomCount = RowCount * ColCount;
+
 	MakeAndConnectEmptyRooms();
 	bIsValid = 1;
 }
@@ -59,8 +62,13 @@ void FGRLevel1Data::InitAtServer(AGRGameMode_Level1* GRGameMode)
 		return;
 	}
 
+	RowCount = 2;
+	ColCount = 2;
+	TotalRoomCount = RowCount * ColCount;
+
 	MakeAndConnectEmptyRooms();
 	SetupEachRoomRandomly(GRGameMode);
+	SetupLastRoom(GRGameMode);
 	bIsValid = 1;
 }
 
@@ -167,5 +175,23 @@ void FGRLevel1Data::SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode)
 			break;
 		}
 	}
+}
+
+void FGRLevel1Data::SetupLastRoom(AGRGameMode_Level1* GRGameMode)
+{
+	if (!IsValid(GRGameMode))
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("GRGameMode is INVALID"));
+		return;
+	}
+
+	if (GRGameMode->BossLevel.IsNull())
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("BossLevel Is Null"));
+		return;
+	}
+
+	FGRLevel1Node& LastNode = Nodes.Last();
+	LastNode.LevelToLoad = GRGameMode->BossLevel;
 }
 
