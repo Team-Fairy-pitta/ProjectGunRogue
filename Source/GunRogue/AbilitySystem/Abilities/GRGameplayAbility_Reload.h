@@ -4,6 +4,7 @@
 #include "AbilitySystem/GRGameplayAbility.h"
 #include "GRGameplayAbility_Reload.generated.h"
 
+class UAbilityTask_PlayMontageAndWait;
 
 UCLASS()
 class GUNROGUE_API UGRGameplayAbility_Reload : public UGRGameplayAbility
@@ -33,6 +34,15 @@ protected:
 
 private:
 	void PerformReload();
+	
+	// 애니메이션 몽타주 완료 콜백
+	UFUNCTION()
+	void OnReloadMontageCompleted();
 
-	FTimerHandle ReloadTimerHandle;
+	UFUNCTION()
+	void OnReloadMontageCancelled();
+
+	// PlayMontageAndWait 태스크 참조
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_PlayMontageAndWait> PlayMontageTask;
 };

@@ -2,7 +2,6 @@
 
 
 #include "AI/Character/GRLuwoAICharacter.h"
-#include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 
 AGRLuwoAICharacter::AGRLuwoAICharacter()
@@ -23,23 +22,6 @@ AGRLuwoAICharacter::AGRLuwoAICharacter()
 void AGRLuwoAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (HasAuthority())
-	{
-		if (ASC)
-		{
-			ASC->InitAbilityActorInfo(this, this);
-		
-			for (auto& AbilityClass : AttackAbilityClassList)
-			{
-				if (AbilityClass)
-				{
-					FGameplayAbilitySpec Spec(AbilityClass, /*Level*/1, /*InputID*/0, this);
-					ASC->GiveAbility(Spec);
-				}
-			}
-		}	
-	}
 	
 }
 

@@ -62,7 +62,6 @@ public:
 	// 탄약 관련 함수
 	int32 GetCurrentAmmo() const { return CurrentAmmo; }
 	int32 GetMaxAmmo() const;
-	float GetReloadTime() const;
 
 	bool CheckHasAmmo() const { return CurrentAmmo > 0; }
 	bool CheckCanReload() const;

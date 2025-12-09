@@ -56,6 +56,12 @@ protected:
 	void StartRecoilRecovery();
 	void StopRecoilRecovery();
 
+	// 사운드/이펙트 재생 함수
+	void PlayFireSoundAndEffect(const FVector& MuzzleLocation);
+	void PlayBulletTracer(const FVector& StartLocation, const FVector& EndLocation);
+	void PlayImpactSoundAndEffect(const FVector& ImpactLocation);
+	void PlayEmptyFireSound(const FVector& Location);
+
 	FTimerHandle RecoilRecoveryTimerHandle;
 	bool bIsRecoilRecoveryActive;
 };

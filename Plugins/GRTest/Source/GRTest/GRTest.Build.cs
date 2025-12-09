@@ -44,6 +44,11 @@ public class GRTest : ModuleRules
 
 				//AI
 				"AIModule","NavigationSystem",
+
+				// Niagara
+				"Niagara", 
+
+
 				
 				// ... add other public dependencies that you statically link with here ...
 			}

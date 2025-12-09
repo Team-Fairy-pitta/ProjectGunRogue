@@ -9,47 +9,10 @@
   <component name="ChangeListManager">
     <list default="true" id="189d8e3a-7c20-4c98-94b2-895d871fd1a8" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/BB_AI.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/BT/BT_Move_KeepDistance_AI.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/BT/BT_Move_Melee_AI.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/BT/BT_Move_Ranged_AI.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/BT/BT_Patrol_KeepDistance_AI.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/BT/BT_Patrol_Melee_AI.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/BT/BT_Patrol_Ranged_AI.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Map/SFIndoor/SFIndoor_Random2.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Map/SFIndoor/SFIndoor_Random2.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Map/SFIndoor/SFIndoor_Random6.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Map/SFIndoor/SFIndoor_Random6.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Map/SFIndoor/SFIndoor_Random7.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Map/SFIndoor/SFIndoor_Random7.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/BP_NavLinkActor.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/AnimationMontage/AM_Test_BoulderTossAttack.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/AnimationMontage/AM_Test_FireLaserAttack.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/AnimationMontage/AM_Test_GroundStrikeAttack.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/AnimationMontage/AM_Test_JumpAndAttack.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BB_Test_Boss_Luwo_AI.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BP_TestNavLinkProxy.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BP_Test_Boss_Luwo_AICharacter.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BP_Test_Boss_Luwo_AIController.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/BT_Test_Boss_Luwo_AI.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/EBossAttackRangeState.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/GA/GA_Test_BoulderTossAttackAbility.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/GA/GA_Test_FireLaserAttackAbility.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/GA/GA_Test_GroundStrikeAttack.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/GA/GA_Test_JumpAndAttack.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/TestMap_AI_BossLuwo.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/TestMap_AI_BossLuwo.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/AICharacter/BP_Test_Move_KeepDistance_AICharcter.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/AICharacter/BP_Test_Move_Melee_AICharcter.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/AICharacter/BP_Test_Move_Ranged_AICharcter.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/AICharacter/BP_Test_Patrol_KeepDistance_AICharcter.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/AICharacter/BP_Test_Patrol_Melee_AICharcter.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/AICharacter/BP_Test_Patrol_Ranged_AICharcter.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/Controller/BP_Test_Move_KeepDistance_AIController.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/Controller/BP_Test_Move_Melee_AIController.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/Controller/BP_Test_Move_Ranged_AIController.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/Controller/BP_Test_Patrol_KeepDistance_AIController.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/Controller/BP_Test_Patrol_Melee_AIController.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/Controller/BP_Test_Patrol_Ranged_AIController.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/TestMap_AI.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/TestMap_AI.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/TestMap_AI_KeepDistance.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/TestMap_AI_KeepDistance.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/TestMap_AI_Range.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Normal/TestMap_AI_Range.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Normal/Animation/Montage/AM_AI_FireRifle.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Normal/Animation/Montage/AM_AI_FireRifle.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GunRogue.uproject.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/GunRogue.uproject.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRAttackAnimNotify_GameplayEvent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRAttackAnimNotify_GameplayEvent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRAttackAnimNotify_GameplayEvent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRAttackAnimNotify_GameplayEvent.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,10 +26,16 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="cidr-memory-view://0" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/AIModule/Classes/AIController.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/AIModule/Classes/BehaviorTree/BTNode.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/AIModule/Classes/BrainComponent.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/AIModule/Private/AIController.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/Engine/Classes/Engine/EngineTypes.h" root0="FORCE_HIGHLIGHTING" />
@@ -90,7 +59,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;Uproject.GunRogue.executor&quot;: &quot;Debug&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/ai/use-asset&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/ai/create-boss-ge&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -99,7 +68,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Uproject.GunRogue">
     <configuration name="GunRogue" type="Uproject" factoryName="rider.uproject">
       <configuration_1 setup="1">
         <option name="CONFIGURATION" value="DebugGame Editor" />
@@ -247,11 +216,25 @@
       <workItem from="1764750204192" duration="5974000" />
       <workItem from="1764814016802" duration="4068000" />
       <workItem from="1764829628399" duration="900000" />
+      <workItem from="1764838029551" duration="11200000" />
+      <workItem from="1764897492578" duration="15768000" />
+      <workItem from="1764931674436" duration="12111000" />
+      <workItem from="1765157546677" duration="3848000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnitTestsCoverage.Settings">
+    <option name="coveragePercentColumnWidth" value="75" />
+    <option name="sortOrder" value="DESCENDING" />
+    <option name="sortedColumn" value="1" />
+    <option name="symbolColumnWidth" value="75" />
+    <coverage-tree-state>
+      <expand />
+      <select />
+    </coverage-tree-state>
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />

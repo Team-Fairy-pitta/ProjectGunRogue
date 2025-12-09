@@ -11,6 +11,7 @@
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
+#include "MiniMap/GRRadarMapComponent.h"
 
 void AGRBattlePlayerController::InitializeBattleHUD()
 {
@@ -85,6 +86,16 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 	if (!CombatSet->OnAmmoChanged.IsAlreadyBound(this, &ThisClass::OnAmmoChanged))
 	{
 		CombatSet->OnAmmoChanged.AddDynamic(this, &ThisClass::OnAmmoChanged);
+	}
+
+	APawn* OwnerPawn = GetPawn();
+	if (OwnerPawn)
+	{
+		UGRRadarMapComponent* RadarComponent = OwnerPawn->FindComponentByClass<UGRRadarMapComponent>();
+		if (RadarComponent)
+		{
+			RadarComponent->InitRadarWidget();
+		}
 	}
 }
 
