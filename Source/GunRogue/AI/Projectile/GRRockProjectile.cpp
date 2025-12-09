@@ -6,11 +6,13 @@
 #include "Components/SphereComponent.h"
 #include "Engine/OverlapResult.h"
 #include "Character/GRCharacter.h"
-#include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
+#include "AbilitySystemComponent.h"
+#include "GameplayEffect.h"
+#include "AbilitySystemInterface.h"
 
 AGRRockProjectile::AGRRockProjectile()
-	:DamageAmount(100.0f)
+	:DamageGEClass(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -108,6 +110,22 @@ void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	{
 		return;
 	}
+
+	UAbilitySystemComponent* BossASC = GetInstigator()->FindComponentByClass<UAbilitySystemComponent>();
+	if (!BossASC)
+	{
+		return;
+	}
+
+	if (!DamageGEClass)
+	{
+		return;
+	}
+	
+	FGameplayEffectContextHandle BossEffectContext = BossASC->MakeEffectContext();
+	BossEffectContext.AddInstigator(GetInstigator(), this); 
+		
+	FGameplayEffectSpecHandle BossSpecHandle = BossASC->MakeOutgoingSpec(DamageGEClass,1.f,BossEffectContext);
 	
 	for (const FOverlapResult& Result : Overlaps)
 	{
@@ -122,10 +140,19 @@ void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		{
 			continue;
 		}
-
-		//UE_LOG(LogTemp,Warning,TEXT("[GRRockProjectile][OnHit] : Damage to PlayerCharacter"));
-		UGameplayStatics::ApplyDamage(PlayerChar, DamageAmount,GetInstigatorController() , this, UDamageType::StaticClass());
 		
+		IAbilitySystemInterface* PlayerASI = Cast<IAbilitySystemInterface>(PlayerChar);
+		if (!PlayerASI)
+		{
+			continue;
+		}
+		
+		UAbilitySystemComponent* PlayerASC = PlayerASI->GetAbilitySystemComponent();
+		if (!PlayerASC)
+		{
+			continue;
+		}
+
 #if WITH_EDITOR
 		FVector PlayerLoc = PlayerChar->GetActorLocation();
 		if (GetWorld())
@@ -133,8 +160,13 @@ void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 			DrawDebugSphere(GetWorld(),PlayerLoc,20.f,12,FColor::Red,false,1.0f);
 		}
 #endif
-	}
 
+		if (BossSpecHandle.IsValid())
+		{
+			BossASC->ApplyGameplayEffectSpecToTarget(*BossSpecHandle.Data.Get(),PlayerASC);
+		}
+	}
+	
 	Destroy();
 }
 

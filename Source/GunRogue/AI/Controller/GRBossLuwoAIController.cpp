@@ -2,13 +2,10 @@
 
 
 #include "AI/Controller/GRBossLuwoAIController.h"
-#include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/TargetPoint.h"
 
-const FName AGRBossLuwoAIController::TargetPlayerKey="TargetPlayer";
-const FName AGRBossLuwoAIController::LastPlayerLocationKey="LastPlayerLocation";
 const FName AGRBossLuwoAIController::BossAttackRangeStateKey="BossAttackRangeState";
 const FName AGRBossLuwoAIController::FarAttackRandomIndexKey="FarAttackRandomIndex";
 const FName AGRBossLuwoAIController::StartJumpTargetPointKey="StartJumpTargetPoint";
@@ -16,13 +13,7 @@ const FName AGRBossLuwoAIController::ShieldRegenTargetPointKey="ShieldRegenTarge
 const FName AGRBossLuwoAIController::MapCenterTargetPointKey="MapCenterTargetPoint";
 
 AGRBossLuwoAIController::AGRBossLuwoAIController()
-	:BehaviorTreeAsset(nullptr)
-	,BlackboardAsset(nullptr)
-	,BehaviorComp(nullptr)
-	,BlackboardComp(nullptr)
 {
-	BehaviorComp = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorComp"));
-	BlackboardComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComp"));
 }
 
 void AGRBossLuwoAIController::BeginPlay()
@@ -35,29 +26,6 @@ void AGRBossLuwoAIController::BeginPlay()
 	}
 }
 
-void AGRBossLuwoAIController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
-
-	if (BehaviorTreeAsset && BlackboardAsset)
-	{
-		if (UseBlackboard(BlackboardAsset, BlackboardComp))
-		{
-			BlackboardComp->InitializeBlackboard(*BlackboardAsset);
-		}
-		RunBehaviorTree(BehaviorTreeAsset);
-	}
-}
-
-void AGRBossLuwoAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-
-	if (BehaviorComp)
-	{
-		BehaviorComp->StopTree(EBTStopMode::Safe);
-	}
-}
 
 void AGRBossLuwoAIController::InitBlackboardKey()
 {

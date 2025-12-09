@@ -3,15 +3,15 @@
 
 #include "AI/Projectile/GRLaserProjectile.h"
 #include "Components/SphereComponent.h"
-#include "AI/Character/GRLuwoAICharacter.h"
+#include "AI/Character/GRAICharacter.h"
 #include "Character/GRCharacter.h"
-#include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "AbilitySystemComponent.h"
 
 AGRLaserProjectile::AGRLaserProjectile()
-	:DamageAmount(100.0f)
-	,Velocity(4000.0f)
+	:Velocity(4000.0f),
+	DamageGEClass(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -78,8 +78,8 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	}
 	
 	//UE_LOG(LogTemp, Warning, TEXT("AGRRockProjectile::OnHit : Other Actor : %s"),*OtherActor->GetName());
-	
-	if (OtherActor->IsA(AGRLuwoAICharacter::StaticClass()))
+
+	if (OtherActor->IsA(AGRAICharacter::StaticClass()))
 	{
 		return;
 	}
@@ -90,11 +90,26 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		return;
 	}
 
+	UAbilitySystemComponent* BossASC = GetInstigator()->FindComponentByClass<UAbilitySystemComponent>();
+	if (!BossASC)
+	{
+		return;
+	}
+
+	if (!DamageGEClass)
+	{
+		return;
+	}
+
+	FGameplayEffectContextHandle BossEffectContext = BossASC->MakeEffectContext();
+	BossEffectContext.AddInstigator(GetInstigator(), this); 
+		
+	FGameplayEffectSpecHandle BossSpecHandle = BossASC->MakeOutgoingSpec(DamageGEClass,1.f,BossEffectContext);
+	
+
 	AGRCharacter* PlayerChar=Cast<AGRCharacter>(OtherActor);
 	if (PlayerChar)
 	{
-		UGameplayStatics::ApplyDamage(PlayerChar, DamageAmount,GetInstigatorController() , this, UDamageType::StaticClass());
-
 #if WITH_EDITOR
 		FVector PlayerLoc = PlayerChar->GetActorLocation();
 		if (GetWorld())
@@ -102,6 +117,23 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 			DrawDebugSphere(GetWorld(),PlayerLoc,20.f,12,FColor::Red,false,1.0f);
 		}
 #endif
+
+		IAbilitySystemInterface* PlayerASI = Cast<IAbilitySystemInterface>(PlayerChar);
+		if (!PlayerASI)
+		{
+			return;
+		}
+		
+		UAbilitySystemComponent* PlayerASC = PlayerASI->GetAbilitySystemComponent();
+		if (!PlayerASC)
+		{
+			return;
+		}
+
+		if (BossSpecHandle.IsValid())
+		{
+			BossASC->ApplyGameplayEffectSpecToTarget(*BossSpecHandle.Data.Get(),PlayerASC);
+		}
 	}
 
 	Destroy();

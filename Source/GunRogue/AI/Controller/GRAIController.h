@@ -13,8 +13,6 @@ class UBehaviorTree;
 class UBlackboardData;
 class UBehaviorTreeComponent;
 class UBlackboardComponent;
-class UAIPerceptionComponent;
-class UAISenseConfig_Sight;
 
 UCLASS()
 class GUNROGUE_API AGRAIController : public AAIController
@@ -28,20 +26,11 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	
-private:
-	UFUNCTION()
-	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
-
-	void UpdateClosestPlayer();
 
 public:
 	static const FName TargetPlayerKey;
-	static const FName IsPlayerDetectedKey;
-	static const FName LastPlayerLocationKey;
-	static const FName PatrolStartLocationKey;
 	
-private:
+protected:
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	TObjectPtr<UBehaviorTree> BehaviorTreeAsset;
 	
@@ -53,10 +42,4 @@ private:
 	
 	UPROPERTY()
 	UBlackboardComponent* BlackboardComp;
-	
-	UPROPERTY(VisibleAnywhere, Category = "AI")
-	TObjectPtr<UAIPerceptionComponent> AIPerceptionComp;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TObjectPtr<UAISenseConfig_Sight> SightConfig;
 };

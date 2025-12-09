@@ -452,7 +452,6 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 		if (CombatSet)
 		{
 			CombatSet->UpdateAmmoDisplay(0, 0);   // Ammo 0 / 0
-			CombatSet->SetReloadTime(0.1f);       // 기본 재장전 시간(원하면 프로젝트 기본값으로)
 		}
 	}
 }
@@ -950,7 +949,6 @@ void AGRPlayerState::OnRep_WeaponDataUpdata()
 				if (CombatSet)
 				{
 					CombatSet->UpdateAmmoDisplay(WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
-					CombatSet->SetReloadTime(WeaponInstance->GetReloadTime());
 					UE_LOG(LogTemp, Display, TEXT("[OnRep] CLIENT UI updated - Ammo: %d/%d"),
 						WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
 				}

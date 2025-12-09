@@ -32,7 +32,6 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 
 	CurrentAmmo = 0.0f;
 	MaxAmmo = 0.0f; /* 무기를 들고 있지 않을 때, 탄창의 크기를 0으로 한다. */
-	ReloadTime = 2.0f;
 }
 
 void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -64,7 +63,6 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentAmmo, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ReloadTime, COND_None, REPNOTIFY_Always);
 }
 
 void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -87,10 +85,6 @@ void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	else if (Attribute == GetMaxAmmoAttribute())
 	{
 		NewValue = FMath::Max(NewValue, 1.0f);
-	}
-	else if (Attribute == GetReloadTimeAttribute())
-	{
-		NewValue = FMath::Max(NewValue, 0.1f);
 	}
 }
 
@@ -475,9 +469,4 @@ void UGRCombatAttributeSet::OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAm
 	const int32 Current = FMath::RoundToInt(GetCurrentAmmo());
 	const int32 Max = FMath::RoundToInt(GetMaxAmmo());
 	OnAmmoChanged.Broadcast(Current, Max);
-}
-
-void UGRCombatAttributeSet::OnRep_ReloadTime(const FGameplayAttributeData& OldReloadTime)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, ReloadTime, OldReloadTime);
 }

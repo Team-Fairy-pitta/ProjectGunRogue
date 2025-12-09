@@ -36,6 +36,6 @@ void UGRAttackAnimNotify_GameplayEvent::Notify(USkeletalMeshComponent* MeshComp,
 	FGameplayEventData EventData;
 	EventData.Instigator = Owner;
 	EventData.Target = Owner;
-	
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Owner, EventTag, EventData);
 }
+

@@ -2,7 +2,7 @@
 
 
 #include "AI/BT/GRBTTask_SwapPatrolPointsIfClose.h"
-#include "AI/Controller/GRAIController.h"
+#include "AI/Controller/GRNormalAIController.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -41,7 +41,7 @@ EBTNodeResult::Type UGRBTTask_SwapPatrolPointsIfClose::ExecuteTask(UBehaviorTree
 		return EBTNodeResult::Failed;
 	}
 	
-	FVector PatrolStartLocation = BlackboardComp->GetValueAsVector(AGRAIController::PatrolStartLocationKey);
+	FVector PatrolStartLocation = BlackboardComp->GetValueAsVector(AGRNormalAIController::PatrolStartLocationKey);
 	FVector PatrolEndLocation = BlackboardComp->GetValueAsVector(UGRBTTask_FindRandomLocation::PatrolEndLocationKey);
 	
 	UNavigationPath* PathToPatrolStart = NavSys->FindPathToLocationSynchronously(AIPawn->GetWorld(), AILocation, PatrolStartLocation);
@@ -60,7 +60,7 @@ EBTNodeResult::Type UGRBTTask_SwapPatrolPointsIfClose::ExecuteTask(UBehaviorTree
 	
 	if (PathLengthToPatrolEnd < PathLengthToPatrolStart)
 	{
-		BlackboardComp->SetValueAsVector(AGRAIController::PatrolStartLocationKey,PatrolEndLocation);
+		BlackboardComp->SetValueAsVector(AGRNormalAIController::PatrolStartLocationKey,PatrolEndLocation);
 		BlackboardComp->SetValueAsVector(UGRBTTask_FindRandomLocation::PatrolEndLocationKey,PatrolStartLocation);
 	}
 

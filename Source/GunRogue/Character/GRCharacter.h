@@ -14,6 +14,7 @@ class UGRInputHandleComponent;
 class UGRInteractionComponent;
 class UGRAttachmentComponent;
 class UGRPawnData;
+class UGRRadarMapComponent;
 
 UCLASS()
 class GUNROGUE_API AGRCharacter : public ACharacter, public IAbilitySystemInterface
@@ -56,6 +57,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> CameraComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRRadarMapComponent> RadarMapComponent;
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
 	void SpectateNextPlayer();
@@ -77,6 +81,38 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Spectate")
 	bool IsTargetDead(ACharacter* TargetCharacter) const;
+
+	// 장착된 무기 메시 헬퍼
+	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
+	USkeletalMeshComponent* GetEquippedWeaponMesh() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
+	UStaticMeshComponent* GetEquippedWeaponStaticMesh() const;
+
+	// 무기 이펙트/사운드 관련 RPC
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_PlayImpactFX(const FVector& ImpactLocation);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayImpactFX(const FVector& ImpactLocation);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_PlayEmptyFireFX(const FVector& MuzzleLocation);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayEmptyFireFX(const FVector& MuzzleLocation);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_PlayReloadSound();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayReloadSound();
 
 #pragma region SmoothCameraControl
 public:
