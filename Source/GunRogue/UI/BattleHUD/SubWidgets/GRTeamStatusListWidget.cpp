@@ -66,14 +66,16 @@ void UGRTeamStatusListWidget::DestroyLastTeamStatus()
 	{
 		return;
 	}
-	if (TeamStatusContainer)
+	if (!TeamStatusContainer)
 	{
 		return;
 	}
 
 	int32 LastIndex = TeamStatusArray.Num() - 1;
 	TeamStatusArray.RemoveAt(LastIndex);
-	TeamStatusContainer->RemoveChildAt(LastIndex);
+
+	int32 LastContainerIndex = TeamStatusContainer->GetChildrenCount() - 1;
+	TeamStatusContainer->RemoveChildAt(LastContainerIndex);
 }
 
 int32 UGRTeamStatusListWidget::GetTeamStatusWidgetCount() const
