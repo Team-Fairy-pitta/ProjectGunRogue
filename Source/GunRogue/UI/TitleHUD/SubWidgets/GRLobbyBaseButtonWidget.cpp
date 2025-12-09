@@ -32,6 +32,30 @@ void UGRLobbyBaseButtonWidget::NativeConstruct()
 	}
 }
 
+void UGRLobbyBaseButtonWidget::SetButtonText(FText InText)
+{
+	if (BaseButtonText)
+	{
+		BaseButtonText->SetText(InText);
+	}
+}
+
+void UGRLobbyBaseButtonWidget::EnableButton()
+{
+	if (BaseButton)
+	{
+		BaseButton->SetIsEnabled(true);
+	}
+}
+
+void UGRLobbyBaseButtonWidget::DisableButton()
+{
+	if (BaseButton)
+	{
+		BaseButton->SetIsEnabled(false);
+	}
+}
+
 void UGRLobbyBaseButtonWidget::OnBaseClicked()
 {
 	OnLobbyButtonClicked.Broadcast();

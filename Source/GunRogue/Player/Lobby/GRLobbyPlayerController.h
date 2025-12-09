@@ -23,6 +23,18 @@ public:
 	void UpdateHostPlayerInfo(APlayerState* HostPlayer);
 	void UpdateGuestPlayersInfo(TArray<FGuestPlayer>& GuestPlayers);
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Ready();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_CancelReady();
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_OnConfirmReady();
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_OnConfirmCancelReady();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRLobbyHUDWidget> LobbyWidgetClass;

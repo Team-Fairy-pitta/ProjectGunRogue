@@ -43,6 +43,11 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnLobbyButtonClicked OnLobbyButtonClicked;
+
+	void SetButtonText(FText InText);
+
+	void EnableButton();
+	void DisableButton();
 	
 private:
 	UFUNCTION()

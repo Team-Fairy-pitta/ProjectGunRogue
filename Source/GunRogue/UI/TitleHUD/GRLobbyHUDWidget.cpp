@@ -145,7 +145,90 @@ void UGRLobbyHUDWidget::OnStartGameClicked()
 
 void UGRLobbyHUDWidget::OnReadyGameClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Ready game clicked"));
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+
+	if (LobbyPlayerController->GetNetMode() != ENetMode::NM_Client)
+	{
+		return;
+	}
+
+	if (!ReadyGameButton)
+	{
+		return;
+	}
+
+	// Toggle
+	if (bIsReady)
+	{
+		bIsReady = false;
+		DisableReadyButtonForWait();
+		ReadyGameButton->SetButtonText(FText::FromString(TEXT("준비")));
+		LobbyPlayerController->ServerRPC_CancelReady();
+	}
+	else
+	{
+		bIsReady = true;
+		DisableButtonsOnReady();
+		DisableReadyButtonForWait();
+		ReadyGameButton->SetButtonText(FText::FromString(TEXT("준비중...")));
+		LobbyPlayerController->ServerRPC_Ready();
+	}
+}
+
+void UGRLobbyHUDWidget::DisableButtonsOnReady()
+{
+	TArray<UGRLobbyBaseButtonWidget*> Buttons = {
+		PlayerInfoButton,
+		PlayerPerksButton,
+		ExitLobbyButton,
+		InviteButton,
+	};
+
+	for (UGRLobbyBaseButtonWidget* Button : Buttons)
+	{
+		if (Button)
+		{
+			Button->DisableButton();
+		}
+	}
+}
+
+void UGRLobbyHUDWidget::EnableButtons()
+{
+	TArray<UGRLobbyBaseButtonWidget*> Buttons = {
+		PlayerInfoButton,
+		PlayerPerksButton,
+		ExitLobbyButton,
+		InviteButton,
+	};
+
+	for (UGRLobbyBaseButtonWidget* Button : Buttons)
+	{
+		if (Button)
+		{
+			Button->EnableButton();
+		}
+	}
+}
+
+void UGRLobbyHUDWidget::DisableReadyButtonForWait()
+{
+	if (ReadyGameButton)
+	{
+		ReadyGameButton->DisableButton();
+	}
+}
+
+void UGRLobbyHUDWidget::EnableReadyButton()
+{
+	if (ReadyGameButton)
+	{
+		ReadyGameButton->EnableButton();
+	}
 }
 
 void UGRLobbyHUDWidget::OnExitLobbyClicked()

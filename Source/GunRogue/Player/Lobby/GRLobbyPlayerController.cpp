@@ -145,3 +145,35 @@ void AGRLobbyPlayerController::ServerRPC_StartGame_Implementation()
 	FString MapPath = GameStartMap.GetLongPackageName() + TEXT("?listen");
 	GetWorld()->ServerTravel(MapPath);
 }
+
+void AGRLobbyPlayerController::ServerRPC_Ready_Implementation()
+{
+	ClientRPC_OnConfirmReady();
+}
+
+void AGRLobbyPlayerController::ServerRPC_CancelReady_Implementation()
+{
+	ClientRPC_OnConfirmCancelReady();
+}
+
+void AGRLobbyPlayerController::ClientRPC_OnConfirmReady_Implementation()
+{
+	if (!LobbyWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyWidgetInstance is INVALID"));
+		return;
+	}
+
+	LobbyWidgetInstance->EnableReadyButton();
+}
+
+void AGRLobbyPlayerController::ClientRPC_OnConfirmCancelReady_Implementation()
+{
+	if (!LobbyWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyWidgetInstance is INVALID"));
+		return;
+	}
+	LobbyWidgetInstance->EnableButtons();
+	LobbyWidgetInstance->EnableReadyButton();
+}

@@ -21,6 +21,12 @@ class GUNROGUE_API UGRLobbyHUDWidget : public UUserWidget
 public:
 	UGRLobbyPlayerListWidget* GetLobbyPlayerListWidget() const { return LobbyPlayerList; }
 	
+	void DisableButtonsOnReady();
+	void EnableButtons();
+
+	void DisableReadyButtonForWait();
+	void EnableReadyButton();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
 	UGRLobbyPlayerListWidget* LobbyPlayerList;
@@ -97,4 +103,6 @@ private:
 
 	UFUNCTION()
 	void OnInviteClicked();
+
+	bool bIsReady = false;
 };
