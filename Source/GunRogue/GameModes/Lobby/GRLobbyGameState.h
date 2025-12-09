@@ -33,6 +33,9 @@ public:
 	virtual void AddPlayerState(APlayerState* PlayerState) override;
 	virtual void RemovePlayerState(APlayerState* PlayerState) override;
 
+	void Ready(APlayerState* GuestPlayerState);
+	void CancelReady(APlayerState* GuestPlayerState);
+
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_HostPlayerState)
 	TObjectPtr<APlayerState> HostPlayerState;
@@ -43,6 +46,17 @@ protected:
 	UFUNCTION()
 	void OnRep_HostPlayerState();
 
+	void OnRep_HostPlayerState_NextTick();
+
 	UFUNCTION()
 	void OnRep_GuestPlayerStates();
+
+	void OnRep_GuestPlayerStates_NextTick();
+
+	void UpdateCanStartGame();
+
+private:
+	int32 FindGuestIndex(APlayerState* GuestPlayerState);
+
+	bool IsAllPlayerReady();
 };

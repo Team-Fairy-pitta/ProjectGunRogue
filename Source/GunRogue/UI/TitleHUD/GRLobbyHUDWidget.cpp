@@ -231,6 +231,22 @@ void UGRLobbyHUDWidget::EnableReadyButton()
 	}
 }
 
+void UGRLobbyHUDWidget::DisableStartButton()
+{
+	if (StartGameButton)
+	{
+		StartGameButton->DisableButton();
+	}
+}
+
+void UGRLobbyHUDWidget::EnableStartButton()
+{
+	if (StartGameButton)
+	{
+		StartGameButton->EnableButton();
+	}
+}
+
 void UGRLobbyHUDWidget::OnExitLobbyClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Exit Lobby clicked"));

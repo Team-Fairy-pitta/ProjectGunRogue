@@ -35,6 +35,8 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnConfirmCancelReady();
 
+	void UpdateCanStartGame(bool bCanStart);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRLobbyHUDWidget> LobbyWidgetClass;

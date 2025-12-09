@@ -27,6 +27,9 @@ public:
 	void DisableReadyButtonForWait();
 	void EnableReadyButton();
 
+	void DisableStartButton();
+	void EnableStartButton();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
 	UGRLobbyPlayerListWidget* LobbyPlayerList;

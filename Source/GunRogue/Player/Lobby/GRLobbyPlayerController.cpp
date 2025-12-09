@@ -1,6 +1,8 @@
 #include "Player/Lobby/GRLobbyPlayerController.h"
 #include "UI/TitleHUD/GRLobbyHUDWidget.h"
 #include "UI/TitleHUD/SubWidgets/GRLobbyPlayerListWidget.h"
+#include "GameModes/Lobby/GRLobbyGameState.h"
+#include "GameFramework/PlayerState.h"
 
 AGRLobbyPlayerController::AGRLobbyPlayerController()
 {
@@ -124,6 +126,24 @@ void AGRLobbyPlayerController::UpdateGuestPlayersInfo(TArray<FGuestPlayer>& Gues
 	PlayerListWidget->UpdateGuestPlayersInfo(GuestPlayers);
 }
 
+void AGRLobbyPlayerController::UpdateCanStartGame(bool bCanStart)
+{
+	if (!LobbyWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyWidgetInstance is INVALID"));
+		return;
+	}
+
+	if (bCanStart)
+	{
+		LobbyWidgetInstance->EnableStartButton();
+	}
+	else
+	{
+		LobbyWidgetInstance->DisableStartButton();
+	}
+}
+
 void AGRLobbyPlayerController::ServerRPC_StartGame_Implementation()
 {
 	if (!HasAuthority())
@@ -148,11 +168,45 @@ void AGRLobbyPlayerController::ServerRPC_StartGame_Implementation()
 
 void AGRLobbyPlayerController::ServerRPC_Ready_Implementation()
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRLobbyGameState* LobbyGameState = GetWorld()->GetGameState<AGRLobbyGameState>();
+	if (!IsValid(LobbyGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyGameState is INVALID"));
+		return;
+	}
+	LobbyGameState->Ready(GetPlayerState<APlayerState>());
+
 	ClientRPC_OnConfirmReady();
 }
 
 void AGRLobbyPlayerController::ServerRPC_CancelReady_Implementation()
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRLobbyGameState* LobbyGameState = GetWorld()->GetGameState<AGRLobbyGameState>();
+	if (!IsValid(LobbyGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyGameState is INVALID"));
+		return;
+	}
+	LobbyGameState->CancelReady(GetPlayerState<APlayerState>());
+
 	ClientRPC_OnConfirmCancelReady();
 }
 
