@@ -39,6 +39,8 @@ void AGRBattlePlayerController::BeginPlay()
 			OnRep_PlayerState();
 		}
 	}
+
+	InitPerks();
 }
 
 void AGRBattlePlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -57,9 +59,8 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 	AGRPlayerState* GRPlayerState = GetPlayerState<AGRPlayerState>();
 	if (!IsValid(GRPlayerState))
 	{
-		UE_LOG(LogTemp, Error, TEXT("GRPlayerState (AGRPlayerState) is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("OnRep_PlayerState() : GRPlayerState (AGRPlayerState) is INVALID"));
 		return;
-	
 	}
 	
 	if (GRPlayerState->IsAbilitySystemComponentInit())
@@ -74,8 +75,6 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 
 void AGRBattlePlayerController::InitUISetup()
 {
-	RequestApplyAllPerks();
-	
 	CreateWidgets();
 	InitializeBattleHUD();
 	ShowBattleHUD();

@@ -46,7 +46,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void HidePerkWidget();
-	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRPerkHUDWidget> PerkWidgetClass;

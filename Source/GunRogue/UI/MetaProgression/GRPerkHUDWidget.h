@@ -61,7 +61,7 @@ public:
 	void HideTooltip();
 
 	void UpdateTooltip(UGRPerkSlotWidget* PerkSlot);
-
+	
 	void UpdateGoodsText();
 
 private:

@@ -190,6 +190,8 @@ protected:
 public:
 	UFUNCTION()
 	void RequestApplyAllPerks();
+
+	void InitPerks();
 	
 #pragma endregion Perk
 };

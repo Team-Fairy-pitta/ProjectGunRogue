@@ -19,7 +19,6 @@
 #include "MetaProgression/GRPerkSubsystem.h"
 #include "MetaProgression/GRPerkStructs.h"
 #include "MetaProgression/PerkInfoRow.h"
-#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 
 AGRPlayerState::AGRPlayerState()
@@ -46,6 +45,8 @@ void AGRPlayerState::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("AGRPlayerState::BeginPlay"));
 	InitPerkFromSave();
+
+	SetMetaGoods(9000); //Test
 }
 
 void AGRPlayerState::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -53,7 +54,6 @@ void AGRPlayerState::EndPlay(EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 
 	UE_LOG(LogTemp, Warning, TEXT("AGRPlayerState::EndPlay"));
-	SavePerkToSave();
 }
 
 void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -1077,6 +1077,34 @@ void AGRPlayerState::OnRep_OwnedAugments()
 #pragma endregion
 
 #pragma region Perk;
+void AGRPlayerState::InitPerkInfoRows()
+{
+	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		return;
+	}
+
+	UDataTable* PerkTable = PerkSubsystem->GetPerkTable();
+	if (!PerkTable)
+	{
+		return;
+	}
+
+	PerkInfoRows.Empty();
+
+	TArray<FPerkInfoRow*> Rows;
+	PerkTable->GetAllRows(TEXT(""), Rows);
+
+	for (FPerkInfoRow* Row : Rows)
+	{
+		FPerkEntry NewEntry;
+		NewEntry.PerkID = Row->PerkID;
+		NewEntry.Level = 0;
+		PerkInfoRows.Add(NewEntry);
+	}
+}
+
 void AGRPlayerState::InitPerkFromSave()
 {
 	InitPlayerID();
@@ -1086,6 +1114,8 @@ void AGRPlayerState::InitPerkFromSave()
 		UE_LOG(LogTemp, Warning, TEXT("PlayerState: PlayerID not ready yet"));
 		return;
 	}
+
+	InitPerkInfoRows();
 
 	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
 	if (!PerkSubsystem)
@@ -1101,12 +1131,42 @@ void AGRPlayerState::InitPerkFromSave()
 	{
 		LoadPerkFromSave(TempPerkInfoRows, TempMetaGoods);
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Perk Load Finished, broadcasting event"));
+	OnPerksLoaded.Broadcast();
+
+	bPerksLoaded = true;
 }
 
 void AGRPlayerState::LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods)
 {
-	PerkInfoRows = LoadedPerkInfoRows;
 	MetaGoods = LoadedMetaGoods;
+
+	for (const FPerkEntry& SavedEntry : LoadedPerkInfoRows)
+	{
+		FName SavedPerkID = SavedEntry.PerkID;
+		int32 SavedLevel = SavedEntry.Level;
+
+		for (FPerkEntry& Entry : PerkInfoRows)
+		{
+			if (Entry.PerkID == SavedPerkID)
+			{
+				Entry.Level = SavedLevel;
+				break;
+			}
+		}
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("=== LoadPerkFromSave ==="));
+	UE_LOG(LogTemp, Warning, TEXT("MetaGoods = %d"), MetaGoods);
+	UE_LOG(LogTemp, Warning, TEXT("PerkInfoRows Count = %d"), PerkInfoRows.Num());
+	
+	for (const FPerkEntry& Entry : PerkInfoRows)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT(" PerkID = %s, Level = %d"),
+			*Entry.PerkID.ToString(), Entry.Level);
+	}
 }
 
 void AGRPlayerState::SavePerkToSave()
@@ -1134,10 +1194,7 @@ void AGRPlayerState::InitPlayerID()
 	}
 	else
 	{
-		// if (GetUniqueId().IsValid())
-		// {
-		// 	PlayerID = GetUniqueId().ToString();
-		// }
+		//실제 환경
 	}
 }
 
@@ -1164,11 +1221,15 @@ void AGRPlayerState::SetPerkLevel(FName PerkID, int32 Level)
 			break;
 		}
 	}
+
+	SavePerkToSave();
 }
 
 void AGRPlayerState::SetMetaGoods(int32 Amount)
 {
 	MetaGoods = Amount;
+
+	SavePerkToSave();
 }
 
 bool AGRPlayerState::TryUpgradePerk(FName PerkID)
@@ -1203,11 +1264,16 @@ bool AGRPlayerState::TryUpgradePerk(FName PerkID)
 		return false;
 	}
 
-	SetMetaGoods(GetMetaGoods()- Cost);
+	MetaGoods -= Cost;
 	SetPerkLevel(PerkID, CurrentLevel + 1);
+	
+	UE_LOG(LogTemp, Log, TEXT("TryUpgradePerk SUCCESS: Perk upgraded. PerkID: %s, NewLevel: %d, MetaGoods Left: %d"), 
+		*PerkID.ToString(), CurrentLevel + 1, GetMetaGoods());
 	
 	return true;
 }
+
+
 
 void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation()
 {
@@ -1254,23 +1320,33 @@ void AGRPlayerState::ApplyAllPerksToASC(UAbilitySystemComponent* ASC, TSubclassO
 	
 	for (const FPerkEntry& Entry : PerkInfoRows)
 	{
-		FName PerkID = Entry.PerkID;
-		int32 Level = Entry.Level;
-
-		FPerkInfoRow* Row = PerkTable->FindRow<FPerkInfoRow>(PerkID, TEXT(""));
+		FPerkInfoRow* Row = PerkTable->FindRow<FPerkInfoRow>(Entry.PerkID, TEXT(""));
 		if (!Row)
+			continue;
+
+		float LevelBonus = Row->ValuePerLevel * Entry.Level;
+		float FinalValue = LevelBonus;
+		
+		if (Entry.PerkID == FName("Health") || Entry.PerkID == FName("Shield") || Entry.PerkID == FName("ShieldInvincibleTime") ||
+			Entry.PerkID == FName("ShotgunTraining") || Entry.PerkID == FName("SniperTraining") || Entry.PerkID == FName("WeaponDamage"))
+		{
+			FinalValue = LevelBonus;
+		}
+		else if (Entry.PerkID == FName("ShieldCooldown") || Entry.PerkID == FName("StrengthenShield") || Entry.PerkID == FName("PistolTraining"))
+		{
+			FinalValue = FMath::Clamp(1.0f - LevelBonus, 0.0f, 1.0f);
+		}
+		else if (Entry.PerkID == FName("RifleTraining"))
+		{
+			FinalValue = FMath::Clamp(1.0f + LevelBonus, 0.0f, 10.0f);
+		}
+		else
 		{
 			continue;
 		}
 
-		float LevelBonus = Row->ValuePerLevel * Level;
-
-		UE_LOG(LogTemp, Warning, TEXT("Setting SetByCaller %s = %f"), *Row->PerkTag.ToString(), LevelBonus);
-		
-		if (LevelBonus > 0.0f)
-		{
-			SpecHandle.Data->SetSetByCallerMagnitude(Row->PerkTag, LevelBonus);
-		}
+		SpecHandle.Data->SetSetByCallerMagnitude(Row->PerkTag, FinalValue);
+		UE_LOG(LogTemp, Warning, TEXT(" -> SetByCaller %s = %f"), *Row->PerkTag.ToString(), FinalValue);
 	}
 	
 	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());

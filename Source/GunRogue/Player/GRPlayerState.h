@@ -37,6 +37,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponSwitched, int32, OldSlotIn
 //Augment
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAugmentChanged, FName, AugmentID, int32, NewLevel);
 
+//Perk
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPerksLoaded);
+
 namespace WeaponSlot
 {
 	constexpr int32 MaxWeaponSlots = 2;  // 무기 슬롯 개수
@@ -253,6 +256,11 @@ public:
 	UPROPERTY(Replicated)
 	int32 MetaGoods;
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnPerksLoaded OnPerksLoaded;
+
+	void InitPerkInfoRows();
+	
 	void InitPerkFromSave();
 	
 	void LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods);
@@ -270,6 +278,8 @@ public:
 	void SetMetaGoods(int32 Amount);
 	
 	bool TryUpgradePerk(FName PerkID);
+
+	bool ArePerksLoaded() const { return bPerksLoaded; }
 	
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ApplyAllPerksToASC();
@@ -286,6 +296,8 @@ protected:
 private:
 	FString PlayerID;
 
+	bool bPerksLoaded = false;
+	
 	UPROPERTY(EditAnywhere, Category="Perk")
 	TSubclassOf<UGameplayEffect> PerkGE;
 

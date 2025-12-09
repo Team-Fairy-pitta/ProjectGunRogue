@@ -22,9 +22,10 @@ void UGRPerkHUDWidget::NativeConstruct()
 	UpdateGoodsText();
 	CreatePerkList();
 
+	APlayerController* PC = GetOwningPlayer();
+	
 	if (PerkTooltipClass)
 	{
-		APlayerController* PC = GetOwningPlayer();
 		if (PC)
 		{
 			PerkTooltipWidget = CreateWidget<UGRPerkTooltipWidget>(PC, PerkTooltipClass);
