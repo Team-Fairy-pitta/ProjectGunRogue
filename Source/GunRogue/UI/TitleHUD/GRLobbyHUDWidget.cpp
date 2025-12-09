@@ -18,9 +18,10 @@ void UGRLobbyHUDWidget::NativeConstruct()
 		FirstCharacterSlot,
 		SecondCharacterSlot,
 		ThirdCharacterSlot,
-		FourthCharacterSlot,
-		FifthCharacterSlot,
-		SixthCharacterSlot
+		//[NOTE] 캐릭터 수가 더 필요하다면, 주석을 해제하고 사용
+		//FourthCharacterSlot,
+		//FifthCharacterSlot,
+		//SixthCharacterSlot
 	};
 
 	if (PlayerInfoButton)
@@ -40,10 +41,6 @@ void UGRLobbyHUDWidget::NativeConstruct()
 	{
 		ReadyGameButton->SetVisibility(ESlateVisibility::Collapsed);
 		ReadyGameButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnReadyGameClicked);
-	}
-	if (ExitLobbyButton)
-	{
-		ExitLobbyButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnExitLobbyClicked);
 	}
 	if (InviteButton)
 	{
@@ -247,9 +244,18 @@ void UGRLobbyHUDWidget::EnableStartButton()
 	}
 }
 
-void UGRLobbyHUDWidget::OnExitLobbyClicked()
+void UGRLobbyHUDWidget::OnHostExit(const FString& URL)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Exit Lobby clicked"));
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+
+	if (LobbyPlayerController->HasAuthority())
+	{
+		LobbyPlayerController->ClientTravel(URL, ETravelType::TRAVEL_Absolute);
+	}
 }
 
 void UGRLobbyHUDWidget::OnInviteClicked()

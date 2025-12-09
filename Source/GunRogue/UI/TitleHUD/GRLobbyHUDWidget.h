@@ -30,6 +30,9 @@ public:
 	void DisableStartButton();
 	void EnableStartButton();
 
+	UFUNCTION(BlueprintCallable)
+	void OnHostExit(const FString& URL);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
 	UGRLobbyPlayerListWidget* LobbyPlayerList;
@@ -43,14 +46,15 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UGRLobbyCharacterSelectSlotWidget* ThirdCharacterSlot;
 
-	UPROPERTY(meta = (BindWidget))
-	UGRLobbyCharacterSelectSlotWidget* FourthCharacterSlot;
+	//[NOTE] 캐릭터 수가 더 필요하다면, 주석을 해제하고 사용
+	//UPROPERTY(meta = (BindWidget))
+	//UGRLobbyCharacterSelectSlotWidget* FourthCharacterSlot;
 
-	UPROPERTY(meta = (BindWidget))
-	UGRLobbyCharacterSelectSlotWidget* FifthCharacterSlot;
+	//UPROPERTY(meta = (BindWidget))
+	//UGRLobbyCharacterSelectSlotWidget* FifthCharacterSlot;
 
-	UPROPERTY(meta = (BindWidget))
-	UGRLobbyCharacterSelectSlotWidget* SixthCharacterSlot;
+	//UPROPERTY(meta = (BindWidget))
+	//UGRLobbyCharacterSelectSlotWidget* SixthCharacterSlot;
 
 	UPROPERTY(meta = (BindWidget))
 	UGRLobbyBaseButtonWidget* PlayerInfoButton;
@@ -64,7 +68,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UGRLobbyBaseButtonWidget* ReadyGameButton;
 
-	UPROPERTY(meta = (BindWidget))
+	//[NOTE] 로비 나가기 버튼의 기능은 Blueprint에 정의되어 있습니다.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
 	UGRLobbyBaseButtonWidget* ExitLobbyButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -100,9 +105,6 @@ private:
 
 	UFUNCTION()
 	void OnReadyGameClicked();
-
-	UFUNCTION()
-	void OnExitLobbyClicked();
 
 	UFUNCTION()
 	void OnInviteClicked();

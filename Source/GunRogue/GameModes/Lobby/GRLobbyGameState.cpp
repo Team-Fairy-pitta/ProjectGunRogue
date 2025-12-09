@@ -86,6 +86,9 @@ void AGRLobbyGameState::RemovePlayerState(APlayerState* PlayerState)
 			if (Index != INDEX_NONE)
 			{
 				GuestPlayerStates.RemoveAt(Index);
+
+				GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_GuestPlayerStates_NextTick);
+				GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::UpdateCanStartGame);
 			}
 		}
 	}
