@@ -65,12 +65,16 @@ void UGRRadarMapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UGRRadarMapComponent::ScanRadar()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Scan"));
-
-	if (!RadarMapWidgetInstance || !GetOwner())
+	if (!RadarMapWidgetInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Map return"));
-		return;		
+		UE_LOG(LogTemp, Error, TEXT("RadarMapWidgetInstance is INVALID"));
+		return;
+	}
+
+	if (!GetOwner())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Onwer of UGRRadarMapComponent is INVALID"));
+		return;
 	}
 
 	TArray<AActor*> FoundActors;
@@ -92,12 +96,12 @@ void UGRRadarMapComponent::ScanRadar()
 #if WITH_EDITOR
 	DrawDebugSphere(
 		GetWorld(),
-		GetOwner()->GetActorLocation(),          
-		ScanRadius,      
-		16,              
-		FColor::Green,   
-		false,           
-		0.1f             
+		GetOwner()->GetActorLocation(),
+		ScanRadius,
+		16,
+		FColor::Green,
+		false,
+		0.1f
 	);
 #endif
 
@@ -105,10 +109,8 @@ void UGRRadarMapComponent::ScanRadar()
 
 	for (AActor* HitActor : FoundActors)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HitActor"));
 		if (!HitActor || HitActor == GetOwner())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("HitActor continue"));
 			continue;
 		}
 
