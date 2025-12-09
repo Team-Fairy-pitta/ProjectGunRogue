@@ -1,0 +1,52 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "AI/GA/GRAIAttackAbility.h"
+#include "GRAIComboMeleeAttackAbility.generated.h"
+
+/**
+ * 
+ */
+
+UCLASS()
+class GUNROGUE_API UGRAIComboMeleeAttackAbility : public UGRAIAttackAbility
+{
+	GENERATED_BODY()
+	
+public:
+	UGRAIComboMeleeAttackAbility();
+
+protected:
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData) override;
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility, bool bWasCancelled) override;
+	virtual void OnAttackTriggerNotify(FGameplayEventData Payload) override;
+	
+private:
+	void DetectBySweepMulti();
+	void AttackNextCombo();
+	
+private:
+	TArray<FHitResult> HitResults;
+	bool bCanMoveNextCombo;
+	FName SectionName;
+	int32 CurCombo;
+
+	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
+	int32 MaxCombo;
+	
+	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
+	float CapsuleRadius;
+
+	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
+	float CapsuleHalfHeight;
+};
