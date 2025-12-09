@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Engine/DataTable.h"
 #include "PerkInfoRow.generated.h"
 
@@ -38,4 +39,7 @@ struct FPerkInfoRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName PerkCategory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag PerkTag;
 };

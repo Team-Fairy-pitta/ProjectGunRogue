@@ -27,6 +27,7 @@ protected:
 public:
 	void SetSelectedWeapon(int32 WeaponIndex);
 
+	void UpdateBulletCount(int32 CurrentBullets, int32 MaxBullets);
 	void UpdateBulletCount(int32 WeaponIndex, int32 CurrentBullets, int32 MaxBullets);
 	void UpdateWeaponImage(int32 WeaponIndex, UTexture2D* WeaponImage);
 

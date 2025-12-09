@@ -18,6 +18,7 @@ class GUNROGUE_API UGRKeySettingSlot : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	void SetKeyMapping(const FPlayerKeyMapping& InMapping);
 	void SetParentWidget(UGRKeySettingWidget* InParentWidget);

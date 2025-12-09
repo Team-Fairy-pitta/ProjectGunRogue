@@ -11,6 +11,7 @@ class UBorder;
 class UImage;
 class UProgressBar;
 class UButton;
+class UGRAugmentDefinition;
 /**
  * 
  */
@@ -32,6 +33,22 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAugmentSlotClicked OnAugmentSlotClicked;
+
+	void SetAugmentSlot(UGRAugmentDefinition* Augment, int32 Level);
+
+	void UpdateAugmentSlotUI();
+
+	void SetSlotName();
+
+	void SetSlotIcon();
+
+	void SetSlotLevelBar();
+
+	void SetSlotDescription();
+
+	void SetSlotCategory();
+
+	UGRAugmentDefinition* GetCurrentAugment() const { return CurrentAugment; }
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -55,10 +72,18 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SlotCategory;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Augment")
+	FLinearColor HoveredBrushColor;
+
 	virtual void NativeConstruct() override;
 
 private:
 	FLinearColor DefaultBrushColor;
+	
+	UPROPERTY()
+	UGRAugmentDefinition* CurrentAugment = nullptr;
+
+	int32 CurrentLevel;
 	
 	UFUNCTION()
 	void OnSlotHovered();

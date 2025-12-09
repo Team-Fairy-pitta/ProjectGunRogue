@@ -12,5 +12,9 @@ void AGRPlayerController::PostProcessInput(const float DeltaTime, const bool bGa
 	}
 
 	UGRAbilitySystemComponent* ASC = GRPlayerState->GetGRAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
 	ASC->ProcessAbilityInput(DeltaTime, bGamePaused);
 }

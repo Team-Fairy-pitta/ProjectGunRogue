@@ -4,6 +4,7 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/GRAbilitySet.h"
 #include "Item/GRItemActor.h"
+#include "Character/Attachment/GRCharacterAttachment.h"
 #include "Weapon/GRWeaponHandle.h"
 #include "GRPlayerState.generated.h"
 
@@ -15,6 +16,10 @@ class AGRWeaponActor;
 struct FGameplayEffectSpec;
 struct FGRWeaponInstance;
 
+//Augment
+class UGRAugmentDefinition;
+struct FAugmentEntry;
+
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
 DECLARE_MULTICAST_DELEGATE(FOnWeaponDataUpdata);
@@ -22,6 +27,9 @@ DECLARE_MULTICAST_DELEGATE(FOnWeaponDataUpdata);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponSwitched, int32, OldSlotIndex, int32, NewSlotIndex);
+
+//Augment
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAugmentChanged, FName, AugmentID, int32, NewLevel);
 
 namespace WeaponSlot
 {
@@ -70,6 +78,8 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_BroadcastOnWeaponSwitched(int32 OldSlotIndex, int32 NewSlotIndex);
 
+	// 무기 Actor 장착 및 해체 처리
+	void UpdateWeaponAttachToCharacter();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
@@ -115,6 +125,8 @@ public:
 
 	FGRWeaponInstance* GetWeaponInstanceInSlot(int32 SlotIndex);
 
+	FGRWeaponHandle* GetActiveWeaponHandle();
+
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_EquipItemActor(UGRItemDefinition* ItemDefinition, AActor* ItemActor);
 
@@ -130,6 +142,9 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SwitchWeapon(int32 SlotIndex);
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPC_PlayWeaponEquipAnimMontage();
+  
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
 	void UpgradeWeapon(int32 SlotIndex);
 
@@ -176,6 +191,9 @@ protected:
 	UPROPERTY(Replicated)
 	int32 CurrentWeaponSlot = -1; // -1은 무기 없음
 
+	UPROPERTY()
+	FGRCharacterAttachmentHandle CurrentWeaponAttachmentHandle;
+
 private:
 	UFUNCTION()
 	void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
@@ -196,4 +214,28 @@ private:
 	void SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& WeaponInstance, const FVector& Location, const FRotator& Rotation);
 
 	bool bIsAbilitySystemComponentInit = false;
+
+#pragma region Augment;
+public:
+	UPROPERTY(ReplicatedUsing = OnRep_OwnedAugments)
+	TArray<FAugmentEntry> OwnedAugments;
+	
+	UPROPERTY(BlueprintAssignable)
+	FAugmentChanged OnAugmentChanged;
+	
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_OnAugmentSelected(FName AugmentID);
+
+	int32 GetAugmentLevel(FName AugmentID);
+	
+	UFUNCTION()
+	void OnRep_OwnedAugments();
+
+protected:
+	void AddAugment(FName AugmentID);
+	void LevelUpAugment(int32 Index);
+	
+	TArray<FAugmentEntry> PreviousOwnedAugments;
+	
+#pragma endregion
 };

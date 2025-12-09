@@ -13,7 +13,25 @@ void UGRKeySettingWidget::NativeConstruct()
 		UE_LOG(LogTemp, Error, TEXT("ResetButton is INVALID."));
 		return;
 	}
-	ResetButton->OnClicked.AddDynamic(this, &ThisClass::OnResetButtonClicked);
+
+	if (!ResetButton->OnClicked.IsAlreadyBound(this, &ThisClass::OnResetButtonClicked))
+	{
+		ResetButton->OnClicked.AddDynamic(this, &ThisClass::OnResetButtonClicked);
+	}
+}
+
+void UGRKeySettingWidget::NativeDestruct()
+{
+	if (!ResetButton)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ResetButton is INVALID."));
+		return;
+	}
+
+	if (ResetButton->OnClicked.IsAlreadyBound(this, &ThisClass::OnResetButtonClicked))
+	{
+		ResetButton->OnClicked.RemoveDynamic(this, &ThisClass::OnResetButtonClicked);
+	}
 }
 
 void UGRKeySettingWidget::InitKeyMappings()

@@ -29,6 +29,10 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	MaxSpread = 10.0f;
 	SpreadIncreasePerShot = 2.0f;
 	CurrentSpread = 0.0f;
+
+	CurrentAmmo = 0.0f;
+	MaxAmmo = 0.0f; /* 무기를 들고 있지 않을 때, 탄창의 크기를 0으로 한다. */
+	ReloadTime = 2.0f;
 }
 
 void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -57,6 +61,10 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SpreadIncreasePerShot, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentSpread, COND_None, REPNOTIFY_Always);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentAmmo, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ReloadTime, COND_None, REPNOTIFY_Always);
 }
 
 void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -72,6 +80,18 @@ void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	{
 		NewValue = FMath::Max(NewValue, 0.0f);
 	}
+	else if (Attribute == GetCurrentAmmoAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxAmmo());
+	}
+	else if (Attribute == GetMaxAmmoAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 1.0f);
+	}
+	else if (Attribute == GetReloadTimeAttribute())
+	{
+		NewValue = FMath::Max(NewValue, 0.1f);
+	}
 }
 
 void UGRCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -81,6 +101,10 @@ void UGRCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 	if (Data.EvaluatedData.Attribute == GetCurrentSpreadAttribute())
 	{
 		SetCurrentSpread(FMath::Clamp(GetCurrentSpread(), 0.0f, GetMaxSpread()));
+	}
+	else if (Data.EvaluatedData.Attribute == GetCurrentAmmoAttribute())
+	{
+		SetCurrentAmmo(FMath::Clamp(GetCurrentAmmo(), 0.0f, GetMaxAmmo()));
 	}
 }
 
@@ -326,6 +350,22 @@ void UGRCombatAttributeSet::ApplySpreadRecovery(UAbilitySystemComponent* OwningA
 		CurrentSpreadValue, NewSpread, RecoveryAmount);
 }
 
+void UGRCombatAttributeSet::UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAmmo)
+{
+	SetMaxAmmo(static_cast<float>(InMaxAmmo));
+
+	const float ClampedCurrent = FMath::Clamp(static_cast<float>(InCurrentAmmo),0.0f,GetMaxAmmo()// 새 무기의 MaxAmmo
+	);
+	SetCurrentAmmo(ClampedCurrent);
+
+	// 델리게이트 브로드캐스트 (UI 업데이트)
+	OnAmmoChanged.Broadcast(ClampedCurrent, InMaxAmmo);
+
+	UE_LOG(LogTemp, Verbose, TEXT("[CombatAttributeSet] Ammo display updated: %d / %d"),
+		InCurrentAmmo, InMaxAmmo);
+}
+
+
 // OnRep 함수들
 void UGRCombatAttributeSet::OnRep_WeaponDamage_Base(const FGameplayAttributeData& OldValue)
 {
@@ -415,4 +455,29 @@ void UGRCombatAttributeSet::OnRep_SpreadIncreasePerShot(const FGameplayAttribute
 void UGRCombatAttributeSet::OnRep_CurrentSpread(const FGameplayAttributeData& OldCurrentSpread)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, CurrentSpread, OldCurrentSpread);
+}
+
+void UGRCombatAttributeSet::OnRep_CurrentAmmo(const FGameplayAttributeData& OldCurrentAmmo)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, CurrentAmmo, OldCurrentAmmo);
+
+	// 클라이언트에서도 델리게이트 호출
+	const int32 Current = FMath::RoundToInt(GetCurrentAmmo());
+	const int32 Max = FMath::RoundToInt(GetMaxAmmo());
+	OnAmmoChanged.Broadcast(Current, Max);
+}
+
+void UGRCombatAttributeSet::OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAmmo)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, MaxAmmo, OldMaxAmmo);
+
+	// 클라이언트에서도 델리게이트 호출
+	const int32 Current = FMath::RoundToInt(GetCurrentAmmo());
+	const int32 Max = FMath::RoundToInt(GetMaxAmmo());
+	OnAmmoChanged.Broadcast(Current, Max);
+}
+
+void UGRCombatAttributeSet::OnRep_ReloadTime(const FGameplayAttributeData& OldReloadTime)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, ReloadTime, OldReloadTime);
 }

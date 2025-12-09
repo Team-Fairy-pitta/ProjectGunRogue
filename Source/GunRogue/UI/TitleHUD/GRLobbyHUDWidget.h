@@ -9,6 +9,7 @@
 class UGRLobbyCharacterSelectSlotWidget;
 class UGRLobbyPlayerListWidget;
 class UGRLobbyBaseButtonWidget;
+class UGRSteamFriendsList;
 /**
  * 
  */
@@ -21,7 +22,7 @@ public:
 	UGRLobbyPlayerListWidget* GetLobbyPlayerListWidget() const { return LobbyPlayerList; }
 	
 protected:
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
 	UGRLobbyPlayerListWidget* LobbyPlayerList;
 
 	UPROPERTY(meta = (BindWidget))
@@ -57,6 +58,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UGRLobbyBaseButtonWidget* ExitLobbyButton;
 
+	UPROPERTY(meta = (BindWidget))
+	UGRLobbyBaseButtonWidget* InviteButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UGRSteamFriendsList* SteamFriendsList;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button")
 	UGRLobbyCharacterSelectSlotWidget* CurrentClickedSlot = nullptr;
 
@@ -87,4 +94,7 @@ private:
 
 	UFUNCTION()
 	void OnExitLobbyClicked();
+
+	UFUNCTION()
+	void OnInviteClicked();
 };

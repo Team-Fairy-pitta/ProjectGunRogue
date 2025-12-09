@@ -6,7 +6,9 @@
 #include "Components/Border.h"
 #include "SubWidgets/GRLobbyBaseButtonWidget.h"
 #include "UI/TitleHUD/SubWidgets/GRLobbyCharacterSelectSlotWidget.h"
+#include "UI/SteamInvite/GRSteamFriendsList.h"
 #include "Components/SizeBox.h"
+#include "Player/Lobby/GRLobbyPlayerController.h"
 
 void UGRLobbyHUDWidget::NativeConstruct()
 {
@@ -23,25 +25,29 @@ void UGRLobbyHUDWidget::NativeConstruct()
 
 	if (PlayerInfoButton)
 	{
-		PlayerInfoButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnPlayerInfoClicked);
+		PlayerInfoButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnPlayerInfoClicked);
 	}
 	if (PlayerPerksButton)
 	{
-		PlayerPerksButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnPlayerPerksClicked);
+		PlayerPerksButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnPlayerPerksClicked);
 	}
 	if (StartGameButton)
 	{
 		StartGameButton->SetVisibility(ESlateVisibility::Visible);
-		StartGameButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnStartGameClicked);
+		StartGameButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnStartGameClicked);
 	}
 	if (ReadyGameButton)
 	{
 		ReadyGameButton->SetVisibility(ESlateVisibility::Collapsed);
-		ReadyGameButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnReadyGameClicked);
+		ReadyGameButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnReadyGameClicked);
 	}
 	if (ExitLobbyButton)
 	{
-		ExitLobbyButton->OnLobbyButtonClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnExitLobbyClicked);
+		ExitLobbyButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnExitLobbyClicked);
+	}
+	if (InviteButton)
+	{
+		InviteButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnInviteClicked);
 	}
 	
 	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
@@ -116,7 +122,15 @@ void UGRLobbyHUDWidget::OnPlayerPerksClicked()
 
 void UGRLobbyHUDWidget::OnStartGameClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Start game clicked"));
+	// [NOTE] TODO: 준비 완료를 확인한 뒤에 게임을 시작해야 함
+	// 테스트를 위해 바로 시작
+
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+	LobbyPlayerController->StartGame();
 }
 
 void UGRLobbyHUDWidget::OnReadyGameClicked()
@@ -127,4 +141,24 @@ void UGRLobbyHUDWidget::OnReadyGameClicked()
 void UGRLobbyHUDWidget::OnExitLobbyClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Exit Lobby clicked"));
+}
+
+void UGRLobbyHUDWidget::OnInviteClicked()
+{
+	if (!SteamFriendsList)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SteamFriendsList is INVALID"));
+		return;
+	}
+
+	ESlateVisibility ListVisibility = SteamFriendsList->GetVisibility();
+
+	if (ListVisibility == ESlateVisibility::Collapsed)
+	{
+		SteamFriendsList->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		SteamFriendsList->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }

@@ -33,6 +33,7 @@ protected:
 
 public:
 	void SetSelected(bool bSelected);
+	bool IsSelectedSlot() const { return bIsSelected; }
 
 	void SetBulletCount(int32 CurrentBullets, int32 MaxBullets);
 
