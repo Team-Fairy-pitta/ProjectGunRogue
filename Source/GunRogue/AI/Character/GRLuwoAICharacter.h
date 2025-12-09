@@ -9,7 +9,6 @@
 /**
  * 
  */
-class UGameplayAbility;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterLanded);
 
@@ -27,10 +26,6 @@ protected:
 	virtual void Landed(const FHitResult& Hit) override;
 
 public:
-	UPROPERTY(BlueprintAssignable)
 	FOnCharacterLanded OnLandedEvent;
 	
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities",meta=(AllowPrivateAccess))
-	TArray<TSubclassOf<UGameplayAbility>> AttackAbilityClassList;
 };

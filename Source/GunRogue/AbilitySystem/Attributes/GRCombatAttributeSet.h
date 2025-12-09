@@ -152,11 +152,6 @@ public:
 	FGameplayAttributeData MaxAmmo;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, MaxAmmo)
 
-	// 재장전 시간 (초)
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|Ammo", ReplicatedUsing = OnRep_ReloadTime)
-	FGameplayAttributeData ReloadTime;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ReloadTime)
-
 
 	// 무기 데미지 계산 (무기 공격력만)
 	float CalculateWeaponDamage() const;
@@ -230,9 +225,6 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAmmo);
-
-	UFUNCTION()
-	virtual void OnRep_ReloadTime(const FGameplayAttributeData& OldReloadTime);
 
 
 private:

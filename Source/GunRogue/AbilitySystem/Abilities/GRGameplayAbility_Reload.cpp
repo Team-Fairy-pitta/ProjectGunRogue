@@ -2,10 +2,13 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "Player/GRPlayerState.h"
+#include "Weapon/GRWeaponDefinition.h"
 #include "Weapon/GRWeaponInstance.h"
 #include "AbilitySystemInterface.h"
 #include "Character/GRCharacter.h"
-#include "TimerManager.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 UGRGameplayAbility_Reload::UGRGameplayAbility_Reload()
 {
@@ -58,55 +61,75 @@ void UGRGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle
 		return;
 	}
 
-	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	AGRCharacter* Character = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
 	if (!Character)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
-	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(Character);
-	if (!ASI)
+	AGRPlayerState* PS = Character->GetPlayerState<AGRPlayerState>();
+	if (!PS)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
-	UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent();
-	if (!ASC)
+	// 현재 활성 무기의 WeaponDefinition 가져오기
+	UGRWeaponDefinition* WeaponDefinition = PS->GetCurrentWeaponDefinition();
+	if (!WeaponDefinition)
 	{
+		UE_LOG(LogTemp, Error, TEXT("[Reload] No active weapon definition found"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
-	const UGRCombatAttributeSet* CombatSet = ASC->GetSet<UGRCombatAttributeSet>();
-	if (!CombatSet)
+	// ReloadAnimMontage 확인
+	UAnimMontage* ReloadMontage = WeaponDefinition->ReloadAnimMontage;
+	if (!ReloadMontage)
 	{
+		UE_LOG(LogTemp, Error, TEXT("[Reload] No ReloadAnimMontage set in WeaponDefinition: %s"),
+			*WeaponDefinition->WeaponName.ToString());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
-	const float ReloadDuration = CombatSet->GetReloadTime();
+	// 재장전 사운드 재생
+	if (WeaponDefinition->ReloadSound)
+	{
+		Character->Multicast_PlayReloadSound();
+	}
 
-	UE_LOG(LogTemp, Log, TEXT("[Reload] Started - Duration: %.2f seconds"), ReloadDuration);
-
-	// TODO: 여기에 재장전 애니메이션 재생 (Montage)
-	// PlayMontageAndWait(ReloadMontage);
-
-	// 재장전 타이머 시작
-	TWeakObjectPtr<UGRGameplayAbility_Reload> WeakThis(this);
-	GetWorld()->GetTimerManager().SetTimer(
-		ReloadTimerHandle,
-		[WeakThis]()
-		{
-			if (WeakThis.IsValid())
-			{
-				WeakThis->PerformReload();
-			}
-		},
-		ReloadDuration,
-		false
+	// PlayMontageAndWait 태스크 생성
+	PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this,
+		NAME_None,
+		ReloadMontage,
+		1.0f, // PlayRate
+		NAME_None, // StartSection
+		true, // bStopWhenAbilityEnds
+		1.0f // AnimRootMotionTranslationScale
 	);
+
+	if (!PlayMontageTask)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[Reload] Failed to create PlayMontageAndWait task"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	// 델리게이트 바인딩
+	PlayMontageTask->OnCompleted.AddDynamic(this, &UGRGameplayAbility_Reload::OnReloadMontageCompleted);
+	PlayMontageTask->OnBlendOut.AddDynamic(this, &UGRGameplayAbility_Reload::OnReloadMontageCompleted);
+	PlayMontageTask->OnInterrupted.AddDynamic(this, &UGRGameplayAbility_Reload::OnReloadMontageCancelled);
+	PlayMontageTask->OnCancelled.AddDynamic(this, &UGRGameplayAbility_Reload::OnReloadMontageCancelled);
+
+	// 태스크 활성화
+	PlayMontageTask->ReadyForActivation();
+
+	UE_LOG(LogTemp, Log, TEXT("[Reload] Started - Playing montage: %s"), *ReloadMontage->GetName());
+
+	
 }
 
 void UGRGameplayAbility_Reload::PerformReload()
@@ -136,7 +159,7 @@ void UGRGameplayAbility_Reload::PerformReload()
 		ASC->GetSet<UGRCombatAttributeSet>()
 		);
 
-	const bool bIsServer = (ASC->GetOwnerRole() == ROLE_Authority); // 🔧 수정: 서버/클라 분기
+	const bool bIsServer = (ASC->GetOwnerRole() == ROLE_Authority); // 서버 클라 분기
 
 	if (bIsServer)
 	{
@@ -194,10 +217,11 @@ void UGRGameplayAbility_Reload::EndAbility(const FGameplayAbilitySpecHandle Hand
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
-	// 타이머 정리
-	if (GetWorld() && ReloadTimerHandle.IsValid())
+
+	if (PlayMontageTask)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
+		PlayMontageTask->EndTask();
+		PlayMontageTask = nullptr;
 	}
 
 	if (bWasCancelled)
@@ -210,4 +234,16 @@ void UGRGameplayAbility_Reload::EndAbility(const FGameplayAbilitySpecHandle Hand
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UGRGameplayAbility_Reload::OnReloadMontageCompleted()
+{
+	UE_LOG(LogTemp, Log, TEXT("[Reload] Animation completed"));
+	PerformReload();
+}
+
+void UGRGameplayAbility_Reload::OnReloadMontageCancelled()
+{
+	UE_LOG(LogTemp, Log, TEXT("[Reload] Animation cancelled"));
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }

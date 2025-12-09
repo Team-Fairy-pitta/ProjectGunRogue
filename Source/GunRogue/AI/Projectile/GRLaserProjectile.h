@@ -8,6 +8,7 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
+class UGameplayEffect;
 
 UCLASS()
 class GUNROGUE_API AGRLaserProjectile : public AActor
@@ -34,11 +35,11 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
-	float DamageAmount;
-
-	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
 	float Velocity;
 
 	UPROPERTY(VisibleAnywhere,meta=(AllowPrivateAccess=true))
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
+	
+	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
+	TSubclassOf<UGameplayEffect> DamageGEClass;
 };

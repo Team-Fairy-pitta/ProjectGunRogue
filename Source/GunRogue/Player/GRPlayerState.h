@@ -170,6 +170,8 @@ public:
 
 	TArray<FGRItemHandle>& GetItemHandles() { return ItemHandles; }
 
+	FGRCharacterAttachmentHandle GetCurrentWeaponAttachmentHandle() const { return CurrentWeaponAttachmentHandle; }
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item|Class")
 	TSubclassOf<AGRItemActor> ItemActorClass;
