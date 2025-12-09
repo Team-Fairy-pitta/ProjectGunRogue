@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GRBattleHUDWidget.generated.h"
 
-class UGRMiniMapWidget;
+class UGRRadarMapWidget;
 class UGRLevelStatusWidget;
 class UGRNotifyMessageWidget;
 class UGRGoodsTextWidget;
@@ -37,10 +37,12 @@ public:
 	UGRSkillListWidget* GetSkillListWidget() const { return SkillList; }
 
 	UGRWeaponListWidget* GetWeaponListWidget() const { return WeaponList; }
+
+	UGRRadarMapWidget* GetMinimapWidget() const { return Minimap; }
 	
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRMiniMapWidget* Minimap;
+	UGRRadarMapWidget* Minimap;
 	
 	UPROPERTY(meta = (BindWidget))
 	UGRLevelStatusWidget* LevelStatus;

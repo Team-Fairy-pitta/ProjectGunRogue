@@ -1,6 +1,12 @@
 #include "AbilitySystem/Abilities/GRGameplayAbility_HitscanAttack.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
+#include "Weapon/GRWeaponHandle.h"
+#include "Weapon/GRWeaponInstance.h"
+#include "Weapon/GRWeaponDefinition.h"
+#include "Character/GRCharacter.h"
+#include "Character/Attachment/GRAttachmentComponent.h"
+#include "Player/GRPlayerState.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerController.h"
@@ -13,6 +19,8 @@ UGRGameplayAbility_HitscanAttack::UGRGameplayAbility_HitscanAttack()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
     NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	bIsRecoilRecoveryActive = false;
 }
 
 void UGRGameplayAbility_HitscanAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -22,6 +30,9 @@ void UGRGameplayAbility_HitscanAttack::ActivateAbility(const FGameplayAbilitySpe
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+
+	// 반동 회복 중지
+	StopRecoilRecovery();
 
 	// 연사 시작
 	StartContinuousFire();
@@ -36,6 +47,9 @@ void UGRGameplayAbility_HitscanAttack::EndAbility(
 {
 	// 연사 중지
 	StopContinuousFire();
+
+	// 사격 멈추면 반동 회복 시작
+	StartRecoilRecovery();
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -137,22 +151,18 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		return;
 	}
 
-	const UGRCombatAttributeSet* CombatSet = SourceASC->GetSet<UGRCombatAttributeSet>();
+	UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(SourceASC->GetSet<UGRCombatAttributeSet>());
 	if (!CombatSet)
 	{
 		return;
 	}
 
-	if (!DamageEffect)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Fire] No DamageEffect class"));
-		return;
-	}
+	const bool bIsServer = (SourceASC->GetOwnerRole() == ROLE_Authority);
 
-	// 무기 스탯 가져오기
-	const float Accuracy = CombatSet->GetAccuracy();
-	const float Recoil = CombatSet->GetRecoil();
-	const float CurrentSpread = CombatSet->GetCurrentSpread();
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
+	AGRPlayerState* PS = GRCharacter ? GRCharacter->GetPlayerState<AGRPlayerState>() : nullptr;
+	UGRWeaponDefinition* WeaponDef = PS ? PS->GetCurrentWeaponDefinition() : nullptr;
+	FGRWeaponInstance* WeaponInstance = nullptr;
 
 	// 카메라 위치/방향 가져오기
 	FVector CameraLocation;
@@ -169,6 +179,127 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		CameraRotation = Character->GetActorRotation();
 	}
 
+	// Muzzle 소켓 위치 가져오기
+	FVector MuzzleLocation = CameraLocation; // 못 찾으면 카메라 위치 사용(폴백)
+	bool bHasMuzzleSocket = false;
+
+	if (GRCharacter)
+	{
+		// SkeletalMesh 무기 확인
+		USkeletalMeshComponent* WeaponMesh = GRCharacter->GetEquippedWeaponMesh();
+		if (WeaponMesh)
+		{
+			// 총구 소켓 이름들
+			TArray<FName> PossibleSocketNames = {
+				FName("Muzzle"),
+				FName("muzzle")
+			};
+
+			for (const FName& SocketName : PossibleSocketNames)
+			{
+				if (WeaponMesh->DoesSocketExist(SocketName))
+				{
+					MuzzleLocation = WeaponMesh->GetSocketLocation(SocketName);
+					bHasMuzzleSocket = true;
+					UE_LOG(LogTemp, Verbose, TEXT("[Fire] Using socket '%s'"), *SocketName.ToString());
+					break;
+				}
+			}
+		}
+	}
+
+	if (!bHasMuzzleSocket)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Fire] Muzzle socket not found - using camera location"));
+	}
+
+	// WeaponHandle에서 직접 WeaponInstance 가져오기
+	if (bIsServer)
+	{
+		if (!PS)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No PlayerState! (Server)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		FGRWeaponHandle* WeaponHandle = PS->GetActiveWeaponHandle();
+		if (!WeaponHandle || !WeaponHandle->IsActive())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No active weapon! (Server)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		WeaponInstance = WeaponHandle->GetWeaponInstanceRef();
+		if (!WeaponInstance || !WeaponInstance->IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No valid weapon instance! (Server)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		// 서버에서만 실제 탄약 체크/소모
+		if (!WeaponInstance->CheckHasAmmo())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No ammo! (Server)"));
+			if (GRCharacter)
+			{
+				GRCharacter->ServerRPC_PlayEmptyFireFX(MuzzleLocation);
+			}
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		if (!WeaponInstance->ConsumeAmmo())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] Failed to consume ammo (Server)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		// UI 표시용 AttributeSet 업데이트 (서버 기준 값 복제됨)
+		CombatSet->UpdateAmmoDisplay(WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
+	}
+	else
+	{
+		// CombatAttributeSet 기반으로만 탄약 여부를 가볍게 체크해서 조기 종료
+		if (!CombatSet->CheckHasAmmo())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No ammo! (Client UI)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			return;
+		}
+
+		// 실제 탄약 수는 서버가 WeaponInstance에서 관리
+		// 클라는 여기서 그냥 발사/시각 피드백만 수행
+	}
+
+	// 사격 애니메이션 재생
+	if (WeaponDef && WeaponDef->FireAnimMontage)
+	{
+		Character->PlayAnimMontage(WeaponDef->FireAnimMontage, 1.0f);
+		UE_LOG(LogTemp, Verbose, TEXT("[Fire] Playing FireAnimMontage: %s"),
+			*WeaponDef->FireAnimMontage->GetName());
+	}
+
+	if (!DamageEffect)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Fire] No DamageEffect class"));
+		return;
+	}
+
+	// 무기 스탯 가져오기
+	const float Accuracy = CombatSet->GetAccuracy();
+	const float Recoil = CombatSet->GetRecoil();
+	const float CurrentSpread = CombatSet->GetCurrentSpread();
+
 	// 탄퍼짐 적용 (Accuracy 낮을수록, CurrentSpread 높을수록 더 퍼짐)
 	const float SpreadAngle = CurrentSpread * (1.0f - Accuracy);
 	const float RandomPitch = FMath::RandRange(-SpreadAngle, SpreadAngle);
@@ -178,16 +309,30 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	AdjustedRotation.Pitch += RandomPitch;
 	AdjustedRotation.Yaw += RandomYaw;
 
-	// LineTrace 실행
-	FVector TraceStart = CameraLocation;
-	FVector TraceEnd = CameraLocation + (AdjustedRotation.Vector() * FireRange);
-
-	FHitResult HitResult;
+	// 카메라에서 타겟 포인트 찾기
+	FVector CameraTraceEnd = CameraLocation + (AdjustedRotation.Vector() * FireRange);
+	FHitResult CameraHit;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(Character);
 	QueryParams.bTraceComplex = false;
 	QueryParams.bReturnPhysicalMaterial = false;
 
+	GetWorld()->LineTraceSingleByChannel(
+		CameraHit,
+		CameraLocation,
+		CameraTraceEnd,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	FVector TargetPoint = CameraHit.bBlockingHit ? CameraHit.Location : CameraTraceEnd;
+
+	// 총구에서 타겟 포인트로 발사(Line Trace 실행)
+	FVector MuzzleToTarget = (TargetPoint - MuzzleLocation).GetSafeNormal();
+	FVector TraceStart = MuzzleLocation;
+	FVector TraceEnd = MuzzleLocation + (MuzzleToTarget * FireRange);
+
+	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(
 		HitResult,
 		TraceStart,
@@ -196,10 +341,21 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		QueryParams
 	);
 
+	// 총알 궤적 재생 (히트 여부 관계없이)
+	FVector TracerEndPoint = bHit ? HitResult.Location : TraceEnd;
+	if (bIsServer && GRCharacter)
+	{
+		// 발사 FX/사운드
+		GRCharacter->ServerRPC_PlayFireFX(MuzzleLocation, TracerEndPoint);
+	}
 
-	//non-const 캐스팅 필요 -> IncreaseSpread 함수가 non-const 멤버임
+
+	// 탄퍼짐 수치 증가. non-const 캐스팅 필요 -> IncreaseSpread 함수가 non-const 멤버임
 	UGRCombatAttributeSet* MutableCombatSet = const_cast<UGRCombatAttributeSet*>(CombatSet);
 	MutableCombatSet->IncreaseSpread(SourceASC);
+	
+	// 반동 적용
+	ApplyRecoil(Recoil);
 
 #if WITH_EDITOR
 	// 디버그 라인 그리기 (에디터 전용)
@@ -212,47 +368,17 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		DrawDebugSphere(GetWorld(), HitResult.Location, 20.0f, 12, FColor::Orange,
 			false, DebugLineDuration);
 	}
-
-	// 탄퍼짐 디버그 정보 화면 출력
-	if (GEngine)
-	{
-		const float UpdatedSpread = MutableCombatSet->GetCurrentSpread();
-		const float MaxSpreadValue = MutableCombatSet->GetMaxSpread();
-		const float SpreadPercentage = (UpdatedSpread / MaxSpreadValue) * 100.0f;
-
-		const FString SpreadMessage = FString::Printf(
-			TEXT("Spread: %.2f / %.2f (%.0f%%)"),
-			UpdatedSpread,
-			MaxSpreadValue,
-			SpreadPercentage
-		);
-
-		FColor SpreadColor = FColor::Green;
-		if (SpreadPercentage > 70.0f)
-		{
-			SpreadColor = FColor::Red;
-		}
-		else if (SpreadPercentage > 40.0f)
-		{
-			SpreadColor = FColor::Yellow;
-		}
-
-		GEngine->AddOnScreenDebugMessage(1, 0.0f, SpreadColor, SpreadMessage);
-	}
 #endif
-
-	// [NOTE] 카메라 반동 적용 여부 검토중
-	/*
-	if (PC)
-	{
-		ApplyRecoil(PC, Recoil);
-	}
-	*/
 
 	if (!bHit)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[Fire] Miss"));
 		return;
+	}
+
+	if (bIsServer && GRCharacter)
+	{
+		GRCharacter->ServerRPC_PlayImpactFX(HitResult.Location);
 	}
 
 	AActor* HitActor = HitResult.GetActor();
@@ -341,17 +467,75 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 #endif
 }
 
-void UGRGameplayAbility_HitscanAttack::ApplyRecoil(APlayerController* PC, float RecoilAmount)
+void UGRGameplayAbility_HitscanAttack::ApplyRecoil(float RecoilAmount)
 {
-	if (!PC)
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
+	if (!GRCharacter)
 	{
 		return;
 	}
 
-	// 반동 (위쪽으로 카메라 흔들림)
-	const float RecoilPitch = FMath::RandRange(RecoilAmount * -0.5f, RecoilAmount * -1.0f);
-	const float RecoilYaw = FMath::RandRange(-RecoilAmount * 0.3f, RecoilAmount * 0.3f);
+	StopRecoilRecovery();
 
-	PC->AddPitchInput(RecoilPitch);
-	PC->AddYawInput(RecoilYaw);
+	// 내부 패턴 (고정값)
+	const float BasePitchRecoil = 0.5f;     // 위쪽 기본 반동
+	const float PitchVariation = 0.3f;       // 위쪽 랜덤 범위 (±)
+	const float YawVariation = 0.2f;         // 좌우 랜덤 범위 (±)
+
+	const float RecoilPitch = (BasePitchRecoil + FMath::RandRange(-PitchVariation, PitchVariation)) * RecoilAmount;
+	const float RecoilYaw = FMath::RandRange(-YawVariation, YawVariation) * RecoilAmount;
+
+	// 부드러운 카메라 시스템 사용
+	GRCharacter->AddControllerPitchSmooth_Temporal(RecoilPitch);
+	GRCharacter->AddControllerYawSmooth_Temporal(RecoilYaw);
+
+	UE_LOG(LogTemp, Verbose, TEXT("[Recoil] Applied (%.1f) - Pitch: %.2f, Yaw: %.2f"),
+		RecoilAmount, RecoilPitch, RecoilYaw);
+}
+
+void UGRGameplayAbility_HitscanAttack::StartRecoilRecovery()
+{
+	if (bIsRecoilRecoveryActive)
+	{
+		return;
+	}
+
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
+	if (!GRCharacter || !GetWorld())
+	{
+		return;
+	}
+
+	TWeakObjectPtr<UGRGameplayAbility_HitscanAttack> WeakThis(this);
+	TWeakObjectPtr<AGRCharacter> WeakCharacter(GRCharacter);
+
+	// 고정된 회복 딜레이 (0.15초)
+	const float RecoveryDelay = 0.15f;
+
+	GetWorld()->GetTimerManager().SetTimer(
+		RecoilRecoveryTimerHandle,
+		[WeakThis, WeakCharacter]()
+		{
+			if (WeakThis.IsValid() && WeakCharacter.IsValid())
+			{
+				WeakCharacter->ReturnToLastControllerRotation();
+				WeakThis->bIsRecoilRecoveryActive = false;
+
+				UE_LOG(LogTemp, Verbose, TEXT("[Recoil] Recovery completed"));
+			}
+		},
+		RecoveryDelay,
+		false
+	);
+
+	bIsRecoilRecoveryActive = true;
+}
+
+void UGRGameplayAbility_HitscanAttack::StopRecoilRecovery()
+{
+	if (GetWorld() && RecoilRecoveryTimerHandle.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(RecoilRecoveryTimerHandle);
+		bIsRecoilRecoveryActive = false;
+	}
 }

@@ -33,3 +33,14 @@ void UGRLobbyPlayerListWidget::CreateLobbyPlayerSlot()
 
 	LobbyPlayerSlots.Add(NewLobbyPlayerSlot);
 }
+
+void UGRLobbyPlayerListWidget::ClearLobbyPlayerSlot()
+{
+	LobbyPlayerContainer->ClearChildren();
+
+	for (UGRLobbyPlayerSlotWidget* PlayerSlot : LobbyPlayerSlots)
+	{
+		PlayerSlot->RemoveFromParent();
+	}
+	LobbyPlayerSlots.Empty();
+}

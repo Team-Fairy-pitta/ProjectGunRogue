@@ -34,6 +34,24 @@ void UGRWeaponListWidget::SetSelectedWeapon(int32 WeaponIndex)
 	}
 }
 
+void UGRWeaponListWidget::UpdateBulletCount(int32 CurrentBullets, int32 MaxBullets)
+{
+	int32 CurrentWeaponIndex = -1;
+	for (int32 i = 0; i < WeaponSlots.Num(); i++)
+	{
+		if (WeaponSlots[i] && WeaponSlots[i]->IsSelectedSlot())
+		{
+			CurrentWeaponIndex = i;
+			break;
+		}
+	}
+
+	if (CurrentWeaponIndex != -1)
+	{
+		UpdateBulletCount(CurrentWeaponIndex, CurrentBullets, MaxBullets);
+	}
+}
+
 void UGRWeaponListWidget::UpdateBulletCount(int32 WeaponIndex, int32 CurrentBullets, int32 MaxBullets)
 {
 	if (WeaponSlots.IsValidIndex(WeaponIndex))

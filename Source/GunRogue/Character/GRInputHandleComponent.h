@@ -18,6 +18,9 @@ namespace GunRogue::InputTag
 
 	GUNROGUE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_WeaponSlot1);
 	GUNROGUE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_WeaponSlot2);
+
+	GUNROGUE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Fire);
+	GUNROGUE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Reload);
 }
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

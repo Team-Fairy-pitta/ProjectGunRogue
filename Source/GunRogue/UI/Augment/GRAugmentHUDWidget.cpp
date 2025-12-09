@@ -5,8 +5,13 @@
 
 #include "GRAugmentTooltipWidget.h"
 #include "GRAugmentSlotWidget.h"
+#include "Augment/GRAugmentSubsystem.h"
+#include "Augment/GRAugmentDefinition.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/TextBlock.h"
+#include "Player/GRPlayerState.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 
 void UGRAugmentHUDWidget::NativeConstruct()
 {
@@ -33,6 +38,12 @@ void UGRAugmentHUDWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
 
+	if (AugmentTooltipWidget)
+	{
+		AugmentTooltipWidget->RemoveFromParent();
+		AugmentTooltipWidget = nullptr;
+	}
+	
 	if (AugmentContainer)
 	{
 		for (UWidget* Child : AugmentContainer->GetAllChildren())
@@ -41,12 +52,46 @@ void UGRAugmentHUDWidget::NativeDestruct()
 			{
 				AugmentSlot->OnAugmentSlotHovered.RemoveDynamic(this, &UGRAugmentHUDWidget::ShowTooltip);
 				AugmentSlot->OnAugmentSlotUnhovered.RemoveDynamic(this, &UGRAugmentHUDWidget::HideTooltip);
-				AugmentSlot->OnAugmentSlotClicked.RemoveDynamic(this, &UGRAugmentHUDWidget::RemoveAugmentHUD);
 
 				AugmentSlot->RemoveFromParent();
 			}
 		}
 	}
+}
+
+void UGRAugmentHUDWidget::SetCharacterName(FText InText)
+{
+	if (!CharacterName)
+	{
+		return;
+	}
+
+	CharacterName->SetText(InText);
+}
+
+void UGRAugmentHUDWidget::UpdateTooltip(UGRAugmentSlotWidget* AugmentSlot)
+{
+	if (!AugmentTooltipWidget)
+	{
+		return;
+	}
+	
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+	{
+		return;
+		}
+
+	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	UGRAugmentDefinition* SlotAugment = AugmentSlot->GetCurrentAugment();
+	int32 SlotLevel = PS->GetAugmentLevel(SlotAugment->AugmentID);
+
+	AugmentTooltipWidget->SetAugmentTooltip(SlotAugment, SlotLevel);
 }
 
 void UGRAugmentHUDWidget::ShowTooltip(UGRAugmentSlotWidget* AugmentSlot)
@@ -55,6 +100,8 @@ void UGRAugmentHUDWidget::ShowTooltip(UGRAugmentSlotWidget* AugmentSlot)
 	{
 		return;
 	}
+
+	UpdateTooltip(AugmentSlot);
 
 	APlayerController* PC = GetOwningPlayer();
 	if (!PC)
@@ -79,27 +126,6 @@ void UGRAugmentHUDWidget::HideTooltip(UGRAugmentSlotWidget* AugmentSlot)
 	AugmentTooltipWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UGRAugmentHUDWidget::RemoveAugmentHUD(UGRAugmentSlotWidget* AugmentSlot)
-{
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC)
-	{
-		return;
-	}
-
-	FInputModeGameOnly GameMode;
-	PC->SetInputMode(GameMode);
-	PC->bShowMouseCursor = false;
-	
-	if (AugmentTooltipWidget)
-	{
-		AugmentTooltipWidget->RemoveFromParent();
-		AugmentTooltipWidget = nullptr;
-	}
-
-	RemoveFromParent();
-}
-
 void UGRAugmentHUDWidget::CreateAugmentSlot()
 {
 	if (!AugmentSlotClass || !AugmentContainer)
@@ -113,8 +139,36 @@ void UGRAugmentHUDWidget::CreateAugmentSlot()
 		return;
 	}
 
-	for (int32 i = 0; i < 3; i++)
+	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	if (!PS)
 	{
+		return;
+	}
+	
+	UGameInstance* GI = GetGameInstance();
+	if (!GI)
+	{
+		return;
+	}
+
+	UGRAugmentSubsystem* AugmentSubsystem = GI->GetSubsystem<UGRAugmentSubsystem>();
+	if (!AugmentSubsystem)
+	{
+		return;
+	}
+
+	FName CharacterType = TEXT("Bomb"); //테스트용 원래는 따로 CharacterType을 받아야함
+	TArray<UGRAugmentDefinition*> RandomAugments = AugmentSubsystem->GetRandomAugments(CharacterType, 3, PS);
+
+	for (UGRAugmentDefinition* Augment : RandomAugments)
+	{
+		if (!Augment)
+	{
+			continue;
+		}
+
+		int32 CurrentLevel = PS->GetAugmentLevel(Augment->AugmentID);
+		
 		UGRAugmentSlotWidget* NewAugmentSlot = CreateWidget<UGRAugmentSlotWidget>(PC, AugmentSlotClass);
 		if (!NewAugmentSlot)
 		{
@@ -126,8 +180,8 @@ void UGRAugmentHUDWidget::CreateAugmentSlot()
 			HorizontalBoxSlot->SetPadding(FMargin(0,0,20, 0));
 		}
 
+		NewAugmentSlot->SetAugmentSlot(Augment, CurrentLevel);
 		NewAugmentSlot->OnAugmentSlotHovered.AddDynamic(this, &UGRAugmentHUDWidget::ShowTooltip);
 		NewAugmentSlot->OnAugmentSlotUnhovered.AddDynamic(this, &UGRAugmentHUDWidget::HideTooltip);
-		NewAugmentSlot->OnAugmentSlotClicked.AddDynamic(this, &UGRAugmentHUDWidget::RemoveAugmentHUD);
 	}
 }

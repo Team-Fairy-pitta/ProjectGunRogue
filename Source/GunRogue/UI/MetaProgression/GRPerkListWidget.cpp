@@ -85,5 +85,7 @@ void UGRPerkListWidget::CreateAllSlot(FName InCategory)
 		NewPerkSlot->OnPerkSlotHovered.AddDynamic(PerkHUD, &UGRPerkHUDWidget::ShowTooltipForSlot);
 		NewPerkSlot->OnPerkSlotClicked.AddDynamic(PerkHUD, &UGRPerkHUDWidget::UpdateUIOnClicked);
 		NewPerkSlot->OnPerkSlotUnhovered.AddDynamic(PerkHUD, &UGRPerkHUDWidget::HideTooltipForSlot);
+
+		// [NOTE] 실시간 반영을 원한다면, `OnPerkSlotClicked` Delegate에 특정 함수를 연결해야 함
 	}
 }

@@ -1,34 +1,31 @@
-// GRTitleHUDWidget.h
-
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "GRTitleHUDWidget.generated.h"
 
 class UGRTitleMenuButtonWidget;
-/**
- * 
- */
+
 UCLASS()
 class GUNROGUE_API UGRTitleHUDWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UGRTitleMenuButtonWidget* StartGameButton;
+	TObjectPtr<UGRTitleMenuButtonWidget> StartGameButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRTitleMenuButtonWidget* CheckInvitationButton;
+	TObjectPtr<UGRTitleMenuButtonWidget> CheckInvitationButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRTitleMenuButtonWidget* SetGameButton;
+	TObjectPtr<UGRTitleMenuButtonWidget> SetGameButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UGRTitleMenuButtonWidget* ExitGameButton;
-
-	virtual void NativeConstruct() override;
+	TObjectPtr<UGRTitleMenuButtonWidget> ExitGameButton;
 
 private:
 	UFUNCTION()

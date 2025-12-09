@@ -7,6 +7,7 @@
 #include "UI/Level1/GRLevel1SelectWidget.h"
 #include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
 #include "UI/Inventory/GRInventoryWidgetMain.h"
+#include "UI/Augment/GRAugmentHUDWidget.h"
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
@@ -129,6 +130,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!InventoryWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRInventoryWidgetMain Widgets"));
+		return;
+	}
+
+	if (!AugmentWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AugmentWidgetClass (TSubclassOf<UGRAugmentHUD> is INVALID"));
+		return;
+	}
+
+	AugmentWidgetInstance = CreateWidget<UGRAugmentHUDWidget>(this, AugmentWidgetClass);
+	if (!AugmentWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRAugment Widgets"));
 		return;
 	}
 }

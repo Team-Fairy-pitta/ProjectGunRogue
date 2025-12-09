@@ -41,3 +41,5 @@ void AGRBattlePlayerController::HideUpgradeConsoleWidget()
 	SetInputMode(Mode);
 	bShowMouseCursor = false;
 }
+
+

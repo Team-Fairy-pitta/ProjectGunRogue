@@ -7,12 +7,14 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/GRAbilitySet.h"
 #include "AbilitySystem/GRGameplayEffect.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "Item/GRItemActor.h"
 #include "Item/GRItemDefinition.h"
 #include "Weapon/GRWeaponActor.h"
 #include "Weapon/GRWeaponInstance.h"
 #include "Weapon/GRWeaponDefinition.h"
+#include "Augment/GRAugmentStructs.h"
 
 AGRPlayerState::AGRPlayerState()
 {
@@ -46,6 +48,8 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ThisClass, ItemHandles);
 	DOREPLIFETIME(ThisClass, WeaponSlots);
 	DOREPLIFETIME(ThisClass, CurrentWeaponSlot);
+
+	DOREPLIFETIME(ThisClass, OwnedAugments);
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
@@ -342,11 +346,10 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 		if (CurrentWeaponSlot == -1)
 		{
 			int32 OldSlot = CurrentWeaponSlot;
-
-			ActivateWeaponInSlot(EmptySlot);
 			CurrentWeaponSlot = EmptySlot;
 
 			ClientRPC_BroadcastOnWeaponSwitched(OldSlot, CurrentWeaponSlot);
+			ActivateWeaponInSlot(CurrentWeaponSlot);
 			UpdateWeaponAttachToCharacter();
 
 			// 무기 장착 애님 몽타주 재생
@@ -361,6 +364,8 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 		}
 	}
 
+	//OnRep_WeaponDataUpdata();
+
 	// 무기 액터 제거
 	if (IsValid(WeaponActor))
 	{
@@ -369,6 +374,8 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 
 	UE_LOG(LogTemp, Display, TEXT("Player equipped weapon: %s in slot %d, Current active slot: %d"),
 		*WeaponDefinition->WeaponName.ToString(), EmptySlot, CurrentWeaponSlot);
+
+
 }
 
 void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
@@ -411,9 +418,10 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 			if (i != SlotIndex && WeaponSlots[i].IsEquipped())
 			{
 				int32 NewSlot = i;
-				ActivateWeaponInSlot(i);
 				CurrentWeaponSlot = NewSlot;
+
 				ClientRPC_BroadcastOnWeaponSwitched(OldSlot, NewSlot);
+				ActivateWeaponInSlot(NewSlot);
 				UpdateWeaponAttachToCharacter();
 				UE_LOG(LogTemp, Display, TEXT("Auto-switched to weapon in slot %d"), i);
 				break;
@@ -435,6 +443,17 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 	MulticastRPC_PlayWeaponEquipAnimMontage();
 
 	UE_LOG(LogTemp, Display, TEXT("Player dropped weapon from slot %d"), SlotIndex);
+
+	// 드랍 결과, 활성 무기가 없다면 Ammo/ReloadTime 0으로 리셋
+	if (CurrentWeaponSlot == -1 && AbilitySystemComponent)
+	{
+		UGRCombatAttributeSet* CombatSet =
+			const_cast<UGRCombatAttributeSet*>(AbilitySystemComponent->GetSet<UGRCombatAttributeSet>());
+		if (CombatSet)
+		{
+			CombatSet->UpdateAmmoDisplay(0, 0);   // Ammo 0 / 0
+		}
+	}
 }
 
 void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
@@ -471,10 +490,10 @@ void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
 	int32 OldSlot = CurrentWeaponSlot;
 
 	// 새 무기 활성화
-	ActivateWeaponInSlot(SlotIndex);
 	CurrentWeaponSlot = SlotIndex;
 
 	ClientRPC_BroadcastOnWeaponSwitched(OldSlot, CurrentWeaponSlot);
+	ActivateWeaponInSlot(CurrentWeaponSlot);
 	UpdateWeaponAttachToCharacter();
 
 	UGRWeaponDefinition* WeaponDef = WeaponSlots[SlotIndex].GetWeaponDefinition();
@@ -626,6 +645,15 @@ void AGRPlayerState::SpawnWeaponAtLocation(
 		WeaponActor->InitWeapon(WeaponDefinition, WeaponInstance);
 		WeaponActor->MulticastRPC_InitWeapon(WeaponDefinition, WeaponInstance);
 	}
+}
+
+FGRWeaponHandle* AGRPlayerState::GetActiveWeaponHandle()
+{
+	if (WeaponSlots.IsValidIndex(CurrentWeaponSlot))
+	{
+		return &WeaponSlots[CurrentWeaponSlot];
+	}
+	return nullptr;
 }
 
 void AGRPlayerState::MulticastRPC_PlayWeaponEquipAnimMontage_Implementation()
@@ -907,5 +935,123 @@ void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeap
 
 void AGRPlayerState::OnRep_WeaponDataUpdata()
 {
+	if (!HasAuthority() && WeaponSlots.IsValidIndex(CurrentWeaponSlot))
+	{
+		FGRWeaponHandle& ActiveHandle = WeaponSlots[CurrentWeaponSlot];
+		if (ActiveHandle.IsEquipped() && ActiveHandle.IsActive())
+		{
+			FGRWeaponInstance* WeaponInstance = ActiveHandle.GetWeaponInstanceRef();
+			if (WeaponInstance && WeaponInstance->IsValid() && AbilitySystemComponent)
+			{
+				UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(
+					AbilitySystemComponent->GetSet<UGRCombatAttributeSet>()
+					);
+				if (CombatSet)
+				{
+					CombatSet->UpdateAmmoDisplay(WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
+					UE_LOG(LogTemp, Display, TEXT("[OnRep] CLIENT UI updated - Ammo: %d/%d"),
+						WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
+				}
+			}
+		}
+	}
+
 	OnWeaponDataUpdata.Broadcast();
 }
+
+#pragma region Augment
+void AGRPlayerState::ServerRPC_OnAugmentSelected_Implementation(FName AugmentID)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	int32 FoundIndex = INDEX_NONE;
+
+	for (int32 i = 0; i < OwnedAugments.Num(); i++)
+	{
+		if (OwnedAugments[i].AugmentID == AugmentID)
+		{
+			FoundIndex = i;
+			break;
+		}
+	}
+
+	if (FoundIndex != INDEX_NONE)
+	{
+		LevelUpAugment(FoundIndex);
+	}
+	else
+	{
+		AddAugment(AugmentID);
+	}
+
+	OnRep_OwnedAugments();
+}
+
+void AGRPlayerState::AddAugment(FName AugmentID)
+{
+	FAugmentEntry NewEntry;
+	NewEntry.AugmentID = AugmentID;
+	NewEntry.Level = 1;
+	
+	OwnedAugments.Add(NewEntry);
+}
+
+void AGRPlayerState::LevelUpAugment(int32 Index)
+{
+	if (!OwnedAugments.IsValidIndex(Index))
+	{
+		return;
+	}
+	
+	OwnedAugments[Index].Level++;
+}
+
+int32 AGRPlayerState::GetAugmentLevel(FName AugmentID)
+{
+	for (const FAugmentEntry& Entry : OwnedAugments)
+	{
+		if (Entry.AugmentID == AugmentID)
+		{
+			return Entry.Level;
+		}
+	}
+
+	return 0;
+}
+
+void AGRPlayerState::OnRep_OwnedAugments()
+{
+	for (const FAugmentEntry& Entry : OwnedAugments)
+	{
+		const FAugmentEntry* PrevEntry = nullptr;
+		for (const FAugmentEntry& Prev : PreviousOwnedAugments)
+		{
+			if (Prev.AugmentID == Entry.AugmentID)
+			{
+				PrevEntry = &Prev;
+				break;
+			}
+		}
+
+		if (!PrevEntry || PrevEntry->Level != Entry.Level)
+		{
+			OnAugmentChanged.Broadcast(Entry.AugmentID, Entry.Level);
+			UE_LOG(LogTemp, Warning, TEXT("OnRep_OwnedAugments called"));
+		}
+	}
+	
+	PreviousOwnedAugments = OwnedAugments;
+
+	AGRBattlePlayerController* BattlePlayerController = GetOwner<AGRBattlePlayerController>();
+	if (!IsValid(BattlePlayerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GetOwner() is NOT AGRBattlePlayerController"));
+		return;
+	}
+
+	BattlePlayerController->HideAugmentWidget();
+}
+#pragma endregion

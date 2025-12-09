@@ -32,6 +32,11 @@ public class GunRogue : ModuleRules
 
 			// Steam
 			"AdvancedSessions",
+
+			// Niagara
+			"Niagara",
+
+
 		});
 
 		// Uncomment if you are using online features
