@@ -34,6 +34,19 @@ void AGRLobbyPlayerController::CreateWidgets()
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRLobbyHUDWidget Widgets"));
 		return;
 	}
+
+	if (!LoadingWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LoadingWidgetClass (TSubclassOf<UUserWidget>) is INVALID"));
+		return;
+	}
+
+	LoadingWidgetInstance = CreateWidget<UUserWidget>(this, LoadingWidgetClass);
+	if (!LoadingWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create LoadingWidgetInstance Widgets"));
+		return;
+	}
 }
 
 void AGRLobbyPlayerController::ShowLobbyWidget()
@@ -63,6 +76,40 @@ void AGRLobbyPlayerController::HideLobbyWidget()
 	if (LobbyWidgetInstance->IsInViewport())
 	{
 		LobbyWidgetInstance->RemoveFromParent();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
+}
+
+void AGRLobbyPlayerController::ShowLoadingWidget()
+{
+	if (!LoadingWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LoadingWidgetInstance is INVALID"));
+		return;
+	}
+	if (!LoadingWidgetInstance->IsInViewport())
+	{
+		LoadingWidgetInstance->AddToViewport();
+	}
+
+	FInputModeUIOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = true;
+}
+
+void AGRLobbyPlayerController::HideLoadingWidget()
+{
+	if (!LoadingWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LoadingWidgetInstance is INVALID"));
+		return;
+	}
+	if (LoadingWidgetInstance->IsInViewport())
+	{
+		LoadingWidgetInstance->RemoveFromParent();
 	}
 
 	FInputModeGameOnly Mode;
@@ -126,6 +173,11 @@ void AGRLobbyPlayerController::UpdateGuestPlayersInfo(TArray<FGuestPlayer>& Gues
 	PlayerListWidget->UpdateGuestPlayersInfo(GuestPlayers);
 }
 
+void AGRLobbyPlayerController::ClientRPC_ShowLoadingWidget_Implementation()
+{
+	ShowLoadingWidget();
+}
+
 void AGRLobbyPlayerController::UpdateCanStartGame(bool bCanStart)
 {
 	if (!LobbyWidgetInstance)
@@ -160,6 +212,25 @@ void AGRLobbyPlayerController::ServerRPC_StartGame_Implementation()
 	{
 		UE_LOG(LogTemp, Error, TEXT("GameStartMap is NULL"));
 		return;
+	}
+
+	AGRLobbyGameState* LobbyGameState = GetWorld()->GetGameState<AGRLobbyGameState>();
+	if (!IsValid(LobbyGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyGameState is INVALID"));
+		return;
+	}
+
+	for (APlayerState* State : LobbyGameState->PlayerArray)
+	{
+		if (IsValid(State))
+		{
+			AGRLobbyPlayerController* Controller = Cast<AGRLobbyPlayerController>(State->GetOwner());
+			if (IsValid(Controller))
+			{
+				Controller->ClientRPC_ShowLoadingWidget();
+			}
+		}
 	}
 
 	FString MapPath = GameStartMap.GetLongPackageName() + TEXT("?listen");

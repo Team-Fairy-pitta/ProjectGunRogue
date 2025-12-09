@@ -18,6 +18,9 @@ public:
 	void ShowLobbyWidget();
 	void HideLobbyWidget();
 
+	void ShowLoadingWidget();
+	void HideLoadingWidget();
+
 	void StartGame();
 
 	void UpdateHostPlayerInfo(APlayerState* HostPlayer);
@@ -35,6 +38,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnConfirmCancelReady();
 
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowLoadingWidget();
+
 	void UpdateCanStartGame(bool bCanStart);
 
 protected:
@@ -43,6 +49,12 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UGRLobbyHUDWidget> LobbyWidgetInstance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UUserWidget> LoadingWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> LoadingWidgetInstance;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Map")
 	TSoftObjectPtr<UWorld> GameStartMap;
