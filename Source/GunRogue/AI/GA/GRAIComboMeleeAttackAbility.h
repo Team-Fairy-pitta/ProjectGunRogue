@@ -32,12 +32,10 @@ protected:
 	virtual void OnAttackTriggerNotify(FGameplayEventData Payload) override;
 	
 private:
-	void DetectBySweepMulti();
+	bool CanDetectBySweepMulti();
 	void AttackNextCombo();
 	
 private:
-	TArray<FHitResult> HitResults;
-	bool bCanMoveNextCombo;
 	FName SectionName;
 	int32 CurCombo;
 

@@ -7,8 +7,7 @@
 #include "AI/Character/GRAICharacter.h"
 
 UGRAIComboMeleeAttackAbility::UGRAIComboMeleeAttackAbility()
-	:bCanMoveNextCombo(false)
-	,MaxCombo(4)
+	:MaxCombo(4)
 	,CapsuleRadius(30.0f)
 	,CapsuleHalfHeight(70.0f)
 {
@@ -35,8 +34,6 @@ void UGRAIComboMeleeAttackAbility::EndAbility(const FGameplayAbilitySpecHandle H
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
-	HitResults.Empty();
-	bCanMoveNextCombo=false;
 	CurCombo=1;
 }
 
@@ -44,25 +41,28 @@ void UGRAIComboMeleeAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payl
 {
 	Super::OnAttackTriggerNotify(Payload);
 
-	DetectBySweepMulti();
-	AttackNextCombo();
+	bool bIsAttackSuccess = CanDetectBySweepMulti();
+	if (bIsAttackSuccess)
+	{
+		AttackNextCombo();
+	}
 }
 
-void UGRAIComboMeleeAttackAbility::DetectBySweepMulti()
+bool UGRAIComboMeleeAttackAbility::CanDetectBySweepMulti()
 {
 	AActor* Instigator = GetAvatarActorFromActorInfo();
 	if (!Instigator)
 	{
-		return;
+		return false;
 	}
 
 	if (!Instigator->HasAuthority())
 	{
-		return;
+		return false;
 	}
 
-	HitResults.Empty();
-	bCanMoveNextCombo=false;
+	TArray<FHitResult> HitResults;
+	bool bCanMoveNextCombo=false;
 	
 	FVector Start = Instigator->GetActorLocation();
 	FVector End = Start + Instigator->GetActorForwardVector() * CapsuleHalfHeight * 2;
@@ -98,7 +98,7 @@ void UGRAIComboMeleeAttackAbility::DetectBySweepMulti()
 	
 	if (!bHit)
 	{
-		return;
+		return false;
 	}
 	
 	for (const FHitResult& Result : HitResults)
@@ -127,15 +127,12 @@ void UGRAIComboMeleeAttackAbility::DetectBySweepMulti()
 		
 		CauseDamage(Other);
 	}
+
+	return bCanMoveNextCombo;
 }
 
 void UGRAIComboMeleeAttackAbility::AttackNextCombo()
 {
-	if (!bCanMoveNextCombo)
-	{
-		return;
-	}
-	
 	CurCombo++;
 
 	if (CurCombo>MaxCombo)

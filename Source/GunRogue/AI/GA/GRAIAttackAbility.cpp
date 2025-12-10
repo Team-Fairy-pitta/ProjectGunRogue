@@ -218,6 +218,11 @@ void UGRAIAttackAbility::CauseDamage(AActor* Target)
 	{
 		return;
 	}
+
+	if (!DamageEffectClass)
+	{
+		return;
+	}
 	
 	FGameplayEffectContextHandle Context = AIASC->MakeEffectContext();
 	Context.AddSourceObject(Instigator);
