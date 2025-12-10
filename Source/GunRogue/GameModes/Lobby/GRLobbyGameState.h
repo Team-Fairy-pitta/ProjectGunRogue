@@ -36,6 +36,8 @@ public:
 	void Ready(APlayerState* GuestPlayerState);
 	void CancelReady(APlayerState* GuestPlayerState);
 
+	bool IsAllPlayerReady();
+
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_HostPlayerState)
 	TObjectPtr<APlayerState> HostPlayerState;
@@ -57,6 +59,4 @@ protected:
 
 private:
 	int32 FindGuestIndex(APlayerState* GuestPlayerState);
-
-	bool IsAllPlayerReady();
 };

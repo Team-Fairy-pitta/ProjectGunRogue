@@ -24,7 +24,7 @@ public:
 	void DisableButtonsOnReady();
 	void EnableButtons();
 
-	void DisableReadyButtonForWait();
+	void DisableReadyButton();
 	void EnableReadyButton();
 
 	void DisableStartButton();
@@ -93,6 +93,9 @@ public:
 private:
 	UFUNCTION()
 	void OnCharacterSelected(int32 SelectedIndex);
+
+	void SetSelectedCharacterIndex(int32 SelectedIndex);
+	void UpdateCharacterButtonWidget(int32 SelectedIndex);
 
 	UFUNCTION()
 	void OnPlayerInfoClicked();

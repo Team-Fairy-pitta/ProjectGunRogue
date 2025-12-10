@@ -5,6 +5,7 @@
 #include "GRLobbyPlayerController.generated.h"
 
 class UGRLobbyHUDWidget;
+class AGRCharacter;
 
 UCLASS()
 class GUNROGUE_API AGRLobbyPlayerController : public AGRPlayerController
@@ -32,6 +33,9 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_CancelReady();
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SelectCharacter(int32 CharacterIndex);
+
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnConfirmReady();
 
@@ -42,6 +46,7 @@ public:
 	void ClientRPC_ShowLoadingWidget();
 
 	void UpdateCanStartGame(bool bCanStart);
+	bool IsAllPlayerReady();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
@@ -58,6 +63,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Map")
 	TSoftObjectPtr<UWorld> GameStartMap;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CharacterClass")
+	TArray<TSubclassOf<AGRCharacter>> PlayableCharacterClasses;
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_StartGame();

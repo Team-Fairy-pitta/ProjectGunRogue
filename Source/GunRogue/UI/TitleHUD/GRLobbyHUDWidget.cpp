@@ -65,6 +65,16 @@ void UGRLobbyHUDWidget::NativeConstruct()
 	// [NOTE] Dedicated Server에서는 게임을 시작할 수 없음
 	bool bIsHost = PlayerController->GetNetMode() == ENetMode::NM_ListenServer;
 	UpdateLobbyButtonVisibility(bIsHost);
+
+	// [NOTE] 캐릭터를 선택하지 않으면 준비할 수 없으며, 시작할 수 없음
+	if (bIsHost)
+	{
+		DisableStartButton();
+	}
+	else
+	{
+		DisableReadyButton();
+	}
 }
 
 void UGRLobbyHUDWidget::UpdateLobbyButtonVisibility(bool bHost)
@@ -88,8 +98,36 @@ void UGRLobbyHUDWidget::UpdateLobbyButtonVisibility(bool bHost)
 
 void UGRLobbyHUDWidget::OnCharacterSelected(int32 SelectedIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Character %d selected"), SelectedIndex);
+	SetSelectedCharacterIndex(SelectedIndex);
+	UpdateCharacterButtonWidget(SelectedIndex);
+}
 
+void UGRLobbyHUDWidget::SetSelectedCharacterIndex(int32 SelectedIndex)
+{
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+
+	LobbyPlayerController->ServerRPC_SelectCharacter(SelectedIndex);
+
+	bool bIsHost = LobbyPlayerController->GetNetMode() == ENetMode::NM_ListenServer;
+	if (bIsHost)
+	{
+		if (LobbyPlayerController->IsAllPlayerReady())
+		{
+			EnableStartButton();
+		}
+	}
+	else
+	{
+		EnableReadyButton();
+	}
+}
+
+void UGRLobbyHUDWidget::UpdateCharacterButtonWidget(int32 SelectedIndex)
+{
 	UGRLobbyCharacterSelectSlotWidget* ClickedSlot = nullptr;
 
 	if (CharacterSlots.IsValidIndex(SelectedIndex))
@@ -113,8 +151,6 @@ void UGRLobbyHUDWidget::OnCharacterSelected(int32 SelectedIndex)
 	ClickedSlot->GetBorder()->SetBrushColor(FLinearColor::Green);
 	ClickedSlot->bIsClicked = true;
 	CurrentClickedSlot = ClickedSlot;
-	
-	//캐릭터 선택 UI
 }
 
 void UGRLobbyHUDWidget::OnPlayerInfoClicked()
@@ -162,7 +198,7 @@ void UGRLobbyHUDWidget::OnReadyGameClicked()
 	if (bIsReady)
 	{
 		bIsReady = false;
-		DisableReadyButtonForWait();
+		DisableReadyButton();
 		ReadyGameButton->SetButtonText(FText::FromString(TEXT("준비")));
 		LobbyPlayerController->ServerRPC_CancelReady();
 	}
@@ -170,7 +206,7 @@ void UGRLobbyHUDWidget::OnReadyGameClicked()
 	{
 		bIsReady = true;
 		DisableButtonsOnReady();
-		DisableReadyButtonForWait();
+		DisableReadyButton();
 		ReadyGameButton->SetButtonText(FText::FromString(TEXT("준비중...")));
 		LobbyPlayerController->ServerRPC_Ready();
 	}
@@ -212,7 +248,7 @@ void UGRLobbyHUDWidget::EnableButtons()
 	}
 }
 
-void UGRLobbyHUDWidget::DisableReadyButtonForWait()
+void UGRLobbyHUDWidget::DisableReadyButton()
 {
 	if (ReadyGameButton)
 	{

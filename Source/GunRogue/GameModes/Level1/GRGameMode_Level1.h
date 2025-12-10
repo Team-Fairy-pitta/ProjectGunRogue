@@ -14,6 +14,7 @@ class GUNROGUE_API AGRGameMode_Level1 : public AGRGameMode
 
 public:
 	virtual void BeginPlay() override;
+	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 
 	FGRLevel1Node* GetLevel1Node(int32 Index);
 

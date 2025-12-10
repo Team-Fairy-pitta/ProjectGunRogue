@@ -3,6 +3,7 @@
 #include "UI/TitleHUD/SubWidgets/GRLobbyPlayerListWidget.h"
 #include "GameModes/Lobby/GRLobbyGameState.h"
 #include "GameFramework/PlayerState.h"
+#include "System/GRGameInstance.h"
 
 AGRLobbyPlayerController::AGRLobbyPlayerController()
 {
@@ -196,6 +197,22 @@ void AGRLobbyPlayerController::UpdateCanStartGame(bool bCanStart)
 	}
 }
 
+bool AGRLobbyPlayerController::IsAllPlayerReady()
+{
+	if (!GetWorld())
+	{
+		return false;
+	}
+
+	AGRLobbyGameState* LobbyGameState = GetWorld()->GetGameState<AGRLobbyGameState>();
+	if (!IsValid(LobbyGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyGameState is INVALID"));
+		return false;
+	}
+	return LobbyGameState->IsAllPlayerReady();
+}
+
 void AGRLobbyPlayerController::ServerRPC_StartGame_Implementation()
 {
 	if (!HasAuthority())
@@ -279,6 +296,29 @@ void AGRLobbyPlayerController::ServerRPC_CancelReady_Implementation()
 	LobbyGameState->CancelReady(GetPlayerState<APlayerState>());
 
 	ClientRPC_OnConfirmCancelReady();
+}
+
+void AGRLobbyPlayerController::ServerRPC_SelectCharacter_Implementation(int32 CharacterIndex)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	UGRGameInstance* GRGameInstance = GetGameInstance<UGRGameInstance>();
+	if (!GRGameInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRGameInstance is INVALID"));
+		return;
+	}
+
+	if (!PlayableCharacterClasses.IsValidIndex(CharacterIndex))
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayableCharacterClasses.IsValidIndex(CharacterIndex) == false"));
+		return;
+	}
+
+	GRGameInstance->SetSelectedCharacterClass(this, PlayableCharacterClasses[CharacterIndex]);
 }
 
 void AGRLobbyPlayerController::ClientRPC_OnConfirmReady_Implementation()
