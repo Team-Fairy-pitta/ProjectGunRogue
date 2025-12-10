@@ -5,6 +5,15 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
+
+void UGRLobbyCharacterSelectSlotWidget::SetCharacterImage(UTexture2D* InTexture)
+{
+	if (CharImage)
+	{
+		CharImage->SetBrushFromTexture(InTexture);
+	}
+}
 
 void UGRLobbyCharacterSelectSlotWidget::NativePreConstruct()
 {

@@ -9,6 +9,8 @@
 #include "UI/SteamInvite/GRSteamFriendsList.h"
 #include "Components/SizeBox.h"
 #include "Player/Lobby/GRLobbyPlayerController.h"
+#include "Character/GRCharacter.h"
+#include "Character/GRPawnData.h"
 
 void UGRLobbyHUDWidget::NativeConstruct()
 {
@@ -47,21 +49,14 @@ void UGRLobbyHUDWidget::NativeConstruct()
 		InviteButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnInviteClicked);
 	}
 	
-	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
-	{
-		if (CharacterSlots[i])
-		{
-			CharacterSlots[i]->CharacterIndex = i;
-			CharacterSlots[i]->OnCharacterSelectClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnCharacterSelected);
-		}
-	}
+	InitCharacterSelectButtons();
 
 	APlayerController* PlayerController = GetOwningPlayer();
 	if (!IsValid(PlayerController))
 	{
 		return;
 	}
-
+	
 	// [NOTE] Dedicated Server에서는 게임을 시작할 수 없음
 	bool bIsHost = PlayerController->GetNetMode() == ENetMode::NM_ListenServer;
 	UpdateLobbyButtonVisibility(bIsHost);
@@ -151,6 +146,46 @@ void UGRLobbyHUDWidget::UpdateCharacterButtonWidget(int32 SelectedIndex)
 	ClickedSlot->GetBorder()->SetBrushColor(FLinearColor::Green);
 	ClickedSlot->bIsClicked = true;
 	CurrentClickedSlot = ClickedSlot;
+}
+
+void UGRLobbyHUDWidget::InitCharacterSelectButtons()
+{
+	APlayerController* PlayerController = GetOwningPlayer();
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
+	AGRLobbyPlayerController* GRLobbyPlayerController = Cast<AGRLobbyPlayerController>(PlayerController);
+	if (!IsValid(GRLobbyPlayerController))
+	{
+		return;
+	}
+
+	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
+	{
+		UTexture2D* Thumbnail = nullptr;
+		if (GRLobbyPlayerController->PlayableCharacterClasses.IsValidIndex(i))
+		{
+			TSubclassOf<AGRCharacter> CharacterClass = GRLobbyPlayerController->PlayableCharacterClasses[i];
+			AGRCharacter* CDO = Cast<AGRCharacter>(CharacterClass->GetDefaultObject());
+			if (CDO)
+			{
+				UGRPawnData* PawnData = CDO->PawnData;
+				if (PawnData)
+				{
+					Thumbnail = PawnData->CharacterThumbnail;
+				}
+			}
+		}
+
+		if (CharacterSlots[i])
+		{
+			CharacterSlots[i]->CharacterIndex = i;
+			CharacterSlots[i]->OnCharacterSelectClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnCharacterSelected);
+			CharacterSlots[i]->SetCharacterImage(Thumbnail);
+		}
+	}
 }
 
 void UGRLobbyHUDWidget::OnPlayerInfoClicked()

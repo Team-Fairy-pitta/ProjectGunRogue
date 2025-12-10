@@ -97,6 +97,8 @@ private:
 	void SetSelectedCharacterIndex(int32 SelectedIndex);
 	void UpdateCharacterButtonWidget(int32 SelectedIndex);
 
+	void InitCharacterSelectButtons();
+
 	UFUNCTION()
 	void OnPlayerInfoClicked();
 

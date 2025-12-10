@@ -48,6 +48,9 @@ public:
 	void UpdateCanStartGame(bool bCanStart);
 	bool IsAllPlayerReady();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CharacterClass")
+	TArray<TSubclassOf<AGRCharacter>> PlayableCharacterClasses;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRLobbyHUDWidget> LobbyWidgetClass;
@@ -63,9 +66,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Map")
 	TSoftObjectPtr<UWorld> GameStartMap;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CharacterClass")
-	TArray<TSubclassOf<AGRCharacter>> PlayableCharacterClasses;
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_StartGame();
