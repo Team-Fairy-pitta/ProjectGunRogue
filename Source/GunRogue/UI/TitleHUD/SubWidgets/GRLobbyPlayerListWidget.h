@@ -9,6 +9,7 @@
 
 class UGRLobbyPlayerSlotWidget;
 class UVerticalBox;
+class AGRLobbyPlayerState;
 /**
  * 
  */
@@ -36,6 +37,6 @@ public:
 
 	void ResizeLobbyPlayerSlot(int32 Num);
 
-	void UpdateHostPlayerInfo(APlayerState* HostPlayer);
+	void UpdateHostPlayerInfo(FHostPlayer& HostPlayer);
 	void UpdateGuestPlayersInfo(TArray<FGuestPlayer>& GuestPlayers);
 };

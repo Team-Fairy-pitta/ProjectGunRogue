@@ -1,12 +1,11 @@
 #include "GameModes/Lobby/GRLobbyGameState.h"
-#include "GameFramework/PlayerState.h"
 #include "Player/Lobby/GRLobbyPlayerController.h"
+#include "Player/Lobby/GRLobbyPlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 
 AGRLobbyGameState::AGRLobbyGameState()
 {
-	HostPlayerState = nullptr;
 }
 
 void AGRLobbyGameState::BeginPlay()
@@ -18,8 +17,8 @@ void AGRLobbyGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AGRLobbyGameState, HostPlayerState);
-	DOREPLIFETIME(AGRLobbyGameState, GuestPlayerStates);
+	DOREPLIFETIME(AGRLobbyGameState, HostPlayer);
+	DOREPLIFETIME(AGRLobbyGameState, GuestPlayers);
 }
 
 void AGRLobbyGameState::OnRep_ReplicatedHasBegunPlay()
@@ -45,20 +44,26 @@ void AGRLobbyGameState::AddPlayerState(APlayerState* PlayerState)
 			return;
 		}
 
+		AGRLobbyPlayerState* LobbyPlayerState = Cast<AGRLobbyPlayerState>(PlayerState);
+		if (!LobbyPlayerState)
+		{
+			return;
+		}
+
 		if (PlayerController->IsLocalController())
 		{
-			HostPlayerState = PlayerState;
+			HostPlayer.PlayerState = LobbyPlayerState;
 
 			// [NOTE] PlayerController가 준비되지 않았기 때문에, 다음 Tick에서 호출해야 함
-			GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_HostPlayerState_NextTick);
+			GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_HostPlayer_NextTick);
 		}
 		else
 		{
-			FGuestPlayer& NewGuest = GuestPlayerStates.AddDefaulted_GetRef();
-			NewGuest.GuestPlayerState = PlayerState;
+			FGuestPlayer& NewGuest = GuestPlayers.AddDefaulted_GetRef();
+			NewGuest.PlayerState = LobbyPlayerState;
 
 			// [NOTE] 게스트의 이름이 지정될 때 까지 기다림 (다음 Tick에서 호출해야 함)
-			GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_GuestPlayerStates_NextTick);
+			GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_GuestPlayers_NextTick);
 			GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::UpdateCanStartGame);
 		}
 	}
@@ -76,7 +81,7 @@ void AGRLobbyGameState::RemovePlayerState(APlayerState* PlayerState)
 	// [NOTE] Dedicated Server에서는 동작하지 않음
 	if (GetNetMode() == ENetMode::NM_ListenServer)
 	{
-		if (HostPlayerState == PlayerState)
+		if (HostPlayer.PlayerState == PlayerState)
 		{
 			// [NOTE] TODO: 호스트가 나갔을 때의 처리
 		}
@@ -85,9 +90,9 @@ void AGRLobbyGameState::RemovePlayerState(APlayerState* PlayerState)
 			int32 Index = FindGuestIndex(PlayerState);
 			if (Index != INDEX_NONE)
 			{
-				GuestPlayerStates.RemoveAt(Index);
+				GuestPlayers.RemoveAt(Index);
 
-				GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_GuestPlayerStates_NextTick);
+				GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_GuestPlayers_NextTick);
 				GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::UpdateCanStartGame);
 			}
 		}
@@ -99,12 +104,12 @@ void AGRLobbyGameState::Ready(APlayerState* GuestPlayerState)
 	if (HasAuthority())
 	{
 		int32 Index = FindGuestIndex(GuestPlayerState);
-		if (GuestPlayerStates.IsValidIndex(Index))
+		if (GuestPlayers.IsValidIndex(Index))
 		{
-			GuestPlayerStates[Index].bIsReady = 1;
+			GuestPlayers[Index].bIsReady = 1;
 		}
 
-		OnRep_GuestPlayerStates_NextTick();
+		OnRep_GuestPlayers_NextTick();
 		UpdateCanStartGame();
 	}
 }
@@ -114,22 +119,43 @@ void AGRLobbyGameState::CancelReady(APlayerState* GuestPlayerState)
 	if (HasAuthority())
 	{
 		int32 Index = FindGuestIndex(GuestPlayerState);
-		if (GuestPlayerStates.IsValidIndex(Index))
+		if (GuestPlayers.IsValidIndex(Index))
 		{
-			GuestPlayerStates[Index].bIsReady = 0;
+			GuestPlayers[Index].bIsReady = 0;
 		}
 
-		OnRep_GuestPlayerStates_NextTick();
+		OnRep_GuestPlayers_NextTick();
 		UpdateCanStartGame();
 	}
 }
 
-void AGRLobbyGameState::OnRep_HostPlayerState()
+void AGRLobbyGameState::SelectCharacterClass(APlayerState* PlayerState, TSubclassOf<AGRCharacter> SelectedCharacterClass)
 {
-	GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_HostPlayerState_NextTick);
+	if (HasAuthority())
+	{
+		if (PlayerState == HostPlayer.PlayerState)
+		{
+			HostPlayer.SelectedCharacterClass = SelectedCharacterClass;
+			OnRep_HostPlayer_NextTick();
+		}
+		else
+		{
+			int32 Index = FindGuestIndex(PlayerState);
+			if (GuestPlayers.IsValidIndex(Index))
+			{
+				GuestPlayers[Index].SelectedCharacterClass = SelectedCharacterClass;
+				OnRep_GuestPlayers_NextTick();
+			}
+		}
+	}
 }
 
-void AGRLobbyGameState::OnRep_HostPlayerState_NextTick()
+void AGRLobbyGameState::OnRep_HostPlayer()
+{
+	GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_HostPlayer_NextTick);
+}
+
+void AGRLobbyGameState::OnRep_HostPlayer_NextTick()
 {
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0 /*Local First Player*/);
 	AGRLobbyPlayerController* LobbyPlayerController = Cast<AGRLobbyPlayerController>(PlayerController);
@@ -139,15 +165,15 @@ void AGRLobbyGameState::OnRep_HostPlayerState_NextTick()
 		return;
 	}
 
-	LobbyPlayerController->UpdateHostPlayerInfo(HostPlayerState);
+	LobbyPlayerController->UpdateHostPlayerInfo(HostPlayer);
 }
 
-void AGRLobbyGameState::OnRep_GuestPlayerStates()
+void AGRLobbyGameState::OnRep_GuestPlayers()
 {
-	GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_GuestPlayerStates_NextTick);
+	GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::OnRep_GuestPlayers_NextTick);
 }
 
-void AGRLobbyGameState::OnRep_GuestPlayerStates_NextTick()
+void AGRLobbyGameState::OnRep_GuestPlayers_NextTick()
 {
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0 /*Local First Player*/);
 	AGRLobbyPlayerController* LobbyPlayerController = Cast<AGRLobbyPlayerController>(PlayerController);
@@ -157,7 +183,7 @@ void AGRLobbyGameState::OnRep_GuestPlayerStates_NextTick()
 		return;
 	}
 
-	LobbyPlayerController->UpdateGuestPlayersInfo(GuestPlayerStates);
+	LobbyPlayerController->UpdateGuestPlayersInfo(GuestPlayers);
 }
 
 void AGRLobbyGameState::UpdateCanStartGame()
@@ -176,9 +202,9 @@ void AGRLobbyGameState::UpdateCanStartGame()
 
 int32 AGRLobbyGameState::FindGuestIndex(APlayerState* GuestPlayerState)
 {
-	for (int Loop = 0; Loop < GuestPlayerStates.Num(); ++Loop)
+	for (int Loop = 0; Loop < GuestPlayers.Num(); ++Loop)
 	{
-		if (GuestPlayerStates[Loop].GuestPlayerState == GuestPlayerState)
+		if (GuestPlayers[Loop].PlayerState == GuestPlayerState)
 		{
 			return Loop;
 		}
@@ -188,14 +214,14 @@ int32 AGRLobbyGameState::FindGuestIndex(APlayerState* GuestPlayerState)
 
 bool AGRLobbyGameState::IsAllPlayerReady()
 {
-	if (GuestPlayerStates.Num() <= 0)
+	if (GuestPlayers.Num() <= 0)
 	{
 		return true;
 	}
 	else
 	{
 		bool bAllReady = true;
-		for (auto GuestPlayerState : GuestPlayerStates)
+		for (auto GuestPlayerState : GuestPlayers)
 		{
 			if (!GuestPlayerState.bIsReady)
 			{

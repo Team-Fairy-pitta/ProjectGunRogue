@@ -2,9 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "GameModes/GRGameState.h"
+#include "Character/GRCharacter.h"
 #include "GRLobbyGameState.generated.h"
 
-class APlayerState;
+class AGRLobbyPlayerState;
 
 USTRUCT()
 struct FGuestPlayer
@@ -12,10 +13,25 @@ struct FGuestPlayer
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TObjectPtr<APlayerState> GuestPlayerState = nullptr;
+	TObjectPtr<AGRLobbyPlayerState> PlayerState = nullptr;
+
+	UPROPERTY()
+	TSubclassOf<AGRCharacter> SelectedCharacterClass = nullptr;
 
 	UPROPERTY()
 	int8 bIsReady = 0;
+};
+
+USTRUCT()
+struct FHostPlayer
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TObjectPtr<AGRLobbyPlayerState> PlayerState = nullptr;
+
+	UPROPERTY()
+	TSubclassOf<AGRCharacter> SelectedCharacterClass = nullptr;
 };
 
 UCLASS()
@@ -35,25 +51,25 @@ public:
 
 	void Ready(APlayerState* GuestPlayerState);
 	void CancelReady(APlayerState* GuestPlayerState);
+	void SelectCharacterClass(APlayerState* PlayerState, TSubclassOf<AGRCharacter> SelectedCharacterClass);
 
 	bool IsAllPlayerReady();
 
+	UFUNCTION()
+	void OnRep_HostPlayer();
+
+	UFUNCTION()
+	void OnRep_GuestPlayers();
+
 protected:
-	UPROPERTY(ReplicatedUsing = OnRep_HostPlayerState)
-	TObjectPtr<APlayerState> HostPlayerState;
+	UPROPERTY(ReplicatedUsing = OnRep_HostPlayer)
+	FHostPlayer HostPlayer;
 
-	UPROPERTY(ReplicatedUsing = OnRep_GuestPlayerStates)
-	TArray<FGuestPlayer> GuestPlayerStates;
+	UPROPERTY(ReplicatedUsing = OnRep_GuestPlayers)
+	TArray<FGuestPlayer> GuestPlayers;
 
-	UFUNCTION()
-	void OnRep_HostPlayerState();
-
-	void OnRep_HostPlayerState_NextTick();
-
-	UFUNCTION()
-	void OnRep_GuestPlayerStates();
-
-	void OnRep_GuestPlayerStates_NextTick();
+	void OnRep_HostPlayer_NextTick();
+	void OnRep_GuestPlayers_NextTick();
 
 	void UpdateCanStartGame();
 

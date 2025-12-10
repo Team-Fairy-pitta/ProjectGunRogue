@@ -3,13 +3,15 @@
 
 #include "UI/TitleHUD/SubWidgets/GRLobbyPlayerListWidget.h"
 #include "GRLobbyPlayerSlotWidget.h"
-#include "GameFramework/PlayerState.h"
+#include "Player/Lobby/GRLobbyPlayerState.h"
+#include "Character/GRCharacter.h"
+#include "Character/GRPawnData.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 
-void UGRLobbyPlayerListWidget::UpdateHostPlayerInfo(APlayerState* HostPlayer)
+void UGRLobbyPlayerListWidget::UpdateHostPlayerInfo(FHostPlayer& HostPlayer)
 {
-	if (!HostPlayer)
+	if (!HostPlayer.PlayerState)
 	{
 		return;
 	}
@@ -19,9 +21,20 @@ void UGRLobbyPlayerListWidget::UpdateHostPlayerInfo(APlayerState* HostPlayer)
 		CreateLobbyPlayerSlot();
 	}
 
-	FString PlayerName = HostPlayer->GetPlayerName();
+	FString PlayerName = HostPlayer.PlayerState->GetPlayerName();
 	FText PlayerNameText = FText::FromString(FString::Printf(TEXT("[Host] %s"), *PlayerName));
+	
 	LobbyPlayerSlots[0]->SetPlayerNameText(PlayerNameText);
+
+	AGRCharacter* CDO = HostPlayer.SelectedCharacterClass.GetDefaultObject();
+	if (CDO && CDO->PawnData)
+	{
+		LobbyPlayerSlots[0]->SetPlayerIcon(CDO->PawnData->CharacterThumbnail);
+	}
+	else
+	{
+		LobbyPlayerSlots[0]->SetPlayerIcon(nullptr);
+	}
 }
 
 void UGRLobbyPlayerListWidget::UpdateGuestPlayersInfo(TArray<FGuestPlayer>& GuestPlayers)
@@ -32,15 +45,27 @@ void UGRLobbyPlayerListWidget::UpdateGuestPlayersInfo(TArray<FGuestPlayer>& Gues
 	int32 Index = 1;
 	for (const FGuestPlayer& Guest : GuestPlayers)
 	{
-		if (!Guest.GuestPlayerState)
+		if (!Guest.PlayerState)
 		{
 			continue;
 		}
 
-		FString PlayerName = Guest.GuestPlayerState->GetPlayerName();
+		FString PlayerName = Guest.PlayerState->GetPlayerName();
 		FString IsReadyText = Guest.bIsReady ? TEXT("Ready!") : TEXT("...");
 		FText PlayerNameText = FText::FromString(FString::Printf(TEXT("%s %s"), *PlayerName, *IsReadyText));
+		
 		LobbyPlayerSlots[Index]->SetPlayerNameText(PlayerNameText);
+
+		AGRCharacter* CDO = Guest.SelectedCharacterClass.GetDefaultObject();
+		if (CDO && CDO->PawnData)
+		{
+			LobbyPlayerSlots[Index]->SetPlayerIcon(CDO->PawnData->CharacterThumbnail);
+		}
+		else
+		{
+			LobbyPlayerSlots[Index]->SetPlayerIcon(nullptr);
+		}
+
 		Index += 1;
 	}
 }

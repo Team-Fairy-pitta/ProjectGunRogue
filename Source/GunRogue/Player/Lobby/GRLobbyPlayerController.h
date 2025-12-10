@@ -25,7 +25,7 @@ public:
 
 	void StartGame();
 
-	void UpdateHostPlayerInfo(APlayerState* HostPlayer);
+	void UpdateHostPlayerInfo(FHostPlayer& HostPlayer);
 	void UpdateGuestPlayersInfo(TArray<FGuestPlayer>& GuestPlayers);
 
 	UFUNCTION(Server, Reliable)

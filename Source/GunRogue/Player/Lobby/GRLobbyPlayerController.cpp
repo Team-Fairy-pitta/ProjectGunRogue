@@ -1,10 +1,10 @@
 #include "Player/Lobby/GRLobbyPlayerController.h"
+#include "Player/Lobby/GRLobbyPlayerState.h"
 #include "Player/Lobby/GRLobbyCheatManager.h"
 #include "UI/TitleHUD/GRLobbyHUDWidget.h"
 #include "UI/TitleHUD/SubWidgets/GRLobbyPlayerListWidget.h"
 #include "UI/MetaProgression/GRPerkHUDWidget.h"
 #include "GameModes/Lobby/GRLobbyGameState.h"
-#include "GameFramework/PlayerState.h"
 #include "System/GRGameInstance.h"
 
 AGRLobbyPlayerController::AGRLobbyPlayerController()
@@ -164,7 +164,7 @@ void AGRLobbyPlayerController::StartGame()
 	}
 }
 
-void AGRLobbyPlayerController::UpdateHostPlayerInfo(APlayerState* HostPlayer)
+void AGRLobbyPlayerController::UpdateHostPlayerInfo(FHostPlayer& HostPlayer)
 {
 	if (!LobbyWidgetInstance)
 	{
@@ -344,7 +344,23 @@ void AGRLobbyPlayerController::ServerRPC_SelectCharacter_Implementation(int32 Ch
 		return;
 	}
 
-	GRGameInstance->SetSelectedCharacterClass(this, PlayableCharacterClasses[CharacterIndex]);
+	TSubclassOf<AGRCharacter> CharacterClass = PlayableCharacterClasses[CharacterIndex];
+	GRGameInstance->SetSelectedCharacterClass(this, CharacterClass);
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRLobbyGameState* LobbyGameState = GetWorld()->GetGameState<AGRLobbyGameState>();
+	if (!IsValid(LobbyGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyGameState is INVALID"));
+		return;
+	}
+
+	APlayerState* PS = GetPlayerState<APlayerState>();
+	LobbyGameState->SelectCharacterClass(PS, CharacterClass);
 }
 
 void AGRLobbyPlayerController::ClientRPC_OnConfirmReady_Implementation()
