@@ -30,10 +30,21 @@ void AGREnemySpawnManager::SpawnEnemies()
 			continue;
 		}
 
-		for (int32 i = 0; i < Info.SpawnCount; ++i)
+		int32 SpawnCount = 0;
+		if (Info.bUseFixedSpawnCount)
+		{
+			SpawnCount = Info.FixedSpawnCount;
+		}
+		else
+		{
+			SpawnCount = FMath::RandRange(Info.SpawnCountRange.Min, Info.SpawnCountRange.Max);			
+		}
+
+		for (int32 i = 0; i < SpawnCount; ++i)
 		{
 			AActor* SpawnedEnemy = Info.Spawner->SpawnRandomEnemy();
 		}
+		
 	}
 	
 }
@@ -59,7 +70,8 @@ void AGREnemySpawnManager::FindAllSpawnersInWorld()
 		{
 			FSpawnInfo Info;
 			Info.Spawner = Spawner;
-			Info.SpawnCount = AutoSpawnCount;
+			Info.bUseFixedSpawnCount = true;
+			Info.FixedSpawnCount = AutoSpawnCount;
 			SpawnInfos.Add(Info);
 		}
 	}

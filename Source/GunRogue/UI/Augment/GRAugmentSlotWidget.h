@@ -17,7 +17,6 @@ class UGRAugmentDefinition;
  */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAugmentSlotHovered, UGRAugmentSlotWidget*, AugmentSlot);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAugmentSlotUnhovered, UGRAugmentSlotWidget*, AugmentSlot);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAugmentSlotClicked, UGRAugmentSlotWidget*, AugmentSlot);
 
 UCLASS()
 class GUNROGUE_API UGRAugmentSlotWidget : public UUserWidget
@@ -30,10 +29,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAugmentSlotUnhovered OnAugmentSlotUnhovered;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAugmentSlotClicked OnAugmentSlotClicked;
-
+	
 	void SetAugmentSlot(UGRAugmentDefinition* Augment, int32 Level);
 
 	void UpdateAugmentSlotUI();

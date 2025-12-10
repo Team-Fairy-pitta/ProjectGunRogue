@@ -12,53 +12,53 @@
 
 void ATestMPPlayerController::OnPossess(APawn* InPawn)
 {
-	Super::OnPossess(InPawn);
-
-	UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
-	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState<ATestMPPlayerState>());
-
-	if (Subsystem && ASC)
-	{
-		Subsystem->LoadPerks();
-		Subsystem->ApplyAllPerksToASC(ASC, PerkTable, PerkGE);
-	}
-
-	if (PerkHUDClass)
-	{
-		PerkHUDWidget = CreateWidget<UGRPerkHUDWidget>(this, PerkHUDClass);
-		if (PerkHUDWidget)
-		{
-			PerkHUDWidget->AddToViewport();
-		}
-
-		FInputModeGameAndUI Mode;
-		SetInputMode(Mode);
-		bShowMouseCursor = true;
-	}
+	// Super::OnPossess(InPawn);
+	//
+	// UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	// UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState<ATestMPPlayerState>());
+	//
+	// if (Subsystem && ASC)
+	// {
+	// 	Subsystem->LoadPerks();
+	// 	Subsystem->ApplyAllPerksToASC(ASC, PerkTable, PerkGE);
+	// }
+	//
+	// if (PerkHUDClass)
+	// {
+	// 	PerkHUDWidget = CreateWidget<UGRPerkHUDWidget>(this, PerkHUDClass);
+	// 	if (PerkHUDWidget)
+	// 	{
+	// 		PerkHUDWidget->AddToViewport();
+	// 	}
+	//
+	// 	FInputModeGameAndUI Mode;
+	// 	SetInputMode(Mode);
+	// 	bShowMouseCursor = true;
+	// }
 }
 
 void ATestMPPlayerController::SetMetaGoodsInText()
 {
-	UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
-	if (Subsystem)
-	{
-		Subsystem->SetMetaGoods(9000);
-	}
-
-	if (PerkHUDWidget)
-	{
-		PerkHUDWidget->UpdateGoodsText();
-	}
+	// UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	// if (Subsystem)
+	// {
+	// 	Subsystem->SetMetaGoods(9000);
+	// }
+	//
+	// if (PerkHUDWidget)
+	// {
+	// 	PerkHUDWidget->UpdateGoodsText();
+	// }
 }
 
 void ATestMPPlayerController::ApplyPerkToASCOnSlotClicked(UGRPerkSlotWidget* PerkSlotWidget)
 {
-	UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
-	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState<ATestMPPlayerState>());
-
-	if (Subsystem && ASC)
-	{
-		Subsystem->ApplyAllPerksToASC(ASC, PerkTable, PerkGE);
-	}
+	// UGRPerkSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	// UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState<ATestMPPlayerState>());
+	//
+	// if (Subsystem && ASC)
+	// {
+	// 	Subsystem->ApplyAllPerksToASC(ASC, PerkTable, PerkGE);
+	// }
 }
 
