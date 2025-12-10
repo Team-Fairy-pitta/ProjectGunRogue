@@ -12,7 +12,13 @@ struct FSpawnInfo
 	class AGREnemySpawner* Spawner = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-	int32 SpawnCount = 1;
+	bool bUseFixedSpawnCount = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn", meta = (EditCondition = "bUseFixedSpawnCount", ClampMin = "0"))
+	int32 FixedSpawnCount = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn", meta = (EditCondition = "!bUseFixedSpawnCount", ClampMin = "0"))
+	FInt32Interval SpawnCountRange = { 0, 5 };
 };
 
 UCLASS()
@@ -36,9 +42,9 @@ public:
 	TArray<FSpawnInfo> SpawnInfos;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-	bool bAutoFindSpawners = true;
+	bool bAutoFindSpawners = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn", meta = (EditCondition = "bAutoFindSpawners", ClampMin = "0"))
 	int32 AutoSpawnCount = 5;
 
 	

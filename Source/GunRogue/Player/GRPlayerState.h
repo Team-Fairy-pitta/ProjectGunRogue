@@ -11,14 +11,18 @@
 class AGRPlayerController;
 class AGRCharacter;
 class UGRAbilitySystemComponent;
+class UGameplayEffect;
+class UGRHealthAttributeSet;
+class UGRCombatAttributeSet;
 class UGRWeaponDefinition;
 class AGRWeaponActor;
 struct FGameplayEffectSpec;
 struct FGRWeaponInstance;
 
-//Augment
 class UGRAugmentDefinition;
 struct FAugmentEntry;
+
+struct FPerkEntry;
 
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
@@ -28,7 +32,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponSwitched, int32, OldSlotIndex, int32, NewSlotIndex);
 
-//Augment
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAugmentChanged, FName, AugmentID, int32, NewLevel);
 
 namespace WeaponSlot
@@ -198,7 +201,7 @@ protected:
 
 private:
 	UFUNCTION()
-	void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
+	virtual void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
 
 	void InitAbilitySystemComponent();
 
@@ -240,4 +243,29 @@ protected:
 	TArray<FAugmentEntry> PreviousOwnedAugments;
 	
 #pragma endregion
+
+#pragma region Perk;
+public:
+	UPROPERTY(Replicated)
+	int32 CurrentMetaGoods; // 가지고 있던 재화 + 게임에서 얻은 재화
+		
+protected:
+	virtual void InitPerkFromSave();
+	void InitPerkInfoRows();
+	void LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods);
+	void InitPlayerID();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ApplyAllPerksToASC(const TArray<FPerkEntry>& PerkInfos);
+
+	FString PlayerID;
+
+	UPROPERTY(EditAnywhere, Category="Perk")
+	TSubclassOf<UGameplayEffect> PerkGE;
+
+	TArray<FPerkEntry> PerkInfoRows;
+
+#pragma endregion
 };
+
+

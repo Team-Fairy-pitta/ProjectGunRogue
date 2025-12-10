@@ -26,6 +26,16 @@ void UGRTitleMenuButtonWidget::NativeConstruct()
 	}
 }
 
+void UGRTitleMenuButtonWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (MainButton)
+	{
+		MainButton->OnClicked.RemoveDynamic(this, &UGRTitleMenuButtonWidget::OnMainClicked);
+	}
+}
+
 void UGRTitleMenuButtonWidget::OnMainClicked()
 {
 	OnTitleButtonClicked.Broadcast();

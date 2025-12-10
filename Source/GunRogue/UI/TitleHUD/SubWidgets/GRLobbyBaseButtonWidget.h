@@ -40,6 +40,8 @@ protected:
 	
 	virtual void NativeConstruct() override;
 
+	virtual void NativeDestruct() override;
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnLobbyButtonClicked OnLobbyButtonClicked;

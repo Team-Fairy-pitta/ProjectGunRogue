@@ -36,6 +36,8 @@ protected:
 	
 	virtual void NativeConstruct() override;
 
+	virtual void NativeDestruct() override;
+
 private:
 	UFUNCTION()
 	void OnMainClicked();

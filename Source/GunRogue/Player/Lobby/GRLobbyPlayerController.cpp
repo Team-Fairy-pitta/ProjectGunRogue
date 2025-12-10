@@ -1,6 +1,8 @@
 #include "Player/Lobby/GRLobbyPlayerController.h"
+#include "Player/Lobby/GRLobbyCheatManager.h"
 #include "UI/TitleHUD/GRLobbyHUDWidget.h"
 #include "UI/TitleHUD/SubWidgets/GRLobbyPlayerListWidget.h"
+#include "UI/MetaProgression/GRPerkHUDWidget.h"
 #include "GameModes/Lobby/GRLobbyGameState.h"
 #include "GameFramework/PlayerState.h"
 #include "System/GRGameInstance.h"
@@ -8,11 +10,23 @@
 AGRLobbyPlayerController::AGRLobbyPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	CheatClass = UGRLobbyCheatManager::StaticClass();
 }
 
 void AGRLobbyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+#if WITH_EDITOR
+	if (IsLocalController())
+	{
+		if (CheatManager == nullptr)
+		{
+			CheatManager = NewObject<UGRLobbyCheatManager>(this);
+		}
+	}
+#endif
 
 	if (IsLocalController())
 	{
@@ -46,6 +60,18 @@ void AGRLobbyPlayerController::CreateWidgets()
 	if (!LoadingWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create LoadingWidgetInstance Widgets"));
+	}
+
+	if (!PerkWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PerkWidgetClass (TSubclassOf<UGRPerkHUDWidget>) is INVALID"));
+		return;
+	}
+
+	PerkWidgetInstance = CreateWidget<UGRPerkHUDWidget>(this, PerkWidgetClass);
+	if (!PerkWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRPerkHUDWidget Widgets"));
 		return;
 	}
 }

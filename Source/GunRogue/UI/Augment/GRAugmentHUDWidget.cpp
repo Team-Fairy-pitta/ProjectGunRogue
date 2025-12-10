@@ -163,7 +163,7 @@ void UGRAugmentHUDWidget::CreateAugmentSlot()
 	for (UGRAugmentDefinition* Augment : RandomAugments)
 	{
 		if (!Augment)
-	{
+		{
 			continue;
 		}
 
