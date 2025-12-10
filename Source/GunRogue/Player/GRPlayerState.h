@@ -215,6 +215,25 @@ private:
 	void DeactivateWeaponInSlot(int32 SlotIndex);
 	void SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& WeaponInstance, const FVector& Location, const FRotator& Rotation);
 
+	// 슬롯 유효성 검증
+	bool IsValidSlotIndex(int32 SlotIndex) const;
+	
+	// 무기를 슬롯에 장착
+	void EquipWeaponToSlot(int32 SlotIndex, UGRWeaponDefinition* WeaponDef, const FGRWeaponInstance& Instance);
+
+	// 슬롯에서 무기 제거
+	void UnequipWeaponFromSlot(int32 SlotIndex);
+
+	// 슬롯 전환 (이전 무기 비활성화 + 새 무기 활성화)
+	void SwitchToSlot(int32 NewSlotIndex);
+
+	// 다른 슬롯에 무기가 있으면 자동 전환
+	bool TrySwitchToOtherWeapon(int32 ExcludeSlotIndex);
+
+	// UI Ammo 리셋 (무기 없을 때)
+	void ResetAmmoDisplay();
+
+
 	bool bIsAbilitySystemComponentInit = false;
 
 #pragma region Augment;
