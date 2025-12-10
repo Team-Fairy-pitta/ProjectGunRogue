@@ -72,6 +72,8 @@ protected:
 	
 	virtual void NativeConstruct() override;
 
+	virtual void NativeDestruct() override;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateLobbyButtonVisibility(bool bHost);

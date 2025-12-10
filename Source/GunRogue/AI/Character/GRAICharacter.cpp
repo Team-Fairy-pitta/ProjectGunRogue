@@ -29,7 +29,12 @@ AGRAICharacter::AGRAICharacter()
 	ASC->SetIsReplicated(true);
 	ASC->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	SetNetUpdateFrequency(100.0f);
-	
+
+	USkeletalMeshComponent* SkelMesh = GetMesh();
+	if (SkelMesh)
+	{
+		SkelMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	}
 }
 
 UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const

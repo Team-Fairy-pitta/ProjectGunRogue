@@ -105,7 +105,7 @@ FVector AGREnemySpawner::GetRandomPointInVolume() const
 FVector AGREnemySpawner::SnapSpawnPointToGround(const FVector& StartLocation) const
 {
 	FHitResult Hit;
-	FVector Start = StartLocation + FVector(0.f, 0.f, 500.f); 
+	FVector Start = StartLocation; 
 	FVector End = StartLocation - FVector(0.f, 0.f, 2000.f); 
 
 	FCollisionQueryParams Params;

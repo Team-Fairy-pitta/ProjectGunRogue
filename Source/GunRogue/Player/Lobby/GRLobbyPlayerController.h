@@ -4,6 +4,7 @@
 #include "GRLobbyPlayerController.generated.h"
 
 class UGRLobbyHUDWidget;
+class UGRPerkHUDWidget;
 
 UCLASS()
 class GUNROGUE_API AGRLobbyPlayerController : public AGRPlayerController
@@ -34,4 +35,25 @@ protected:
 
 private:
 	void CreateWidgets();
+
+#pragma region Perk
+public:
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowPerkWidget();
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowPerkWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HidePerkWidget();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRPerkHUDWidget> PerkWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UGRPerkHUDWidget> PerkWidgetInstance;
+
+#pragma endregion
+	
 };

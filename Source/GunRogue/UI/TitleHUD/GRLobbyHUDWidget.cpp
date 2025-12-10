@@ -60,6 +60,44 @@ void UGRLobbyHUDWidget::NativeConstruct()
 	}
 }
 
+void UGRLobbyHUDWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (PlayerInfoButton)
+	{
+		PlayerInfoButton->OnLobbyButtonClicked.RemoveDynamic(this, &ThisClass::OnPlayerInfoClicked);
+	}
+	if (PlayerPerksButton)
+	{
+		PlayerPerksButton->OnLobbyButtonClicked.RemoveDynamic(this, &ThisClass::OnPlayerPerksClicked);
+	}
+	if (StartGameButton)
+	{
+		StartGameButton->OnLobbyButtonClicked.RemoveDynamic(this, &ThisClass::OnStartGameClicked);
+	}
+	if (ReadyGameButton)
+	{
+		ReadyGameButton->OnLobbyButtonClicked.RemoveDynamic(this, &ThisClass::OnReadyGameClicked);
+	}
+	if (ExitLobbyButton)
+	{
+		ExitLobbyButton->OnLobbyButtonClicked.RemoveDynamic(this, &ThisClass::OnExitLobbyClicked);
+	}
+	if (InviteButton)
+	{
+		InviteButton->OnLobbyButtonClicked.RemoveDynamic(this, &ThisClass::OnInviteClicked);
+	}
+
+	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
+	{
+		if (CharacterSlots[i])
+		{
+			CharacterSlots[i]->OnCharacterSelectClicked.RemoveDynamic(this, &UGRLobbyHUDWidget::OnCharacterSelected);
+		}
+	}
+}
+
 void UGRLobbyHUDWidget::UpdateLobbyButtonVisibility(bool bHost)
 {
 	if (!StartGameButton || !ReadyGameButton)
@@ -117,7 +155,13 @@ void UGRLobbyHUDWidget::OnPlayerInfoClicked()
 
 void UGRLobbyHUDWidget::OnPlayerPerksClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Player perks clicked"));
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+	LobbyPlayerController->HideLobbyWidget();
+	LobbyPlayerController->ShowPerkWidget();
 }
 
 void UGRLobbyHUDWidget::OnStartGameClicked()
