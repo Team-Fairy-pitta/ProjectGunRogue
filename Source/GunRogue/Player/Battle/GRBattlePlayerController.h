@@ -47,6 +47,8 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnActiveGameplayEffectRemoved(TSubclassOf<UGameplayEffect> EffectClass);
 
+	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }	
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UGRBattleHUDWidget> HUDWidgetInstance;

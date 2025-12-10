@@ -4,6 +4,8 @@
 #include "Engine/DataAsset.h"
 #include "Weapon/GRWeaponTypes.h"
 #include "Character/Attachment/GRCharacterAttachment.h"
+#include "NiagaraSystem.h"
+#include "Particles/ParticleSystem.h"
 #include "GRWeaponDefinition.generated.h"
 
 class UTexture2D;
@@ -13,6 +15,7 @@ class UAnimSequence;
 class UAnimMontage;
 class UGRAbilitySet;
 class UGRWeaponOptionPool;
+class USoundBase;
 
 UCLASS()
 class GUNROGUE_API UGRWeaponDefinition : public UDataAsset
@@ -20,6 +23,7 @@ class GUNROGUE_API UGRWeaponDefinition : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	// ======== 기본 정보 ========
 	// 무기 카테고리
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	EGRWeaponCategory WeaponCategory = EGRWeaponCategory::None;
@@ -36,6 +40,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	TObjectPtr<UTexture2D> WeaponIcon;
 
+	// ======== 메시 ========
 	// 무기 메시 (바닥에 떨어져 있을 때)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Mesh")
 	TObjectPtr<UStaticMesh> WeaponPickupMesh;
@@ -44,10 +49,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Mesh")
 	FGRCharacterAttachment WeaponAttachment;
 
+	// ======== 어빌리티 ========
 	// 무기가 부여하는 어빌리티(사격, 재장전, 특수능력 등)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ability")
 	TObjectPtr<UGRAbilitySet> AbilitySet;
 
+	// ======== 애니메이션 ========
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
 	TObjectPtr<UAnimSequence> IdleAnimSequence;
 
@@ -60,6 +67,46 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
 	TObjectPtr<UAnimMontage> FireAnimMontage;
 
+	// ======== 사운드 ========
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Sound")
+	TObjectPtr<USoundBase> FireSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Sound")
+	TObjectPtr<USoundBase> EmptyFireSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Sound")
+	TObjectPtr<USoundBase> ReloadSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Sound")
+	TObjectPtr<USoundBase> ImpactSound;
+
+
+	// ======== 이펙트 ========
+	// 머즐 플래시 - Niagara (우선)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UNiagaraSystem> MuzzleFlashNiagara;
+
+	// 머즐 플래시 - Cascade (Niagara 없을 때 사용)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UParticleSystem> MuzzleFlashCascade;
+
+	// 히트 이펙트 - Niagara
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UNiagaraSystem> ImpactEffectNiagara;
+
+	// 히트 이펙트 - Cascade
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UParticleSystem> ImpactEffectCascade;
+
+	// 총알 궤적 (Tracer) - Niagara
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UNiagaraSystem> BulletTracerNiagara;
+
+	// 총알 궤적 (Tracer) - Cascade
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Effect")
+	TObjectPtr<UParticleSystem> BulletTracerCascade;
+
+	// ======== 무기 스탯 ========
 	/* 무기 강화 파트에서 사용하고 있는 값 */
 	/* [NOTE] 무기의 Status Effect 랑 어떻게 통합할 수 있을까..? */
 	// 무기 기본 데미지
@@ -82,8 +129,4 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ammo")
 	int32 MaxAmmo = 30;
 
-	// 재장전 시간 (초)
-	/* [NOTE] 재장전 시간은 애님 몽타주 재생 시간을 이용해야 함. 따라서 나중에 제거해야함 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ammo")
-	float ReloadTime = 2.0f;
 };

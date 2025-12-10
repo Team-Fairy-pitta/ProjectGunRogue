@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
+#include "AI/Controller/GRAIController.h"
 #include "GRBossLuwoAIController.generated.h"
 
 /**
@@ -26,7 +26,7 @@ enum class EBossAttackRangeState : uint8
 };
 
 UCLASS()
-class GUNROGUE_API AGRBossLuwoAIController : public AAIController
+class GUNROGUE_API AGRBossLuwoAIController : public AGRAIController
 {
 	GENERATED_BODY()
 
@@ -35,32 +35,16 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void OnPossess(APawn* InPawn) override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
 	void InitBlackboardKey();
 	
 public:
-	static const FName TargetPlayerKey;
-	static const FName LastPlayerLocationKey;
 	static const FName BossAttackRangeStateKey;
 	static const FName FarAttackRandomIndexKey;
 	static const FName StartJumpTargetPointKey;
 	static const FName ShieldRegenTargetPointKey;
 	static const FName MapCenterTargetPointKey;
-
-private:
-	UPROPERTY(EditDefaultsOnly, Category="AI")
-	TObjectPtr<UBehaviorTree> BehaviorTreeAsset;
 	
-	UPROPERTY(EditDefaultsOnly, Category="AI")
-	TObjectPtr<UBlackboardData> BlackboardAsset;
-	
-	UPROPERTY()
-	TObjectPtr<UBehaviorTreeComponent> BehaviorComp;
-	
-	UPROPERTY()
-	UBlackboardComponent* BlackboardComp;
 	
 };
