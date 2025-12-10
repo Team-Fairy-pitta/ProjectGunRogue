@@ -11,20 +11,18 @@
 class AGRPlayerController;
 class AGRCharacter;
 class UGRAbilitySystemComponent;
+class UGameplayEffect;
+class UGRHealthAttributeSet;
+class UGRCombatAttributeSet;
 class UGRWeaponDefinition;
 class AGRWeaponActor;
 struct FGameplayEffectSpec;
 struct FGRWeaponInstance;
 
-//Augment
 class UGRAugmentDefinition;
 struct FAugmentEntry;
 
-//Perk
-class UGameplayEffect;
 struct FPerkEntry;
-class UGRHealthAttributeSet;
-class UGRCombatAttributeSet;
 
 DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
 
@@ -34,11 +32,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponSwitched, int32, OldSlotIndex, int32, NewSlotIndex);
 
-//Augment
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAugmentChanged, FName, AugmentID, int32, NewLevel);
-
-//Perk
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPerksLoaded);
 
 namespace WeaponSlot
 {
@@ -253,55 +247,23 @@ protected:
 #pragma region Perk;
 public:
 	UPROPERTY(Replicated)
-	TArray<FPerkEntry> PerkInfoRows;
-	
-	UPROPERTY(Replicated)
-	int32 MetaGoods;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnPerksLoaded OnPerksLoaded;
-
+	int32 CurrentMetaGoods; // 가지고 있던 재화 + 게임에서 얻은 재화
+		
+protected:
+	virtual void InitPerkFromSave();
 	void InitPerkInfoRows();
-	
-	void InitPerkFromSave();
-	
 	void LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods);
-
-	void SavePerkToSave();
-
 	void InitPlayerID();
 
-	int32 GetPerkLevel(FName PerkID) const;
-	
-	int32 GetMetaGoods() const { return MetaGoods;}
-	
-	void SetPerkLevel(FName PerkID, int32 Level);
-	
-	void SetMetaGoods(int32 Amount);
-	
-	bool TryUpgradePerk(FName PerkID);
-
-	bool ArePerksLoaded() const { return bPerksLoaded; }
-	
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ApplyAllPerksToASC();
-	
-	void ApplyAllPerksToASC(UAbilitySystemComponent* ASC, TSubclassOf<UGameplayEffect> GE);
 
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AttributeSet")
-	TObjectPtr<UGRHealthAttributeSet> HealthAttributeSet;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AttributeSet")
-	TObjectPtr<UGRCombatAttributeSet> CombatAttributeSet;
-
-private:
 	FString PlayerID;
 
-	bool bPerksLoaded = false;
-	
 	UPROPERTY(EditAnywhere, Category="Perk")
 	TSubclassOf<UGameplayEffect> PerkGE;
+
+	TArray<FPerkEntry> PerkInfoRows;
 
 #pragma endregion
 };

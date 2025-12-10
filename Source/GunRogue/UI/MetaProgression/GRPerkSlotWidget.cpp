@@ -9,8 +9,8 @@
 #include "MetaProgression/GRPerkSubsystem.h"
 #include "MetaProgression/PerkInfoRow.h"
 #include "GRPerkTooltipWidget.h"
-#include "Player/GRPlayerState.h"
 #include "Player/Lobby/GRLobbyPlayerController.h"
+#include "Player/Lobby/GRLobbyPlayerState.h"
 
 void UGRPerkSlotWidget::NativeConstruct()
 {
@@ -72,7 +72,7 @@ void UGRPerkSlotWidget::OnPerkClicked()
 		return;
 	}
 
-	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	AGRLobbyPlayerState* PS = PC->GetPlayerState<AGRLobbyPlayerState>();
 	if (!PS)
 	{
 		return;
@@ -123,7 +123,7 @@ void UGRPerkSlotWidget::UpdatePerkSlot()
 		return;
 	}
 
-	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	AGRLobbyPlayerState* PS = PC->GetPlayerState<AGRLobbyPlayerState>();
 	if (!PS)
 	{
 		return;

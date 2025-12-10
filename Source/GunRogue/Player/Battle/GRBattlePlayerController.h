@@ -166,7 +166,7 @@ private:
 /* 증강 관련 코드 */
 #pragma region Augment
 public:
-	UFUNCTION(Client, Reliable)
+	UFUNCTION(Client, Reliable) 
 	void ClientRPC_ShowAugmentWidget();
 	
 	UFUNCTION(BlueprintCallable)
@@ -187,13 +187,4 @@ protected:
 	
 #pragma endregion Augment
 
-/* 성장 관련 코드 */
-#pragma region Perk
-public:
-	UFUNCTION()
-	void RequestApplyAllPerks();
-
-	void InitPerks();
-	
-#pragma endregion Perk
 };

@@ -1,15 +1,28 @@
 #include "Player/Lobby/GRLobbyPlayerController.h"
+#include "Player/Lobby/GRLobbyCheatManager.h"
 #include "UI/TitleHUD/GRLobbyHUDWidget.h"
 #include "UI/MetaProgression/GRPerkHUDWidget.h"
 
 AGRLobbyPlayerController::AGRLobbyPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	CheatClass = UGRLobbyCheatManager::StaticClass();
 }
 
 void AGRLobbyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+#if WITH_EDITOR
+	if (IsLocalController())
+	{
+		if (CheatManager == nullptr)
+		{
+			CheatManager = NewObject<UGRLobbyCheatManager>(this);
+		}
+	}
+#endif
 
 	if (IsLocalController())
 	{

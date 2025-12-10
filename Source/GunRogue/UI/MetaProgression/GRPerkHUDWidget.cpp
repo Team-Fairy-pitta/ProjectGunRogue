@@ -11,9 +11,9 @@
 #include "Components/VerticalBoxSlot.h"
 #include "GRPerkTooltipWidget.h"
 #include "MetaProgression/PerkInfoRow.h"
-#include "Player/GRPlayerState.h"
 #include "Components/Button.h"
 #include "Player/Lobby/GRLobbyPlayerController.h"
+#include "Player/Lobby/GRLobbyPlayerState.h"
 
 void UGRPerkHUDWidget::NativeConstruct()
 {
@@ -149,7 +149,7 @@ void UGRPerkHUDWidget::UpdateTooltip(UGRPerkSlotWidget* PerkSlot)
 		return;
 	}
 
-	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	AGRLobbyPlayerState* PS = PC->GetPlayerState<AGRLobbyPlayerState>();
 	if (!PS)
 	{
 		return;
@@ -178,7 +178,7 @@ void UGRPerkHUDWidget::UpdateGoodsText()
 		return;
 	}
 
-	AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
+	AGRLobbyPlayerState* PS = PC->GetPlayerState<AGRLobbyPlayerState>();
 	if (!PS)
 	{
 		return;

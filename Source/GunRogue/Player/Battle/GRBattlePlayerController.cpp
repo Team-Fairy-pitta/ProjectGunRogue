@@ -39,8 +39,6 @@ void AGRBattlePlayerController::BeginPlay()
 			OnRep_PlayerState();
 		}
 	}
-
-	InitPerks();
 }
 
 void AGRBattlePlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
