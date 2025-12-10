@@ -16,6 +16,6 @@ class GUNROGUE_API UGRDamageIndicator : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetData(float Damage, AActor* Actor);
+	void SetData(float Damage, AActor* TargetActor);
 	
 };
