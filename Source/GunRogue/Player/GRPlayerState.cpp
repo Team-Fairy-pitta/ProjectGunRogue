@@ -731,8 +731,11 @@ void AGRPlayerState::InitAbilitySystemComponent()
 		OnAbilitySystemComponentInit.Broadcast();
 	}
 
-	InitPerkFromSave();
-	ServerRPC_ApplyAllPerksToASC();
+	if (GRCharacter->IsLocallyControlled())
+	{
+		InitPerkFromSave();
+		ServerRPC_ApplyAllPerksToASC(PerkInfoRows);
+	}
 
 	bIsAbilitySystemComponentInit = true;
 }

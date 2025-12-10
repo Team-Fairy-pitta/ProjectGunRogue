@@ -4,12 +4,6 @@
 #include "MetaProgression/GRPerkStructs.h"
 #include "MetaProgression/PerkInfoRow.h"
 
-void AGRLobbyPlayerState::BeginPlay()
-{
-	InitPerkFromSave();
-	SavePerkToSave();
-}
-
 void AGRLobbyPlayerState::InitPerkFromSave()
 {
 	Super::InitPerkFromSave();
@@ -100,4 +94,13 @@ bool AGRLobbyPlayerState::TryUpgradePerk(FName PerkID)
 		*PerkID.ToString(), CurrentLevel + 1, GetMetaGoods());
 
 	return true;
+}
+
+void AGRLobbyPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)
+{
+	if (NewPawn && NewPawn->IsLocallyControlled())
+	{
+		InitPerkFromSave();
+		SavePerkToSave();
+	}
 }

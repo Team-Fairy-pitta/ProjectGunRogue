@@ -135,7 +135,7 @@ void AGRPlayerState::InitPlayerID()
 	}
 }
 
-void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation()
+void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation(const TArray<FPerkEntry>& PerkInfos)
 {
 	if (!HasAuthority())
 	{
@@ -176,9 +176,9 @@ void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation()
 
 	SpecHandle.Data->DynamicGrantedTags.AddTag(PerkRootTag);
 
-	UE_LOG(LogTemp, Warning, TEXT("PerkInfoRows.Num() = %d"), PerkInfoRows.Num());
+	UE_LOG(LogTemp, Warning, TEXT("PerkInfos.Num() = %d"), PerkInfos.Num());
 
-	for (const FPerkEntry& Entry : PerkInfoRows)
+	for (const FPerkEntry& Entry : PerkInfos)
 	{
 		FPerkInfoRow* Row = PerkTable->FindRow<FPerkInfoRow>(Entry.PerkID, TEXT(""));
 		if (!Row)

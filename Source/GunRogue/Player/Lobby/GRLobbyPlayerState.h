@@ -9,8 +9,6 @@ class GUNROGUE_API AGRLobbyPlayerState : public AGRPlayerState
 	GENERATED_BODY()
 	
 public:
-	virtual void BeginPlay() override;
-
 	int32 MetaGoods;
 
 	virtual void InitPerkFromSave() override;
@@ -23,4 +21,7 @@ public:
 	void SetMetaGoods(int32 Amount);
 
 	bool TryUpgradePerk(FName PerkID);
+
+private:
+	virtual void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn) override;
 };

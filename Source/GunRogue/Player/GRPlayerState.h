@@ -201,7 +201,7 @@ protected:
 
 private:
 	UFUNCTION()
-	void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
+	virtual void OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
 
 	void InitAbilitySystemComponent();
 
@@ -256,7 +256,7 @@ protected:
 	void InitPlayerID();
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_ApplyAllPerksToASC();
+	void ServerRPC_ApplyAllPerksToASC(const TArray<FPerkEntry>& PerkInfos);
 
 	FString PlayerID;
 
