@@ -237,7 +237,6 @@ void UGRLobbyHUDWidget::OnPlayerPerksClicked()
 	{
 		return;
 	}
-	LobbyPlayerController->HideLobbyWidget();
 	LobbyPlayerController->ShowPerkWidget();
 }
 
