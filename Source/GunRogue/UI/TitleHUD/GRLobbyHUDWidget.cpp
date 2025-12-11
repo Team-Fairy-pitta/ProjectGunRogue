@@ -199,6 +199,7 @@ void UGRLobbyHUDWidget::InitCharacterSelectButtons()
 	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
 	{
 		UTexture2D* Thumbnail = nullptr;
+		FText CharacterName;
 		if (GRLobbyPlayerController->PlayableCharacterClasses.IsValidIndex(i))
 		{
 			TSubclassOf<AGRCharacter> CharacterClass = GRLobbyPlayerController->PlayableCharacterClasses[i];
@@ -209,6 +210,7 @@ void UGRLobbyHUDWidget::InitCharacterSelectButtons()
 				if (PawnData)
 				{
 					Thumbnail = PawnData->CharacterThumbnail;
+					CharacterName = PawnData->CharacterName;
 				}
 			}
 		}
@@ -218,6 +220,7 @@ void UGRLobbyHUDWidget::InitCharacterSelectButtons()
 			CharacterSlots[i]->CharacterIndex = i;
 			CharacterSlots[i]->OnCharacterSelectClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnCharacterSelected);
 			CharacterSlots[i]->SetCharacterImage(Thumbnail);
+			CharacterSlots[i]->SetCharacterName(CharacterName);
 		}
 	}
 }

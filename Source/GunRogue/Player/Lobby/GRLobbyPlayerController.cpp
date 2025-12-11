@@ -4,6 +4,8 @@
 #include "UI/TitleHUD/GRLobbyHUDWidget.h"
 #include "UI/TitleHUD/SubWidgets/GRLobbyPlayerListWidget.h"
 #include "UI/MetaProgression/GRPerkHUDWidget.h"
+#include "Character/GRCharacter.h"
+#include "Character/GRPawnData.h"
 #include "GameModes/Lobby/GRLobbyGameState.h"
 #include "System/GRGameInstance.h"
 
@@ -344,9 +346,6 @@ void AGRLobbyPlayerController::ServerRPC_SelectCharacter_Implementation(int32 Ch
 		return;
 	}
 
-	TSubclassOf<AGRCharacter> CharacterClass = PlayableCharacterClasses[CharacterIndex];
-	GRGameInstance->SetSelectedCharacterClass(this, CharacterClass);
-
 	if (!GetWorld())
 	{
 		return;
@@ -359,8 +358,58 @@ void AGRLobbyPlayerController::ServerRPC_SelectCharacter_Implementation(int32 Ch
 		return;
 	}
 
+	TSubclassOf<AGRCharacter> CharacterClass = PlayableCharacterClasses[CharacterIndex];
+	GRGameInstance->SetSelectedCharacterClass(this, CharacterClass);
+
 	APlayerState* PS = GetPlayerState<APlayerState>();
 	LobbyGameState->SelectCharacterClass(PS, CharacterClass);
+
+	int32 PlayerIndexForSpawnCharacterInLobby = GRGameInstance->GetPlayerIndex(this);
+	if (IsValid(SpawnedLobbyCharacter))
+	{
+		SpawnedLobbyCharacter->Destroy();
+	}
+	SpawnedLobbyCharacter = SpawnCharacterInLobby(PlayerIndexForSpawnCharacterInLobby, CharacterClass);
+}
+
+AActor* AGRLobbyPlayerController::SpawnCharacterInLobby(int32 Index, TSubclassOf<AGRCharacter> CharacterClass)
+{
+	FTransform TargetTransform = FTransform::Identity;
+	if (CharacterSpawnTransformsInLobby.IsValidIndex(Index))
+	{
+		TargetTransform = CharacterSpawnTransformsInLobby[Index];
+	}
+
+	AGRCharacter* CDO = Cast<AGRCharacter>(CharacterClass->GetDefaultObject());
+	if (!CDO)
+	{
+		return nullptr;
+	}
+
+	UGRPawnData* PawnData = CDO->PawnData;
+	if (!PawnData)
+	{
+		return nullptr;
+	}
+
+	if (GetWorld())
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+
+		if (PawnData->CharacterActorInLobby)
+		{
+			return GetWorld()->SpawnActor<AActor>(PawnData->CharacterActorInLobby, TargetTransform, SpawnParams);
+		}
+		else
+		{
+			return GetWorld()->SpawnActor<AActor>(CharacterClass, TargetTransform, SpawnParams);
+		}
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 void AGRLobbyPlayerController::ClientRPC_OnConfirmReady_Implementation()

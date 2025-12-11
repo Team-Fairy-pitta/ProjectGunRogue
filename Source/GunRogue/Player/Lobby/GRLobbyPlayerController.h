@@ -68,11 +68,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Map")
 	TSoftObjectPtr<UWorld> GameStartMap;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|CharacterSpawn")
+	TArray<FTransform> CharacterSpawnTransformsInLobby;
+
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_StartGame();
 
 private:
 	void CreateWidgets();
+	AActor* SpawnCharacterInLobby(int32 Index, TSubclassOf<AGRCharacter> CharacterClass);
+
+	UPROPERTY()
+	TObjectPtr<AActor> SpawnedLobbyCharacter;
 
 #pragma region Perk
 public:

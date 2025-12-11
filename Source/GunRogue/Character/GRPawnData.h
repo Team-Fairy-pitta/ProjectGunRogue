@@ -23,5 +23,11 @@ public:
 	TArray<TObjectPtr<UGRAbilitySet>> AbilitySets;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Description")
+	FText CharacterName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Description")
 	TObjectPtr<UTexture2D> CharacterThumbnail;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|SpawnInLobby")
+	TSubclassOf<AActor> CharacterActorInLobby;
 };

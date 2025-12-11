@@ -15,6 +15,14 @@ void UGRLobbyCharacterSelectSlotWidget::SetCharacterImage(UTexture2D* InTexture)
 	}
 }
 
+void UGRLobbyCharacterSelectSlotWidget::SetCharacterName(const FText& InCharacterName)
+{
+	if (CharNameText)
+	{
+		CharNameText->SetText(InCharacterName);
+	}
+}
+
 void UGRLobbyCharacterSelectSlotWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();

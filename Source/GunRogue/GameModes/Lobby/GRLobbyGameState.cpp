@@ -1,6 +1,7 @@
 #include "GameModes/Lobby/GRLobbyGameState.h"
 #include "Player/Lobby/GRLobbyPlayerController.h"
 #include "Player/Lobby/GRLobbyPlayerState.h"
+#include "System/GRGameInstance.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -35,6 +36,11 @@ void AGRLobbyGameState::AddPlayerState(APlayerState* PlayerState)
 		return;
 	}
 
+	if (!GetWorld())
+	{
+		return;
+	}
+
 	// [NOTE] Dedicated Server에서는 동작하지 않음
 	if (GetNetMode() == ENetMode::NM_ListenServer)
 	{
@@ -49,6 +55,10 @@ void AGRLobbyGameState::AddPlayerState(APlayerState* PlayerState)
 		{
 			return;
 		}
+
+		FTimerDelegate TimerDelegate;
+		TimerDelegate.BindUObject(this, &ThisClass::RegistPlayerIndex, PlayerController);
+		GetWorldTimerManager().SetTimerForNextTick(TimerDelegate);
 
 		if (PlayerController->IsLocalController())
 		{
@@ -81,6 +91,20 @@ void AGRLobbyGameState::RemovePlayerState(APlayerState* PlayerState)
 	// [NOTE] Dedicated Server에서는 동작하지 않음
 	if (GetNetMode() == ENetMode::NM_ListenServer)
 	{
+		APlayerController* PlayerController = PlayerState->GetPlayerController();
+		if (!PlayerController)
+		{
+			return;
+		}
+
+		UGRGameInstance* GRGameInstance = GetWorld()->GetGameInstance<UGRGameInstance>();
+		if (!GRGameInstance)
+		{
+			return;
+		}
+
+		GRGameInstance->UnregistPlayerIndex(PlayerController);
+
 		if (HostPlayer.PlayerState == PlayerState)
 		{
 			// [NOTE] TODO: 호스트가 나갔을 때의 처리
@@ -231,4 +255,15 @@ bool AGRLobbyGameState::IsAllPlayerReady()
 		}
 		return bAllReady;
 	}
+}
+
+void AGRLobbyGameState::RegistPlayerIndex(APlayerController* PlayerController)
+{
+	UGRGameInstance* GRGameInstance = GetWorld()->GetGameInstance<UGRGameInstance>();
+	if (!GRGameInstance)
+	{
+		return;
+	}
+	GRGameInstance->RegistPlayerIndex(PlayerController);
+
 }

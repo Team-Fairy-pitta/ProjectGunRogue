@@ -27,6 +27,7 @@ public:
 	USizeBox* GetSizeBox() const { return CharSelectSizeBox; }
 
 	void SetCharacterImage(UTexture2D* InTexture);
+	void SetCharacterName(const FText& InCharacterName);
 
 protected:
 	UPROPERTY(meta = (BindWidget))

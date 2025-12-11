@@ -73,6 +73,8 @@ protected:
 
 	void UpdateCanStartGame();
 
+	void RegistPlayerIndex(APlayerController* PlayerController);
+
 private:
 	int32 FindGuestIndex(APlayerState* GuestPlayerState);
 };
