@@ -220,7 +220,9 @@ void AGRLobbyGameState::UpdateCanStartGame()
 		return;
 	}
 
-	bool CanStartGame = IsAllPlayerReady();
+	bool bHostPlayerSelectCharacter = HostPlayer.SelectedCharacterClass != nullptr;
+	bool bIsAllAready = IsAllPlayerReady();
+	bool CanStartGame = bHostPlayerSelectCharacter && bIsAllAready;
 	LobbyPlayerController->UpdateCanStartGame(CanStartGame);
 }
 
