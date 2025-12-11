@@ -3,7 +3,9 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "Weapon/GRWeaponHandle.h"
 #include "Weapon/GRWeaponInstance.h"
+#include "Weapon/GRWeaponDefinition.h"
 #include "Character/GRCharacter.h"
+#include "Character/Attachment/GRAttachmentComponent.h"
 #include "Player/GRPlayerState.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
@@ -156,20 +158,69 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	}
 
 	const bool bIsServer = (SourceASC->GetOwnerRole() == ROLE_Authority);
+
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
+	AGRPlayerState* PS = GRCharacter ? GRCharacter->GetPlayerState<AGRPlayerState>() : nullptr;
+	UGRWeaponDefinition* WeaponDef = PS ? PS->GetCurrentWeaponDefinition() : nullptr;
 	FGRWeaponInstance* WeaponInstance = nullptr;
+
+	// 카메라 위치/방향 가져오기
+	FVector CameraLocation;
+	FRotator CameraRotation;
+
+	APlayerController* PC = Cast<APlayerController>(Character->GetController());
+	if (PC)
+	{
+		PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
+	}
+	else
+	{
+		CameraLocation = Character->GetActorLocation();
+		CameraRotation = Character->GetActorRotation();
+	}
+
+	// Muzzle 소켓 위치 가져오기
+	FVector MuzzleLocation = CameraLocation; // 못 찾으면 카메라 위치 사용(폴백)
+	bool bHasMuzzleSocket = false;
+
+	if (GRCharacter)
+	{
+		// SkeletalMesh 무기 확인
+		USkeletalMeshComponent* WeaponMesh = GRCharacter->GetEquippedWeaponMesh();
+		if (WeaponMesh)
+		{
+			// 총구 소켓 이름들
+			TArray<FName> PossibleSocketNames = {
+				FName("Muzzle"),
+				FName("muzzle")
+			};
+
+			for (const FName& SocketName : PossibleSocketNames)
+			{
+				if (WeaponMesh->DoesSocketExist(SocketName))
+				{
+					MuzzleLocation = WeaponMesh->GetSocketLocation(SocketName);
+					bHasMuzzleSocket = true;
+					UE_LOG(LogTemp, Verbose, TEXT("[Fire] Using socket '%s'"), *SocketName.ToString());
+					break;
+				}
+			}
+		}
+	}
+
+	if (!bHasMuzzleSocket)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Fire] Muzzle socket not found - using camera location"));
+	}
 
 	// WeaponHandle에서 직접 WeaponInstance 가져오기
 	if (bIsServer)
 	{
-		AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
-		if (!GRCharacter)
-		{
-			return;
-		}
-
-		AGRPlayerState* PS = GRCharacter->GetPlayerState<AGRPlayerState>();
 		if (!PS)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] No PlayerState! (Server)"));
+			StopContinuousFire();
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 			return;
 		}
 
@@ -191,10 +242,14 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 			return;
 		}
 
-		// 🔧 서버에서만 실제 탄약 체크/소모
+		// 서버에서만 실제 탄약 체크/소모
 		if (!WeaponInstance->CheckHasAmmo())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[Fire] No ammo! (Server)"));
+			if (GRCharacter)
+			{
+				GRCharacter->ServerRPC_PlayEmptyFireFX(MuzzleLocation);
+			}
 			StopContinuousFire();
 			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 			return;
@@ -226,6 +281,13 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		// 클라는 여기서 그냥 발사/시각 피드백만 수행
 	}
 
+	// 사격 애니메이션 재생
+	if (WeaponDef && WeaponDef->FireAnimMontage)
+	{
+		Character->PlayAnimMontage(WeaponDef->FireAnimMontage, 1.0f);
+		UE_LOG(LogTemp, Verbose, TEXT("[Fire] Playing FireAnimMontage: %s"),
+			*WeaponDef->FireAnimMontage->GetName());
+	}
 
 	if (!DamageEffect)
 	{
@@ -238,21 +300,6 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	const float Recoil = CombatSet->GetRecoil();
 	const float CurrentSpread = CombatSet->GetCurrentSpread();
 
-	// 카메라 위치/방향 가져오기
-	FVector CameraLocation;
-	FRotator CameraRotation;
-
-	APlayerController* PC = Cast<APlayerController>(Character->GetController());
-	if (PC)
-	{
-		PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
-	}
-	else
-	{
-		CameraLocation = Character->GetActorLocation();
-		CameraRotation = Character->GetActorRotation();
-	}
-
 	// 탄퍼짐 적용 (Accuracy 낮을수록, CurrentSpread 높을수록 더 퍼짐)
 	const float SpreadAngle = CurrentSpread * (1.0f - Accuracy);
 	const float RandomPitch = FMath::RandRange(-SpreadAngle, SpreadAngle);
@@ -262,16 +309,30 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 	AdjustedRotation.Pitch += RandomPitch;
 	AdjustedRotation.Yaw += RandomYaw;
 
-	// LineTrace 실행
-	FVector TraceStart = CameraLocation;
-	FVector TraceEnd = CameraLocation + (AdjustedRotation.Vector() * FireRange);
-
-	FHitResult HitResult;
+	// 카메라에서 타겟 포인트 찾기
+	FVector CameraTraceEnd = CameraLocation + (AdjustedRotation.Vector() * FireRange);
+	FHitResult CameraHit;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(Character);
 	QueryParams.bTraceComplex = false;
 	QueryParams.bReturnPhysicalMaterial = false;
 
+	GetWorld()->LineTraceSingleByChannel(
+		CameraHit,
+		CameraLocation,
+		CameraTraceEnd,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	FVector TargetPoint = CameraHit.bBlockingHit ? CameraHit.Location : CameraTraceEnd;
+
+	// 총구에서 타겟 포인트로 발사(Line Trace 실행)
+	FVector MuzzleToTarget = (TargetPoint - MuzzleLocation).GetSafeNormal();
+	FVector TraceStart = MuzzleLocation;
+	FVector TraceEnd = MuzzleLocation + (MuzzleToTarget * FireRange);
+
+	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(
 		HitResult,
 		TraceStart,
@@ -280,11 +341,20 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		QueryParams
 	);
 
+	// 총알 궤적 재생 (히트 여부 관계없이)
+	FVector TracerEndPoint = bHit ? HitResult.Location : TraceEnd;
+	if (bIsServer && GRCharacter)
+	{
+		// 발사 FX/사운드
+		GRCharacter->ServerRPC_PlayFireFX(MuzzleLocation, TracerEndPoint);
+	}
+
 
 	// 탄퍼짐 수치 증가. non-const 캐스팅 필요 -> IncreaseSpread 함수가 non-const 멤버임
 	UGRCombatAttributeSet* MutableCombatSet = const_cast<UGRCombatAttributeSet*>(CombatSet);
 	MutableCombatSet->IncreaseSpread(SourceASC);
-
+	
+	// 반동 적용
 	ApplyRecoil(Recoil);
 
 #if WITH_EDITOR
@@ -298,39 +368,17 @@ void UGRGameplayAbility_HitscanAttack::FireLineTrace()
 		DrawDebugSphere(GetWorld(), HitResult.Location, 20.0f, 12, FColor::Orange,
 			false, DebugLineDuration);
 	}
-
-	// 탄퍼짐 디버그 정보 화면 출력
-	if (GEngine)
-	{
-		const float UpdatedSpread = MutableCombatSet->GetCurrentSpread();
-		const float MaxSpreadValue = MutableCombatSet->GetMaxSpread();
-		const float SpreadPercentage = (UpdatedSpread / MaxSpreadValue) * 100.0f;
-
-		const FString SpreadMessage = FString::Printf(
-			TEXT("Spread: %.2f / %.2f (%.0f%%)"),
-			UpdatedSpread,
-			MaxSpreadValue,
-			SpreadPercentage
-		);
-
-		FColor SpreadColor = FColor::Green;
-		if (SpreadPercentage > 70.0f)
-		{
-			SpreadColor = FColor::Red;
-		}
-		else if (SpreadPercentage > 40.0f)
-		{
-			SpreadColor = FColor::Yellow;
-		}
-
-		GEngine->AddOnScreenDebugMessage(1, 0.0f, SpreadColor, SpreadMessage);
-	}
 #endif
 
 	if (!bHit)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[Fire] Miss"));
 		return;
+	}
+
+	if (bIsServer && GRCharacter)
+	{
+		GRCharacter->ServerRPC_PlayImpactFX(HitResult.Location);
 	}
 
 	AActor* HitActor = HitResult.GetActor();

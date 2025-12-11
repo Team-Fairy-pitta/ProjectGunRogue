@@ -6,8 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GRPerkSubsystem.generated.h"
 
-class UAbilitySystemComponent;
-class UGameplayEffect;
+struct FPerkEntry;
 /**
  * 
  */
@@ -19,36 +18,19 @@ class GUNROGUE_API UGRPerkSubsystem : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
-	void LoadPerks();
-	void SavePerks();
+	bool LoadPerks(const FString& PlayerID, TArray<FPerkEntry>& InPerkInfoRows, int32& InMetaGoods);
+	void SavePerks(const FString& PlayerID, const TArray<FPerkEntry>& InPerkInfoRows, int32& InMetaGoods);
 
 	// 멀티플레이어 로컬 세이브에서 UserIndex는 보통 0 
 	int32 GetUserIndex() const { return 0; }
 	
-	FString GetLocalPlayerUniqueId() const;
-	
 	FString GetPlayerSpecificSaveSlotName(const FString& PlayerId) const;
 
-private:
-	FString LocalPlayerUniqueId;
+	UDataTable* GetPerkTable() const { return PerkTable; }
 
-public:
-	int32 GetPerkLevel(FName PerkID) const;
-	void SetPerkLevel(FName PerkID, int32 Level);
-
-	float GetPerkBonus(FName PerkID, const UDataTable* PerkTable) const;
-
-	int32 GetMetaGoods() const { return MetaGoods;}
-	void SetMetaGoods(int32 Amount);
-	void AddMetaGoods(int32 Amount);
-	
-	bool TryUpgradePerk(FName PerkID, const UDataTable* PerkTable);
-
-	void ApplyAllPerksToASC(UAbilitySystemComponent* ASC, const UDataTable* PerkTable, TSubclassOf<UGameplayEffect> GE);
-	
-private:
 	UPROPERTY()
-	TMap<FName, int32> PerkInfoRows;
+	FSoftObjectPath PerkDataTablePath;
 
-	int32 MetaGoods;
+	UPROPERTY()
+	UDataTable* PerkTable;
 };

@@ -2,8 +2,8 @@
 
 
 #include "AI/GA/GRFireLaserAttackAbility.h"
-#include "AI/Character/GRLuwoAICharacter.h"
-#include "AI/Controller/GRBossLuwoAIController.h"
+#include "AI/Character/GRAICharacter.h"
+#include "AI/Controller/GRAIController.h"
 #include "AI/Projectile/GRLaserProjectile.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -31,6 +31,11 @@ void UGRFireLaserAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload
 
 	SpawnProjectile();
 	
+	LaunchProjectile();
+}
+
+void UGRFireLaserAttackAbility::LaunchProjectile()
+{
 	AGRLaserProjectile* LaserProjectile=Cast<AGRLaserProjectile>(Projectile);
 	if (!LaserProjectile)
 	{
@@ -38,35 +43,35 @@ void UGRFireLaserAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload
 		return;
 	}
 
-	AGRLuwoAICharacter* Boss = Cast<AGRLuwoAICharacter>(SavedActorInfo->AvatarActor.Get());
-	if (!Boss)
+	AGRAICharacter* AICharacter = Cast<AGRAICharacter>(SavedActorInfo->AvatarActor.Get());
+	if (!AICharacter)
 	{
 		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
 		return;
 	}
 	
-	AGRBossLuwoAIController* BossCon=Cast<AGRBossLuwoAIController>(Boss->GetController());
-	if (!BossCon)
+	AGRAIController* AICon=Cast<AGRAIController>(AICharacter->GetController());
+	if (!AICon)
 	{
 		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
 		return;
 	}
 	
-	UBlackboardComponent* BB=BossCon->GetBlackboardComponent();
+	UBlackboardComponent* BB=AICon->GetBlackboardComponent();
 	if (!BB)
 	{
 		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
 		return;
 	}
 
-	AActor* TargetActor = Cast<AActor>(BB->GetValueAsObject(AGRBossLuwoAIController::TargetPlayerKey));
+	AActor* TargetActor = Cast<AActor>(BB->GetValueAsObject(AGRAIController::TargetPlayerKey));
 	if (!TargetActor)
 	{
 		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
 		return;
 	}
 
-	if (!Boss->HasAuthority())
+	if (!AICharacter->HasAuthority())
 	{
 		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, true);
 		return;
@@ -80,5 +85,4 @@ void UGRFireLaserAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload
 	LaserProjectile->Launch(LaunchDirection);
 	
 	Projectile=nullptr;
-	
 }

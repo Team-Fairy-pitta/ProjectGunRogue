@@ -32,6 +32,11 @@ void UGRBoulderTossAttackAbility::OnAttackTriggerNotify(FGameplayEventData Paylo
 
 	SpawnProjectile();
 	
+	LaunchProjectile();
+}
+
+void UGRBoulderTossAttackAbility::LaunchProjectile()
+{
 	AGRRockProjectile* RockProjectile=Cast<AGRRockProjectile>(Projectile);
 	if (!RockProjectile)
 	{
@@ -98,6 +103,5 @@ void UGRBoulderTossAttackAbility::OnAttackTriggerNotify(FGameplayEventData Paylo
 	}
 	
 	Projectile=nullptr;
-	
 }
 

@@ -26,6 +26,16 @@ void UGRLobbyCharacterSelectSlotWidget::NativeConstruct()
 	}
 }
 
+void UGRLobbyCharacterSelectSlotWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (CharSelectButton)
+	{
+		CharSelectButton->OnClicked.RemoveDynamic(this, &UGRLobbyCharacterSelectSlotWidget::OnCharSelectClicked);
+	}
+}
+
 void UGRLobbyCharacterSelectSlotWidget::OnCharSelectClicked()
 {
 	OnCharacterSelectClicked.Broadcast(CharacterIndex);

@@ -32,6 +32,16 @@ void UGRLobbyBaseButtonWidget::NativeConstruct()
 	}
 }
 
+void UGRLobbyBaseButtonWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (BaseButton)
+	{
+		BaseButton->OnClicked.RemoveDynamic(this, &UGRLobbyBaseButtonWidget::OnBaseClicked);
+	}
+}
+
 void UGRLobbyBaseButtonWidget::OnBaseClicked()
 {
 	OnLobbyButtonClicked.Broadcast();

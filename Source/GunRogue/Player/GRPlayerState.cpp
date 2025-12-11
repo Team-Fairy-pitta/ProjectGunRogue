@@ -15,6 +15,11 @@
 #include "Weapon/GRWeaponInstance.h"
 #include "Weapon/GRWeaponDefinition.h"
 #include "Augment/GRAugmentStructs.h"
+#include "Lobby/GRLobbyPlayerController.h"
+#include "MetaProgression/GRPerkSubsystem.h"
+#include "MetaProgression/GRPerkStructs.h"
+#include "MetaProgression/PerkInfoRow.h"
+#include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 
 AGRPlayerState::AGRPlayerState()
 {
@@ -50,6 +55,8 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ThisClass, CurrentWeaponSlot);
 
 	DOREPLIFETIME(ThisClass, OwnedAugments);
+
+	DOREPLIFETIME(ThisClass, CurrentMetaGoods);
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
@@ -452,7 +459,6 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 		if (CombatSet)
 		{
 			CombatSet->UpdateAmmoDisplay(0, 0);   // Ammo 0 / 0
-			CombatSet->SetReloadTime(0.1f);       // 기본 재장전 시간(원하면 프로젝트 기본값으로)
 		}
 	}
 }
@@ -725,6 +731,12 @@ void AGRPlayerState::InitAbilitySystemComponent()
 		OnAbilitySystemComponentInit.Broadcast();
 	}
 
+	if (GRCharacter->IsLocallyControlled())
+	{
+		InitPerkFromSave();
+		ServerRPC_ApplyAllPerksToASC(PerkInfoRows);
+	}
+
 	bIsAbilitySystemComponentInit = true;
 }
 
@@ -950,7 +962,6 @@ void AGRPlayerState::OnRep_WeaponDataUpdata()
 				if (CombatSet)
 				{
 					CombatSet->UpdateAmmoDisplay(WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
-					CombatSet->SetReloadTime(WeaponInstance->GetReloadTime());
 					UE_LOG(LogTemp, Display, TEXT("[OnRep] CLIENT UI updated - Ammo: %d/%d"),
 						WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
 				}
@@ -960,100 +971,3 @@ void AGRPlayerState::OnRep_WeaponDataUpdata()
 
 	OnWeaponDataUpdata.Broadcast();
 }
-
-#pragma region Augment
-void AGRPlayerState::ServerRPC_OnAugmentSelected_Implementation(FName AugmentID)
-{
-	if (!HasAuthority())
-	{
-		return;
-	}
-
-	int32 FoundIndex = INDEX_NONE;
-
-	for (int32 i = 0; i < OwnedAugments.Num(); i++)
-	{
-		if (OwnedAugments[i].AugmentID == AugmentID)
-		{
-			FoundIndex = i;
-			break;
-		}
-	}
-
-	if (FoundIndex != INDEX_NONE)
-	{
-		LevelUpAugment(FoundIndex);
-	}
-	else
-	{
-		AddAugment(AugmentID);
-	}
-
-	OnRep_OwnedAugments();
-}
-
-void AGRPlayerState::AddAugment(FName AugmentID)
-{
-	FAugmentEntry NewEntry;
-	NewEntry.AugmentID = AugmentID;
-	NewEntry.Level = 1;
-	
-	OwnedAugments.Add(NewEntry);
-}
-
-void AGRPlayerState::LevelUpAugment(int32 Index)
-{
-	if (!OwnedAugments.IsValidIndex(Index))
-	{
-		return;
-	}
-	
-	OwnedAugments[Index].Level++;
-}
-
-int32 AGRPlayerState::GetAugmentLevel(FName AugmentID)
-{
-	for (const FAugmentEntry& Entry : OwnedAugments)
-	{
-		if (Entry.AugmentID == AugmentID)
-		{
-			return Entry.Level;
-		}
-	}
-
-	return 0;
-}
-
-void AGRPlayerState::OnRep_OwnedAugments()
-{
-	for (const FAugmentEntry& Entry : OwnedAugments)
-	{
-		const FAugmentEntry* PrevEntry = nullptr;
-		for (const FAugmentEntry& Prev : PreviousOwnedAugments)
-		{
-			if (Prev.AugmentID == Entry.AugmentID)
-			{
-				PrevEntry = &Prev;
-				break;
-			}
-		}
-
-		if (!PrevEntry || PrevEntry->Level != Entry.Level)
-		{
-			OnAugmentChanged.Broadcast(Entry.AugmentID, Entry.Level);
-			UE_LOG(LogTemp, Warning, TEXT("OnRep_OwnedAugments called"));
-		}
-	}
-	
-	PreviousOwnedAugments = OwnedAugments;
-
-	AGRBattlePlayerController* BattlePlayerController = GetOwner<AGRBattlePlayerController>();
-	if (!IsValid(BattlePlayerController))
-	{
-		UE_LOG(LogTemp, Error, TEXT("GetOwner() is NOT AGRBattlePlayerController"));
-		return;
-	}
-
-	BattlePlayerController->HideAugmentWidget();
-}
-#pragma endregion

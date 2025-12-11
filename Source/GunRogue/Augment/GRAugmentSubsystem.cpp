@@ -16,7 +16,7 @@ void UGRAugmentSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	if (AugmentDataTablePath.IsNull())
 	{
-		UE_LOG(LogTemp, Error, TEXT("AugmentSubsystem DataTable path is null"));
+		UE_LOG(LogTemp, Error, TEXT("UGRAugmentSubsystem: AugmentSubsystem DataTable path is null"));
 		return;
 	}
 

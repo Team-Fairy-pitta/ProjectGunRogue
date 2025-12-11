@@ -96,13 +96,11 @@ void FGRWeaponHandle::ActivateWeapon()
 	if (CombatSet && WeaponInstance.IsValid())
 	{
 		CombatSet->UpdateAmmoDisplay(WeaponInstance.GetCurrentAmmo(), WeaponInstance.GetMaxAmmo());
-		CombatSet->SetReloadTime(WeaponInstance.GetReloadTime());
 
-		UE_LOG(LogTemp, Display, TEXT("[ActivateWeapon] %s - Ammo: %d/%d, ReloadTime: %.2f"),
+		UE_LOG(LogTemp, Display, TEXT("[ActivateWeapon] %s - Ammo: %d/%d"),
 			*WeaponDefinition->WeaponName.ToString(),
 			WeaponInstance.GetCurrentAmmo(),
-			WeaponInstance.GetMaxAmmo(),
-			WeaponInstance.GetReloadTime());
+			WeaponInstance.GetMaxAmmo());
 	}
 
 	bIsActive = true;

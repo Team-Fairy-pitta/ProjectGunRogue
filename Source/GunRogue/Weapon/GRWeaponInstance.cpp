@@ -248,15 +248,10 @@ void FGRWeaponInstance::AllRerollOption()
 	ApplyAllEffects();
 }
 
-// ⭐ 탄약 관련 구현
+// 탄약 관련 구현
 int32 FGRWeaponInstance::GetMaxAmmo() const
 {
 	return WeaponDefinition ? WeaponDefinition->MaxAmmo : 30;
-}
-
-float FGRWeaponInstance::GetReloadTime() const
-{
-	return WeaponDefinition ? WeaponDefinition->ReloadTime : 2.0f;
 }
 
 bool FGRWeaponInstance::CheckCanReload() const

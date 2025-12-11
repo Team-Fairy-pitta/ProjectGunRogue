@@ -28,11 +28,13 @@ AGRAICharacter::AGRAICharacter()
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	ASC->SetIsReplicated(true);
 	ASC->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-
 	SetNetUpdateFrequency(100.0f);
 
-	bReplicates = true;
-	SetReplicateMovement(true);
+	USkeletalMeshComponent* SkelMesh = GetMesh();
+	if (SkelMesh)
+	{
+		SkelMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	}
 }
 
 UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const
@@ -44,6 +46,23 @@ UAbilitySystemComponent* AGRAICharacter::GetAbilitySystemComponent() const
 void AGRAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		if (ASC)
+		{
+			ASC->InitAbilityActorInfo(this, this);
+		
+			for (auto& AbilityClass : AttackAbilityClassList)
+			{
+				if (AbilityClass)
+				{
+					FGameplayAbilitySpec Spec(AbilityClass, /*Level*/1, /*InputID*/0, this);
+					ASC->GiveAbility(Spec);
+				}
+			}
+		}	
+	}
 }
 
 

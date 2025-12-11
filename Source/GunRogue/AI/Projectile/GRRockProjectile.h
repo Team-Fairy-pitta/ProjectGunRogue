@@ -7,6 +7,7 @@
 #include "GRRockProjectile.generated.h"
 
 class USphereComponent;
+class UGameplayEffect;
 
 UCLASS()
 class GUNROGUE_API AGRRockProjectile : public AActor
@@ -33,5 +34,5 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
-	float DamageAmount;
+	TSubclassOf<UGameplayEffect> DamageGEClass;
 };

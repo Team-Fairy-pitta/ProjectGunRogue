@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "MetaProgression/GRPerkStructs.h"
 #include "GRPerkSaveGame.generated.h"
 
 /**
@@ -16,7 +17,7 @@ class GUNROGUE_API UGRPerkSaveGame : public USaveGame
 
 public:
 	UPROPERTY()
-	TMap<FName, int32> PerkInfoRows;
+	TArray<FPerkEntry> PerkInfoRows;
 
 	UPROPERTY()
 	int32 MetaGoods = 0;

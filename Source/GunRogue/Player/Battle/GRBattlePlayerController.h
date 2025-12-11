@@ -47,6 +47,8 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnActiveGameplayEffectRemoved(TSubclassOf<UGameplayEffect> EffectClass);
 
+	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }	
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UGRBattleHUDWidget> HUDWidgetInstance;
@@ -164,7 +166,7 @@ private:
 /* 증강 관련 코드 */
 #pragma region Augment
 public:
-	UFUNCTION(Client, Reliable)
+	UFUNCTION(Client, Reliable) 
 	void ClientRPC_ShowAugmentWidget();
 	
 	UFUNCTION(BlueprintCallable)
@@ -184,4 +186,5 @@ protected:
 	TObjectPtr<UGRAugmentHUDWidget> AugmentWidgetInstance;
 	
 #pragma endregion Augment
+
 };
