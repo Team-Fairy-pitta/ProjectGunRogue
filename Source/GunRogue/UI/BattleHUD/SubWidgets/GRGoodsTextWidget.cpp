@@ -4,24 +4,26 @@
 #include "GRGoodsTextWidget.h"
 #include "Components/TextBlock.h"
 
-void UGRGoodsTextWidget::SetGoodsNameText(const FText& InText)
+void UGRGoodsTextWidget::SetGoldCountText(int32 InCount)
 {
-	if (!GoodsNameText)
-	{
-		return;
-	}
-
-	GoodsNameText->SetText(InText);
-}
-
-void UGRGoodsTextWidget::SetGoodsCountText(int32 InCount)
-{
-	if (!GoodsCountText)
+	if (!GoldCountText)
 	{
 		return;
 	}
 
 	FString CountString = FString::Printf(TEXT("%d"), InCount);
 	
-	GoodsCountText->SetText(FText::FromString(CountString));
+	GoldCountText->SetText(FText::FromString(CountString));
+}
+
+void UGRGoodsTextWidget::SetGemCountText(int32 InCount)
+{
+	if (!GemCountText)
+	{
+		return;
+	}
+
+	FString CountString = FString::Printf(TEXT("%d"), InCount);
+	
+	GemCountText->SetText(FText::FromString(CountString));
 }

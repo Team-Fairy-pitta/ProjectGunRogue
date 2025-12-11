@@ -245,10 +245,6 @@ protected:
 #pragma endregion
 
 #pragma region Perk;
-public:
-	UPROPERTY(Replicated)
-	int32 CurrentMetaGoods; // 가지고 있던 재화 + 게임에서 얻은 재화
-		
 protected:
 	virtual void InitPerkFromSave();
 	void InitPerkInfoRows();
@@ -265,6 +261,31 @@ protected:
 
 	TArray<FPerkEntry> PerkInfoRows;
 
+#pragma endregion
+
+#pragma region Goods;
+public:
+	void AddMetaGoods(int32 Amount);
+
+	void AddGold(int32 Amount);
+
+	int32 GetCurrentMetaGoods() const { return CurrentMetaGoods; }
+
+	int32 GetGold() const { return Gold; }
+	
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentMetaGoods)
+	int32 CurrentMetaGoods; // 가지고 있던 재화 + 게임에서 얻은 재화
+
+	UPROPERTY(ReplicatedUsing = OnRep_Gold)
+	int32 Gold;
+
+private:
+	UFUNCTION()
+	void OnRep_CurrentMetaGoods();
+
+	UFUNCTION()
+	void OnRep_Gold();
+	
 #pragma endregion
 };
 

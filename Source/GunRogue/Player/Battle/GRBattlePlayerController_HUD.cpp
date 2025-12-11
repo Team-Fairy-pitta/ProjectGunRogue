@@ -59,6 +59,9 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 	UpdatePlayerMaxHealth(MaxHealth);
 	UpdatePlayerShield(Shield);
 	UpdatePlayerMaxShield(MaxShield);
+	
+	UpdateUIGold();
+	UpdateUICurrentMetaGoods();
 
 	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
 

@@ -57,6 +57,7 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ThisClass, OwnedAugments);
 
 	DOREPLIFETIME(ThisClass, CurrentMetaGoods);
+	DOREPLIFETIME(ThisClass, Gold);
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
