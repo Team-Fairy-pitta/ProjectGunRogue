@@ -1,5 +1,26 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+#include "TestPlayerLifecycle/TestGameMode_Lifecycle.h"
 
+ATestGameMode_Lifecycle::ATestGameMode_Lifecycle()
+{
+}
 
-#include "PlayerLifecycle/TestGameMode_Lifecycle.h"
+void ATestGameMode_Lifecycle::RespawnPlayer(APlayerController* Controller)
+{
+	if (!Controller)
+	{
+		return;
+	}
 
+	APawn* OldPawn = Controller->GetPawn();
+	if (OldPawn)
+	{
+		OldPawn->Destroy();
+	}
+
+	RestartPlayer(Controller);
+
+	if (Controller->GetPawn())
+	{
+		Controller->SetViewTarget(Controller->GetPawn());
+	}
+}

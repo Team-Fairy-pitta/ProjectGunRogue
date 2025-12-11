@@ -1,29 +1,26 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Character/GRCharacter.h"
 #include "TestCharacter_Lifecycle.generated.h"
 
 UCLASS()
-class GRTEST_API ATestCharacter_Lifecycle : public ACharacter
+class GRTEST_API ATestCharacter_Lifecycle : public AGRCharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ATestCharacter_Lifecycle();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable)
+	void Die();
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	bool IsDead() const { return bIsDead; }
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+private:
+	UPROPERTY(Replicated)
+	bool bIsDead = false;
 };

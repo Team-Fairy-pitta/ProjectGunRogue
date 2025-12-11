@@ -1,34 +1,57 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+#include "TestPlayerLifecycle/TestCharacter_Lifecycle.h"
 
+#include "TestPlayerLifecycle/TestPlayerController_Lifecycle.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
-#include "PlayerLifecycle/TestCharacter_Lifecycle.h"
-
-// Sets default values
 ATestCharacter_Lifecycle::ATestCharacter_Lifecycle()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	SetReplicates(true);
+}
+
+void ATestCharacter_Lifecycle::Die()
+{
+	if (!HasAuthority())
+	{
+		return;   
+	}
+
+	if (bIsDead)
+	{
+		return;
+	}
+
+	bIsDead = true;
+
+	// 이동 불가
+	GetCharacterMovement()->DisableMovement();
+
+	// 입력을 막고 싶으면
+	AController* PC = GetController();
+	if (PC)
+	{
+		PC->SetIgnoreMoveInput(true);
+		PC->SetIgnoreLookInput(true);
+	}
+
+	// 충돌 제거
+	SetActorEnableCollision(false);
+
+	// 관전 모드 실행
+	ATestPlayerController_Lifecycle* TestPC = Cast<ATestPlayerController_Lifecycle>(PC);
+	if (TestPC)
+	{
+		TestPC->Spectating();
+	}
 
 }
 
-// Called when the game starts or when spawned
-void ATestCharacter_Lifecycle::BeginPlay()
+void ATestCharacter_Lifecycle::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::BeginPlay();
-	
-}
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-// Called every frame
-void ATestCharacter_Lifecycle::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void ATestCharacter_Lifecycle::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	DOREPLIFETIME(ATestCharacter_Lifecycle, bIsDead);
 }
 

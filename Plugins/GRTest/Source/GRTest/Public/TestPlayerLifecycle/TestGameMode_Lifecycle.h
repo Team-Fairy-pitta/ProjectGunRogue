@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -14,4 +12,9 @@ class GRTEST_API ATestGameMode_Lifecycle : public AGameMode
 {
 	GENERATED_BODY()
 	
+
+public:
+	ATestGameMode_Lifecycle();
+
+	void RespawnPlayer(APlayerController* Controller);
 };
