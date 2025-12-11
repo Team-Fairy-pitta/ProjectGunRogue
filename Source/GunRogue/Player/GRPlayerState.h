@@ -212,7 +212,7 @@ protected:
 	TArray<FGRWeaponHandle> WeaponSlots;
 
 	UPROPERTY(Replicated)
-	int32 CurrentWeaponSlot = -1; // -1은 무기 없음
+	int32 CurrentWeaponSlot = INDEX_NONE;
 
 	UPROPERTY()
 	FGRCharacterAttachmentHandle CurrentWeaponAttachmentHandle;

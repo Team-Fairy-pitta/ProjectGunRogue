@@ -49,7 +49,7 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 
 	int32 EmptySlot = FindEmptyWeaponSlot();
 
-	if (EmptySlot == -1)
+	if (EmptySlot == INDEX_NONE)
 	{
 		// 슬롯이 모두 찬 경우 - 현재 무기 버리고 그 슬롯에 장착
 		if (CurrentWeaponSlot >= 0)
@@ -80,11 +80,11 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 		EquipWeaponToSlot(EmptySlot, WeaponDefinition, Instance);
 		ClientRPC_BroadcastOnWeaponEquipped(EmptySlot, WeaponDefinition);
 
-		if (CurrentWeaponSlot == -1)
+		if (CurrentWeaponSlot == INDEX_NONE)
 		{
 			// 첫 번째 무기 - 자동 활성화
 			SwitchToSlot(EmptySlot);
-			ClientRPC_BroadcastOnWeaponSwitched(-1, EmptySlot);
+			ClientRPC_BroadcastOnWeaponSwitched(INDEX_NONE, EmptySlot);
 			UE_LOG(LogTemp, Display, TEXT("[EquipWeapon] First weapon equipped in slot %d"), EmptySlot);
 		}
 		else
@@ -131,11 +131,11 @@ void AGRPlayerState::ServerRPC_DropWeapon_Implementation(int32 SlotIndex)
 	if (CurrentWeaponSlot == SlotIndex)
 	{
 		int32 OldSlot = CurrentWeaponSlot;
-		CurrentWeaponSlot = -1;
+		CurrentWeaponSlot = INDEX_NONE;
 
 		if (!TrySwitchToOtherWeapon(SlotIndex))
 		{
-			ClientRPC_BroadcastOnWeaponSwitched(OldSlot, -1);
+			ClientRPC_BroadcastOnWeaponSwitched(OldSlot, INDEX_NONE);
 			UpdateWeaponAttachToCharacter();
 			ResetAmmoDisplay();
 		}
@@ -496,7 +496,7 @@ int32 AGRPlayerState::FindEmptyWeaponSlot() const
 			return i;
 		}
 	}
-	return -1;  // 빈 슬롯 없음
+	return INDEX_NONE;  // 빈 슬롯 없음
 }
 
 void AGRPlayerState::ActivateWeaponInSlot(int32 SlotIndex)
