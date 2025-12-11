@@ -146,12 +146,12 @@ void AGRCharacter::Multicast_PlayEmptyFireFX_Implementation(const FVector& Muzzl
 		this, WeaponDef->EmptyFireSound, MuzzleLocation, 1.0f, 1.0f);
 }
 
-void AGRCharacter::ServerRPC_PlayReloadSound_Implementation()
+void AGRCharacter::ServerRPC_PlayReloadSound_Implementation(float ReloadRate)
 {
-	Multicast_PlayReloadSound();
+	Multicast_PlayReloadSound(ReloadRate);
 }
 
-void AGRCharacter::Multicast_PlayReloadSound_Implementation()
+void AGRCharacter::Multicast_PlayReloadSound_Implementation(float ReloadRate)
 {
 	AGRPlayerState* PS = GetGRPlayerState();
 	if (!PS)
@@ -166,5 +166,5 @@ void AGRCharacter::Multicast_PlayReloadSound_Implementation()
 	}
 
 	UGameplayStatics::PlaySoundAtLocation(
-		this, WeaponDef->ReloadSound, GetActorLocation(), 1.0f, 1.0f);
+		this, WeaponDef->ReloadSound, GetActorLocation(), 1.0f, ReloadRate);
 }

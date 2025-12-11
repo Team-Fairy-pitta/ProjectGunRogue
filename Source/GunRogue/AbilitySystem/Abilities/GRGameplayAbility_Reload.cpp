@@ -94,10 +94,15 @@ void UGRGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle
 		return;
 	}
 
+	// CombatAttributeSet에서 ReloadRate 가져오기
+	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+	const UGRCombatAttributeSet* CombatSet = ASC ? ASC->GetSet<UGRCombatAttributeSet>() : nullptr;
+	const float ReloadRateValue = CombatSet ? CombatSet->GetReloadRate() : 1.0f;
+
 	// 재장전 사운드 재생
 	if (WeaponDefinition->ReloadSound)
 	{
-		Character->Multicast_PlayReloadSound();
+		Character->Multicast_PlayReloadSound(ReloadRateValue);
 	}
 
 	// PlayMontageAndWait 태스크 생성
@@ -105,7 +110,7 @@ void UGRGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle
 		this,
 		NAME_None,
 		ReloadMontage,
-		1.0f, // PlayRate
+		ReloadRateValue, // PlayRate
 		NAME_None, // StartSection
 		true, // bStopWhenAbilityEnds
 		1.0f // AnimRootMotionTranslationScale

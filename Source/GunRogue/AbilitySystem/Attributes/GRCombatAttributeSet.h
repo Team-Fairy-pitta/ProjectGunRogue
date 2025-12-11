@@ -152,6 +152,11 @@ public:
 	FGameplayAttributeData MaxAmmo;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, MaxAmmo)
 
+	// 재장전 속도 (1.0 = 기본, 높을수록 빠름)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon", ReplicatedUsing = OnRep_ReloadRate)
+	FGameplayAttributeData ReloadRate;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ReloadRate)
+
 
 	// 무기 데미지 계산 (무기 공격력만)
 	float CalculateWeaponDamage() const;
@@ -225,7 +230,9 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAmmo);
-
+	
+	UFUNCTION()
+	virtual void OnRep_ReloadRate(const FGameplayAttributeData& OldReloadRate);
 
 private:
 	// 탄퍼짐 자동 회복을 위한 타이머
