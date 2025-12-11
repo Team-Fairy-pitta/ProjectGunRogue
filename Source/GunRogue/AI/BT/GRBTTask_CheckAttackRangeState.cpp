@@ -75,7 +75,7 @@ EBTNodeResult::Type UGRBTTask_CheckAttackRangeState::ExecuteTask(UBehaviorTreeCo
 	if (World)
 	{
 		DrawDebugSphere(World, AILocation, CloseRange, 12, FColor::Blue, false, 1.0f);
-		DrawDebugSphere(World, AILocation, MidRange, 12, FColor::Green, false, 1.0f);
+		DrawDebugSphere(World, AILocation, MidRange, 12, FColor::Cyan, false, 1.0f);
 	}
 #endif
 	

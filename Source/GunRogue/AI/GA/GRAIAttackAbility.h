@@ -26,6 +26,8 @@ protected:
 	void PlayAttackMontageAndWaitTask();
 	void WaitAttackGameplayEventTask();
 	void SpawnProjectile();
+	void DetectByOverlapSphereMulti();
+	void CauseDamage(AActor* Target);
 	
 	UFUNCTION()
 	virtual void OnAttackTriggerNotify(FGameplayEventData Payload);
@@ -40,7 +42,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Animation")
 	FGameplayTag HitEventTag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	FGameplayAbilitySpecHandle SavedSpecHandle;
@@ -54,4 +56,7 @@ protected:
 	TObjectPtr<AActor> Projectile;
 
 	FName ProjectileSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Damage")
+	float SphereRadius;
 };

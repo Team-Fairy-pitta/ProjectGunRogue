@@ -4,6 +4,10 @@
 #include "AI/GA/GRAIAttackAbility.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
+#include "Character/GRCharacter.h"
+#include "Engine/OverlapResult.h"
 
 UGRAIAttackAbility::UGRAIAttackAbility()
 	:AttackMontage(nullptr)
@@ -11,6 +15,7 @@ UGRAIAttackAbility::UGRAIAttackAbility()
 	,SavedActorInfo(nullptr)
 	,SavedActivationInfo(FGameplayAbilityActivationInfo())
 	,ProjectileClass(nullptr)
+	,SphereRadius(500.f)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -58,7 +63,7 @@ void UGRAIAttackAbility::WaitAttackGameplayEventTask()
 		this,
 		HitEventTag,
 		SavedActorInfo->AvatarActor.Get(),  // ExternalTarget: 보통 자기 자신
-		true,  // OnlyTriggerOnce
+		false,  // OnlyTriggerOnce
 		false  // OnlyMatchExact
 	);
 
@@ -116,6 +121,117 @@ void UGRAIAttackAbility::SpawnProjectile()
 	}
 	
 	Projectile = ProjectileActor;
+}
+
+void UGRAIAttackAbility::DetectByOverlapSphereMulti()
+{
+	AActor* Instigator = GetAvatarActorFromActorInfo();
+	if (!Instigator)
+	{
+		return;
+	}
+
+	if (!Instigator->HasAuthority())
+	{
+		return;
+	}
+	
+	FVector Origin = Instigator->GetActorLocation();
+	TArray<FOverlapResult> Overlaps;
+	FCollisionShape SphereShape = FCollisionShape::MakeSphere(SphereRadius);
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(Instigator);
+	ECollisionChannel TraceChannel = ECC_Pawn;
+
+	bool bOverlap = GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		Origin,               
+		FQuat::Identity,      
+		TraceChannel,
+		SphereShape,
+		QueryParams
+	);
+	
+#if WITH_EDITOR
+	DrawDebugSphere(GetWorld(), Origin, SphereRadius, 16, FColor::Yellow, false, 1.0f);
+#endif
+	
+	if (!bOverlap)
+	{
+		return;
+	}
+	
+	for (const FOverlapResult& Result : Overlaps)
+	{
+		AActor* Other = Result.GetActor();
+		if (!Other)
+		{
+			continue;
+		}
+		
+		AGRCharacter* PlayerChar=Cast<AGRCharacter>(Other);
+		if (!PlayerChar)
+		{
+			continue;
+		}
+
+#if WITH_EDITOR
+		FVector PlayerLoc = PlayerChar->GetActorLocation();
+		if (GetWorld())
+		{
+			DrawDebugSphere(GetWorld(),PlayerLoc,20.f,12,FColor::Red,false,1.0f);
+		}
+#endif
+		
+		CauseDamage(Other);
+	}
+}
+
+void UGRAIAttackAbility::CauseDamage(AActor* Target)
+{
+	AGRCharacter* PlayerChar=Cast<AGRCharacter>(Target);
+	if (!PlayerChar)
+	{
+		return;
+	}
+	
+	IAbilitySystemInterface* PlayerASI = Cast<IAbilitySystemInterface>(PlayerChar);
+	if (!PlayerASI)
+	{
+		return;
+	}
+		
+	UAbilitySystemComponent* PlayerASC = PlayerASI->GetAbilitySystemComponent();
+	if (!PlayerASC)
+	{
+		return;
+	}
+		
+	UAbilitySystemComponent* AIASC = GetAbilitySystemComponentFromActorInfo();
+	if (!AIASC)
+	{
+		return;
+	}
+
+	AActor* Instigator = GetAvatarActorFromActorInfo();
+	if (!Instigator)
+	{
+		return;
+	}
+
+	if (!DamageEffectClass)
+	{
+		return;
+	}
+	
+	FGameplayEffectContextHandle Context = AIASC->MakeEffectContext();
+	Context.AddSourceObject(Instigator);
+
+	FGameplayEffectSpecHandle Spec = AIASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), Context);
+	if (Spec.IsValid())
+	{
+		AIASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), PlayerASC);
+	}
 }
 
 void UGRAIAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)

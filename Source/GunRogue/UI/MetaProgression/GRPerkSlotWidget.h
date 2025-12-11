@@ -9,13 +9,12 @@
 class UButton;
 class UImage;
 class UProgressBar;
-class UGRPerkSubsystem;
 /**
  * 
  */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerkSlotHovered, UGRPerkSlotWidget*, PerkSlot);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerkSlotClicked, UGRPerkSlotWidget*, PerkSlot);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerkSlotUnhovered, UGRPerkSlotWidget*, PerkSlot);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPerkSlotClicked, UGRPerkSlotWidget*, PerkSlot);
 
 UCLASS()
 class GUNROGUE_API UGRPerkSlotWidget : public UUserWidget
@@ -25,12 +24,12 @@ class GUNROGUE_API UGRPerkSlotWidget : public UUserWidget
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPerkSlotHovered OnPerkSlotHovered;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnPerkSlotUnhovered OnPerkSlotUnhovered;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPerkSlotClicked OnPerkSlotClicked;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnPerkSlotUnhovered OnPerkSlotUnhovered;
 	
 	FName GetPerkIDInSlot() const { return PerkID; }
 	
@@ -46,17 +45,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Perk")
 	FName PerkID;
-
-	UPROPERTY()
-	UGRPerkSubsystem* PerkSubsystem;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Perk")
-	UDataTable* PerkTable;
 	
 	virtual void NativeConstruct() override;
 
+	virtual void NativeDestruct() override;
+
 public:
-	void SetupSlot(FName InPerkID, UGRPerkSubsystem* InSubsystem);
+	void SetupSlot(FName InPerkID);
 
 	void SetPerkSlotIcon(UTexture2D* NewIcon);
 
@@ -72,5 +67,5 @@ private:
 	UFUNCTION()
 	void OnPerkUnhovered();
 
-	void UpdatePerkUI();
+	void UpdatePerkSlot();
 };

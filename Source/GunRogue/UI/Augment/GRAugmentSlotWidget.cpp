@@ -159,8 +159,6 @@ void UGRAugmentSlotWidget::OnSlotUnhovered()
 
 void UGRAugmentSlotWidget::OnSlotClicked()
 {
-	OnAugmentSlotClicked.Broadcast(this);
-
 	if (!CurrentAugment)
 	{
 		return;

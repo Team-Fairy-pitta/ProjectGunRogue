@@ -9,10 +9,30 @@
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/TextBlock.h"
+#include "MetaProgression/GRPerkSubsystem.h"
 
-void UGRPerkListWidget::SetupList(UGRPerkSubsystem* InSubsystem, UGRPerkHUDWidget* InHUD)
+void UGRPerkListWidget::NativeDestruct()
 {
-	PerkSubsystem = InSubsystem;
+	Super::NativeDestruct();
+
+	if (PerkSlotContainer)
+	{
+		for (UWidget* Child : PerkSlotContainer->GetAllChildren())
+		{
+			if (UGRPerkSlotWidget* PerkSlot = Cast<UGRPerkSlotWidget>(Child))
+			{
+				PerkSlot->OnPerkSlotHovered.RemoveDynamic(PerkHUD, &UGRPerkHUDWidget::ShowTooltipForSlot);
+				PerkSlot->OnPerkSlotUnhovered.RemoveDynamic(PerkHUD, &UGRPerkHUDWidget::HideTooltipForSlot);
+				PerkSlot->OnPerkSlotClicked.RemoveDynamic(PerkHUD, &UGRPerkHUDWidget::UpdateHUDAndTooltip);
+				
+				PerkSlot->RemoveFromParent();
+			}
+		}
+	}
+}
+
+void UGRPerkListWidget::SetupList(UGRPerkHUDWidget* InHUD)
+{
 	PerkHUD = InHUD;
 }
 
@@ -43,13 +63,25 @@ void UGRPerkListWidget::SetPerkCategoryText(FName InCategory)
 
 void UGRPerkListWidget::CreateAllSlot(FName InCategory)
 {
-	if (!PerkSlotClass || !PerkSlotContainer || !PerkTable)
+	if (!PerkSlotClass || !PerkSlotContainer)
 	{
 		return;
 	}
 
 	APlayerController* PC = GetOwningPlayer();
 	if (!PC)
+	{
+		return;
+	}
+
+	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		return;
+	}
+
+	UDataTable* PerkTable = PerkSubsystem->GetPerkTable();
+	if (!PerkTable)
 	{
 		return;
 	}
@@ -81,9 +113,9 @@ void UGRPerkListWidget::CreateAllSlot(FName InCategory)
 			HorizontalBoxSlot->SetHorizontalAlignment(HAlign_Left);
 		}
 
-		NewPerkSlot->SetupSlot(PerkID, PerkSubsystem);
+		NewPerkSlot->SetupSlot(PerkID);
 		NewPerkSlot->OnPerkSlotHovered.AddDynamic(PerkHUD, &UGRPerkHUDWidget::ShowTooltipForSlot);
-		NewPerkSlot->OnPerkSlotClicked.AddDynamic(PerkHUD, &UGRPerkHUDWidget::UpdateUIOnClicked);
+		NewPerkSlot->OnPerkSlotClicked.AddDynamic(PerkHUD, &UGRPerkHUDWidget::UpdateHUDAndTooltip);
 		NewPerkSlot->OnPerkSlotUnhovered.AddDynamic(PerkHUD, &UGRPerkHUDWidget::HideTooltipForSlot);
 
 		// [NOTE] 실시간 반영을 원한다면, `OnPerkSlotClicked` Delegate에 특정 함수를 연결해야 함

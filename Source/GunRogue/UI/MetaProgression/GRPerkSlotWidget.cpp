@@ -9,7 +9,8 @@
 #include "MetaProgression/GRPerkSubsystem.h"
 #include "MetaProgression/PerkInfoRow.h"
 #include "GRPerkTooltipWidget.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Player/Lobby/GRLobbyPlayerController.h"
+#include "Player/Lobby/GRLobbyPlayerState.h"
 
 void UGRPerkSlotWidget::NativeConstruct()
 {
@@ -23,12 +24,23 @@ void UGRPerkSlotWidget::NativeConstruct()
 	}
 }
 
-void UGRPerkSlotWidget::SetupSlot(FName InPerkID, UGRPerkSubsystem* InSubsystem)
+void UGRPerkSlotWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (PerkSlotButton)
+	{
+		PerkSlotButton->OnClicked.RemoveDynamic(this, &UGRPerkSlotWidget::OnPerkClicked);
+		PerkSlotButton->OnHovered.RemoveDynamic(this, &UGRPerkSlotWidget::OnPerkHovered);
+		PerkSlotButton->OnUnhovered.RemoveDynamic(this, &UGRPerkSlotWidget::OnPerkUnhovered);
+	}
+}
+
+void UGRPerkSlotWidget::SetupSlot(FName InPerkID)
 {
 	PerkID = InPerkID;
-	PerkSubsystem = InSubsystem;
 
-	UpdatePerkUI();
+	UpdatePerkSlot();
 }
 
 void UGRPerkSlotWidget::SetPerkSlotIcon(UTexture2D* NewIcon)
@@ -54,15 +66,22 @@ void UGRPerkSlotWidget::SetPerkSlotBar(int32 CurrentLevel, int32 MaxLevel)
 
 void UGRPerkSlotWidget::OnPerkClicked()
 {
-	if (!PerkSubsystem)
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
 	{
 		return;
 	}
-	
-	if (PerkSubsystem->TryUpgradePerk(PerkID, PerkTable))
+
+	AGRLobbyPlayerState* PS = PC->GetPlayerState<AGRLobbyPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	if (PS->TryUpgradePerk(PerkID))
 	{
 		OnPerkSlotClicked.Broadcast(this);
-		UpdatePerkUI();
+		UpdatePerkSlot();
 	}
 }
 
@@ -76,8 +95,15 @@ void UGRPerkSlotWidget::OnPerkUnhovered()
 	OnPerkSlotUnhovered.Broadcast(this);
 }
 
-void UGRPerkSlotWidget::UpdatePerkUI()
+void UGRPerkSlotWidget::UpdatePerkSlot()
 {
+	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		return;
+	}
+
+	UDataTable* PerkTable = PerkSubsystem->GetPerkTable();
 	if (!PerkTable)
 	{
 		return;
@@ -91,7 +117,19 @@ void UGRPerkSlotWidget::UpdatePerkUI()
 
 	SetPerkSlotIcon(Row->PerkIcon);
 
-	int32 CurrentLevel = PerkSubsystem->GetPerkLevel(PerkID);
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+	{
+		return;
+	}
+
+	AGRLobbyPlayerState* PS = PC->GetPlayerState<AGRLobbyPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+	
+	int32 CurrentLevel = PS->GetPerkLevel(PerkID);
 	UE_LOG(LogTemp, Warning, TEXT("CurrentLevel: %d, MaxLevel: %d"), CurrentLevel, Row->MaxLevel);
 	SetPerkSlotBar(CurrentLevel, Row->MaxLevel);
 }
