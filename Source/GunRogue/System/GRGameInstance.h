@@ -25,10 +25,10 @@ public:
 	TSubclassOf<AGRCharacter> GetSelectedCharacterClass(APlayerController* Player) const;
 
 protected:
-	TArray<FUniqueNetIdRepl> PlayerIndexArray;
-	TMap<FUniqueNetIdRepl, TSubclassOf<AGRCharacter>> SelectedCharacterMap;
+	TArray<FString> PlayerIndexArray;
+	TMap<FString, TSubclassOf<AGRCharacter>> SelectedCharacterMap;
 
 private:
-	bool GetPlayerUniqueID(APlayerController* Player, FUniqueNetIdRepl& OUT PlayerID) const;
+	bool GetPlayerUniqueID(APlayerController* Player, FString& OUT PlayerID) const;
 #pragma endregion
 };

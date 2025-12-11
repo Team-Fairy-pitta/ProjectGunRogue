@@ -9,7 +9,7 @@ void UGRGameInstance::CreateSession_Implementation()
 
 void UGRGameInstance::RegistPlayerIndex(APlayerController* Player)
 {
-	FUniqueNetIdRepl ID;
+	FString ID;
 	if (GetPlayerUniqueID(Player, ID))
 	{
 		PlayerIndexArray.Add(ID);
@@ -22,7 +22,7 @@ void UGRGameInstance::RegistPlayerIndex(APlayerController* Player)
 
 void UGRGameInstance::UnregistPlayerIndex(APlayerController* Player)
 {
-	FUniqueNetIdRepl ID;
+	FString ID;
 	if (GetPlayerUniqueID(Player, ID))
 	{
 		PlayerIndexArray.Remove(ID);
@@ -35,7 +35,7 @@ void UGRGameInstance::UnregistPlayerIndex(APlayerController* Player)
 
 int32 UGRGameInstance::GetPlayerIndex(APlayerController* Player) const
 {
-	FUniqueNetIdRepl ID;
+	FString ID;
 	if (GetPlayerUniqueID(Player, ID))
 	{
 		return PlayerIndexArray.Find(ID);
@@ -49,7 +49,7 @@ int32 UGRGameInstance::GetPlayerIndex(APlayerController* Player) const
 
 void UGRGameInstance::SetSelectedCharacterClass(APlayerController* Player, TSubclassOf<AGRCharacter> PawnClass)
 {
-	FUniqueNetIdRepl ID;
+	FString ID;
 	if (GetPlayerUniqueID(Player, ID))
 	{
 		SelectedCharacterMap.Add(ID, PawnClass);
@@ -62,7 +62,7 @@ void UGRGameInstance::SetSelectedCharacterClass(APlayerController* Player, TSubc
 
 TSubclassOf<AGRCharacter> UGRGameInstance::GetSelectedCharacterClass(APlayerController* Player) const
 {
-	FUniqueNetIdRepl ID;
+	FString ID;
 	if (GetPlayerUniqueID(Player, ID))
 	{
 		if (SelectedCharacterMap.Contains(ID))
@@ -80,7 +80,7 @@ TSubclassOf<AGRCharacter> UGRGameInstance::GetSelectedCharacterClass(APlayerCont
 	}
 }
 
-bool UGRGameInstance::GetPlayerUniqueID(APlayerController* Player, FUniqueNetIdRepl& OUT PlayerID) const
+bool UGRGameInstance::GetPlayerUniqueID(APlayerController* Player, FString& OUT PlayerID) const
 {
 	if (!IsValid(Player))
 	{
@@ -95,6 +95,19 @@ bool UGRGameInstance::GetPlayerUniqueID(APlayerController* Player, FUniqueNetIdR
 		return false;
 	}
 
-	PlayerID = PlayerState->GetUniqueId();
+#if WITH_EDITOR
+	const FUniqueNetIdRepl& UniqueNetId = PlayerState->GetUniqueId();
+	if (UniqueNetId.IsValid() && UniqueNetId->IsValid())
+	{
+		PlayerID = PlayerState->GetUniqueId()->ToString();
+	}
+	else
+	{
+		return false;
+	}
+#else
+	// [Note] 같은 이름의 스팀 플레이어가 들어오면..?
+	PlayerID = PlayerState->GetPlayerName();
+#endif
 	return true;
 }
