@@ -6,6 +6,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
+#include "GRLobbyCharacterSelectSlotWidget.h"
 
 void UGRLobbyBaseButtonWidget::NativePreConstruct()
 {

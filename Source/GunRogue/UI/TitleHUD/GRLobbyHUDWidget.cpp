@@ -305,6 +305,14 @@ void UGRLobbyHUDWidget::DisableButtonsOnReady()
 			Button->DisableButton();
 		}
 	}
+
+	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
+	{
+		if (CharacterSlots[i])
+		{
+			CharacterSlots[i]->DisableCharacterButton();
+		}
+	}
 }
 
 void UGRLobbyHUDWidget::EnableButtons()
@@ -321,6 +329,14 @@ void UGRLobbyHUDWidget::EnableButtons()
 		if (Button)
 		{
 			Button->EnableButton();
+		}
+	}
+
+	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
+	{
+		if (CharacterSlots[i])
+		{
+			CharacterSlots[i]->EnableCharacterButton();
 		}
 	}
 }

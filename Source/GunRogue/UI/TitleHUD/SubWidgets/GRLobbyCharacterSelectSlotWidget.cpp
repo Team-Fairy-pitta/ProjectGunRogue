@@ -23,6 +23,23 @@ void UGRLobbyCharacterSelectSlotWidget::SetCharacterName(const FText& InCharacte
 	}
 }
 
+void UGRLobbyCharacterSelectSlotWidget::EnableCharacterButton()
+{
+	if (CharSelectButton)
+	{
+		CharSelectButton->SetIsEnabled(true);
+	}
+}
+
+
+void UGRLobbyCharacterSelectSlotWidget::DisableCharacterButton()
+{
+	if (CharSelectButton)
+	{
+		CharSelectButton->SetIsEnabled(false);
+	}
+}
+
 void UGRLobbyCharacterSelectSlotWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();

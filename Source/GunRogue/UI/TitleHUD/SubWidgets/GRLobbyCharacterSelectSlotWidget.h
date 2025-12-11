@@ -29,6 +29,9 @@ public:
 	void SetCharacterImage(UTexture2D* InTexture);
 	void SetCharacterName(const FText& InCharacterName);
 
+	void EnableCharacterButton();
+	void DisableCharacterButton();
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UButton* CharSelectButton;

@@ -38,8 +38,8 @@ FGRLevel1Data::FGRLevel1Data()
 
 void FGRLevel1Data::InitAtClient()
 {
-	RowCount = 2;
-	ColCount = 2;
+	RowCount = 6;
+	ColCount = 6;
 	TotalRoomCount = RowCount * ColCount;
 
 	MakeAndConnectEmptyRooms();
@@ -62,8 +62,8 @@ void FGRLevel1Data::InitAtServer(AGRGameMode_Level1* GRGameMode)
 		return;
 	}
 
-	RowCount = 2;
-	ColCount = 2;
+	RowCount = 6;
+	ColCount = 6;
 	TotalRoomCount = RowCount * ColCount;
 
 	MakeAndConnectEmptyRooms();
