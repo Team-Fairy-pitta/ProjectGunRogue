@@ -95,19 +95,14 @@ bool UGRGameInstance::GetPlayerUniqueID(APlayerController* Player, FString& OUT 
 		return false;
 	}
 
-#if WITH_EDITOR
 	const FUniqueNetIdRepl& UniqueNetId = PlayerState->GetUniqueId();
 	if (UniqueNetId.IsValid() && UniqueNetId->IsValid())
 	{
 		PlayerID = PlayerState->GetUniqueId()->ToString();
+		return true;
 	}
 	else
 	{
 		return false;
 	}
-#else
-	// [Note] 같은 이름의 스팀 플레이어가 들어오면..?
-	PlayerID = PlayerState->GetPlayerName();
-#endif
-	return true;
 }

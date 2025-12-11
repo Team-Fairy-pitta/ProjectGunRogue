@@ -59,6 +59,11 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ThisClass, CurrentMetaGoods);
 }
 
+void AGRPlayerState::CopyProperties(APlayerState* PlayerState)
+{
+	Super::CopyProperties(PlayerState);
+}
+
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
 {
 	return Cast<AGRPlayerController>(GetOwner());

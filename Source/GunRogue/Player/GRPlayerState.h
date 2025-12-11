@@ -51,6 +51,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	virtual void CopyProperties(class APlayerState* PlayerState) override;
 
 	UFUNCTION(BlueprintCallable, Category = "ITPlayerState")
 	AGRPlayerController* GetGRPlayerController() const;
