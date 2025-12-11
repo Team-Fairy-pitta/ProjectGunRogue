@@ -211,8 +211,11 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponDataUpdata)
 	TArray<FGRWeaponHandle> WeaponSlots;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentWeaponSlot)
 	int32 CurrentWeaponSlot = INDEX_NONE;
+
+	UFUNCTION()
+	void OnRep_CurrentWeaponSlot();
 
 	UPROPERTY()
 	FGRCharacterAttachmentHandle CurrentWeaponAttachmentHandle;
@@ -228,6 +231,7 @@ private:
 	void UnequipWeaponFromSlot(int32 SlotIndex);
 	void SwitchToSlot(int32 NewSlotIndex);
 	bool TrySwitchToOtherWeapon(int32 ExcludeSlotIndex);
+	void UpdateCurrentWeaponAmmoDisplay();
 	void ResetAmmoDisplay();
 
 	void DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& Instance);

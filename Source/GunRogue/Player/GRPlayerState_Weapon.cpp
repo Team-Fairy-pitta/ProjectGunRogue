@@ -509,6 +509,8 @@ void AGRPlayerState::ActivateWeaponInSlot(int32 SlotIndex)
 	// 무기 활성화 - GameplayEffect 적용
 	WeaponSlots[SlotIndex].ActivateWeapon();
 
+	UpdateCurrentWeaponAmmoDisplay();
+
 	UE_LOG(LogTemp, Display, TEXT("Activated weapon in slot %d"), SlotIndex);
 }
 
@@ -642,6 +644,32 @@ bool AGRPlayerState::TrySwitchToOtherWeapon(int32 ExcludeSlotIndex)
 	return false;
 }
 
+void AGRPlayerState::UpdateCurrentWeaponAmmoDisplay()
+{
+	if (!WeaponSlots.IsValidIndex(CurrentWeaponSlot))
+	{
+		return;
+	}
+
+	FGRWeaponHandle& WeaponHandle = WeaponSlots[CurrentWeaponSlot];
+	FGRWeaponInstance* WeaponInstance = WeaponHandle.GetWeaponInstanceRef();
+
+	if (WeaponInstance && WeaponInstance->IsValid() && AbilitySystemComponent)
+	{
+		UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(
+			AbilitySystemComponent->GetSet<UGRCombatAttributeSet>()
+			);
+
+		if (CombatSet)
+		{
+			CombatSet->UpdateAmmoDisplay(
+				WeaponInstance->GetCurrentAmmo(),
+				WeaponInstance->GetMaxAmmo()
+			);
+		}
+	}
+}
+
 void AGRPlayerState::ResetAmmoDisplay()
 {
 	if (AbilitySystemComponent)
@@ -653,4 +681,10 @@ void AGRPlayerState::ResetAmmoDisplay()
 			CombatSet->UpdateAmmoDisplay(0, 0);
 		}
 	}
+}
+
+void AGRPlayerState::OnRep_CurrentWeaponSlot()
+{
+	UpdateCurrentWeaponAmmoDisplay();
+	UE_LOG(LogTemp, Display, TEXT("[OnRep_CurrentWeaponSlot] CLIENT slot changed to %d"), CurrentWeaponSlot);
 }
