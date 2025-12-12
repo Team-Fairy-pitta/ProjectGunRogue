@@ -24,7 +24,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReapon) override;
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	UAbilitySystemComponent* ASC;
@@ -43,4 +44,7 @@ protected:
 private:
 	void InitAbilitySystemComponent();
 	void OnDead();
+
+	void NotifySpawnToGameMode();
+	void NotifyDestroyToGameMode();
 };

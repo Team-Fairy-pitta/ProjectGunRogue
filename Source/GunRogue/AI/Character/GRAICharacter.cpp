@@ -5,6 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
+#include "GameModes/Level1/GRGameMode_Level1.h"
 #include "AbilitySystemComponent.h"
 
 AGRAICharacter::AGRAICharacter()
@@ -53,6 +54,14 @@ void AGRAICharacter::BeginPlay()
 	Super::BeginPlay();
 
 	InitAbilitySystemComponent();
+	NotifySpawnToGameMode();
+}
+
+void AGRAICharacter::EndPlay(EEndPlayReason::Type EndPlayReapon)
+{
+	Super::EndPlay(EndPlayReapon);
+
+	NotifyDestroyToGameMode();
 }
 
 void AGRAICharacter::InitAbilitySystemComponent()
@@ -91,6 +100,48 @@ void AGRAICharacter::OnDead()
 	// [NOTE] TODO: 나중에 죽는 애니메이션 재생 등의 처리
 	// 지금은 간단하게 actor 제거
 	Destroy();
+}
+
+void AGRAICharacter::NotifySpawnToGameMode()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRGameMode_Level1* Level1GameMode = GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+	if (!IsValid(Level1GameMode))
+	{
+		UE_LOG(LogTemp, Error, TEXT("InteractWidgetClass is INVALID"));
+		return;
+	}
+
+	Level1GameMode->ReceiveSpawnEnemy();
+}
+
+void AGRAICharacter::NotifyDestroyToGameMode()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRGameMode_Level1* Level1GameMode = GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+	if (!IsValid(Level1GameMode))
+	{
+		UE_LOG(LogTemp, Error, TEXT("InteractWidgetClass is INVALID"));
+		return;
+	}
+
+	Level1GameMode->ReceiveDestroyEnemy();
 }
 
 
