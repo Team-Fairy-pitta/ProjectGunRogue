@@ -11,6 +11,7 @@ class UGRWeaponDefinition;
 class UGRWeaponUpgradeWidgetSetting;
 class UGRInventoryWidgetMain;
 class UGRAugmentHUDWidget;
+class UGRDamageIndicator;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
@@ -47,6 +48,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnActiveGameplayEffectRemoved(TSubclassOf<UGameplayEffect> EffectClass);
 
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowDamageIndicator(float Damage, AActor* DamagedActor);
+
 	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }	
 
 protected:
@@ -55,6 +59,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRBattleHUDWidget> HUDWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRDamageIndicator> DamageIndicatorWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UGRDamageIndicator> DamageIndicatorWidgetInstance;
 
 	FTimerHandle OtherPlayerStatusUpdateTimer;
 	float OtherPlayerStatusUpdateInterval = 1.0f;
@@ -86,6 +96,8 @@ private:
 
 	UFUNCTION()
 	void OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo);
+
+	void ShowDamageIndicator(float Damage, AActor* DamagedActor);
 
 #pragma endregion HUD
 

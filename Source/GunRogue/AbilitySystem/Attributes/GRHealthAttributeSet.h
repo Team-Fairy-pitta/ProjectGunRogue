@@ -148,4 +148,6 @@ private:
 	void StartShieldRegenTimer(UAbilitySystemComponent* OwningASC, bool bIsInitialRegenDelay = true);
 	void ClearShieldRegenTimer(UAbilitySystemComponent* OwningASC);
 	void ApplyShieldRegenEffect(UAbilitySystemComponent* OwningASC);
+
+	void ShowDamageIndicator(float Damage, AActor* Attacker, AActor* Target);
 };

@@ -20,11 +20,11 @@ public:
 	void ShowDamageIndicator(float Damage, AActor* DamagedActor);
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRDamageIndicator> DamageIndicatorWidgetClass;
 
 	UPROPERTY()
-	TObjectPtr<UGRDamageIndicator> DamageIndicatorWidgetInstance;
+	TObjectPtr<UGRDamageIndicator> DamageIndicatorWidgetInstance;*/
 
 	
 };

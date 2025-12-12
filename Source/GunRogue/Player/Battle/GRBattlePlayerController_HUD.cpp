@@ -11,6 +11,7 @@
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
+#include "UI/Damage/GRDamageIndicator.h"
 #include "MiniMap/GRRadarMapComponent.h"
 
 void AGRBattlePlayerController::InitializeBattleHUD()
@@ -476,4 +477,36 @@ void AGRBattlePlayerController::ClientRPC_OnActiveGameplayEffectRemoved_Implemen
 	}
 
 	PlayerStatusWidget->RemoveBuffIcon(EffectClass);
+}
+
+void AGRBattlePlayerController::ClientRPC_ShowDamageIndicator_Implementation(float Damage, AActor* DamagedActor)
+{
+	ShowDamageIndicator(Damage, DamagedActor);
+}
+
+void AGRBattlePlayerController::ShowDamageIndicator(float Damage, AActor* DamagedActor)
+{
+	if (!IsLocalController())
+	{
+		return;
+	}
+
+	if (!DamageIndicatorWidgetClass)
+	{
+		return;
+	}
+
+	DamageIndicatorWidgetInstance = CreateWidget<UGRDamageIndicator>(this, DamageIndicatorWidgetClass);
+	if (!DamageIndicatorWidgetInstance)
+	{
+		return;
+	}
+
+	if (!IsValid(DamagedActor))
+	{
+		return;
+	}
+
+	DamageIndicatorWidgetInstance->SetData(Damage, DamagedActor);
+	DamageIndicatorWidgetInstance->AddToViewport();
 }
