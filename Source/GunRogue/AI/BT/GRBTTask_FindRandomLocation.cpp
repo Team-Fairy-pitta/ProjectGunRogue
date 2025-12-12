@@ -48,6 +48,7 @@ EBTNodeResult::Type UGRBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeCompo
 	FVector RandomPoint=Origin;
 	
 	const int32 MaxAttempts = 10;
+	bool bFindRandomLocation = false;
 	for (int32 i = 0; i < MaxAttempts; ++i)
 	{
 		FNavLocation Tentative;
@@ -57,15 +58,23 @@ EBTNodeResult::Type UGRBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeCompo
 			if (DistSq >= FMath::Square(MinRadius))
 			{
 				RandomPoint = Tentative;
+				bFindRandomLocation = true;
 				break;
 			}
 		}
 	}
-	
-	BlackboardComp->SetValueAsVector(FindRandomLocationKey, RandomPoint);
-
-	BlackboardComp->SetValueAsBool(IsExistPatrolEndLocationKey,true);
-	BlackboardComp->SetValueAsVector(PatrolEndLocationKey, RandomPoint);
+	if (!bFindRandomLocation)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("bFindRandomLocation == false"));
+		BlackboardComp->SetValueAsVector(FindRandomLocationKey, RandomPoint);
+		BlackboardComp->SetValueAsVector(PatrolEndLocationKey, RandomPoint);
+	}
+	else
+	{
+		BlackboardComp->SetValueAsVector(FindRandomLocationKey, RandomPoint);
+		BlackboardComp->SetValueAsBool(IsExistPatrolEndLocationKey, true);
+		BlackboardComp->SetValueAsVector(PatrolEndLocationKey, RandomPoint);
+	}
 
 	return EBTNodeResult::Succeeded;
 }
