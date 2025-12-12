@@ -17,6 +17,12 @@ void AGRCharacter::ServerRPC_PlayFireFX_Implementation(const FVector& MuzzleLoca
 void AGRCharacter::Multicast_PlayFireFX_Implementation(const FVector& MuzzleLocation,
 	const FVector& TracerEndPoint)
 {
+	// 로컬 클라이언트는 이미 재생했으므로 스킵
+	if (IsLocallyControlled())
+	{
+		return;
+	}
+
 	AGRPlayerState* PS = GetGRPlayerState();
 	if (!PS)
 	{
@@ -87,6 +93,12 @@ void AGRCharacter::ServerRPC_PlayImpactFX_Implementation(const FVector& ImpactLo
 
 void AGRCharacter::Multicast_PlayImpactFX_Implementation(const FVector& ImpactLocation)
 {
+	// 로컬 클라이언트는 이미 재생했으므로 스킵
+	if (IsLocallyControlled())
+	{
+		return;
+	}
+
 	AGRPlayerState* PS = GetGRPlayerState();
 	if (!PS)
 	{
@@ -130,6 +142,12 @@ void AGRCharacter::ServerRPC_PlayEmptyFireFX_Implementation(const FVector& Muzzl
 
 void AGRCharacter::Multicast_PlayEmptyFireFX_Implementation(const FVector& MuzzleLocation)
 {
+	// 로컬 클라이언트는 이미 재생했으므로 스킵
+	if (IsLocallyControlled())
+	{
+		return;
+	}
+
 	AGRPlayerState* PS = GetGRPlayerState();
 	if (!PS)
 	{

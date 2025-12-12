@@ -30,6 +30,10 @@ AGRPlayerState::AGRPlayerState()
 void AGRPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PreviousWeaponSlot = INDEX_NONE;
+	CurrentWeaponSlot = INDEX_NONE;
+	PredictedWeaponSlot = INDEX_NONE;
 }
 
 void AGRPlayerState::EndPlay(EEndPlayReason::Type EndPlayReason)

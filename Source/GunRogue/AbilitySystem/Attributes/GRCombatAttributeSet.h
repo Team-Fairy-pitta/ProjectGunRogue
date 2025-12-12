@@ -32,6 +32,8 @@ public:
 	bool CheckHasAmmo() const { return GetCurrentAmmo() > 0.0f; }
 	bool CheckCanReload() const { return GetCurrentAmmo() < GetMaxAmmo(); }
 
+	bool bIsPredictingAmmo = false;
+
 	// 탄약 델리게이트 (블루프린트에서 바인딩 가능)
 	UPROPERTY(BlueprintAssignable, Category = "GunRogue|Ammo")
 	FOnAmmoChanged OnAmmoChanged;
@@ -240,5 +242,4 @@ private:
 	void StartSpreadRecoveryTimer(UAbilitySystemComponent* OwningASC, bool bIsInitialDelay = true);
 	void ClearSpreadRecoveryTimer(UAbilitySystemComponent* OwningASC);
 	void ApplySpreadRecovery(UAbilitySystemComponent* OwningASC);
-
 };

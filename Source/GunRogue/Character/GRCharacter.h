@@ -90,19 +90,19 @@ public:
 	UStaticMeshComponent* GetEquippedWeaponStaticMesh() const;
 
 	// 무기 이펙트/사운드 관련 RPC
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, UnReliable)
 	void ServerRPC_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, UnReliable)
 	void ServerRPC_PlayImpactFX(const FVector& ImpactLocation);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayImpactFX(const FVector& ImpactLocation);
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, UnReliable)
 	void ServerRPC_PlayEmptyFireFX(const FVector& MuzzleLocation);
 
 	UFUNCTION(NetMulticast, Unreliable)
