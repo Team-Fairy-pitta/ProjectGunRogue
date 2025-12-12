@@ -252,6 +252,9 @@ protected:
 	void InitPlayerID();
 
 	UFUNCTION(Server, Reliable)
+	void ServerRPC_LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods);
+
+	UFUNCTION(Server, Reliable)
 	void ServerRPC_ApplyAllPerksToASC(const TArray<FPerkEntry>& PerkInfos);
 
 	FString PlayerID;
@@ -267,11 +270,21 @@ protected:
 public:
 	void AddMetaGoods(int32 Amount);
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_AddMetaGoods(int32 Amount);
+
 	void AddGold(int32 Amount);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_AddGold(int32 Amount);
 
 	int32 GetCurrentMetaGoods() const { return CurrentMetaGoods; }
 
 	int32 GetGold() const { return Gold; }
+	
+	void UpdateMetaGoodsUI();
+	
+	void UpdateGoldUI();
 	
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentMetaGoods)
 	int32 CurrentMetaGoods; // 가지고 있던 재화 + 게임에서 얻은 재화

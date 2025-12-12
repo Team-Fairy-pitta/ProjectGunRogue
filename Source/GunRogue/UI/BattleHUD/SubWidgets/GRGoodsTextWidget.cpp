@@ -4,6 +4,40 @@
 #include "GRGoodsTextWidget.h"
 #include "Components/TextBlock.h"
 
+void UGRGoodsTextWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (GoldNameText)
+	{
+		GoldNameText->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (GoldCountText)
+	{
+		GoldCountText->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (GemNameText)
+	{
+		GemNameText->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (GemCountText)
+	{
+		GemCountText->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void UGRGoodsTextWidget::SetGoodsTextInPerkHUD()
+{
+	if (GoldNameText)
+	{
+		GoldNameText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (GoldCountText)
+	{
+		GoldCountText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
 void UGRGoodsTextWidget::SetGoldCountText(int32 InCount)
 {
 	if (!GoldCountText)

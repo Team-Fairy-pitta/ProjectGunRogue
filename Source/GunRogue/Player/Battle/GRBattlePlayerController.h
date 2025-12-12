@@ -191,10 +191,10 @@ protected:
 #pragma region Goods
 public:
 	UFUNCTION()
-	void UpdateUICurrentMetaGoods();
+	void SyncMetaGoodsUI();
 
 	UFUNCTION()
-	void UpdateUIGold();
+	void SyncGoldUI();
 	
 #pragma endregion Goods
 };

@@ -7,6 +7,7 @@
 #include "Character/GRCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Player/GRPlayerState.h"
+#include "Engine/OverlapResult.h"
 
 AGRGoodsActor::AGRGoodsActor()
 {
@@ -20,7 +21,7 @@ AGRGoodsActor::AGRGoodsActor()
 	StaticMeshComponent->SetupAttachment(SceneRoot);
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	SphereComponent->InitSphereRadius(80.f);
+	SphereComponent->InitSphereRadius(50.f);
 	SphereComponent->SetupAttachment(SceneRoot);
 
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AGRGoodsActor::OnBeginOverlap);
@@ -48,9 +49,22 @@ void AGRGoodsActor::BeginPlay()
 		}
 	}
 
+	if (StaticMeshComponent && StaticMeshComponent->GetStaticMesh())
+	{
+		const FBoxSphereBounds Bounds = StaticMeshComponent->Bounds;
+		const FVector Extents = Bounds.BoxExtent;
+
+		OverlapRadius = Extents.GetMax() + 10;
+
+		if (OverlapRadius > 0.f)
+		{
+			SphereComponent->SetSphereRadius(OverlapRadius, true);
+		}
+	}
+	
 	if (GoodsDefinition)
 	{
-		InitGoods(GoodsDefinition);
+		InitGoods();
 	}
 }
 
@@ -68,7 +82,7 @@ bool AGRGoodsActor::IsNetRelevantFor(const AActor* RealViewer, const AActor* Vie
 			if (IsValid(ViewerController))
 			{
 				bool bIsOwnClient = ViewerController->GetPlayerState<AGRPlayerState>() == GoodsOwner;
-				return bIsOwnClient && DefaultNetRelevant;
+				return bIsOwnClient;
 			}
 		}
 	}
@@ -76,17 +90,15 @@ bool AGRGoodsActor::IsNetRelevantFor(const AActor* RealViewer, const AActor* Vie
 	return DefaultNetRelevant;
 }
 
-void AGRGoodsActor::MulticastRPC_InitGoods_Implementation(UGRGoodsDefinition* InGoodsDefinition)
+void AGRGoodsActor::MulticastRPC_InitGoods_Implementation()
 {
-	InitGoods(InGoodsDefinition);
+	InitGoods();
 
 	PlaceActorOnGround();
 }
 
-void AGRGoodsActor::InitGoods(UGRGoodsDefinition* InGoodsDefinition)
+void AGRGoodsActor::InitGoods()
 {
-	GoodsDefinition = InGoodsDefinition;
-
 	if (!GoodsDefinition)
 	{
 		return;
@@ -110,6 +122,8 @@ void AGRGoodsActor::SetInvisible()
 	}
 
 	StaticMeshComponent->SetVisibility(false, true);
+
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AGRGoodsActor::PlaceActorOnGround()
@@ -127,40 +141,113 @@ FVector AGRGoodsActor::GetGroundPointUsingLineTrace()
 
 	static const FVector FallDirection = FVector(0, 0, -1.0f);
 	static const float CheckDistance = 1000.0f;
+
 	FVector Start = this->GetActorLocation();
 	FVector Result = Start;
 	FVector End = Start + FallDirection * (CheckDistance);
+
 	FHitResult HitResult;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
+
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
 	{
 		Result.Z = HitResult.ImpactPoint.Z;
 	}
 
+	Result = AdjustForOverlap(Result);
+	
 	return Result;
 }
 
+FVector AGRGoodsActor::AdjustForOverlap(const FVector& TargetPos)
+{
+	FCollisionShape Capsule = FCollisionShape::MakeSphere(OverlapRadius);
+
+	TArray<FOverlapResult> Overlaps;
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	bool bHasOverlap = GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		TargetPos,
+		FQuat::Identity,
+		ECC_Visibility,
+		Capsule,
+		Params
+	);
+
+	if (!bHasOverlap)
+	{
+		return TargetPos;
+	}
+
+	for (int32 i = 0; i < 8; i++)
+	{
+		FVector RandOffset = FVector(
+			FMath::FRandRange(-20.0f, 20.0f),
+			FMath::FRandRange(-20.0f, 20.0f),
+			0.f
+		);
+
+		FVector NewPos = TargetPos + RandOffset;
+
+		bool bStillOverlap = GetWorld()->OverlapMultiByChannel(
+			Overlaps,
+			NewPos,
+			FQuat::Identity,
+			ECC_Visibility,
+			Capsule,
+			Params
+		);
+
+		if (!bStillOverlap)
+		{
+			return NewPos;
+		}
+	}
+
+	return TargetPos;
+}
+
 void AGRGoodsActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 BodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                   UPrimitiveComponent* OtherComp, int32 BodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!HasAuthority())
 	{
 		return;
 	}
-
+	
 	AGRCharacter* Character = Cast<AGRCharacter>(OtherActor);
 	if (!Character)
 	{
 		return;
 	}
 
-	AGRPlayerState* PS = Character->GetPlayerState<AGRPlayerState>();
-	if (!PS)
+	AGRPlayerState* HitPlayerState = Character->GetPlayerState<AGRPlayerState>();
+	if (!HitPlayerState)
 	{
 		return;
 	}
 
+	AActor* GoodsOwner = GetOwner();
+	if (!GoodsOwner)
+	{
+		return;
+	}
+
+	AGRPlayerState* OwnerPlayerState = Cast<AGRPlayerState>(GoodsOwner);
+	if (!OwnerPlayerState)
+	{
+		return;
+	}
+
+	if (HitPlayerState != OwnerPlayerState)
+	{
+		return;
+	}
+	
 	if (!GoodsDefinition)
 	{
 		return;
@@ -168,14 +255,15 @@ void AGRGoodsActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 
 	if (GoodsDefinition->GoodsType == FName("Gold"))
 	{
-		PS->AddGold(Amount);
+		HitPlayerState->AddGold(Amount);
 	}
 	else if (GoodsDefinition->GoodsType == FName("Gem"))
 	{
-		PS->AddMetaGoods(Amount);
+		HitPlayerState->AddMetaGoods(Amount);
 	}
 
 	Destroy();
 }
+
 
 

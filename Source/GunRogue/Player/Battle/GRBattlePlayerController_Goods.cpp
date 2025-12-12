@@ -3,7 +3,7 @@
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRGoodsTextWidget.h"
 
-void AGRBattlePlayerController::UpdateUICurrentMetaGoods()
+void AGRBattlePlayerController::SyncMetaGoodsUI()
 {
 	if (!HUDWidgetInstance)
 	{
@@ -22,7 +22,7 @@ void AGRBattlePlayerController::UpdateUICurrentMetaGoods()
 	}
 }
 
-void AGRBattlePlayerController::UpdateUIGold()
+void AGRBattlePlayerController::SyncGoldUI()
 {
 	if (!HUDWidgetInstance)
 	{

@@ -20,9 +20,9 @@ public:
 	virtual bool IsNetRelevantFor(const AActor* RealViewer, const AActor* ViewTarget, const FVector& SrcLocation) const override;
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRPC_InitGoods(UGRGoodsDefinition* InGoodsDefinition);
+	void MulticastRPC_InitGoods();
 
-	void InitGoods(UGRGoodsDefinition* InGoodsDefinition);
+	void InitGoods();
 
 	void SetInvisible();
 	
@@ -43,12 +43,17 @@ protected:
 
 private:
 	void PlaceActorOnGround();
+	
 	FVector GetGroundPointUsingLineTrace();
 
+	FVector AdjustForOverlap(const FVector& TargetPos);
+	
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 					UPrimitiveComponent* OtherComp, int32 BodyIndex,
 					bool bFromSweep, const FHitResult& SweepResult);
 
 	int32 Amount = 0;
+
+	float OverlapRadius = 0.f;
 };
