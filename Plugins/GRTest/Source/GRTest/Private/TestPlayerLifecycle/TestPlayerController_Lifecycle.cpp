@@ -4,6 +4,13 @@
 #include "TestPlayerLifecycle/TestGameMode_Lifecycle.h"
 #include "Kismet/GameplayStatics.h"
 
+ATestPlayerController_Lifecycle::ATestPlayerController_Lifecycle()
+{
+	bReplicates = true;
+
+	SetReplicates(true);
+}
+
 void ATestPlayerController_Lifecycle::BeginPlay()
 {
 	Super::BeginPlay();
@@ -33,7 +40,7 @@ void ATestPlayerController_Lifecycle::PlayerRespawn()
 {
 	if (!HasAuthority())
 	{
-		ServerPlayerDie();
+		ServerPlayerRespawn();
 		return;
 	}
 
@@ -44,6 +51,7 @@ void ATestPlayerController_Lifecycle::ServerPlayerRespawn_Implementation()
 {
 	PlayerRespawn();
 }
+
 
 void ATestPlayerController_Lifecycle::Spectating()
 {

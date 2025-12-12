@@ -12,6 +12,7 @@ class GRTEST_API ATestPlayerController_Lifecycle : public AGRBattlePlayerControl
 	GENERATED_BODY()
 	
 public:
+	ATestPlayerController_Lifecycle();
 
 	void Spectating();
 
