@@ -109,10 +109,10 @@ public:
 	void Multicast_PlayEmptyFireFX(const FVector& MuzzleLocation);
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_PlayReloadSound();
+	void ServerRPC_PlayReloadSound(float ReloadRate = 1.0f);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_PlayReloadSound();
+	void Multicast_PlayReloadSound(float ReloadRate = 1.0f);
 
 #pragma region SmoothCameraControl
 public:

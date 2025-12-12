@@ -5,6 +5,7 @@
 
 class UGRInputConfig;
 class UGRAbilitySet;
+class UTexture2D;
 
 // 캐릭터의 입력, 어빌리티, 외형 등을 정의하는 주요 DataAsset 클래스
 UCLASS(BlueprintType, Const)
@@ -20,4 +21,13 @@ public:
 	// Character에 부여할(grand) Ability 정보
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay Ability System")
 	TArray<TObjectPtr<UGRAbilitySet>> AbilitySets;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Description")
+	FText CharacterName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Description")
+	TObjectPtr<UTexture2D> CharacterThumbnail;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|SpawnInLobby")
+	TSubclassOf<AActor> CharacterActorInLobby;
 };

@@ -16,4 +16,9 @@ public:
 	// 맵 이동 콘솔을 사용하기 전에 사용하세요.
 	UFUNCTION(Exec)
 	void SetLevel1NextRoomIndex(int32 InIndex);
+
+	// Level에서만 사용 가능. 다음에 로드할 맵을 강제로 바꾼다.
+	// 모든 맵이 보스맵으로 바뀐다.
+	UFUNCTION(Exec)
+	void SetLevel1NextRoomBoss();
 };

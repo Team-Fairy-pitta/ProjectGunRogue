@@ -14,11 +14,15 @@ class GUNROGUE_API AGRGameMode_Level1 : public AGRGameMode
 
 public:
 	virtual void BeginPlay() override;
+	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 
 	FGRLevel1Node* GetLevel1Node(int32 Index);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
 	TArray<TSoftObjectPtr<UWorld>> RandomLevelPool;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
+	TSoftObjectPtr<UWorld> BossLevel;
 
 	UPROPERTY()
 	FGRLevel1Data Level1Data;

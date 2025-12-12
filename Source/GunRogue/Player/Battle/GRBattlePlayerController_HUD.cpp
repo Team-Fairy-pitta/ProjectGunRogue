@@ -373,7 +373,17 @@ void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 		return;
 	}
 
-	int32 OtherPlayerCount = GRGameState->PlayerArray.Num() - 1;
+	TArray<AGRPlayerState*> GRPlayerArray;
+	for (APlayerState* OtherPlayerState : GRGameState->PlayerArray)
+	{
+		AGRPlayerState* OtherGRPlayerState = Cast<AGRPlayerState>(OtherPlayerState);
+		if (IsValid(OtherGRPlayerState))
+		{
+			GRPlayerArray.Add(OtherGRPlayerState);
+		}
+	}
+
+	int32 OtherPlayerCount = GRPlayerArray.Num() - 1;
 	while (TeamStatusWidget->GetTeamStatusWidgetCount() < OtherPlayerCount)
 	{
 		TeamStatusWidget->CreateTeamStatus();
@@ -384,9 +394,8 @@ void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 	}
 
 	int32 PlayerIndex = 0;
-	for (APlayerState* OtherPlayerState : GRGameState->PlayerArray)
+	for (AGRPlayerState* OtherGRPlayerState : GRPlayerArray)
 	{
-		AGRPlayerState* OtherGRPlayerState = Cast<AGRPlayerState>(OtherPlayerState);
 		if (!IsValid(OtherGRPlayerState))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("OtherGRPlayerState (AGRPlayerState) is INVALID"));

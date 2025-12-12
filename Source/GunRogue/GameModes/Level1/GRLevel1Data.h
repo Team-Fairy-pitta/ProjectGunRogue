@@ -68,4 +68,5 @@ private:
 
 	void MakeAndConnectEmptyRooms();
 	void SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode);
+	void SetupLastRoom(AGRGameMode_Level1* GRGameMode);
 };

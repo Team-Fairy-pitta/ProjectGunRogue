@@ -3,6 +3,7 @@
 
 #include "UI/TitleHUD/SubWidgets/GRLobbyPlayerSlotWidget.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 
 void UGRLobbyPlayerSlotWidget::SetPlayerNameText(const FText& InText)
 {
@@ -12,4 +13,14 @@ void UGRLobbyPlayerSlotWidget::SetPlayerNameText(const FText& InText)
 	}
 
 	PlayerNameText->SetText(InText);
+}
+
+void UGRLobbyPlayerSlotWidget::SetPlayerIcon(UTexture2D* InTexture)
+{
+	if (!PlayerIcon)
+	{
+		return;
+	}
+
+	PlayerIcon->SetBrushFromTexture(InTexture);
 }

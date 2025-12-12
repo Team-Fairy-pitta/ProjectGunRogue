@@ -9,6 +9,8 @@
 #include "UI/SteamInvite/GRSteamFriendsList.h"
 #include "Components/SizeBox.h"
 #include "Player/Lobby/GRLobbyPlayerController.h"
+#include "Character/GRCharacter.h"
+#include "Character/GRPawnData.h"
 
 void UGRLobbyHUDWidget::NativeConstruct()
 {
@@ -18,9 +20,10 @@ void UGRLobbyHUDWidget::NativeConstruct()
 		FirstCharacterSlot,
 		SecondCharacterSlot,
 		ThirdCharacterSlot,
-		FourthCharacterSlot,
-		FifthCharacterSlot,
-		SixthCharacterSlot
+		//[NOTE] 캐릭터 수가 더 필요하다면, 주석을 해제하고 사용
+		//FourthCharacterSlot,
+		//FifthCharacterSlot,
+		//SixthCharacterSlot
 	};
 
 	if (PlayerInfoButton)
@@ -41,22 +44,31 @@ void UGRLobbyHUDWidget::NativeConstruct()
 		ReadyGameButton->SetVisibility(ESlateVisibility::Collapsed);
 		ReadyGameButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnReadyGameClicked);
 	}
-	if (ExitLobbyButton)
-	{
-		ExitLobbyButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnExitLobbyClicked);
-	}
 	if (InviteButton)
 	{
 		InviteButton->OnLobbyButtonClicked.AddDynamic(this, &ThisClass::OnInviteClicked);
 	}
 	
-	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
+	InitCharacterSelectButtons();
+
+	APlayerController* PlayerController = GetOwningPlayer();
+	if (!IsValid(PlayerController))
 	{
-		if (CharacterSlots[i])
-		{
-			CharacterSlots[i]->CharacterIndex = i;
-			CharacterSlots[i]->OnCharacterSelectClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnCharacterSelected);
-		}
+		return;
+	}
+	
+	// [NOTE] Dedicated Server에서는 게임을 시작할 수 없음
+	bool bIsHost = PlayerController->GetNetMode() == ENetMode::NM_ListenServer;
+	UpdateLobbyButtonVisibility(bIsHost);
+
+	// [NOTE] 캐릭터를 선택하지 않으면 준비할 수 없으며, 시작할 수 없음
+	if (bIsHost)
+	{
+		DisableStartButton();
+	}
+	else
+	{
+		DisableReadyButton();
 	}
 }
 
@@ -79,10 +91,6 @@ void UGRLobbyHUDWidget::NativeDestruct()
 	if (ReadyGameButton)
 	{
 		ReadyGameButton->OnLobbyButtonClicked.RemoveDynamic(this, &ThisClass::OnReadyGameClicked);
-	}
-	if (ExitLobbyButton)
-	{
-		ExitLobbyButton->OnLobbyButtonClicked.RemoveDynamic(this, &ThisClass::OnExitLobbyClicked);
 	}
 	if (InviteButton)
 	{
@@ -119,8 +127,36 @@ void UGRLobbyHUDWidget::UpdateLobbyButtonVisibility(bool bHost)
 
 void UGRLobbyHUDWidget::OnCharacterSelected(int32 SelectedIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Character %d selected"), SelectedIndex);
+	SetSelectedCharacterIndex(SelectedIndex);
+	UpdateCharacterButtonWidget(SelectedIndex);
+}
 
+void UGRLobbyHUDWidget::SetSelectedCharacterIndex(int32 SelectedIndex)
+{
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+
+	LobbyPlayerController->ServerRPC_SelectCharacter(SelectedIndex);
+
+	bool bIsHost = LobbyPlayerController->GetNetMode() == ENetMode::NM_ListenServer;
+	if (bIsHost)
+	{
+		if (LobbyPlayerController->IsAllPlayerReady())
+		{
+			EnableStartButton();
+		}
+	}
+	else
+	{
+		EnableReadyButton();
+	}
+}
+
+void UGRLobbyHUDWidget::UpdateCharacterButtonWidget(int32 SelectedIndex)
+{
 	UGRLobbyCharacterSelectSlotWidget* ClickedSlot = nullptr;
 
 	if (CharacterSlots.IsValidIndex(SelectedIndex))
@@ -144,8 +180,49 @@ void UGRLobbyHUDWidget::OnCharacterSelected(int32 SelectedIndex)
 	ClickedSlot->GetBorder()->SetBrushColor(FLinearColor::Green);
 	ClickedSlot->bIsClicked = true;
 	CurrentClickedSlot = ClickedSlot;
-	
-	//캐릭터 선택 UI
+}
+
+void UGRLobbyHUDWidget::InitCharacterSelectButtons()
+{
+	APlayerController* PlayerController = GetOwningPlayer();
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
+	AGRLobbyPlayerController* GRLobbyPlayerController = Cast<AGRLobbyPlayerController>(PlayerController);
+	if (!IsValid(GRLobbyPlayerController))
+	{
+		return;
+	}
+
+	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
+	{
+		UTexture2D* Thumbnail = nullptr;
+		FText CharacterName;
+		if (GRLobbyPlayerController->PlayableCharacterClasses.IsValidIndex(i))
+		{
+			TSubclassOf<AGRCharacter> CharacterClass = GRLobbyPlayerController->PlayableCharacterClasses[i];
+			AGRCharacter* CDO = Cast<AGRCharacter>(CharacterClass->GetDefaultObject());
+			if (CDO)
+			{
+				UGRPawnData* PawnData = CDO->PawnData;
+				if (PawnData)
+				{
+					Thumbnail = PawnData->CharacterThumbnail;
+					CharacterName = PawnData->CharacterName;
+				}
+			}
+		}
+
+		if (CharacterSlots[i])
+		{
+			CharacterSlots[i]->CharacterIndex = i;
+			CharacterSlots[i]->OnCharacterSelectClicked.AddDynamic(this, &UGRLobbyHUDWidget::OnCharacterSelected);
+			CharacterSlots[i]->SetCharacterImage(Thumbnail);
+			CharacterSlots[i]->SetCharacterName(CharacterName);
+		}
+	}
 }
 
 void UGRLobbyHUDWidget::OnPlayerInfoClicked()
@@ -160,7 +237,6 @@ void UGRLobbyHUDWidget::OnPlayerPerksClicked()
 	{
 		return;
 	}
-	LobbyPlayerController->HideLobbyWidget();
 	LobbyPlayerController->ShowPerkWidget();
 }
 
@@ -179,12 +255,136 @@ void UGRLobbyHUDWidget::OnStartGameClicked()
 
 void UGRLobbyHUDWidget::OnReadyGameClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Ready game clicked"));
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+
+	if (LobbyPlayerController->GetNetMode() != ENetMode::NM_Client)
+	{
+		return;
+	}
+
+	if (!ReadyGameButton)
+	{
+		return;
+	}
+
+	// Toggle
+	if (bIsReady)
+	{
+		bIsReady = false;
+		DisableReadyButton();
+		ReadyGameButton->SetButtonText(FText::FromString(TEXT("준비")));
+		LobbyPlayerController->ServerRPC_CancelReady();
+	}
+	else
+	{
+		bIsReady = true;
+		DisableButtonsOnReady();
+		DisableReadyButton();
+		ReadyGameButton->SetButtonText(FText::FromString(TEXT("준비중...")));
+		LobbyPlayerController->ServerRPC_Ready();
+	}
 }
 
-void UGRLobbyHUDWidget::OnExitLobbyClicked()
+void UGRLobbyHUDWidget::DisableButtonsOnReady()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Exit Lobby clicked"));
+	TArray<UGRLobbyBaseButtonWidget*> Buttons = {
+		PlayerInfoButton,
+		PlayerPerksButton,
+		ExitLobbyButton,
+		InviteButton,
+	};
+
+	for (UGRLobbyBaseButtonWidget* Button : Buttons)
+	{
+		if (Button)
+		{
+			Button->DisableButton();
+		}
+	}
+
+	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
+	{
+		if (CharacterSlots[i])
+		{
+			CharacterSlots[i]->DisableCharacterButton();
+		}
+	}
+}
+
+void UGRLobbyHUDWidget::EnableButtons()
+{
+	TArray<UGRLobbyBaseButtonWidget*> Buttons = {
+		PlayerInfoButton,
+		PlayerPerksButton,
+		ExitLobbyButton,
+		InviteButton,
+	};
+
+	for (UGRLobbyBaseButtonWidget* Button : Buttons)
+	{
+		if (Button)
+		{
+			Button->EnableButton();
+		}
+	}
+
+	for (int32 i = 0; i < CharacterSlots.Num(); ++i)
+	{
+		if (CharacterSlots[i])
+		{
+			CharacterSlots[i]->EnableCharacterButton();
+		}
+	}
+}
+
+void UGRLobbyHUDWidget::DisableReadyButton()
+{
+	if (ReadyGameButton)
+	{
+		ReadyGameButton->DisableButton();
+	}
+}
+
+void UGRLobbyHUDWidget::EnableReadyButton()
+{
+	if (ReadyGameButton)
+	{
+		ReadyGameButton->EnableButton();
+	}
+}
+
+void UGRLobbyHUDWidget::DisableStartButton()
+{
+	if (StartGameButton)
+	{
+		StartGameButton->DisableButton();
+	}
+}
+
+void UGRLobbyHUDWidget::EnableStartButton()
+{
+	if (StartGameButton)
+	{
+		StartGameButton->EnableButton();
+	}
+}
+
+void UGRLobbyHUDWidget::OnHostExit(const FString& URL)
+{
+	AGRLobbyPlayerController* LobbyPlayerController = GetOwningPlayer<AGRLobbyPlayerController>();
+	if (!IsValid(LobbyPlayerController))
+	{
+		return;
+	}
+
+	if (LobbyPlayerController->HasAuthority())
+	{
+		LobbyPlayerController->ClientTravel(URL, ETravelType::TRAVEL_Absolute);
+	}
 }
 
 void UGRLobbyHUDWidget::OnInviteClicked()
