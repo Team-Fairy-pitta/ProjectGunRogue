@@ -509,8 +509,6 @@ void AGRPlayerState::ActivateWeaponInSlot(int32 SlotIndex)
 	// 무기 활성화 - GameplayEffect 적용
 	WeaponSlots[SlotIndex].ActivateWeapon();
 
-	UpdateCurrentWeaponAmmoDisplay();
-
 	UE_LOG(LogTemp, Display, TEXT("Activated weapon in slot %d"), SlotIndex);
 }
 
@@ -615,14 +613,19 @@ void AGRPlayerState::SwitchToSlot(int32 NewSlotIndex)
 		return;
 	}
 
+	int32 OldSlotIndex = CurrentWeaponSlot;
+
 	// 현재 무기 비활성화
 	if (CurrentWeaponSlot >= 0)
 	{
 		DeactivateWeaponInSlot(CurrentWeaponSlot);
 	}
 
-	// 새 무기 활성화
+	OnWeaponSwitched.Broadcast(OldSlotIndex, NewSlotIndex);
+
 	CurrentWeaponSlot = NewSlotIndex;
+
+	// 새 무기 활성화
 	ActivateWeaponInSlot(NewSlotIndex);
 	UpdateWeaponAttachToCharacter();
 	MulticastRPC_PlayWeaponEquipAnimMontage();
@@ -652,6 +655,12 @@ void AGRPlayerState::UpdateCurrentWeaponAmmoDisplay()
 	}
 
 	FGRWeaponHandle& WeaponHandle = WeaponSlots[CurrentWeaponSlot];
+
+	if (!WeaponHandle.IsEquipped())
+	{
+		return;
+	}
+
 	FGRWeaponInstance* WeaponInstance = WeaponHandle.GetWeaponInstanceRef();
 
 	if (WeaponInstance && WeaponInstance->IsValid() && AbilitySystemComponent)
