@@ -465,14 +465,6 @@ void UGRCombatAttributeSet::OnRep_CurrentSpread(const FGameplayAttributeData& Ol
 void UGRCombatAttributeSet::OnRep_CurrentAmmo(const FGameplayAttributeData& OldCurrentAmmo)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, CurrentAmmo, OldCurrentAmmo);
-	
-	// 예측 중이면 스킵 (클라이언트가 이미 브로드캐스트함)
-	if (bIsPredictingAmmo)
-	{
-		bIsPredictingAmmo = false; // 플래그 리셋
-		UE_LOG(LogTemp, Verbose, TEXT("[OnRep_CurrentAmmo] Skipped (predicting)"));
-		return;
-	}
 
 	// 클라이언트에서도 델리게이트 호출
 	const int32 Current = FMath::RoundToInt(GetCurrentAmmo());

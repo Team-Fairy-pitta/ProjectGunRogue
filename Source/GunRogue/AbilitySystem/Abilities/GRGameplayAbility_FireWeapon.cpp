@@ -256,18 +256,6 @@ bool UGRGameplayAbility_FireWeapon::CheckAndConsumeAmmo()
 			PlayEmptyFireFX(MuzzleLocation);
 			return false;
 		}
-		
-		// 예측 플래그 설정 (OnRep 스킵용)
-		CombatSet->bIsPredictingAmmo = true;
-
-		// 로컬에서 즉시 탄약 감소 (예측)
-		float CurrentAmmo = CombatSet->GetCurrentAmmo();
-		CombatSet->SetCurrentAmmo(CurrentAmmo - 1.0f);
-
-		// UI 즉시 업데이트
-		const int32 NewAmmo = FMath::RoundToInt(CombatSet->GetCurrentAmmo());
-		const int32 MaxAmmo = FMath::RoundToInt(CombatSet->GetMaxAmmo());
-		CombatSet->OnAmmoChanged.Broadcast(NewAmmo, MaxAmmo);
 	}
 
 	return true;
