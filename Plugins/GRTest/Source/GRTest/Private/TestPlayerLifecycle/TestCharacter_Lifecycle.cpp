@@ -32,7 +32,7 @@ void ATestCharacter_Lifecycle::Die_Internal()
 	// 이동 불가
 	GetCharacterMovement()->DisableMovement();
 
-	// 입력을 막고 싶으면
+	// 입력을 막기
 	AController* PC = GetController();
 	if (PC)
 	{

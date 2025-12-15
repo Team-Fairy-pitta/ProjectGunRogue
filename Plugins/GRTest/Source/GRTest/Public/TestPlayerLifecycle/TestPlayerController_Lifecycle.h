@@ -24,8 +24,6 @@ public:
 	UFUNCTION()
 	void Spectating_Internal();
 	
-	
-
 	// 관전 대상 변경
 	UFUNCTION(BlueprintCallable)
 	void SpectateNext();
