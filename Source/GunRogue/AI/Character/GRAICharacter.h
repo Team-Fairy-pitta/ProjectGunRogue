@@ -8,6 +8,7 @@
 #include "GRAICharacter.generated.h"
 
 class UGameplayAbility;
+class UGRZLocationComponent;
 class UGRHealthAttributeSet;
 class UGRCombatAttributeSet;
 struct FOnAttributeChangeData;
@@ -29,6 +30,9 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	UAbilitySystemComponent* ASC;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRZLocationComponent> ZLocationComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities",meta=(AllowPrivateAccess))
 	TArray<TSubclassOf<UGameplayAbility>> AttackAbilityClassList;

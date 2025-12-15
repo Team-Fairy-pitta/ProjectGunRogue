@@ -2,6 +2,7 @@
 
 
 #include "AI/Character/GRAICharacter.h"
+#include "Character/GRZLocationComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
@@ -32,6 +33,8 @@ AGRAICharacter::AGRAICharacter()
 	ASC->SetIsReplicated(true);
 	ASC->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	SetNetUpdateFrequency(100.0f);
+
+	ZLocationComponent = CreateDefaultSubobject<UGRZLocationComponent>(TEXT("ZLocationComponent"));
 
 	HealthAttributeSet = CreateDefaultSubobject<UGRHealthAttributeSet>(TEXT("HealthAttributeSet"));
 	CombatAttributeSet = CreateDefaultSubobject<UGRCombatAttributeSet>(TEXT("CombatAttributeSet"));

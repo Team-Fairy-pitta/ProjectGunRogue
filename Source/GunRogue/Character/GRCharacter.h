@@ -13,6 +13,7 @@ class UGRAbilitySystemComponent;
 class UGRInputHandleComponent;
 class UGRInteractionComponent;
 class UGRAttachmentComponent;
+class UGRZLocationComponent;
 class UGRPawnData;
 class UGRRadarMapComponent;
 
@@ -51,6 +52,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UGRAttachmentComponent> AttachmentComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRZLocationComponent> ZLocationComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
