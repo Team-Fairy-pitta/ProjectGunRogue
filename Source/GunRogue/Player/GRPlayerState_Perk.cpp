@@ -62,14 +62,8 @@ void AGRPlayerState::InitPerkFromSave()
 
 	if (PerkSubsystem->LoadPerks(PlayerID, TempPerkInfoRows, TempMetaGoods))
 	{
-		ServerRPC_LoadPerkFromSave(TempPerkInfoRows, TempMetaGoods);
+		LoadPerkFromSave(TempPerkInfoRows, TempMetaGoods);
 	}
-}
-
-void AGRPlayerState::ServerRPC_LoadPerkFromSave_Implementation(const TArray<FPerkEntry>& LoadedPerkInfoRows,
-	int32 LoadedMetaGoods)
-{
-	LoadPerkFromSave(LoadedPerkInfoRows, LoadedMetaGoods);
 }
 
 void AGRPlayerState::LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods)
@@ -125,6 +119,11 @@ void AGRPlayerState::InitPlayerID()
 		// [NOTE] 실제 환경에서는 PlayerID를 구분할 필요가 없음 (게임이 하나만 실행되므로)
 		PlayerID = FString::Printf(TEXT("LocalPlayer"));
 	}
+}
+
+void AGRPlayerState::ServerRPC_SetCurrentMetaGoods_Implementation(int32 InMetaGoods)
+{
+	CurrentMetaGoods = InMetaGoods;	
 }
 
 void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation(const TArray<FPerkEntry>& PerkInfos)

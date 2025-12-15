@@ -736,6 +736,11 @@ void AGRPlayerState::InitAbilitySystemComponent()
 	{
 		InitPerkFromSave();
 		ServerRPC_ApplyAllPerksToASC(PerkInfoRows);
+
+		if (!HasAuthority())
+		{
+			ServerRPC_SetCurrentMetaGoods(CurrentMetaGoods);
+		}
 	}
 
 	bIsAbilitySystemComponentInit = true;

@@ -47,6 +47,34 @@ void ATestEnemyActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, A
 	Destroy();
 }
 
+//실제 사용 코드
+FVector ATestEnemyActor::GetGroundLocation(const FVector& InXY) const
+{
+	if (!GetWorld())
+	{
+		return this->GetActorLocation();
+	}
+
+	static const FVector FallDirection = FVector(0, 0, -1.0f);
+	static const float CheckDistance = 1000.0f;
+
+	FVector Result = InXY;
+	
+	FVector Start = InXY + FVector(0,0, 200.f);
+	FVector End = Start + FallDirection * (CheckDistance);
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+	{
+		Result.Z = HitResult.ImpactPoint.Z;
+	}
+
+	return Result;
+}
+
 //실제 사용할 코드
 void ATestEnemyActor::DropGoods()
 {
@@ -63,9 +91,7 @@ void ATestEnemyActor::DropGoods()
 		UE_LOG(LogTemp, Error, TEXT("World is nullptr"));
 		return;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("World Found. Iterating PlayerControllers..."));
-
+	
 	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
 	{
 		APlayerController* PC = It->Get();
@@ -104,33 +130,26 @@ void ATestEnemyActor::DropGoods()
 				RandomOffset.X = FMath::RandRange(-100.f, 100.f);
 				RandomOffset.Y = FMath::RandRange(-100.f, 100.f);
 				
-				FVector SpawnLoc = GetActorLocation() + RandomOffset;
-				FTransform SpawnTransform(SpawnLoc);
+				FVector XY = GetActorLocation() + RandomOffset;
+				FVector SpawnLoc = GetGroundLocation(XY);
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = PS;
 				
-				AGRGoodsActor* Goods = World->SpawnActorDeferred<AGRGoodsActor>(
+				AGRGoodsActor* Goods = World->SpawnActor<AGRGoodsActor>(
 					Info.GoodsClass,
-					SpawnTransform,
-					nullptr,
-					nullptr,
-					ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
+					SpawnLoc,
+					FRotator::ZeroRotator,
+					SpawnParams
 				);
 
 				if (!Goods)
 				{
-					UE_LOG(LogTemp, Error, TEXT("SpawnActorDeferred failed!"));
+					UE_LOG(LogTemp, Error, TEXT("SpawnActor failed!"));
 					continue;
 				}
-
-				UE_LOG(LogTemp, Warning, TEXT("Goods Spawned (Deferred): %s"), *Goods->GetName());
-
-				Goods->SetOwner(PS);
-				UE_LOG(LogTemp, Warning, TEXT("Goods Owner Set: %s"), *PS->GetName());
-
+				
 				Goods->MulticastRPC_InitGoods();
 				UE_LOG(LogTemp, Warning, TEXT("Goods InitGoods Called"));
-
-				UGameplayStatics::FinishSpawningActor(Goods, SpawnTransform);
-				UE_LOG(LogTemp, Warning, TEXT("FinishSpawningActor Completed: %s"), *Goods->GetName());
 			}
 		}
 	}

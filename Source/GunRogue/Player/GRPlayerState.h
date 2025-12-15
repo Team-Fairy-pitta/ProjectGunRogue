@@ -252,7 +252,7 @@ protected:
 	void InitPlayerID();
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods);
+	void ServerRPC_SetCurrentMetaGoods(int32 InMetaGoods);
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ApplyAllPerksToASC(const TArray<FPerkEntry>& PerkInfos);

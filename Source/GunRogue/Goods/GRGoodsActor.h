@@ -42,18 +42,10 @@ protected:
 	TObjectPtr<USphereComponent> SphereComponent;
 
 private:
-	void PlaceActorOnGround();
-	
-	FVector GetGroundPointUsingLineTrace();
-
-	FVector AdjustForOverlap(const FVector& TargetPos);
-	
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 					UPrimitiveComponent* OtherComp, int32 BodyIndex,
 					bool bFromSweep, const FHitResult& SweepResult);
 
 	int32 Amount = 0;
-
-	float OverlapRadius = 0.f;
 };

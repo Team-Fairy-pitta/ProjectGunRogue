@@ -55,4 +55,8 @@ private:
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 					UPrimitiveComponent* OtherComp, int32 BodyIndex,
 					bool bFromSweep, const FHitResult& SweepResult);
+
+
+	//실제 사용 코드
+	FVector GetGroundLocation(const FVector& InXY) const;
 };

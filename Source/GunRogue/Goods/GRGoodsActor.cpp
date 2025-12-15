@@ -48,19 +48,6 @@ void AGRGoodsActor::BeginPlay()
 			}
 		}
 	}
-
-	if (StaticMeshComponent && StaticMeshComponent->GetStaticMesh())
-	{
-		const FBoxSphereBounds Bounds = StaticMeshComponent->Bounds;
-		const FVector Extents = Bounds.BoxExtent;
-
-		OverlapRadius = Extents.GetMax() + 10;
-
-		if (OverlapRadius > 0.f)
-		{
-			SphereComponent->SetSphereRadius(OverlapRadius, true);
-		}
-	}
 	
 	if (GoodsDefinition)
 	{
@@ -93,8 +80,6 @@ bool AGRGoodsActor::IsNetRelevantFor(const AActor* RealViewer, const AActor* Vie
 void AGRGoodsActor::MulticastRPC_InitGoods_Implementation()
 {
 	InitGoods();
-
-	PlaceActorOnGround();
 }
 
 void AGRGoodsActor::InitGoods()
@@ -112,6 +97,21 @@ void AGRGoodsActor::InitGoods()
 	StaticMeshComponent->SetStaticMesh(GoodsDefinition->GoodsMesh);
 
 	Amount = GoodsDefinition->GoodsAmount;
+
+	if (StaticMeshComponent->GetStaticMesh())
+	{
+		const FBoxSphereBounds Bounds = StaticMeshComponent->Bounds;
+		const FVector Extents = Bounds.BoxExtent;
+
+		const float OverlapRadius = Extents.GetMax() + 10;
+
+		if (OverlapRadius > 0.f)
+		{
+			SphereComponent->SetSphereRadius(OverlapRadius, true);
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("OverlapRadius : %.1f"), OverlapRadius);
+	}
 }
 
 void AGRGoodsActor::SetInvisible()
@@ -124,91 +124,6 @@ void AGRGoodsActor::SetInvisible()
 	StaticMeshComponent->SetVisibility(false, true);
 
 	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}
-
-void AGRGoodsActor::PlaceActorOnGround()
-{
-	FVector NewLocation = GetGroundPointUsingLineTrace();
-	this->SetActorLocation(NewLocation);
-}
-
-FVector AGRGoodsActor::GetGroundPointUsingLineTrace()
-{
-	if (!GetWorld())
-	{
-		return this->GetActorLocation();
-	}
-
-	static const FVector FallDirection = FVector(0, 0, -1.0f);
-	static const float CheckDistance = 1000.0f;
-
-	FVector Start = this->GetActorLocation();
-	FVector Result = Start;
-	FVector End = Start + FallDirection * (CheckDistance);
-
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
-	{
-		Result.Z = HitResult.ImpactPoint.Z;
-	}
-
-	Result = AdjustForOverlap(Result);
-	
-	return Result;
-}
-
-FVector AGRGoodsActor::AdjustForOverlap(const FVector& TargetPos)
-{
-	FCollisionShape Capsule = FCollisionShape::MakeSphere(OverlapRadius);
-
-	TArray<FOverlapResult> Overlaps;
-
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	bool bHasOverlap = GetWorld()->OverlapMultiByChannel(
-		Overlaps,
-		TargetPos,
-		FQuat::Identity,
-		ECC_Visibility,
-		Capsule,
-		Params
-	);
-
-	if (!bHasOverlap)
-	{
-		return TargetPos;
-	}
-
-	for (int32 i = 0; i < 8; i++)
-	{
-		FVector RandOffset = FVector(
-			FMath::FRandRange(-20.0f, 20.0f),
-			FMath::FRandRange(-20.0f, 20.0f),
-			0.f
-		);
-
-		FVector NewPos = TargetPos + RandOffset;
-
-		bool bStillOverlap = GetWorld()->OverlapMultiByChannel(
-			Overlaps,
-			NewPos,
-			FQuat::Identity,
-			ECC_Visibility,
-			Capsule,
-			Params
-		);
-
-		if (!bStillOverlap)
-		{
-			return NewPos;
-		}
-	}
-
-	return TargetPos;
 }
 
 void AGRGoodsActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
