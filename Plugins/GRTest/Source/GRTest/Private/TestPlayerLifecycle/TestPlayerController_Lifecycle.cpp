@@ -51,11 +51,6 @@ void ATestPlayerController_Lifecycle::Spectating_Internal()
 
 	TArray<ATestCharacter_Lifecycle*> AlivePlayers = TestGS->GetAlivePlayers();
 
-	if (AlivePlayers.Num() == 0)
-	{
-		return;
-	}
-	
 	CurrentIndex = 0;
 }
 
