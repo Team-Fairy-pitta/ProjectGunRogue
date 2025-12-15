@@ -14,18 +14,50 @@ class GRTEST_API ATestPlayerController_Lifecycle : public AGRBattlePlayerControl
 public:
 	ATestPlayerController_Lifecycle();
 
+
+	// 관전 모드 시작
 	void Spectating();
 
-	void Respawn();
+	UFUNCTION(Server, Reliable)
+	void ServerSpectating();
+
+	UFUNCTION()
+	void Spectating_Internal();
+	
+	
+
+	// 관전 대상 변경
 	UFUNCTION(BlueprintCallable)
 	void SpectateNext();
+
+	UFUNCTION(Server, Reliable)
+	void ServerSpectateNext();
+
+	UFUNCTION()
+	void SpectateNext_Internal();
+	
 	UFUNCTION(BlueprintCallable)
 	void SpectatePrevious();
 
+	UFUNCTION(Server, Reliable)
+	void ServerSpectatePrevious();
+
+	UFUNCTION()
+	void SpectatePrevious_Internal();
+
+	// 리스폰
+	void Respawn();
+	
+	UFUNCTION(Server, Reliable)
+	void ServerRespawn();
+
 private:
+
 	void UpdateAlivePlayerList();
 
-	void SpectateCurrentTarget();
+
+	UFUNCTION(Client, Reliable)
+	void ClientSpectateTarget(AActor* Target);
 
 public:
 	virtual void BeginPlay() override;
@@ -34,22 +66,4 @@ private:
 	TArray<ATestCharacter_Lifecycle*> AlivePlayers;
 
 	int32 CurrentIndex = 0;
-
-
-#pragma region CheatCommands
-
-public:
-	UFUNCTION(exec)
-	void PlayerDie();
-
-	UFUNCTION(Server, Reliable)
-	void ServerPlayerDie();
-
-	UFUNCTION(exec)
-	void PlayerRespawn();
-
-	UFUNCTION(Server, Reliable)
-	void ServerPlayerRespawn();
-
-#pragma endregion
 };

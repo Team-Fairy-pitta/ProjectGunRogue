@@ -6,8 +6,6 @@
 
 ATestPlayerController_Lifecycle::ATestPlayerController_Lifecycle()
 {
-	bReplicates = true;
-
 	SetReplicates(true);
 }
 
@@ -16,74 +14,45 @@ void ATestPlayerController_Lifecycle::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ATestPlayerController_Lifecycle::PlayerDie()
-{
-	if (!HasAuthority())
-	{
-		ServerPlayerDie();
-		return;
-	}
-
-	ATestCharacter_Lifecycle* TestCharacter = Cast<ATestCharacter_Lifecycle>(GetPawn());
-	if (TestCharacter)
-	{
-		TestCharacter->Die();
-	}
-}
-
-void ATestPlayerController_Lifecycle::ServerPlayerDie_Implementation()
-{
-	PlayerDie();
-}
-
-void ATestPlayerController_Lifecycle::PlayerRespawn()
-{
-	if (!HasAuthority())
-	{
-		ServerPlayerRespawn();
-		return;
-	}
-
-	Respawn();
-}
-
-void ATestPlayerController_Lifecycle::ServerPlayerRespawn_Implementation()
-{
-	PlayerRespawn();
-}
-
-
 void ATestPlayerController_Lifecycle::Spectating()
 {
-	if(!HasAuthority())
+	if (!HasAuthority())
+	{
+		ServerSpectating();
+		return;
+	}
+
+	Spectating_Internal();
+}
+
+void ATestPlayerController_Lifecycle::ServerSpectating_Implementation()
+{
+	Spectating_Internal();
+}
+
+void ATestPlayerController_Lifecycle::Spectating_Internal()
+{
+	if (!HasAuthority())
 	{
 		return;
 	}
 
 	ChangeState(NAME_Spectating);
 
-	// 살아있는 플레이어 리스트 갱신 
 	UpdateAlivePlayerList();
-	// 관전 시작
-	SpectateCurrentTarget();
-}
-
-void ATestPlayerController_Lifecycle::Respawn()
-{
-	if (!HasAuthority())
+	if (AlivePlayers.IsValidIndex(CurrentIndex))
 	{
-		return;
-	}
-
-	ATestGameMode_Lifecycle* GM = Cast<ATestGameMode_Lifecycle>(UGameplayStatics::GetGameMode(this));
-	if (GM)
-	{
-		GM->RespawnPlayer(this);
+		ClientSpectateTarget(AlivePlayers[CurrentIndex]);
 	}
 }
 
 void ATestPlayerController_Lifecycle::UpdateAlivePlayerList()
 {
+	if(!HasAuthority())
+	{
+		return;
+	}
+
 	AlivePlayers.Empty();
 
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
@@ -106,40 +75,82 @@ void ATestPlayerController_Lifecycle::UpdateAlivePlayerList()
 	}
 }
 
-void ATestPlayerController_Lifecycle::SpectateCurrentTarget()
+void ATestPlayerController_Lifecycle::ClientSpectateTarget_Implementation(AActor* Target)
 {
+	if (!Target || !IsValid(Target))
+	{
+		return;
+	}
+
+	SetViewTargetWithBlend(Target, 0.0f);
+}
+
+void ATestPlayerController_Lifecycle::SpectateNext()
+{
+	if (!HasAuthority())
+	{
+		ServerSpectateNext();
+		return;
+	}
+
+	SpectateNext_Internal();
+}
+
+void ATestPlayerController_Lifecycle::ServerSpectateNext_Implementation()
+{
+	SpectateNext_Internal();
+}
+
+void ATestPlayerController_Lifecycle::SpectateNext_Internal()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (GetStateName() != NAME_Spectating)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentState = %s"), *GetStateName().ToString());
+		return;
+	}
+
+	UpdateAlivePlayerList();
 	if (AlivePlayers.Num() == 0)
 	{
 		return;
 	}
 
-	ATestCharacter_Lifecycle* Target = AlivePlayers[CurrentIndex];
-	if (Target)
-	{
-		SetViewTargetWithBlend(Target, 0.0f);
-	}
-}
-
-void ATestPlayerController_Lifecycle::SpectateNext()
-{
-	if (GetStateName() != NAME_Spectating)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("CurrentState = %s"), *GetStateName().ToString());
-		return;
-	}
-
-	UpdateAlivePlayerList();
-	if (AlivePlayers.Num() == 0) 
-	{
-		return;
-	}
-
 	CurrentIndex = (CurrentIndex + 1) % AlivePlayers.Num();
-	SpectateCurrentTarget();
+	if (AlivePlayers.IsValidIndex(CurrentIndex))
+	{
+		ClientSpectateTarget(AlivePlayers[CurrentIndex]);
+	}
 }
 
 void ATestPlayerController_Lifecycle::SpectatePrevious()
 {
+	if (!HasAuthority())
+	{
+		ServerSpectatePrevious();
+		return;
+	}
+
+	
+	SpectatePrevious_Internal();
+}
+
+void ATestPlayerController_Lifecycle::ServerSpectatePrevious_Implementation()
+{
+	SpectatePrevious_Internal();
+}
+
+void ATestPlayerController_Lifecycle::SpectatePrevious_Internal()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
 	if (GetStateName() != NAME_Spectating)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CurrentState = %s"), *GetStateName().ToString());
@@ -147,11 +158,33 @@ void ATestPlayerController_Lifecycle::SpectatePrevious()
 	}
 
 	UpdateAlivePlayerList();
-	if (AlivePlayers.Num() == 0) 
+	if (AlivePlayers.Num() == 0)
 	{
 		return;
 	}
 
 	CurrentIndex = (CurrentIndex - 1 + AlivePlayers.Num()) % AlivePlayers.Num();
-	SpectateCurrentTarget();
+	if (AlivePlayers.IsValidIndex(CurrentIndex))
+	{
+		ClientSpectateTarget(AlivePlayers[CurrentIndex]);
+	}
+}
+
+void ATestPlayerController_Lifecycle::Respawn()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	ATestGameMode_Lifecycle* GM = Cast<ATestGameMode_Lifecycle>(UGameplayStatics::GetGameMode(this));
+	if (GM)
+	{
+		GM->RespawnPlayer(this);
+	}
+}
+
+void ATestPlayerController_Lifecycle::ServerRespawn_Implementation()
+{
+	Respawn();
 }

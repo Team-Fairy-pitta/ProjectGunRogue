@@ -13,11 +13,6 @@ ATestCharacter_Lifecycle::ATestCharacter_Lifecycle()
 
 void ATestCharacter_Lifecycle::Die()
 {
-	if (!HasAuthority())
-	{
-		return;   
-	}
-
 	if (bIsDead)
 	{
 		return;
