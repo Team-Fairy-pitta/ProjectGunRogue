@@ -2,7 +2,9 @@
 
 #include "TestPlayerLifecycle/TestCharacter_Lifecycle.h"
 #include "TestPlayerLifecycle/TestGameMode_Lifecycle.h"
+#include "TestPlayerLifecycle/TestGameState_Lifecycle.h"
 #include "Kismet/GameplayStatics.h"
+
 
 ATestPlayerController_Lifecycle::ATestPlayerController_Lifecycle()
 {
@@ -39,43 +41,25 @@ void ATestPlayerController_Lifecycle::Spectating_Internal()
 
 	ChangeState(NAME_Spectating);
 
-	UpdateAlivePlayerList();
-	if (AlivePlayers.IsValidIndex(CurrentIndex))
-	{
-		ClientSpectateTarget(AlivePlayers[CurrentIndex]);
-	}
-}
-
-void ATestPlayerController_Lifecycle::UpdateAlivePlayerList()
-{
-	if(!HasAuthority())
+	ATestGameState_Lifecycle* TestGS = GetWorld() ? GetWorld()->GetGameState<ATestGameState_Lifecycle>() : nullptr;
+	if (!TestGS)
 	{
 		return;
 	}
 
-	AlivePlayers.Empty();
+	TestGS->UpdateAlivePlayerList();
 
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		ATestPlayerController_Lifecycle* TestPC = Cast<ATestPlayerController_Lifecycle>(*It);
-		if (TestPC && TestPC != this)
-		{
-			ATestCharacter_Lifecycle* TestCharacter = Cast<ATestCharacter_Lifecycle>(TestPC->GetPawn());
-			if (TestCharacter && !TestCharacter->IsDead())
-			{
-				AlivePlayers.Add(TestCharacter);
-			}
-		}
-	}
+	TArray<ATestCharacter_Lifecycle*> AlivePlayers = TestGS->GetAlivePlayers();
 
-	// 인덱스 보정
-	if (!AlivePlayers.IsValidIndex(CurrentIndex))
+	if (AlivePlayers.Num() == 0)
 	{
-		CurrentIndex = 0;
+		return;
 	}
+	
+	CurrentIndex = 0;
 }
 
-void ATestPlayerController_Lifecycle::ClientSpectateTarget_Implementation(AActor* Target)
+void ATestPlayerController_Lifecycle::ServerSpectateTarget_Implementation(AActor* Target)
 {
 	if (!Target || !IsValid(Target))
 	{
@@ -114,7 +98,16 @@ void ATestPlayerController_Lifecycle::SpectateNext_Internal()
 		return;
 	}
 
-	UpdateAlivePlayerList();
+	ATestGameState_Lifecycle* TestGS = GetWorld() ? GetWorld()->GetGameState<ATestGameState_Lifecycle>() : nullptr;
+	if (!TestGS)
+	{
+		return;
+	}
+
+	TestGS->UpdateAlivePlayerList();
+
+	TArray<ATestCharacter_Lifecycle*> AlivePlayers = TestGS->GetAlivePlayers();
+
 	if (AlivePlayers.Num() == 0)
 	{
 		return;
@@ -123,7 +116,7 @@ void ATestPlayerController_Lifecycle::SpectateNext_Internal()
 	CurrentIndex = (CurrentIndex + 1) % AlivePlayers.Num();
 	if (AlivePlayers.IsValidIndex(CurrentIndex))
 	{
-		ClientSpectateTarget(AlivePlayers[CurrentIndex]);
+		ServerSpectateTarget(AlivePlayers[CurrentIndex]);
 	}
 }
 
@@ -157,7 +150,16 @@ void ATestPlayerController_Lifecycle::SpectatePrevious_Internal()
 		return;
 	}
 
-	UpdateAlivePlayerList();
+	ATestGameState_Lifecycle* TestGS = GetWorld() ? GetWorld()->GetGameState<ATestGameState_Lifecycle>() : nullptr;
+	if (!TestGS)
+	{
+		return;
+	}
+
+	TestGS->UpdateAlivePlayerList();
+
+	TArray<ATestCharacter_Lifecycle*> AlivePlayers = TestGS->GetAlivePlayers();
+
 	if (AlivePlayers.Num() == 0)
 	{
 		return;
@@ -166,11 +168,27 @@ void ATestPlayerController_Lifecycle::SpectatePrevious_Internal()
 	CurrentIndex = (CurrentIndex - 1 + AlivePlayers.Num()) % AlivePlayers.Num();
 	if (AlivePlayers.IsValidIndex(CurrentIndex))
 	{
-		ClientSpectateTarget(AlivePlayers[CurrentIndex]);
+		ServerSpectateTarget(AlivePlayers[CurrentIndex]);
 	}
 }
 
 void ATestPlayerController_Lifecycle::Respawn()
+{
+	if (!HasAuthority())
+	{
+		ServerRespawn();
+		return;
+	}
+
+	Respawn_Internal();
+}
+
+void ATestPlayerController_Lifecycle::ServerRespawn_Implementation()
+{
+	Respawn_Internal();
+}
+
+void ATestPlayerController_Lifecycle::Respawn_Internal()
 {
 	if (!HasAuthority())
 	{
@@ -184,7 +202,4 @@ void ATestPlayerController_Lifecycle::Respawn()
 	}
 }
 
-void ATestPlayerController_Lifecycle::ServerRespawn_Implementation()
-{
-	Respawn();
-}
+

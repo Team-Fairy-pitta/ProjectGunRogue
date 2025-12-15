@@ -11,12 +11,6 @@ void ATestGameMode_Lifecycle::RespawnPlayer(APlayerController* Controller)
 		return;
 	}
 
-	APawn* OldPawn = Controller->GetPawn();
-	if (OldPawn)
-	{
-		OldPawn->Destroy();
-	}
-
 	RestartPlayer(Controller);
 
 	if (Controller->GetPawn())

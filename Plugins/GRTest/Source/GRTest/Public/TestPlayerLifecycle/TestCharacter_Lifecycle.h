@@ -15,12 +15,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Die();
 
-	bool IsDead() const { return bIsDead; }
-
-public:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 
 private:
-	UPROPERTY(Replicated)
-	bool bIsDead = false;
+	UFUNCTION(Server, Reliable)
+	void ServerDie();
+
+	void Die_Internal();
+
+
 };

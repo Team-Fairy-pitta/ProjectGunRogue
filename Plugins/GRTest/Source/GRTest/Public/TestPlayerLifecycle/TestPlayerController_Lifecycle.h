@@ -46,24 +46,23 @@ public:
 	void SpectatePrevious_Internal();
 
 	// 리스폰
+	UFUNCTION(BlueprintCallable)
 	void Respawn();
 	
 	UFUNCTION(Server, Reliable)
 	void ServerRespawn();
 
+	UFUNCTION()
+	void Respawn_Internal();
+
 private:
 
-	void UpdateAlivePlayerList();
-
-
-	UFUNCTION(Client, Reliable)
-	void ClientSpectateTarget(AActor* Target);
+	UFUNCTION(Server, Reliable)
+	void ServerSpectateTarget(AActor* Target);
 
 public:
 	virtual void BeginPlay() override;
 
 private:
-	TArray<ATestCharacter_Lifecycle*> AlivePlayers;
-
 	int32 CurrentIndex = 0;
 };

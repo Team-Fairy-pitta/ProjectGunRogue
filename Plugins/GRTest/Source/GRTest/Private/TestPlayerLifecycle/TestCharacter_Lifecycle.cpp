@@ -13,13 +13,22 @@ ATestCharacter_Lifecycle::ATestCharacter_Lifecycle()
 
 void ATestCharacter_Lifecycle::Die()
 {
-	if (bIsDead)
+	if(!HasAuthority())
 	{
+		ServerDie();
 		return;
 	}
+	
+	Die_Internal();
+}
 
-	bIsDead = true;
+void ATestCharacter_Lifecycle::ServerDie_Implementation()
+{
+	Die_Internal();
+}
 
+void ATestCharacter_Lifecycle::Die_Internal()
+{
 	// 이동 불가
 	GetCharacterMovement()->DisableMovement();
 
@@ -41,12 +50,9 @@ void ATestCharacter_Lifecycle::Die()
 		TestPC->Spectating();
 	}
 
-}
+	// 애니메이션 재생
 
-void ATestCharacter_Lifecycle::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ATestCharacter_Lifecycle, bIsDead);
+	// 삭제
+	Destroy();
 }
 
