@@ -114,6 +114,12 @@ void UGRBattleCheatManager::GetPlayerName(int32 InIndex)
 		return;
 	}
 
+	if (!PC->HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cheat SetLevel1NextRoomIndex requires Authority"));
+		return;
+	}
+
 	AGRGameState_Level1* GameState_Level1 = PC->GetWorld()->GetGameState<AGRGameState_Level1>();
 	if (!IsValid(GameState_Level1))
 	{
@@ -145,6 +151,12 @@ void UGRBattleCheatManager::KillPlayer(int32 InIndex)
 		return;
 	}
 
+	if (!PC->HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cheat SetLevel1NextRoomIndex requires Authority"));
+		return;
+	}
+
 	AGRGameState_Level1* GameState_Level1 = PC->GetWorld()->GetGameState<AGRGameState_Level1>();
 	if (!IsValid(GameState_Level1))
 	{
@@ -172,5 +184,61 @@ void UGRBattleCheatManager::KillPlayer(int32 InIndex)
 	}
 
 	ASC->SetNumericAttributeBase(UGRHealthAttributeSet::GetHealthAttribute(), 0.0f);
+}
+
+void UGRBattleCheatManager::RespawnPlayer(int32 InIndex)
+{
+	APlayerController* PC = GetOuterAPlayerController();
+	if (!IsValid(PC))
+	{
+		return;
+	}
+
+	if (!PC->HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cheat SetLevel1NextRoomIndex requires Authority"));
+		return;
+	}
+
+	AGRGameState_Level1* GameState_Level1 = PC->GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GameState_Level1))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameState is NOT AGRGameState_Level1"));
+		return;
+	}
+
+	if (!GameState_Level1->PlayerArray.IsValidIndex(InIndex))
+	{
+		return;
+	}
+
+	APlayerState* PlayerState = GameState_Level1->PlayerArray[InIndex];
+	AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(PlayerState);
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerState is NOT AGRPlayerState"));
+		return;
+	}
+
+	if (!PC->GetWorld())
+	{
+		return;
+	}
+
+	AGRGameMode_Level1* GameMode_Level1 = PC->GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+	if (!IsValid(GameMode_Level1))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameMode is NOT AGRGameMode_Level1"));
+		return;
+	}
+
+	APlayerController* TargetPlayerController = GRPlayerState->GetPlayerController();
+	if (!IsValid(TargetPlayerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("TargetPlayerController is INVALID"));
+		return;
+	}
+
+	GameMode_Level1->RestartPlayer(TargetPlayerController);
 }
 

@@ -29,4 +29,8 @@ public:
 	// 특정 Index의 Player의 체력을 0으로 만든다.
 	UFUNCTION(Exec)
 	void KillPlayer(int32 InIndex);
+
+	// 특정 Index의 Playey를 리스폰한다.
+	UFUNCTION(Exec)
+	void RespawnPlayer(int32 InIndex);
 };
