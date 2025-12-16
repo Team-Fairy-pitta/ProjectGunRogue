@@ -226,7 +226,15 @@ void AGRPlayerState::OnBodyExpired()
 		return;
 	}
 
-	GetWorldTimerManager().SetTimerForNextTick(GRPlayerController, &AGRPlayerController::ServerRPC_StartSpectating);
+	AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(GRPlayerController);
+	if (!IsValid(BattlePlayerController))
+	{
+		return;
+	}
+
+	BattlePlayerController->ClientRPC_StartSpectating();
+
+	GetWorldTimerManager().SetTimerForNextTick(BattlePlayerController, &AGRBattlePlayerController::ServerRPC_StartSpectating);
 }
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)

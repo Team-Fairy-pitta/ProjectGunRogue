@@ -11,6 +11,7 @@ class UGRWeaponDefinition;
 class UGRWeaponUpgradeWidgetSetting;
 class UGRInventoryWidgetMain;
 class UGRAugmentHUDWidget;
+class UGRSpectatorHUDWidget;
 class UGRDamageIndicator;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
@@ -60,11 +61,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRBattleHUDWidget> HUDWidgetClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
-	TSubclassOf<UGRDamageIndicator> DamageIndicatorWidgetClass;
-
 	UPROPERTY()
 	TObjectPtr<UGRDamageIndicator> DamageIndicatorWidgetInstance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRDamageIndicator> DamageIndicatorWidgetClass;
 
 	FTimerHandle OtherPlayerStatusUpdateTimer;
 	float OtherPlayerStatusUpdateInterval = 1.0f;
@@ -100,6 +101,45 @@ private:
 	void ShowDamageIndicator(float Damage, AActor* DamagedActor);
 
 #pragma endregion HUD
+
+/* 관전 관련 코드 */
+#pragma region Spectator_HUD
+public:
+	UFUNCTION(BlueprintCallable)
+	void ShowSpectatorHUD();
+
+	UFUNCTION(BlueprintCallable)
+	void HideSpectatorHUD();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_StartSpectating();
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_StartSpectating();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SpectatePreviousPlayer();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SpectateNextPlayer();
+
+protected:
+	UPROPERTY()
+	TObjectPtr<UGRSpectatorHUDWidget> SpectatorWidgetInstance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRSpectatorHUDWidget> SpectatorWidgetClass;
+
+	AActor* GetPreviousSpectateActor();
+	AActor* GetNextSpectateActor();
+	TArray<AActor*> GetAlivePlayerList();
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_SetSpectationTargetPlayerName(AActor* Target);
+
+	int32 CurrentSpectateIndex = INDEX_NONE;
+
+#pragma endregion
 
 /* 무기 강화 UI (UpgradeConsole) 관련 코드 */
 #pragma region UpgradeConsole

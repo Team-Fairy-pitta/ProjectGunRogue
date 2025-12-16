@@ -4,6 +4,7 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/BattleHUD/GRSpectatorHUDWidget.h"
 #include "UI/Level1/GRLevel1SelectWidget.h"
 #include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
 #include "UI/Inventory/GRInventoryWidgetMain.h"
@@ -11,9 +12,7 @@
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
-#if WITH_EDITOR
 	CheatClass = UGRBattleCheatManager::StaticClass();
-#endif
 }
 
 void AGRBattlePlayerController::BeginPlay()
@@ -90,6 +89,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!HUDWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRBattleHUDWidget Widgets"));
+		return;
+	}
+
+	if (!SpectatorWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SpectatorWidgetClass (TSubclassOf<>) is INVALID"));
+		return;
+	}
+
+	SpectatorWidgetInstance = CreateWidget<UGRSpectatorHUDWidget>(this, SpectatorWidgetClass);
+	if (!SpectatorWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create SpectatorWidgetInstance Widgets"));
 		return;
 	}
 

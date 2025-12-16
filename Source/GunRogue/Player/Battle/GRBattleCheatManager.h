@@ -21,4 +21,12 @@ public:
 	// 모든 맵이 보스맵으로 바뀐다.
 	UFUNCTION(Exec)
 	void SetLevel1NextRoomBoss();
+
+	// 특정 Index의 Player의 이름을 알아낸다.
+	UFUNCTION(Exec)
+	void GetPlayerName(int32 InIndex);
+
+	// 특정 Index의 Player의 체력을 0으로 만든다.
+	UFUNCTION(Exec)
+	void KillPlayer(int32 InIndex);
 };

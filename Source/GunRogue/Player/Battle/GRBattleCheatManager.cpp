@@ -1,4 +1,7 @@
 #include "Player/Battle/GRBattleCheatManager.h"
+#include "Player/GRPlayerState.h"
+#include "AbilitySystem/GRAbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "GameModes/Level1/GRGameState_Level1.h"
 
@@ -102,3 +105,72 @@ void UGRBattleCheatManager::SetLevel1NextRoomBoss()
 
 	GameState_Level1->RequestNextRoomInformation();
 }
+
+void UGRBattleCheatManager::GetPlayerName(int32 InIndex)
+{
+	APlayerController* PC = GetOuterAPlayerController();
+	if (!IsValid(PC))
+	{
+		return;
+	}
+
+	AGRGameState_Level1* GameState_Level1 = PC->GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GameState_Level1))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameState is NOT AGRGameState_Level1"));
+		return;
+	}
+
+	if (!GameState_Level1->PlayerArray.IsValidIndex(InIndex))
+	{
+		return;
+	}
+
+	APlayerState* PlayerState = GameState_Level1->PlayerArray[InIndex];
+	AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(PlayerState);
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerState is NOT AGRPlayerState"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("PlayerName: %s"), *GRPlayerState->GetPlayerName());
+}
+
+void UGRBattleCheatManager::KillPlayer(int32 InIndex)
+{
+	APlayerController* PC = GetOuterAPlayerController();
+	if (!IsValid(PC))
+	{
+		return;
+	}
+
+	AGRGameState_Level1* GameState_Level1 = PC->GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GameState_Level1))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameState is NOT AGRGameState_Level1"));
+		return;
+	}
+
+	if (!GameState_Level1->PlayerArray.IsValidIndex(InIndex))
+	{
+		return;
+	}
+
+	APlayerState* PlayerState = GameState_Level1->PlayerArray[InIndex];
+	AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(PlayerState);
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerState is NOT AGRPlayerState"));
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = GRPlayerState->GetAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
+
+	ASC->SetNumericAttributeBase(UGRHealthAttributeSet::GetHealthAttribute(), 0.0f);
+}
+

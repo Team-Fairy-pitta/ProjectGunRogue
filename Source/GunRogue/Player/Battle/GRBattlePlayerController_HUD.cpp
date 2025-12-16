@@ -1,3 +1,4 @@
+#include "GameFramework/Character.h"
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "GameModes/GRGameState.h"
@@ -7,6 +8,7 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "Weapon/GRWeaponDefinition.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/BattleHUD/GRSpectatorHUDWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRWeaponListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
@@ -509,4 +511,180 @@ void AGRBattlePlayerController::ShowDamageIndicator(float Damage, AActor* Damage
 
 	DamageIndicatorWidgetInstance->SetData(Damage, DamagedActor);
 	DamageIndicatorWidgetInstance->AddToViewport();
+}
+
+void AGRBattlePlayerController::ShowSpectatorHUD()
+{
+	if (!SpectatorWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SpectatorWidgetInstance is INVALID"));
+		return;
+	}
+	if (!SpectatorWidgetInstance->IsInViewport())
+	{
+		SpectatorWidgetInstance->AddToViewport();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
+}
+
+void AGRBattlePlayerController::HideSpectatorHUD()
+{
+	if (!SpectatorWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SpectatorWidgetInstance is INVALID"));
+		return;
+	}
+	if (SpectatorWidgetInstance->IsInViewport())
+	{
+		SpectatorWidgetInstance->RemoveFromParent();
+	}
+}
+
+AActor* AGRBattlePlayerController::GetPreviousSpectateActor()
+{
+	TArray<AActor*> AlivePlayerList = GetAlivePlayerList();
+	if (AlivePlayerList.IsValidIndex(CurrentSpectateIndex))
+	{
+		CurrentSpectateIndex = CurrentSpectateIndex - 1 < 0 ? AlivePlayerList.Num() - 1 : CurrentSpectateIndex - 1;
+		return AlivePlayerList[CurrentSpectateIndex];
+	}
+	else
+	{
+		if (AlivePlayerList.Num() > 0)
+		{
+			CurrentSpectateIndex = 0;
+			return AlivePlayerList[CurrentSpectateIndex];
+		}
+		else
+		{
+			CurrentSpectateIndex = INDEX_NONE;
+			return nullptr;
+		}
+	}
+}
+
+AActor* AGRBattlePlayerController::GetNextSpectateActor()
+{
+	TArray<AActor*> AlivePlayerList = GetAlivePlayerList();
+	if (AlivePlayerList.IsValidIndex(CurrentSpectateIndex))
+	{
+		CurrentSpectateIndex = CurrentSpectateIndex + 1 >= AlivePlayerList.Num() ? 0 : CurrentSpectateIndex + 1;
+		return AlivePlayerList[CurrentSpectateIndex];
+	}
+	else
+	{
+		if (AlivePlayerList.Num() > 0)
+		{
+			CurrentSpectateIndex = 0;
+			return AlivePlayerList[CurrentSpectateIndex];
+		}
+		else
+		{
+			CurrentSpectateIndex = INDEX_NONE;
+			return nullptr;
+		}
+	}
+}
+
+TArray<AActor*> AGRBattlePlayerController::GetAlivePlayerList()
+{
+	if (!GetWorld())
+	{
+		return TArray<AActor*>();
+	}
+
+	AGameStateBase* GameStateBsae = GetWorld()->GetGameState<AGameStateBase>();
+	if (!IsValid(GameStateBsae))
+	{
+		return TArray<AActor*>();
+	}
+
+	TArray<AActor*> PlayerList;
+
+	for (APlayerState* ItState : GameStateBsae->PlayerArray)
+	{
+		AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(ItState);
+		if (IsValid(GRPlayerState) && !GRPlayerState->IsDead())
+		{
+			APawn* ItPawn = GRPlayerState->GetPawn();
+			if (IsValid(ItPawn))
+			{
+				PlayerList.Add(ItPawn);
+			}
+		}
+	}
+
+	return PlayerList;
+}
+
+void AGRBattlePlayerController::ClientRPC_SetSpectationTargetPlayerName_Implementation(AActor* Target)
+{
+	if (!IsValid(Target))
+	{
+		return;
+	}
+
+	ACharacter* TargetCharacter = Cast<ACharacter>(Target);
+	if (IsValid(TargetCharacter))
+	{
+		if (TargetCharacter->GetPlayerState())
+		{
+			const FString& PlayerName = TargetCharacter->GetPlayerState()->GetPlayerName();
+			
+			if (SpectatorWidgetInstance)
+			{
+				SpectatorWidgetInstance->SetTargetPlayerName(PlayerName);
+			}
+		}
+	}
+}
+
+void AGRBattlePlayerController::ServerRPC_SpectatePreviousPlayer_Implementation()
+{
+	AActor* TargetActor = GetPreviousSpectateActor();
+	if (IsValid(TargetActor))
+	{
+		ChangeState(NAME_Spectating);
+		ClientRPC_SetSpectationTargetPlayerName(TargetActor);
+		SetViewTargetWithBlend(TargetActor);
+	}
+	else
+	{
+		ChangeState(NAME_Playing);
+	}
+}
+
+void AGRBattlePlayerController::ServerRPC_SpectateNextPlayer_Implementation()
+{
+	AActor* TargetActor = GetNextSpectateActor();
+	if (IsValid(TargetActor))
+	{
+		ChangeState(NAME_Spectating);
+		ClientRPC_SetSpectationTargetPlayerName(TargetActor);
+		SetViewTargetWithBlend(TargetActor);
+	}
+	else
+	{
+		ChangeState(NAME_Playing);
+	}
+}
+
+void AGRBattlePlayerController::ServerRPC_StartSpectating_Implementation()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	ChangeState(NAME_Spectating);
+	ServerRPC_SpectateNextPlayer();
+}
+
+void AGRBattlePlayerController::ClientRPC_StartSpectating_Implementation()
+{
+	HideBattleHUD();
+	ShowSpectatorHUD();
 }
