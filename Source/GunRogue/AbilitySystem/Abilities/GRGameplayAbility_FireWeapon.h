@@ -105,11 +105,6 @@ protected:
 	void PlayEmptyFireFX(const FVector& MuzzleLocation);
 	void PlayImpactFX(const FVector& ImpactLocation);
 
-	// 로컬 FX 재생 (예측용)
-	void PlayFireFXLocal(const FVector& MuzzleLocation, const FVector& TraceEnd);
-	void PlayEmptyFireFXLocal(const FVector& MuzzleLocation);
-	void PlayImpactFXLocal(const FVector& ImpactLocation);
-
 	// 탄퍼짐/반동
 	void ApplySpreadAndRecoil();
 	void ApplyRecoil(float RecoilAmount);

@@ -178,7 +178,6 @@ void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
 
 	int32 OldSlot = CurrentWeaponSlot;
 	SwitchToSlot(SlotIndex);
-	//ClientRPC_BroadcastOnWeaponSwitched(OldSlot, SlotIndex);
 
 	UGRWeaponDefinition* WeaponDef = WeaponSlots[SlotIndex].GetWeaponDefinition();
 	if (WeaponDef)
@@ -642,10 +641,7 @@ void AGRPlayerState::SwitchToSlot(int32 NewSlotIndex)
 		DeactivateWeaponInSlot(CurrentWeaponSlot);
 	}
 
-	if (HasAuthority())
-	{
-		OnWeaponSwitched.Broadcast(OldSlotIndex, NewSlotIndex);
-	}
+	OnWeaponSwitched.Broadcast(OldSlotIndex, NewSlotIndex);
 
 	CurrentWeaponSlot = NewSlotIndex;
 
