@@ -294,21 +294,12 @@ protected:
 #pragma region Goods;
 public:
 	void AddMetaGoods(int32 Amount);
-
-	UFUNCTION(Server, Reliable)
-	void ServerRPC_AddMetaGoods(int32 Amount);
-
 	void AddGold(int32 Amount);
 
-	UFUNCTION(Server, Reliable)
-	void ServerRPC_AddGold(int32 Amount);
-
 	int32 GetCurrentMetaGoods() const { return CurrentMetaGoods; }
-
 	int32 GetGold() const { return Gold; }
 	
 	void UpdateMetaGoodsUI();
-	
 	void UpdateGoldUI();
 	
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentMetaGoods)

@@ -4,46 +4,35 @@
 #pragma region Goods
 void AGRPlayerState::AddMetaGoods(int32 Amount)
 {
-	UE_LOG(LogTemp, Display, TEXT("AddMetaGoods1 : Current Meta Goods %d"), CurrentMetaGoods);
-	
-	if (HasAuthority())
+	if (!HasAuthority())
 	{
-		CurrentMetaGoods += Amount;
-		UE_LOG(LogTemp, Display, TEXT("AddMetaGoods2 : Current Meta Goods %d"), CurrentMetaGoods);
-		
-		OnRep_CurrentMetaGoods();
+		return;
 	}
-	else
-	{
-		ServerRPC_AddMetaGoods(Amount);
-	}
-}
 
-void AGRPlayerState::ServerRPC_AddMetaGoods_Implementation(int32 Amount)
-{
 	CurrentMetaGoods += Amount;
-	UE_LOG(LogTemp, Display, TEXT("AddMetaGoods3 : Current Meta Goods %d"), CurrentMetaGoods);
-	
 	OnRep_CurrentMetaGoods();
 }
 
 void AGRPlayerState::AddGold(int32 Amount)
 {
-	if (HasAuthority())
+	if (!HasAuthority())
 	{
-		Gold += Amount;
-		OnRep_Gold();
+		return;
 	}
-	else
-	{
-		ServerRPC_AddGold(Amount);
-	}
-}
 
-void AGRPlayerState::ServerRPC_AddGold_Implementation(int32 Amount)
-{
 	Gold += Amount;
 	OnRep_Gold();
+}
+
+void AGRPlayerState::OnRep_CurrentMetaGoods()
+{
+	UpdateMetaGoodsUI();
+	SavePerkToSave();
+}
+
+void AGRPlayerState::OnRep_Gold()
+{
+	UpdateGoldUI();
 }
 
 void AGRPlayerState::UpdateMetaGoodsUI()
@@ -69,18 +58,5 @@ void AGRPlayerState::UpdateGoldUI()
 
 	BattlePlayerController->SyncGoldUI();
 }
-
-void AGRPlayerState::OnRep_CurrentMetaGoods()
-{
-	UpdateMetaGoodsUI();
-
-	SavePerkToSave();
-}
-
-void AGRPlayerState::OnRep_Gold()
-{
-	UpdateGoldUI();
-}
-
 #pragma endregion
 
