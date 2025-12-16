@@ -97,6 +97,17 @@ void AGRPlayerState::LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRo
 	}
 }
 
+void AGRPlayerState::SavePerkToSave()
+{
+	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		return;
+	}
+
+	PerkSubsystem->SavePerks(PlayerID, PerkInfoRows, CurrentMetaGoods);
+}
+
 void AGRPlayerState::InitPlayerID()
 {
 	UWorld* World = GetWorld();

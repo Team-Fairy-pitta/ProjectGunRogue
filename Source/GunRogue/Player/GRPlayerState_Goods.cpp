@@ -73,6 +73,8 @@ void AGRPlayerState::UpdateGoldUI()
 void AGRPlayerState::OnRep_CurrentMetaGoods()
 {
 	UpdateMetaGoodsUI();
+
+	SavePerkToSave();
 }
 
 void AGRPlayerState::OnRep_Gold()

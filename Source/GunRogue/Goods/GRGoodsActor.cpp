@@ -22,8 +22,9 @@ AGRGoodsActor::AGRGoodsActor()
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	SphereComponent->InitSphereRadius(50.f);
-	SphereComponent->SetupAttachment(SceneRoot);
-
+	SphereComponent->SetupAttachment(StaticMeshComponent);
+	SphereComponent->SetRelativeLocation(FVector::ZeroVector);
+	
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AGRGoodsActor::OnBeginOverlap);
 }
 
@@ -98,9 +99,9 @@ void AGRGoodsActor::InitGoods()
 
 	Amount = GoodsDefinition->GoodsAmount;
 
-	if (StaticMeshComponent->GetStaticMesh())
+	if (UStaticMesh* Mesh = StaticMeshComponent->GetStaticMesh())
 	{
-		const FBoxSphereBounds Bounds = StaticMeshComponent->Bounds;
+		const FBoxSphereBounds Bounds = Mesh->GetBounds();
 		const FVector Extents = Bounds.BoxExtent;
 
 		const float OverlapRadius = Extents.GetMax() + 10;
@@ -109,6 +110,8 @@ void AGRGoodsActor::InitGoods()
 		{
 			SphereComponent->SetSphereRadius(OverlapRadius, true);
 		}
+
+		SphereComponent->SetRelativeLocation(Bounds.Origin);
 
 		UE_LOG(LogTemp, Warning, TEXT("OverlapRadius : %.1f"), OverlapRadius);
 	}

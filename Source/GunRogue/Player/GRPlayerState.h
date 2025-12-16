@@ -249,6 +249,7 @@ protected:
 	virtual void InitPerkFromSave();
 	void InitPerkInfoRows();
 	void LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods);
+	virtual void SavePerkToSave();
 	void InitPlayerID();
 
 	UFUNCTION(Server, Reliable)
