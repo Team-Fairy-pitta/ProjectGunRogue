@@ -19,6 +19,7 @@ class GUNROGUE_API AGRLevel1ControlPanel : public AActor, public IGRInteractable
 public:
 	AGRLevel1ControlPanel();
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// IGRInteractableActor
@@ -29,6 +30,7 @@ public:
 	virtual bool CanInteract(AActor* OtherActor) override;
 
 	void OnUsePanel(FGRLevel1Node NextNode);
+	void SetbHasEliminatedEnemies(bool HasEliminatedEnemies);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
@@ -58,6 +60,9 @@ protected:
 	UPROPERTY(Replicated)
 	int8 bWasActivated;
 
+	UPROPERTY(Replicated)
+	int8 bHasEliminatedEnemies;
+
 	UPROPERTY(ReplicatedUsing = OnRep_bIsDoorOpen)
 	int8 bIsDoorOpen;
 
@@ -69,4 +74,8 @@ protected:
 
 	UFUNCTION()
 	void OnRep_CachedNextNode();
+
+private:
+	void AddToGameMode();
+	void RemoveFromGameMode();
 };

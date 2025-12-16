@@ -6,6 +6,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
+#include "GRLobbyCharacterSelectSlotWidget.h"
 
 void UGRLobbyBaseButtonWidget::NativePreConstruct()
 {
@@ -29,6 +30,30 @@ void UGRLobbyBaseButtonWidget::NativeConstruct()
 	if (BaseButton)
 	{
 		BaseButton->OnClicked.AddDynamic(this, &UGRLobbyBaseButtonWidget::OnBaseClicked);
+	}
+}
+
+void UGRLobbyBaseButtonWidget::SetButtonText(FText InText)
+{
+	if (BaseButtonText)
+	{
+		BaseButtonText->SetText(InText);
+	}
+}
+
+void UGRLobbyBaseButtonWidget::EnableButton()
+{
+	if (BaseButton)
+	{
+		BaseButton->SetIsEnabled(true);
+	}
+}
+
+void UGRLobbyBaseButtonWidget::DisableButton()
+{
+	if (BaseButton)
+	{
+		BaseButton->SetIsEnabled(false);
 	}
 }
 

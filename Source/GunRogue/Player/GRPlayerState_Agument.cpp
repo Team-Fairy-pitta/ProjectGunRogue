@@ -3,7 +3,6 @@
 #include "Augment/GRAugmentStructs.h"
 
 
-#pragma region Augment
 void AGRPlayerState::ServerRPC_OnAugmentSelected_Implementation(FName AugmentID)
 {
 	if (!HasAuthority())
@@ -98,4 +97,3 @@ void AGRPlayerState::OnRep_OwnedAugments()
 
 	BattlePlayerController->HideAugmentWidget();
 }
-#pragma endregion

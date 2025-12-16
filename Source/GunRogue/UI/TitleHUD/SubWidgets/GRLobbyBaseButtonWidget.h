@@ -21,7 +21,7 @@ class GUNROGUE_API UGRLobbyBaseButtonWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
 	UButton* BaseButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -45,6 +45,11 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnLobbyButtonClicked OnLobbyButtonClicked;
+
+	void SetButtonText(FText InText);
+
+	void EnableButton();
+	void DisableButton();
 	
 private:
 	UFUNCTION()

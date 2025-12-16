@@ -10,6 +10,7 @@ class UButton;
 class UTextBlock;
 class UBorder;
 class USizeBox;
+class UImage;
 /**
  * 
  */
@@ -25,12 +26,21 @@ public:
 
 	USizeBox* GetSizeBox() const { return CharSelectSizeBox; }
 
+	void SetCharacterImage(UTexture2D* InTexture);
+	void SetCharacterName(const FText& InCharacterName);
+
+	void EnableCharacterButton();
+	void DisableCharacterButton();
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UButton* CharSelectButton;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CharNameText;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* CharImage;
 
 	UPROPERTY(meta = (BindWidget))
 	UBorder* CharSelectButtonBorder;

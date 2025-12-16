@@ -7,6 +7,7 @@
 #include "GRLobbyPlayerSlotWidget.generated.h"
 
 class UImage;
+class UTexture2D;
 class UTextBlock;
 /**
  * 
@@ -25,4 +26,5 @@ protected:
 
 public:
 	void SetPlayerNameText(const FText& InText);
+	void SetPlayerIcon(UTexture2D* InTexture);
 };

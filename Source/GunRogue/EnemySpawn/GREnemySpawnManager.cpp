@@ -13,12 +13,15 @@ void AGREnemySpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (bAutoFindSpawners)
+	if (HasAuthority())
 	{
-		FindAllSpawnersInWorld();
-	}
+		if (bAutoFindSpawners)
+		{
+			FindAllSpawnersInWorld();
+		}
 
-	SpawnEnemies();
+		SpawnEnemies();
+	}
 }
 
 void AGREnemySpawnManager::SpawnEnemies()

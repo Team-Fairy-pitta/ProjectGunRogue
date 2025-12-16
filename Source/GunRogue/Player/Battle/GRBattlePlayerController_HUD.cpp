@@ -11,6 +11,7 @@
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
+#include "UI/Damage/GRDamageIndicator.h"
 #include "MiniMap/GRRadarMapComponent.h"
 
 void AGRBattlePlayerController::InitializeBattleHUD()
@@ -376,7 +377,17 @@ void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 		return;
 	}
 
-	int32 OtherPlayerCount = GRGameState->PlayerArray.Num() - 1;
+	TArray<AGRPlayerState*> GRPlayerArray;
+	for (APlayerState* OtherPlayerState : GRGameState->PlayerArray)
+	{
+		AGRPlayerState* OtherGRPlayerState = Cast<AGRPlayerState>(OtherPlayerState);
+		if (IsValid(OtherGRPlayerState))
+		{
+			GRPlayerArray.Add(OtherGRPlayerState);
+		}
+	}
+
+	int32 OtherPlayerCount = GRPlayerArray.Num() - 1;
 	while (TeamStatusWidget->GetTeamStatusWidgetCount() < OtherPlayerCount)
 	{
 		TeamStatusWidget->CreateTeamStatus();
@@ -387,9 +398,8 @@ void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 	}
 
 	int32 PlayerIndex = 0;
-	for (APlayerState* OtherPlayerState : GRGameState->PlayerArray)
+	for (AGRPlayerState* OtherGRPlayerState : GRPlayerArray)
 	{
-		AGRPlayerState* OtherGRPlayerState = Cast<AGRPlayerState>(OtherPlayerState);
 		if (!IsValid(OtherGRPlayerState))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("OtherGRPlayerState (AGRPlayerState) is INVALID"));
@@ -470,4 +480,36 @@ void AGRBattlePlayerController::ClientRPC_OnActiveGameplayEffectRemoved_Implemen
 	}
 
 	PlayerStatusWidget->RemoveBuffIcon(EffectClass);
+}
+
+void AGRBattlePlayerController::ClientRPC_ShowDamageIndicator_Implementation(float Damage, AActor* DamagedActor)
+{
+	ShowDamageIndicator(Damage, DamagedActor);
+}
+
+void AGRBattlePlayerController::ShowDamageIndicator(float Damage, AActor* DamagedActor)
+{
+	if (!IsLocalController())
+	{
+		return;
+	}
+
+	if (!DamageIndicatorWidgetClass)
+	{
+		return;
+	}
+
+	DamageIndicatorWidgetInstance = CreateWidget<UGRDamageIndicator>(this, DamageIndicatorWidgetClass);
+	if (!DamageIndicatorWidgetInstance)
+	{
+		return;
+	}
+
+	if (!IsValid(DamagedActor))
+	{
+		return;
+	}
+
+	DamageIndicatorWidgetInstance->SetData(Damage, DamagedActor);
+	DamageIndicatorWidgetInstance->AddToViewport();
 }
