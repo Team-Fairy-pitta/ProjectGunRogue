@@ -4,6 +4,7 @@
 #include "GameModes/Level1/GRLevel1Data.h"
 #include "GRGameMode_Level1.generated.h"
 
+class AGRLevel1ControlPanel;
 
 UCLASS()
 class GUNROGUE_API AGRGameMode_Level1 : public AGRGameMode
@@ -26,4 +27,18 @@ public:
 
 	UPROPERTY()
 	FGRLevel1Data Level1Data;
+
+	void ReceiveSpawnEnemy();
+	void ReceiveDestroyEnemy();
+
+	void AddLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
+	void RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
+
+private:
+	UPROPERTY()
+	TArray<TObjectPtr<AGRLevel1ControlPanel>> Panels;
+
+	int32 EnemyCount = 0;
+
+	void UpdateLevel1ControlPanel();
 };

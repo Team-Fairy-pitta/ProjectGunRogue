@@ -2,6 +2,7 @@
 #include "Character/GRInputHandleComponent.h"
 #include "Character/Interaction/GRInteractionComponent.h"
 #include "Character/Attachment/GRAttachmentComponent.h"
+#include "Character/GRZLocationComponent.h"
 #include "Player/GRPlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
@@ -20,6 +21,7 @@ AGRCharacter::AGRCharacter()
 	InteractionComponent = CreateDefaultSubobject<UGRInteractionComponent>(TEXT("GRInteractionComponent"));
 	AttachmentComponent = CreateDefaultSubobject<UGRAttachmentComponent>(TEXT("AttachmentComponent"));
 	RadarMapComponent = CreateDefaultSubobject<UGRRadarMapComponent>(TEXT("RadarMapComponent"));
+	ZLocationComponent = CreateDefaultSubobject<UGRZLocationComponent>(TEXT("ZLocationComponent"));
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->SetupAttachment(RootComponent);

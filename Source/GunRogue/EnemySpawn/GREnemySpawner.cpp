@@ -1,6 +1,8 @@
 #include "GREnemySpawner.h"
 
 #include "Components/BoxComponent.h"
+#include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
 
 
 AGREnemySpawner::AGREnemySpawner()
@@ -83,7 +85,24 @@ AActor* AGREnemySpawner::SpawnEnemy(TSubclassOf<AActor> EnemyClass)
 
 	FVector RandomLocation = GetRandomPointInVolume();
 	FVector GroundLocation = SnapSpawnPointToGround(RandomLocation);
-	AActor* SpwanedActor = GetWorld()->SpawnActor<AActor>(EnemyClass, GroundLocation, FRotator::ZeroRotator);
+
+	// 콜리전 높이 보정 
+	float HalfHeight = 0.f;
+	if (ACharacter* DefaultChar = Cast<ACharacter>(EnemyClass->GetDefaultObject()))
+	{
+		if (UCapsuleComponent* Capsule = DefaultChar->GetCapsuleComponent())
+		{
+			HalfHeight = Capsule->GetScaledCapsuleHalfHeight();
+		}
+	}
+	GroundLocation.Z += HalfHeight;
+
+	// 스폰 충돌 시 가능한 범위 내에서 위치를 조정
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+
+	AActor* SpwanedActor = GetWorld()->SpawnActor<AActor>(EnemyClass, GroundLocation, FRotator::ZeroRotator, Params);
 
 
 	return SpwanedActor;
