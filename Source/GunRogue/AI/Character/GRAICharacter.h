@@ -11,7 +11,20 @@ class UGameplayAbility;
 class UGRZLocationComponent;
 class UGRHealthAttributeSet;
 class UGRCombatAttributeSet;
+class AGRGoodsActor;
 struct FOnAttributeChangeData;
+
+USTRUCT(BlueprintType)
+struct FDropGoodsInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AGRGoodsActor> GoodsClass;
+
+	UPROPERTY(EditAnywhere)
+	int32 Count = 1;
+};
 
 UCLASS()
 class GUNROGUE_API AGRAICharacter : public ACharacter, public IAbilitySystemInterface
@@ -51,4 +64,21 @@ private:
 
 	void NotifySpawnToGameMode();
 	void NotifyDestroyToGameMode();
+
+#pragma region Drops
+protected:
+	void DropGoods();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DropGoods")
+	TArray<FDropGoodsInfo> DropGoodsList;
+
+private:
+	void DropGoodsForEachPlayer(APlayerController* Player);
+	TArray<FDropGoodsInfo> GetDropGoodsList();
+	void SpawnToTargetPlayer(APlayerState* InPlayerState, TSubclassOf<AGRGoodsActor> GoodsClass, int32 DropCount);
+
+	FVector GetRanomOffsetAround() const;
+	FVector GetGroundLocation(const FVector& InXY) const;
+
+#pragma endregion
 };

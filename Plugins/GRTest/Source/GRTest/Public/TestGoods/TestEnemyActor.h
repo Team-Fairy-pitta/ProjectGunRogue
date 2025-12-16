@@ -12,7 +12,7 @@ class USphereComponent;
 
 //실제 사용할 코드
 USTRUCT(BlueprintType)
-struct FDropGoodsInfo
+struct FDropGoodsInfo_TEST
 {
 	GENERATED_BODY()
 
@@ -39,7 +39,7 @@ protected:
 
 	//실제 사용 코드
 	UPROPERTY(EditAnywhere, Category = "Goods")
-	TArray<FDropGoodsInfo> DropGoodsList;
+	TArray<FDropGoodsInfo_TEST> DropGoodsList;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USceneComponent> SceneRoot;
@@ -58,7 +58,7 @@ private:
 
 	//실제 사용 코드
 	void DropGoodsForEachPlayer(APlayerController* Player);
-	TArray<FDropGoodsInfo> GetDropGoodsList();
+	TArray<FDropGoodsInfo_TEST> GetDropGoodsList();
 	void SpawnToTargetPlayer(APlayerState* PlayerState, TSubclassOf<AGRGoodsActor> GoodsClass, int32 DropCount);
 
 	FVector GetRanomOffsetAround() const;

@@ -112,15 +112,15 @@ void ATestEnemyActor::DropGoodsForEachPlayer(APlayerController* Player)
 		return;
 	}
 
-	TArray<FDropGoodsInfo> DropInfoList = GetDropGoodsList();
+	TArray<FDropGoodsInfo_TEST> DropInfoList = GetDropGoodsList();
 
-	for (const FDropGoodsInfo& DropInfo : DropInfoList)
+	for (const FDropGoodsInfo_TEST& DropInfo : DropInfoList)
 	{
 		SpawnToTargetPlayer(PlayerState, DropInfo.GoodsClass, DropInfo.Count);
 	}
 }
 
-TArray<FDropGoodsInfo> ATestEnemyActor::GetDropGoodsList()
+TArray<FDropGoodsInfo_TEST> ATestEnemyActor::GetDropGoodsList()
 {
 	// NOTE: 나중에 랜덤 드랍을 구현할 수도 있음
 	return DropGoodsList;
