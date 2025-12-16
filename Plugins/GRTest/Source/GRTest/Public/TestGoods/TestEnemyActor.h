@@ -56,7 +56,12 @@ private:
 					UPrimitiveComponent* OtherComp, int32 BodyIndex,
 					bool bFromSweep, const FHitResult& SweepResult);
 
-
 	//실제 사용 코드
+	void DropGoodsForEachPlayer(APlayerController* Player);
+	TArray<FDropGoodsInfo> GetDropGoodsList();
+	void SpawnToTargetPlayer(APlayerState* PlayerState, TSubclassOf<AGRGoodsActor> GoodsClass, int32 DropCount);
+
+	FVector GetRanomOffsetAround() const;
+
 	FVector GetGroundLocation(const FVector& InXY) const;
 };

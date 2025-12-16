@@ -80,10 +80,8 @@ void ATestEnemyActor::DropGoods()
 {
 	if (!HasAuthority())
 	{
-		return; 
+		return;
 	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("DropGoods() Called"));
 
 	UWorld* World = GetWorld();
 	if (!World)
@@ -91,70 +89,84 @@ void ATestEnemyActor::DropGoods()
 		UE_LOG(LogTemp, Error, TEXT("World is nullptr"));
 		return;
 	}
-	
+
 	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
 	{
-		APlayerController* PC = It->Get();
-		if (!PC)
-		{
-			UE_LOG(LogTemp, Error, TEXT("PlayerController is nullptr. Skipping."));
-			continue;
-		}
-
-		UE_LOG(LogTemp, Warning, TEXT("Found PlayerController: %s"), *PC->GetName());
-
-		AGRPlayerState* PS = PC->GetPlayerState<AGRPlayerState>();
-		if (!PS)
-		{
-			UE_LOG(LogTemp, Error, TEXT("PlayerState is nullptr for %s"), *PC->GetName());
-			continue;
-		}
-
-		UE_LOG(LogTemp, Warning, TEXT("PlayerState Found: %s"), *PS->GetName());
-
-		for (const FDropGoodsInfo& Info : DropGoodsList)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Processing DropGoodsInfo"));
-
-			if (!Info.GoodsClass)
-			{
-				UE_LOG(LogTemp, Error, TEXT("GoodsClass is nullptr"));
-				continue;
-			}
-			
-			for (int32 i = 0; i < Info.Count; ++i)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Spawning Goods [%d/%d]"), i + 1, Info.Count);
-
-				FVector RandomOffset;
-				RandomOffset.X = FMath::RandRange(-100.f, 100.f);
-				RandomOffset.Y = FMath::RandRange(-100.f, 100.f);
-				
-				FVector XY = GetActorLocation() + RandomOffset;
-				FVector SpawnLoc = GetGroundLocation(XY);
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.Owner = PS;
-				
-				AGRGoodsActor* Goods = World->SpawnActor<AGRGoodsActor>(
-					Info.GoodsClass,
-					SpawnLoc,
-					FRotator::ZeroRotator,
-					SpawnParams
-				);
-
-				if (!Goods)
-				{
-					UE_LOG(LogTemp, Error, TEXT("SpawnActor failed!"));
-					continue;
-				}
-				
-				Goods->MulticastRPC_InitGoods();
-				UE_LOG(LogTemp, Warning, TEXT("Goods InitGoods Called"));
-			}
-		}
+		APlayerController* PlayerController = It->Get();
+		DropGoodsForEachPlayer(PlayerController);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("DropGoods() Finished"));
 }
 
+void ATestEnemyActor::DropGoodsForEachPlayer(APlayerController* Player)
+{
+	if (!Player)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerController is nullptr."));
+		return;
+	}
 
+	AGRPlayerState* PlayerState = Player->GetPlayerState<AGRPlayerState>();
+	if (!PlayerState)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerState is nullptr for %s"), *Player->GetName());
+		return;
+	}
+
+	TArray<FDropGoodsInfo> DropInfoList = GetDropGoodsList();
+
+	for (const FDropGoodsInfo& DropInfo : DropInfoList)
+	{
+		SpawnToTargetPlayer(PlayerState, DropInfo.GoodsClass, DropInfo.Count);
+	}
+}
+
+TArray<FDropGoodsInfo> ATestEnemyActor::GetDropGoodsList()
+{
+	// NOTE: 나중에 랜덤 드랍을 구현할 수도 있음
+	return DropGoodsList;
+}
+
+void ATestEnemyActor::SpawnToTargetPlayer(APlayerState* PlayerState, TSubclassOf<AGRGoodsActor> GoodsClass, int32 DropCount)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Error, TEXT("World is nullptr"));
+		return;
+	}
+
+	if (!GoodsClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GoodsClass is nullptr"));
+		return;
+	}
+
+	for (int32 i = 0; i < DropCount; ++i)
+	{
+		FVector RandomOffset = GetRanomOffsetAround();
+		FVector XY = GetActorLocation() + RandomOffset;
+		FVector SpawnLoc = GetGroundLocation(XY);
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = PlayerState;
+
+		AGRGoodsActor* GoodsActor = World->SpawnActor<AGRGoodsActor>(
+			GoodsClass, SpawnLoc, FRotator::ZeroRotator, SpawnParams);
+
+		if (!GoodsActor)
+		{
+			UE_LOG(LogTemp, Error, TEXT("SpawnActor failed!"));
+			continue;
+		}
+
+		GoodsActor->MulticastRPC_InitGoods();
+	}
+}
+
+FVector ATestEnemyActor::GetRanomOffsetAround() const
+{
+	FVector RandomOffset;
+	RandomOffset.X = FMath::RandRange(-100.f, 100.f);
+	RandomOffset.Y = FMath::RandRange(-100.f, 100.f);
+	return RandomOffset;
+}
