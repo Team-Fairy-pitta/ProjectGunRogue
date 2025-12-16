@@ -207,6 +207,9 @@ void AGRPlayerState::OnDead()
 
 		static const float BodyLifeSpan = 1.5f;
 		GetWorldTimerManager().SetTimer(DeadTimer, this, &ThisClass::OnBodyExpired, BodyLifeSpan, false);
+
+		// respawn 이후 ASC 초기화를 다시 진행해야 하므로 값을 false으로 변경함
+		bIsAbilitySystemComponentInit = false;
 	}
 }
 
@@ -234,7 +237,14 @@ void AGRPlayerState::OnBodyExpired()
 
 	BattlePlayerController->ClientRPC_StartSpectating();
 
-	GetWorldTimerManager().SetTimerForNextTick(BattlePlayerController, &AGRBattlePlayerController::ServerRPC_StartSpectating);
+	// [NOTE] GRCharacter->Destroy(); 이후에 ServerRPC_StartSpectating()가 호출 되어야 함
+	static const float WaitForActorDestroy = 0.1f;
+	GetWorldTimerManager().SetTimer(
+		SpectateTimer,
+		BattlePlayerController,
+		&AGRBattlePlayerController::ServerRPC_StartSpectating, 
+		WaitForActorDestroy,
+		false);
 }
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)

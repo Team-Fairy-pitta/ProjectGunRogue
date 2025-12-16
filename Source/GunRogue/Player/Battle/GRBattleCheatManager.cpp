@@ -1,4 +1,5 @@
 #include "Player/Battle/GRBattleCheatManager.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
@@ -239,6 +240,13 @@ void UGRBattleCheatManager::RespawnPlayer(int32 InIndex)
 		return;
 	}
 
-	GameMode_Level1->RestartPlayer(TargetPlayerController);
+	AGRBattlePlayerController* BPC = Cast<AGRBattlePlayerController>(TargetPlayerController);
+
+	auto AlivePlayers = BPC->GetAlivePlayerList();
+
+	if (AlivePlayers.Num() > 0)
+	{
+		GameMode_Level1->RespawnPlayer(TargetPlayerController, AlivePlayers[0]);
+	}
 }
 

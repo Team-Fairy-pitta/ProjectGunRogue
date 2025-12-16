@@ -28,6 +28,9 @@ public:
 	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void OnRep_PlayerState() override;
 
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_OnRestartPlayer();
+
 private:
 	void CreateWidgets();
 	void InitUISetup();
@@ -123,6 +126,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SpectateNextPlayer();
 
+	TArray<AActor*> GetAlivePlayerList();
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UGRSpectatorHUDWidget> SpectatorWidgetInstance;
@@ -132,7 +137,6 @@ protected:
 
 	AActor* GetPreviousSpectateActor();
 	AActor* GetNextSpectateActor();
-	TArray<AActor*> GetAlivePlayerList();
 
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_SetSpectationTargetPlayerName(AActor* Target);

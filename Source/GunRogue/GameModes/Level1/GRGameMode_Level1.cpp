@@ -1,4 +1,5 @@
 #include "GameModes/Level1/GRGameMode_Level1.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 #include "System/GRLevel1ControlPanel.h"
 #include "System/GRGameInstance.h"
 
@@ -30,6 +31,26 @@ UClass* AGRGameMode_Level1::GetDefaultPawnClassForController_Implementation(ACon
 	}
 
 	return GRGameInstance->GetSelectedCharacterClass(PlayerController);
+}
+
+void AGRGameMode_Level1::RespawnPlayer(AController* TargetPlayer, AActor* AlivePlayer)
+{
+	AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(TargetPlayer);
+	if (!IsValid(BattlePlayerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("TargetPlayer is NOT AGRBattlePlayerController"));
+		return;
+	}
+
+	FTransform SpawnTransform;
+
+	SpawnTransform.SetLocation(FindSpawnableLocation(AlivePlayer));
+	SpawnTransform.SetScale3D(FVector::OneVector);
+	SpawnTransform.SetRotation(AlivePlayer->GetActorQuat());
+
+	RestartPlayerAtTransform(TargetPlayer, SpawnTransform);
+
+	BattlePlayerController->ClientRPC_OnRestartPlayer();
 }
 
 FGRLevel1Node* AGRGameMode_Level1::GetLevel1Node(int32 Index)
@@ -84,4 +105,15 @@ void AGRGameMode_Level1::UpdateLevel1ControlPanel()
 	{
 		Panel->SetbHasEliminatedEnemies(bHasEliminatedEnemies);
 	}
+}
+
+FVector AGRGameMode_Level1::FindSpawnableLocation(AActor* AlivePlayer)
+{
+	// TODO
+	if (!IsValid(AlivePlayer))
+	{
+		return FVector::ZeroVector;
+	}
+
+	return AlivePlayer->GetActorLocation();
 }

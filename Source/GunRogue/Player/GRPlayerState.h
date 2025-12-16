@@ -94,6 +94,7 @@ private:
 	int8 bIsDead;
 
 	FTimerHandle DeadTimer;
+	FTimerHandle SpectateTimer;
 
 	bool bIsAbilitySystemComponentInit = false;
 	FDelegateHandle OnHealthChangedHandle;

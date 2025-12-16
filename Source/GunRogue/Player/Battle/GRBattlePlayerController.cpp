@@ -70,6 +70,12 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 	}
 }
 
+void AGRBattlePlayerController::ClientRPC_OnRestartPlayer_Implementation()
+{
+	ShowBattleHUD();
+	HideSpectatorHUD();
+}
+
 void AGRBattlePlayerController::InitUISetup()
 {
 	CreateWidgets();
