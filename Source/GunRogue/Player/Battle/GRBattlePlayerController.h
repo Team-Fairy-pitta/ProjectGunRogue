@@ -205,20 +205,20 @@ protected:
 #pragma region Menu
 public:
 	UFUNCTION(Client, Reliable)
-	void ClientRPC_ShowMenuWidget();
+	void ClientRPC_ShowInGameMenuWidget();
 
 	UFUNCTION(BlueprintCallable)
-	void ShowMenuWidget();
+	void ShowInGameMenuWidget();
 
 	UFUNCTION(BlueprintCallable)
-	void HideMenuWidget();
+	void HideInGameMenuWidget();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
-	TSubclassOf<UGRInGameHUDWidget> MenuWidgetClass;
+	TSubclassOf<UGRInGameHUDWidget> InGameMenuWidgetClass;
 
 	UPROPERTY()
-	TObjectPtr<UGRInGameHUDWidget> MenuWidgetInstance;
+	TObjectPtr<UGRInGameHUDWidget> InGameMenuWidgetInstance;
 
 #pragma endregion Menu
 };

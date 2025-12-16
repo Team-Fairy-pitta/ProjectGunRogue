@@ -19,11 +19,17 @@ public:
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 private:
+	UFUNCTION()
 	void OnGameOver();
 
+	UFUNCTION()
 	void OnStartLobby();
 
+	UFUNCTION()
 	void OnBackMenu();
+
+	void SetWidgetFocusable();
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> GameOverButton;

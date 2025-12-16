@@ -10,6 +10,8 @@ void UGRInGameHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	SetWidgetFocusable();
+
 	if (GameOverButton)
 	{
 		GameOverButton->OnClicked.AddUniqueDynamic(this, &UGRInGameHUDWidget::OnGameOver);
@@ -55,7 +57,7 @@ FReply UGRInGameHUDWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FK
 		{
 			if (AGRBattlePlayerController* BattlePC = Cast<AGRBattlePlayerController>(PC))
 			{
-				BattlePC->HideMenuWidget();
+				BattlePC->HideInGameMenuWidget();
 				return FReply::Handled();
 			}
 		}
@@ -82,5 +84,10 @@ void UGRInGameHUDWidget::OnBackMenu()
 		return;
 	}
 
-	BattlePC->HideMenuWidget();
+	BattlePC->HideInGameMenuWidget();
+}
+
+void UGRInGameHUDWidget::SetWidgetFocusable()
+{
+	SetIsFocusable(true);
 }
