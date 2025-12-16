@@ -45,6 +45,8 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(ThisClass, bIsDead);
+
 	DOREPLIFETIME(ThisClass, ItemHandles);
 	DOREPLIFETIME(ThisClass, WeaponSlots);
 	DOREPLIFETIME(ThisClass, CurrentWeaponSlot);
@@ -57,6 +59,11 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 void AGRPlayerState::CopyProperties(APlayerState* PlayerState)
 {
 	Super::CopyProperties(PlayerState);
+}
+
+bool AGRPlayerState::IsDead() const
+{
+	return bIsDead == 1;
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
@@ -84,6 +91,10 @@ void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* O
 	if (IsValid(NewPawn))
 	{
 		InitAbilitySystemComponent();
+		ApplyAllPerksToASC();
+		BindOnHealthChanged();
+
+		bIsDead = 0; // uint8 false
 	}
 }
 
@@ -124,13 +135,78 @@ void AGRPlayerState::InitAbilitySystemComponent()
 		OnAbilitySystemComponentInit.Broadcast();
 	}
 
+	bIsAbilitySystemComponentInit = true;
+}
+
+void AGRPlayerState::ApplyAllPerksToASC()
+{
+	AGRCharacter* GRCharacter = GetGRCharacter();
+	if (!IsValid(GRCharacter))
+	{
+		return;
+	}
+
 	if (GRCharacter->IsLocallyControlled())
 	{
 		InitPerkFromSave();
 		ServerRPC_ApplyAllPerksToASC(PerkInfoRows);
 	}
+}
 
-	bIsAbilitySystemComponentInit = true;
+void AGRPlayerState::BindOnHealthChanged()
+{
+	if (HasAuthority())
+	{
+		RemoveOnHealthChanged();
+		AddOnHealthChanged();
+	}
+}
+
+void AGRPlayerState::AddOnHealthChanged()
+{
+	OnHealthChangedHandle = 
+		AbilitySystemComponent
+		->GetGameplayAttributeValueChangeDelegate(UGRHealthAttributeSet::GetHealthAttribute())
+		.AddUObject(this, &ThisClass::OnHealthChanged);
+}
+
+void AGRPlayerState::RemoveOnHealthChanged()
+{
+	if (OnHealthChangedHandle.IsValid())
+	{
+		AbilitySystemComponent
+			->GetGameplayAttributeValueChangeDelegate(UGRHealthAttributeSet::GetHealthAttribute())
+			.Remove(OnHealthChangedHandle);
+
+		OnHealthChangedHandle.Reset();
+	}
+}
+
+void AGRPlayerState::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	float Health = Data.NewValue;
+	if (Health <= 0)
+	{
+		OnDead();
+	}
+}
+
+void AGRPlayerState::OnDead()
+{
+	if (HasAuthority() && !IsDead())
+	{
+		bIsDead = 1;
+
+		AGRCharacter* GRCharacter = GetGRCharacter();
+		if (!IsValid(GRCharacter))
+		{
+			return;
+		}
+
+		static const float BodyLifeSpan = 1.5f;
+		GRCharacter->SetLifeSpan(BodyLifeSpan);
+		GRCharacter->MulticastRPC_OnDead();
+	}
 }
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)

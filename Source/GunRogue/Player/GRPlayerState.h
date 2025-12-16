@@ -51,6 +51,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 	virtual void CopyProperties(class APlayerState* PlayerState) override;
 
+	bool IsDead() const;
+
 	UFUNCTION(BlueprintCallable, Category = "GRPlayerState")
 	AGRPlayerController* GetGRPlayerController() const;
 
@@ -81,7 +83,17 @@ private:
 	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
 	void PlaceActorOnGround(AActor* SpawnedActor);
 
+	void BindOnHealthChanged();
+	void AddOnHealthChanged();
+	void RemoveOnHealthChanged();
+	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	void OnDead();
+
+	UPROPERTY(Replicated)
+	int8 bIsDead;
+
 	bool bIsAbilitySystemComponentInit = false;
+	FDelegateHandle OnHealthChangedHandle;
 
 #pragma region Item
 public:
@@ -278,6 +290,8 @@ protected:
 	void InitPerkInfoRows();
 	void LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods);
 	void InitPlayerID();
+
+	void ApplyAllPerksToASC();
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ApplyAllPerksToASC(const TArray<FPerkEntry>& PerkInfos);

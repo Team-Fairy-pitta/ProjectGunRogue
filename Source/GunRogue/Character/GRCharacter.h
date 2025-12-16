@@ -41,6 +41,9 @@ public:
 	const UGRPawnData* GetPawnData() const { return PawnData; }
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_OnDead();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn Data")
 	TObjectPtr<UGRPawnData> PawnData;
 

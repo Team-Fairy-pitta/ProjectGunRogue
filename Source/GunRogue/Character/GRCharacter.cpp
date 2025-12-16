@@ -7,6 +7,7 @@
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -94,6 +95,38 @@ UAbilitySystemComponent* AGRCharacter::GetAbilitySystemComponent() const
 	else
 	{
 		return nullptr;
+	}
+}
+
+void AGRCharacter::MulticastRPC_OnDead_Implementation()
+{
+	if (HasAuthority())
+	{
+		UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+		if (IsValid(MovementComponent))
+		{
+			MovementComponent->DisableMovement();
+		}
+	}
+
+	if (IsLocallyControlled())
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		if (IsValid(PlayerController))
+		{
+			DisableInput(PlayerController);
+		}
+	}
+
+	USkeletalMeshComponent* MeshComponent = GetMesh();
+	if (IsValid(MeshComponent))
+	{
+		MeshComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
+		MeshComponent->SetSimulatePhysics(true);
+		MeshComponent->SetAllBodiesPhysicsBlendWeight(1.0f);
+		MeshComponent->SetCollisionProfileName(FName(TEXT("Ragdoll")));
+		MeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		MeshComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	}
 }
 
