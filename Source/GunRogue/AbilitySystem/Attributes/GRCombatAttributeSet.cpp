@@ -34,6 +34,7 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	MaxAmmo = 0.0f; /* 무기를 들고 있지 않을 때, 탄창의 크기를 0으로 한다. */
 
 	ReloadRate = 1.0f;
+	SpeedRate = 1.0f;
 }
 
 void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -67,6 +68,7 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_Always);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ReloadRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SpeedRate, COND_None, REPNOTIFY_Always);
 }
 
 void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -482,4 +484,9 @@ void UGRCombatAttributeSet::OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAm
 void UGRCombatAttributeSet::OnRep_ReloadRate(const FGameplayAttributeData& OldReloadRate)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, ReloadRate, OldReloadRate);
+}
+
+void UGRCombatAttributeSet::OnRep_SpeedRate(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, SpeedRate, OldValue);
 }
