@@ -203,10 +203,30 @@ void AGRPlayerState::OnDead()
 			return;
 		}
 
-		static const float BodyLifeSpan = 1.5f;
-		GRCharacter->SetLifeSpan(BodyLifeSpan);
 		GRCharacter->MulticastRPC_OnDead();
+
+		static const float BodyLifeSpan = 1.5f;
+		GetWorldTimerManager().SetTimer(DeadTimer, this, &ThisClass::OnBodyExpired, BodyLifeSpan, false);
 	}
+}
+
+void AGRPlayerState::OnBodyExpired()
+{
+	AGRCharacter* GRCharacter = GetGRCharacter();
+	if (!IsValid(GRCharacter))
+	{
+		return;
+	}
+
+	GRCharacter->Destroy();
+
+	AGRPlayerController* GRPlayerController = GetGRPlayerController();
+	if (!IsValid(GRPlayerController))
+	{
+		return;
+	}
+
+	GetWorldTimerManager().SetTimerForNextTick(GRPlayerController, &AGRPlayerController::ServerRPC_StartSpectating);
 }
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)

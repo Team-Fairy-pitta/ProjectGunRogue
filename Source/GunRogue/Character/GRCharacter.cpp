@@ -65,8 +65,11 @@ void AGRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	ApplySmoothCameraControl_Rotation(DeltaTime);
-	ApplySmoothCameraControl_CameraArm(DeltaTime);
+	if (IsLocallyControlled())
+	{
+		ApplySmoothCameraControl_Rotation(DeltaTime);
+		ApplySmoothCameraControl_CameraArm(DeltaTime);
+	}
 }
 
 AGRPlayerController* AGRCharacter::GetGRPlayerController() const
@@ -128,47 +131,6 @@ void AGRCharacter::MulticastRPC_OnDead_Implementation()
 		MeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 		MeshComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	}
-}
-
-void AGRCharacter::CallSpectateNextPlayer()
-{
-	SpectateNextPlayer();
-}
-
-void AGRCharacter::CallSpectatePreviousPlayer()
-{
-	SpectatePreviousPlayer();
-}
-
-void AGRCharacter::CallResetSpectatePlayer()
-{
-	ResetSpectatePlayer();
-}
-
-bool AGRCharacter::IsTargetDead(ACharacter* TargetCharacter) const
-{
-	if (!IsValid(TargetCharacter))
-	{
-		return false;
-	}
-	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(TargetCharacter);
-	const UAbilitySystemComponent* TargetASC = nullptr;
-
-	if (ASCInterface)
-	{
-		TargetASC = ASCInterface->GetAbilitySystemComponent();
-	}
-
-	if (TargetASC)
-	{
-		if (const UGRHealthAttributeSet* HealthSet = Cast<UGRHealthAttributeSet>(TargetASC->GetAttributeSet(UGRHealthAttributeSet::StaticClass())))
-		{
-			return HealthSet->GetHealth() <= 0.0f;
-		}
-	}
-
-	
-	return false;
 }
 
 USkeletalMeshComponent* AGRCharacter::GetEquippedWeaponMesh() const

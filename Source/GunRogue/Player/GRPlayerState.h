@@ -88,9 +88,12 @@ private:
 	void RemoveOnHealthChanged();
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
 	void OnDead();
+	void OnBodyExpired();
 
 	UPROPERTY(Replicated)
 	int8 bIsDead;
+
+	FTimerHandle DeadTimer;
 
 	bool bIsAbilitySystemComponentInit = false;
 	FDelegateHandle OnHealthChangedHandle;

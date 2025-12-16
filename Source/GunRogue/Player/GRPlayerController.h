@@ -17,4 +17,25 @@ public:
 	// Key Setting에 사용할 IMC 목록
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TObjectPtr<UInputMappingContext>> MappableMappingContexts;
+
+#pragma region Spectator
+public:
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_StartSpectating();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SpectatePreviousPlayer();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SpectateNextPlayer();
+
+protected:
+	AActor* GetPreviousSpectateActor();
+	AActor* GetNextSpectateActor();
+	
+	TArray<AActor*> GetAlivePlayerList();
+
+	int32 CurrentSpectateIndex = INDEX_NONE;
+
+#pragma endregion
 };
