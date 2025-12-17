@@ -18,7 +18,7 @@ UGRGameplayAbility_FireWeapon::UGRGameplayAbility_FireWeapon()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 
 	NoAmmoConsumeTag = FGameplayTag::RequestGameplayTag(FName("Item.Ammo.NoConsume"));
-	NoAmmoConsumeChance = 0.3f;
+	NoAmmoConsumeChance = 0.2f;
 
 	DotOnHitTag = FGameplayTag::RequestGameplayTag(FName("Item.Dot.OnHit"));
 }

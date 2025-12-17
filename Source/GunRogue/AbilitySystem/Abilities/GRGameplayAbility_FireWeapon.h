@@ -124,7 +124,7 @@ protected:
 	FGameplayTag NoAmmoConsumeTag;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|NoConsume", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float NoAmmoConsumeChance = 0.2f;
+	float NoAmmoConsumeChance;
 
 	//DotDmamage
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Dot")

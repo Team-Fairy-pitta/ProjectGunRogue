@@ -157,11 +157,6 @@ public:
 	FGameplayAttributeData ReloadRate;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ReloadRate)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat|State", ReplicatedUsing = OnRep_SpeedRate)
-	FGameplayAttributeData SpeedRate;
-	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SpeedRate)
-
-
 	// 무기 데미지 계산 (무기 공격력만)
 	float CalculateWeaponDamage() const;
 
@@ -237,9 +232,6 @@ protected:
 	
 	UFUNCTION()
 	virtual void OnRep_ReloadRate(const FGameplayAttributeData& OldReloadRate);
-
-	UFUNCTION()
-	virtual void OnRep_SpeedRate(const FGameplayAttributeData& OldSpeedRate);
 
 private:
 	// 탄퍼짐 자동 회복을 위한 타이머
