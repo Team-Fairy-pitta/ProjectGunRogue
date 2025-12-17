@@ -105,32 +105,15 @@ void AGRCharacter::MulticastRPC_OnDead_Implementation()
 {
 	if (HasAuthority())
 	{
-		UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
-		if (IsValid(MovementComponent))
-		{
-			MovementComponent->DisableMovement();
-		}
+		OnDead_ProcessAuth();
 	}
 
 	if (IsLocallyControlled())
 	{
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		if (IsValid(PlayerController))
-		{
-			DisableInput(PlayerController);
-		}
+		OnDead_ProcessLocal();
 	}
 
-	USkeletalMeshComponent* MeshComponent = GetMesh();
-	if (IsValid(MeshComponent))
-	{
-		MeshComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
-		MeshComponent->SetSimulatePhysics(true);
-		MeshComponent->SetAllBodiesPhysicsBlendWeight(1.0f);
-		MeshComponent->SetCollisionProfileName(FName(TEXT("Ragdoll")));
-		MeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-		MeshComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	}
+	OnDead_ProcessRagdoll();
 }
 
 USkeletalMeshComponent* AGRCharacter::GetEquippedWeaponMesh() const
@@ -219,4 +202,36 @@ UStaticMeshComponent* AGRCharacter::GetEquippedWeaponStaticMesh() const
 	}
 
 	return nullptr;
+}
+
+void AGRCharacter::OnDead_ProcessAuth()
+{
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	if (IsValid(MovementComponent))
+	{
+		MovementComponent->DisableMovement();
+	}
+}
+
+void AGRCharacter::OnDead_ProcessLocal()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (IsValid(PlayerController))
+	{
+		DisableInput(PlayerController);
+	}
+}
+
+void AGRCharacter::OnDead_ProcessRagdoll()
+{
+	USkeletalMeshComponent* MeshComponent = GetMesh();
+	if (IsValid(MeshComponent))
+	{
+		MeshComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
+		MeshComponent->SetSimulatePhysics(true);
+		MeshComponent->SetAllBodiesPhysicsBlendWeight(1.0f);
+		MeshComponent->SetCollisionProfileName(FName(TEXT("Ragdoll")));
+		MeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		MeshComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	}
 }

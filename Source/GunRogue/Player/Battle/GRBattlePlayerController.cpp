@@ -5,6 +5,7 @@
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
 #include "UI/BattleHUD/GRSpectatorHUDWidget.h"
+#include "UI/BattleHUD/GRGameOverWidget.h"
 #include "UI/Level1/GRLevel1SelectWidget.h"
 #include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
 #include "UI/Inventory/GRInventoryWidgetMain.h"
@@ -183,6 +184,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!InGameMenuWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create InGameMenu Widgets"));
+		return;
+	}
+
+	if (!GameOverWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameOverWidgetClass (TSubclassOf<UGRGameOverWidget> is INVALID"));
+		return;
+	}
+
+	GameOverWidgetInstance = CreateWidget<UGRGameOverWidget>(this, GameOverWidgetClass);
+	if (!GameOverWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create GameOverWidgetInstance"));
 		return;
 	}
 }

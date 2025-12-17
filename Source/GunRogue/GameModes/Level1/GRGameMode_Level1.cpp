@@ -1,5 +1,7 @@
 #include "GameModes/Level1/GRGameMode_Level1.h"
+#include "GameModes/Level1/GRGameState_Level1.h"
 #include "Player/Battle/GRBattlePlayerController.h"
+#include "Player/GRPlayerState.h"
 #include "System/GRLevel1ControlPanel.h"
 #include "System/GRGameInstance.h"
 
@@ -75,6 +77,47 @@ void AGRGameMode_Level1::ReceiveDestroyEnemy()
 {
 	EnemyCount = EnemyCount - 1 >= 0 ? EnemyCount - 1 : 0;
 	UpdateLevel1ControlPanel();
+}
+
+bool AGRGameMode_Level1::CheckGameOver()
+{
+	AGameStateBase* GameStateBsae = GetWorld()->GetGameState<AGameStateBase>();
+	if (!IsValid(GameStateBsae))
+	{
+		return false;
+	}
+
+	int32 AlivePlayerCount = 0;
+	for (APlayerState* ItState : GameStateBsae->PlayerArray)
+	{
+		AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(ItState);
+		if (IsValid(GRPlayerState) && !GRPlayerState->IsDead())
+		{
+			AlivePlayerCount += 1;
+		}
+	}
+
+	if (AlivePlayerCount <= 0)
+	{
+		GameOver();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void AGRGameMode_Level1::GameOver()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(*It);
+		if (IsValid(BattlePlayerController))
+		{
+			BattlePlayerController->ClientRPC_GameOver();
+		}
+	}
 }
 
 void AGRGameMode_Level1::AddLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel)

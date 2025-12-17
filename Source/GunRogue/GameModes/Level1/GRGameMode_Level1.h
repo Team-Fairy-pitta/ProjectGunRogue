@@ -33,6 +33,9 @@ public:
 	void ReceiveSpawnEnemy();
 	void ReceiveDestroyEnemy();
 
+	bool CheckGameOver();
+	void GameOver();
+
 	void AddLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
 	void RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
 

@@ -9,6 +9,7 @@
 #include "Weapon/GRWeaponDefinition.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
 #include "UI/BattleHUD/GRSpectatorHUDWidget.h"
+#include "UI/BattleHUD/GRGameOverWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRWeaponListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
@@ -719,4 +720,72 @@ void AGRBattlePlayerController::ClientRPC_StartSpectating_Implementation()
 	HideUpgradeConsoleWidget();
 
 	ShowSpectatorHUD();
+}
+
+void AGRBattlePlayerController::ServerRPC_GameOver_Implementation()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (LobbyMap.IsNull())
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyMap is NULL"));
+		return;
+	}
+
+	FString MapPath = LobbyMap.GetLongPackageName() + TEXT("?listen");
+	GetWorld()->ServerTravel(MapPath);
+}
+
+void AGRBattlePlayerController::ClientRPC_GameOver_Implementation()
+{
+	HideAugmentWidget();
+	HideBattleHUD();
+	HideInGameMenuWidget();
+	HideInventoryWidget();
+	HideLevel1SelectWidget();
+	HideSpectatorHUD();
+	
+	ShowGameOverWidget();
+}
+
+void AGRBattlePlayerController::ShowGameOverWidget()
+{
+	if (!GameOverWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameOverWidgetInstance is INVALID"));
+		return;
+	}
+	if (!GameOverWidgetInstance->IsInViewport())
+	{
+		GameOverWidgetInstance->AddToViewport();
+	}
+
+	FInputModeUIOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = true;
+}
+
+void AGRBattlePlayerController::HideGameOverWidget()
+{
+	if (!GameOverWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameOverWidgetInstance is INVALID"));
+		return;
+	}
+	if (GameOverWidgetInstance->IsInViewport())
+	{
+		GameOverWidgetInstance->RemoveFromParent();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
 }

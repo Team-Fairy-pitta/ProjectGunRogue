@@ -9,6 +9,7 @@
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
+#include "GameModes/Level1/GRGameMode_Level1.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -223,6 +224,12 @@ void AGRPlayerState::OnRespawn()
 {
 	bIsDead = 0; // uint8 false
 
+	if (SpectateTimer.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(SpectateTimer);
+		SpectateTimer.Invalidate();
+	}
+
 	// 체력과 생명력 복구
 	if (!AbilitySystemComponent)
 	{
@@ -272,16 +279,29 @@ void AGRPlayerState::OnBodyExpired()
 		return;
 	}
 
-	BattlePlayerController->ClientRPC_StartSpectating();
+	bool bIsGameOver = false;
+	if (GetWorld())
+	{
+		AGRGameMode_Level1* GameMode = GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+		if (IsValid(GameMode))
+		{
+			bIsGameOver = GameMode->CheckGameOver();
+		}
+	}
 
-	// [NOTE] GRCharacter->Destroy(); 이후에 ServerRPC_StartSpectating()가 호출 되어야 함
-	static const float WaitForActorDestroy = 0.1f;
-	GetWorldTimerManager().SetTimer(
-		SpectateTimer,
-		BattlePlayerController,
-		&AGRBattlePlayerController::ServerRPC_StartSpectating, 
-		WaitForActorDestroy,
-		false);
+	if (!bIsGameOver)
+	{
+		BattlePlayerController->ClientRPC_StartSpectating();
+
+		// [NOTE] GRCharacter->Destroy(); 이후에 ServerRPC_StartSpectating()가 호출 되어야 함
+		static const float WaitForActorDestroy = 0.1f;
+		GetWorldTimerManager().SetTimer(
+			SpectateTimer,
+			BattlePlayerController,
+			&AGRBattlePlayerController::ServerRPC_StartSpectating,
+			WaitForActorDestroy,
+			false);
+	}
 }
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)

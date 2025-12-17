@@ -75,7 +75,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
 	UStaticMeshComponent* GetEquippedWeaponStaticMesh() const;
 
+protected:
+	void OnDead_ProcessAuth();
+	void OnDead_ProcessLocal();
+	void OnDead_ProcessRagdoll();
+
 #pragma region WeaponFX
+public:
 	// 무기 이펙트/사운드 관련 RPC
 	UFUNCTION(Server, UnReliable)
 	void ServerRPC_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);

@@ -13,6 +13,7 @@ class UGRInventoryWidgetMain;
 class UGRAugmentHUDWidget;
 class UGRSpectatorHUDWidget;
 class UGRDamageIndicator;
+class UGRGameOverWidget;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
@@ -57,9 +58,24 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_ShowDamageIndicator(float Damage, AActor* DamagedActor);
 
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void ServerRPC_GameOver();
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_GameOver();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowGameOverWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideGameOverWidget();
+
 	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }	
 
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Map")
+	TSoftObjectPtr<UWorld> LobbyMap;
+
 	UPROPERTY()
 	TObjectPtr<UGRBattleHUDWidget> HUDWidgetInstance;
 
@@ -71,6 +87,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRDamageIndicator> DamageIndicatorWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UGRGameOverWidget> GameOverWidgetInstance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRGameOverWidget> GameOverWidgetClass;
 
 	FTimerHandle OtherPlayerStatusUpdateTimer;
 	float OtherPlayerStatusUpdateInterval = 1.0f;
