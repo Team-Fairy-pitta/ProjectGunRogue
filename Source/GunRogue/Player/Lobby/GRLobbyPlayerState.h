@@ -12,7 +12,7 @@ public:
 	int32 MetaGoods;
 
 	virtual void InitPerkFromSave() override;
-	void SavePerkToSave();
+	virtual void SavePerkToSave() override;
 
 	int32 GetPerkLevel(FName PerkID) const;
 	int32 GetMetaGoods() const { return MetaGoods; }

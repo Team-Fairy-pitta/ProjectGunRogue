@@ -52,6 +52,7 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ThisClass, OwnedAugments);
 
 	DOREPLIFETIME(ThisClass, CurrentMetaGoods);
+	DOREPLIFETIME(ThisClass, Gold);
 }
 
 void AGRPlayerState::CopyProperties(APlayerState* PlayerState)
@@ -128,6 +129,11 @@ void AGRPlayerState::InitAbilitySystemComponent()
 	{
 		InitPerkFromSave();
 		ServerRPC_ApplyAllPerksToASC(PerkInfoRows);
+
+		if (!HasAuthority())
+		{
+			ServerRPC_SetCurrentMetaGoods(CurrentMetaGoods);
+		}
 	}
 
 	bIsAbilitySystemComponentInit = true;

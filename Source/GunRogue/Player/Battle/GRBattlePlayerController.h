@@ -200,8 +200,7 @@ protected:
 	
 #pragma endregion Augment
 
-
-// 인게임 메뉴
+	// 인게임 메뉴
 #pragma region Menu
 public:
 	UFUNCTION(Client, Reliable)
@@ -221,4 +220,15 @@ protected:
 	TObjectPtr<UGRInGameHUDWidget> InGameMenuWidgetInstance;
 
 #pragma endregion Menu
+
+/* 재화 관련 코드 */
+#pragma region Goods
+public:
+	UFUNCTION()
+	void SyncMetaGoodsUI();
+
+	UFUNCTION()
+	void SyncGoldUI();
+	
+#pragma endregion Goods
 };
