@@ -157,6 +157,11 @@ public:
 	FGameplayAttributeData ReloadRate;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ReloadRate)
 
+	//도트 대상 추가데미지
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|DotDamage", ReplicatedUsing = OnRep_BonusDamageVsDoT)
+	FGameplayAttributeData BonusDamageVsDoT;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, BonusDamageVsDoT)
+
 	// 무기 데미지 계산 (무기 공격력만)
 	float CalculateWeaponDamage() const;
 
@@ -233,6 +238,8 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_ReloadRate(const FGameplayAttributeData& OldReloadRate);
 
+	UFUNCTION()
+	virtual void OnRep_BonusDamageVsDoT(const FGameplayAttributeData& OldBonusDamageVsDoT);
 private:
 	// 탄퍼짐 자동 회복을 위한 타이머
 	TMap<TWeakObjectPtr<UAbilitySystemComponent>, FTimerHandle> SpreadRecoveryTimers;

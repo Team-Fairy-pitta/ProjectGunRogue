@@ -1,4 +1,5 @@
 #include "TestAttributes/GRTestDummy.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 
 AGRTestDummy::AGRTestDummy()
 {
@@ -15,6 +16,15 @@ AGRTestDummy::AGRTestDummy()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	HealthAttributeSet = CreateDefaultSubobject<UGRHealthAttributeSet>(TEXT("HealthSet"));
+
+
+	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
+	SphereCollision->SetupAttachment(RootComponent);
+	SphereCollision->SetSphereRadius(100.0f);
+	SphereCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	SphereCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
+	SphereCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	SphereCollision->SetGenerateOverlapEvents(true);
 }
 
 
@@ -35,6 +45,12 @@ void AGRTestDummy::BeginPlay()
 		HealthAttributeSet->OnOutOfHealth.AddUObject(this, &AGRTestDummy::OnDummyDeath);
 	}
 
+
+	if (SphereCollision)
+	{
+		SphereCollision->OnComponentBeginOverlap.AddDynamic(
+			this, &AGRTestDummy::OnOverlapBegin);
+	}
 }
 
 void AGRTestDummy::PrintHealthChanged(AActor* EventInstigator, AActor* Causer, const FGameplayEffectSpec* Spec, float Magnitude, float OldValue, float NewValue)
@@ -93,4 +109,70 @@ void AGRTestDummy::OnDummyDeath(AActor* EventInstigator, AActor* Causer, const F
 	}
 
 	Destroy();
+}
+
+
+void AGRTestDummy::OnOverlapBegin(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	// 자기 자신 제외
+	if (!OtherActor || OtherActor == this)
+	{
+		return;
+	}
+
+	// Target ASC 확인
+	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(OtherActor);
+	if (!TargetASI)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* TargetASC = TargetASI->GetAbilitySystemComponent();
+	if (!TargetASC || !AbilitySystemComponent)
+	{
+		return;
+	}
+
+	if (!DamageEffect)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TestDummy] DamageEffect not set"));
+		return;
+	}
+
+	float TargetDamageReduction = 0.0f;
+
+	if (const UGRCombatAttributeSet* TargetCombatSet =TargetASC->GetSet<UGRCombatAttributeSet>())
+	{
+		TargetDamageReduction = TargetCombatSet->GetDamageReduction();
+	}
+
+	const float FinalDamage = OverlapDamage * (1.0f - TargetDamageReduction);
+
+	FGameplayEffectContextHandle EffectContext =AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	// GE Spec 생성
+	FGameplayEffectSpecHandle SpecHandle =
+		AbilitySystemComponent->MakeOutgoingSpec(
+			DamageEffect,
+			1.0f,
+			EffectContext
+		);
+
+	if (!SpecHandle.IsValid())
+	{
+		return;
+	}
+
+	SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Attribute.Data.Damage")), FinalDamage);
+
+	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+
+	UE_LOG(LogTemp, Warning, TEXT("[TestDummy] Overlap Damage Applied: %.1f (Reduction: %.2f)"), FinalDamage, TargetDamageReduction);
 }
