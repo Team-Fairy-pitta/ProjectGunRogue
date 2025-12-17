@@ -118,10 +118,17 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayReloadSound(float ReloadRate = 1.0f);
 
+	UFUNCTION(Server, UnReliable)
+	void ServerRPC_PlayExplosionFX(const FVector& ExplosionLocation, float ExplosionScale);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayExplosionFX(const FVector& ExplosionLocation, float ExplosionScale);
+
 	// 로컬 FX 재생 함수 (클라이언트 예측용)
 	void PlayFireFXLocal(const FVector& MuzzleLocation, const FVector& TraceEnd);
 	void PlayEmptyFireFXLocal(const FVector& MuzzleLocation);
 	void PlayImpactFXLocal(const FVector& ImpactLocation);
+	void PlayExplosionFXLocal(const FVector& ExplosionLocation, float ExplosionScale);
 #pragma endregion WeaponFX
 #pragma region SmoothCameraControl
 public:

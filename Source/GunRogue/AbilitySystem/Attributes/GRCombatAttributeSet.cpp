@@ -29,6 +29,8 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	MaxSpread = 10.0f;
 	SpreadIncreasePerShot = 2.0f;
 	CurrentSpread = 0.0f;
+	ExplosionFalloff = 0.0f;
+	ExplosionRadius = 0.0f;
 
 	CurrentAmmo = 0.0f;
 	MaxAmmo = 0.0f; /* 무기를 들고 있지 않을 때, 탄창의 크기를 0으로 한다. */
@@ -63,6 +65,9 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SpreadIncreasePerShot, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentSpread, COND_None, REPNOTIFY_Always);
 
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ExplosionRadius, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ExplosionFalloff, COND_None, REPNOTIFY_Always);
+
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentAmmo, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_OnChanged);
 
@@ -93,6 +98,14 @@ void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	else if (Attribute == GetReloadRateAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.1f, 5.0f);
+	}
+	else if (Attribute == GetExplosionRadiusAttribute())
+	{
+		NewValue = FMath::Max(0.0f, NewValue);
+	}
+	else if (Attribute == GetExplosionFalloffAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
 	}
 }
 
@@ -460,6 +473,16 @@ void UGRCombatAttributeSet::OnRep_SpreadIncreasePerShot(const FGameplayAttribute
 void UGRCombatAttributeSet::OnRep_CurrentSpread(const FGameplayAttributeData& OldCurrentSpread)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, CurrentSpread, OldCurrentSpread);
+}
+
+void UGRCombatAttributeSet::OnRep_ExplosionRadius(const FGameplayAttributeData& OldExplosionRadius)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, ExplosionRadius, OldExplosionRadius);
+}
+
+void UGRCombatAttributeSet::OnRep_ExplosionFalloff(const FGameplayAttributeData& OldExplosionFalloff)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, ExplosionFalloff, OldExplosionFalloff);
 }
 
 void UGRCombatAttributeSet::OnRep_CurrentAmmo(const FGameplayAttributeData& OldCurrentAmmo)

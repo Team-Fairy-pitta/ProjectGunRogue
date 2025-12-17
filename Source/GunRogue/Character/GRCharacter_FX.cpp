@@ -187,6 +187,74 @@ void AGRCharacter::Multicast_PlayReloadSound_Implementation(float ReloadRate)
 		this, WeaponDef->ReloadSound, GetActorLocation(), 1.0f, ReloadRate);
 }
 
+void AGRCharacter::ServerRPC_PlayExplosionFX_Implementation(const FVector& ExplosionLocation, float ExplosionScale)
+{
+	Multicast_PlayExplosionFX(ExplosionLocation, ExplosionScale);
+}
+
+void AGRCharacter::Multicast_PlayExplosionFX_Implementation(const FVector& ExplosionLocation, float ExplosionScale)
+{
+	// 로컬 플레이어는 이미 재생했으므로 스킵
+	/*if (IsLocallyControlled())
+	{
+		return;
+	}*/
+
+	AGRPlayerState* PS = GetGRPlayerState();
+	if (!PS)
+	{
+		return;
+	}
+
+	UGRWeaponDefinition* WeaponDef = PS->GetCurrentWeaponDefinition();
+	if (!WeaponDef)
+	{
+		return;
+	}
+
+	// Impact 이펙트를 폭발용으로 재사용
+	if (WeaponDef->ImpactEffectNiagara)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			WeaponDef->ImpactEffectNiagara,
+			ExplosionLocation,
+			FRotator::ZeroRotator,
+			FVector(ExplosionScale),
+			true,
+			true,
+			ENCPoolMethod::AutoRelease
+		);
+	}
+	else if (WeaponDef->ImpactEffectCascade)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			this,
+			WeaponDef->ImpactEffectCascade,
+			ExplosionLocation,
+			FRotator::ZeroRotator,
+			FVector(ExplosionScale),
+			true,
+			EPSCPoolMethod::AutoRelease
+		);
+	}
+
+	// Impact 사운드를 폭발용으로 재사용
+	if (WeaponDef->ImpactSound)
+	{
+		// 폭발은 더 크게
+		float VolumeMultiplier = ExplosionScale > 1.0f ? 1.5f : 1.0f;
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			WeaponDef->ImpactSound,
+			ExplosionLocation,
+			VolumeMultiplier,
+			1.0f
+		);
+	}
+}
+
+
 void AGRCharacter::PlayFireFXLocal(const FVector& MuzzleLocation, const FVector& TraceEnd)
 {
 	AGRPlayerState* PS = GetGRPlayerState();
@@ -302,5 +370,60 @@ void AGRCharacter::PlayImpactFXLocal(const FVector& ImpactLocation)
 			this, WeaponDef->ImpactEffectCascade,
 			ImpactLocation, FRotator::ZeroRotator, FVector(1.0f),
 			true, EPSCPoolMethod::AutoRelease);
+	}
+}
+void AGRCharacter::PlayExplosionFXLocal(const FVector& ExplosionLocation, float ExplosionScale)
+{
+	AGRPlayerState* PS = GetGRPlayerState();
+	if (!PS)
+	{
+		return;
+	}
+
+	UGRWeaponDefinition* WeaponDef = PS->GetCurrentWeaponDefinition();
+	if (!WeaponDef)
+	{
+		return;
+	}
+
+	// Impact 이펙트를 폭발용으로 재사용
+	if (WeaponDef->ImpactEffectNiagara)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			WeaponDef->ImpactEffectNiagara,
+			ExplosionLocation,
+			FRotator::ZeroRotator,
+			FVector(ExplosionScale),
+			true,
+			true,
+			ENCPoolMethod::AutoRelease
+		);
+	}
+	else if (WeaponDef->ImpactEffectCascade)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			this,
+			WeaponDef->ImpactEffectCascade,
+			ExplosionLocation,
+			FRotator::ZeroRotator,
+			FVector(ExplosionScale),
+			true,
+			EPSCPoolMethod::AutoRelease
+		);
+	}
+
+	// Impact 사운드를 폭발용으로 재사용
+	if (WeaponDef->ImpactSound)
+	{
+		// 폭발은 더 크게
+		float VolumeMultiplier = ExplosionScale > 1.0f ? 1.5f : 1.0f;
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			WeaponDef->ImpactSound,
+			ExplosionLocation,
+			VolumeMultiplier,
+			1.0f
+		);
 	}
 }
