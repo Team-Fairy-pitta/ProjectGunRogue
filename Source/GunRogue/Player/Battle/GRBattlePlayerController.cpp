@@ -147,6 +147,12 @@ void AGRBattlePlayerController::CreateWidgets()
 		return;
 	}
 
+	if (!InGameMenuWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("InGameMenuWidgetClass (TSubclassOf<UGRInGameHUDWidget> is INVALID"));
+		return;
+	}
+
 	InGameMenuWidgetInstance = CreateWidget<UGRInGameHUDWidget>(this, InGameMenuWidgetClass);
 	if (!InGameMenuWidgetInstance)
 	{
