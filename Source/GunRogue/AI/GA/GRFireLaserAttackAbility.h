@@ -25,6 +25,6 @@ protected:
    		const FGameplayEventData* TriggerEventData) override;
    
    	virtual void OnAttackTriggerNotify(FGameplayEventData Payload) override;
-	
+
 	void LaunchProjectile();
 };
