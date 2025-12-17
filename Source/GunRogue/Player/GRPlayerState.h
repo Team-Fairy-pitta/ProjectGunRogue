@@ -88,6 +88,7 @@ private:
 	void RemoveOnHealthChanged();
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
 	void OnDead();
+	void OnRespawn();
 	void OnBodyExpired();
 
 	UPROPERTY(Replicated)
@@ -285,17 +286,17 @@ protected:
 #pragma endregion
 
 #pragma region Perk;
-public:
-	UPROPERTY(Replicated)
-	int32 CurrentMetaGoods; // 가지고 있던 재화 + 게임에서 얻은 재화
-		
 protected:
 	virtual void InitPerkFromSave();
 	void InitPerkInfoRows();
 	void LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRows, int32 LoadedMetaGoods);
+	virtual void SavePerkToSave();
 	void InitPlayerID();
 
 	void ApplyAllPerksToASC();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetCurrentMetaGoods(int32 InMetaGoods);
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ApplyAllPerksToASC(const TArray<FPerkEntry>& PerkInfos);
@@ -307,6 +308,32 @@ protected:
 
 	TArray<FPerkEntry> PerkInfoRows;
 
+#pragma endregion
+
+#pragma region Goods;
+public:
+	void AddMetaGoods(int32 Amount);
+	void AddGold(int32 Amount);
+
+	int32 GetCurrentMetaGoods() const { return CurrentMetaGoods; }
+	int32 GetGold() const { return Gold; }
+	
+	void UpdateMetaGoodsUI();
+	void UpdateGoldUI();
+	
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentMetaGoods)
+	int32 CurrentMetaGoods; // 가지고 있던 재화 + 게임에서 얻은 재화
+
+	UPROPERTY(ReplicatedUsing = OnRep_Gold)
+	int32 Gold;
+
+private:
+	UFUNCTION()
+	void OnRep_CurrentMetaGoods();
+
+	UFUNCTION()
+	void OnRep_Gold();
+	
 #pragma endregion
 };
 

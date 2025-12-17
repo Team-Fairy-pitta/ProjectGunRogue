@@ -54,6 +54,7 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ThisClass, OwnedAugments);
 
 	DOREPLIFETIME(ThisClass, CurrentMetaGoods);
+	DOREPLIFETIME(ThisClass, Gold);
 }
 
 void AGRPlayerState::CopyProperties(APlayerState* PlayerState)
@@ -94,7 +95,7 @@ void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* O
 		ApplyAllPerksToASC();
 		BindOnHealthChanged();
 
-		bIsDead = 0; // uint8 false
+		OnRespawn();
 	}
 }
 
@@ -150,6 +151,11 @@ void AGRPlayerState::ApplyAllPerksToASC()
 	{
 		InitPerkFromSave();
 		ServerRPC_ApplyAllPerksToASC(PerkInfoRows);
+
+		if (!HasAuthority())
+		{
+			ServerRPC_SetCurrentMetaGoods(CurrentMetaGoods);
+		}
 	}
 }
 
@@ -195,7 +201,7 @@ void AGRPlayerState::OnDead()
 {
 	if (HasAuthority() && !IsDead())
 	{
-		bIsDead = 1;
+		bIsDead = 1; // uint8 true
 
 		AGRCharacter* GRCharacter = GetGRCharacter();
 		if (!IsValid(GRCharacter))
@@ -211,6 +217,22 @@ void AGRPlayerState::OnDead()
 		// respawn 이후 ASC 초기화를 다시 진행해야 하므로 값을 false으로 변경함
 		bIsAbilitySystemComponentInit = false;
 	}
+}
+
+void AGRPlayerState::OnRespawn()
+{
+	bIsDead = 0; // uint8 false
+
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	float MaxHealth = AbilitySystemComponent->GetNumericAttribute(UGRHealthAttributeSet::GetMaxHealthAttribute());
+	float MaxSheild = AbilitySystemComponent->GetNumericAttribute(UGRHealthAttributeSet::GetMaxShieldAttribute());
+
+	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetHealthAttribute(), MaxHealth);
+	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetShieldAttribute(), MaxSheild);
 }
 
 void AGRPlayerState::OnBodyExpired()
