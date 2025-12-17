@@ -230,18 +230,6 @@ void AGRPlayerState::OnRespawn()
 		SpectateTimer.Invalidate();
 	}
 
-	// 체력과 생명력 복구
-	if (!AbilitySystemComponent)
-	{
-		return;
-	}
-
-	float MaxHealth = AbilitySystemComponent->GetNumericAttribute(UGRHealthAttributeSet::GetMaxHealthAttribute());
-	float MaxSheild = AbilitySystemComponent->GetNumericAttribute(UGRHealthAttributeSet::GetMaxShieldAttribute());
-
-	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetHealthAttribute(), MaxHealth);
-	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetShieldAttribute(), MaxSheild);
-
 	// HUD 정보 복구
 	AGRCharacter* GRCharacter = GetGRCharacter();
 	if (!IsValid(GRCharacter))
@@ -255,6 +243,21 @@ void AGRPlayerState::OnRespawn()
 		UpdateGoldUI();
 		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::ServerRPC_ResetWeaponHandles);
 	}
+}
+
+void AGRPlayerState::RestoreHealthAndShield()
+{
+	// 체력과 생명력 복구
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	float MaxHealth = AbilitySystemComponent->GetNumericAttribute(UGRHealthAttributeSet::GetMaxHealthAttribute());
+	float MaxSheild = AbilitySystemComponent->GetNumericAttribute(UGRHealthAttributeSet::GetMaxShieldAttribute());
+
+	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetHealthAttribute(), MaxHealth);
+	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetShieldAttribute(), MaxSheild);
 }
 
 void AGRPlayerState::OnBodyExpired()

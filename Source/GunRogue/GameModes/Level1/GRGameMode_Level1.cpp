@@ -45,6 +45,14 @@ void AGRGameMode_Level1::RespawnPlayer(AController* TargetPlayer, AActor* AliveP
 		return;
 	}
 
+	AGRPlayerState* GRPlayerState = TargetPlayer->GetPlayerState<AGRPlayerState>();
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRPlayerState is INVALID"));
+		return;
+	}
+	GRPlayerState->RestoreHealthAndShield();
+
 	FTransform SpawnTransform;
 
 	SpawnTransform.SetLocation(FindSpawnableLocation(AlivePlayer));

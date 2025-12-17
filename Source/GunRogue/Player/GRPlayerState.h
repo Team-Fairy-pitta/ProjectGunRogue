@@ -52,6 +52,7 @@ public:
 	virtual void CopyProperties(class APlayerState* PlayerState) override;
 
 	bool IsDead() const;
+	void RestoreHealthAndShield();
 
 	UFUNCTION(BlueprintCallable, Category = "GRPlayerState")
 	AGRPlayerController* GetGRPlayerController() const;
