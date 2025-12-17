@@ -325,6 +325,7 @@ FVector AGRItemActor::GetGroundPointUsingLineTrace()
 	{
 		Result.Z = HitResult.ImpactPoint.Z;
 	}
-
+	
 	return Result;
 }
+

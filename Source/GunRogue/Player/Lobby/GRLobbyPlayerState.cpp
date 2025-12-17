@@ -12,13 +12,8 @@ void AGRLobbyPlayerState::InitPerkFromSave()
 
 void AGRLobbyPlayerState::SavePerkToSave()
 {
-	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
-	if (!PerkSubsystem)
-	{
-		return;
-	}
-
-	PerkSubsystem->SavePerks(PlayerID, PerkInfoRows, MetaGoods);
+	CurrentMetaGoods = MetaGoods;
+	Super::SavePerkToSave();
 }
 
 int32 AGRLobbyPlayerState::GetPerkLevel(FName PerkID) const

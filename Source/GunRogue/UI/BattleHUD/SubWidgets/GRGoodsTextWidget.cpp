@@ -4,24 +4,60 @@
 #include "GRGoodsTextWidget.h"
 #include "Components/TextBlock.h"
 
-void UGRGoodsTextWidget::SetGoodsNameText(const FText& InText)
+void UGRGoodsTextWidget::NativeConstruct()
 {
-	if (!GoodsNameText)
-	{
-		return;
-	}
+	Super::NativeConstruct();
 
-	GoodsNameText->SetText(InText);
+	if (GoldNameText)
+	{
+		GoldNameText->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (GoldCountText)
+	{
+		GoldCountText->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (GemNameText)
+	{
+		GemNameText->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (GemCountText)
+	{
+		GemCountText->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
-void UGRGoodsTextWidget::SetGoodsCountText(int32 InCount)
+void UGRGoodsTextWidget::SetGoodsTextInPerkHUD()
 {
-	if (!GoodsCountText)
+	if (GoldNameText)
+	{
+		GoldNameText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (GoldCountText)
+	{
+		GoldCountText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void UGRGoodsTextWidget::SetGoldCountText(int32 InCount)
+{
+	if (!GoldCountText)
 	{
 		return;
 	}
 
 	FString CountString = FString::Printf(TEXT("%d"), InCount);
 	
-	GoodsCountText->SetText(FText::FromString(CountString));
+	GoldCountText->SetText(FText::FromString(CountString));
+}
+
+void UGRGoodsTextWidget::SetGemCountText(int32 InCount)
+{
+	if (!GemCountText)
+	{
+		return;
+	}
+
+	FString CountString = FString::Printf(TEXT("%d"), InCount);
+	
+	GemCountText->SetText(FText::FromString(CountString));
 }

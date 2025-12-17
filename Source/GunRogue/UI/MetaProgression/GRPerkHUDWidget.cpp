@@ -183,8 +183,9 @@ void UGRPerkHUDWidget::UpdateGoodsText()
 	{
 		return;
 	}
-	
-	GoodsText->SetGoodsCountText(PS->GetMetaGoods());
+
+	GoodsText->SetGoodsTextInPerkHUD();
+	GoodsText->SetGemCountText(PS->GetMetaGoods());
 }
 
 void UGRPerkHUDWidget::CreatePerkList()

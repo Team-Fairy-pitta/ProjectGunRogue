@@ -199,4 +199,14 @@ protected:
 	
 #pragma endregion Augment
 
+/* 재화 관련 코드 */
+#pragma region Goods
+public:
+	UFUNCTION()
+	void SyncMetaGoodsUI();
+
+	UFUNCTION()
+	void SyncGoldUI();
+	
+#pragma endregion Goods
 };
