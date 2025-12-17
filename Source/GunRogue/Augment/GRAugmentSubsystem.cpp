@@ -87,3 +87,29 @@ TArray<UGRAugmentDefinition*> UGRAugmentSubsystem::GetRandomAugments(FName Chara
 
 	return ResultAugments;
 }
+
+TArray<TObjectPtr<UGRAugmentDefinition>> UGRAugmentSubsystem::GetAugmentValues(FName CharacterType) const
+{
+	TArray<TObjectPtr<UGRAugmentDefinition>> FilteredAugments;
+
+	for (const auto& Pair : AugmentMap)
+	{
+
+		if (!Pair.Value)
+		{
+			continue;
+		}
+		
+		const UGRAugmentDefinition* AugmentDef = Pair.Value.Get();
+
+
+		if (AugmentDef->AugmentCharacterType != CharacterType)
+		{
+			continue;
+		}
+
+		FilteredAugments.Add(Pair.Value);
+	}
+
+	return FilteredAugments;
+}
