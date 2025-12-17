@@ -178,7 +178,6 @@ void AGRPlayerState::ServerRPC_SwitchWeapon_Implementation(int32 SlotIndex)
 
 	int32 OldSlot = CurrentWeaponSlot;
 	SwitchToSlot(SlotIndex);
-	ClientRPC_BroadcastOnWeaponSwitched(OldSlot, SlotIndex);
 
 	UGRWeaponDefinition* WeaponDef = WeaponSlots[SlotIndex].GetWeaponDefinition();
 	if (WeaponDef)
@@ -378,7 +377,27 @@ void AGRPlayerState::DropCurrentWeapon()
 
 void AGRPlayerState::SwitchWeapon(int32 SlotIndex)
 {
-	ServerRPC_SwitchWeapon(SlotIndex);
+	if (HasAuthority())
+	{
+		// 서버: 기존 로직 실행
+		ServerRPC_SwitchWeapon(SlotIndex);
+	}
+	else
+	{
+		// 클라이언트: 즉시 로컬 예측 실행
+		PredictedWeaponSlot = SlotIndex;
+
+		// UI/애니메이션 즉시 업데이트
+		if (IsValidSlotIndex(SlotIndex) && WeaponSlots[SlotIndex].IsEquipped())
+		{
+			OnWeaponSwitched.Broadcast(CurrentWeaponSlot, SlotIndex);
+			UpdateWeaponAttachToCharacter(); // 로컬에서 즉시 무기 변경
+			MulticastRPC_PlayWeaponEquipAnimMontage();
+		}
+
+		// 서버에도 요청 (검증용)
+		ServerRPC_SwitchWeapon(SlotIndex);
+	}
 }
 
 bool AGRPlayerState::HasWeaponInSlot(int32 SlotIndex) const
@@ -613,6 +632,7 @@ void AGRPlayerState::SwitchToSlot(int32 NewSlotIndex)
 		return;
 	}
 
+	PreviousWeaponSlot = CurrentWeaponSlot;
 	int32 OldSlotIndex = CurrentWeaponSlot;
 
 	// 현재 무기 비활성화
@@ -694,6 +714,16 @@ void AGRPlayerState::ResetAmmoDisplay()
 
 void AGRPlayerState::OnRep_CurrentWeaponSlot()
 {
+	OnWeaponSwitched.Broadcast(PreviousWeaponSlot, CurrentWeaponSlot);
+
+	// 예측 검증
+	if (!HasAuthority() && PredictedWeaponSlot != INDEX_NONE
+		&& PredictedWeaponSlot != CurrentWeaponSlot)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SwitchWeapon] Prediction mismatch! Correcting..."));
+		UpdateWeaponAttachToCharacter();
+	}
+
+	PreviousWeaponSlot = CurrentWeaponSlot;
 	UpdateCurrentWeaponAmmoDisplay();
-	UE_LOG(LogTemp, Display, TEXT("[OnRep_CurrentWeaponSlot] CLIENT slot changed to %d"), CurrentWeaponSlot);
 }

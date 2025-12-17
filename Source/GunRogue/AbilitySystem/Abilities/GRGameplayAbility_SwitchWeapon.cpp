@@ -51,21 +51,16 @@ void UGRGameplayAbility_SwitchWeapon::ActivateAbility(
 		return;
 	}
 
-	// 서버에서만 실행 (LocalPredicted이므로 클라이언트에서도 예측 실행)
-	if (HasAuthority(&ActivationInfo))
+	AActor* AvatarActor = OwnerInfo->AvatarActor.Get();
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(AvatarActor);
+
+	if (IsValid(GRCharacter))
 	{
-		AActor* AvatarActor = OwnerInfo->AvatarActor.Get();
-		AGRCharacter* GRCharacter = Cast<AGRCharacter>(AvatarActor);
-
-		if (IsValid(GRCharacter))
+		AGRPlayerState* PlayerState = GRCharacter->GetGRPlayerState();
+		if (IsValid(PlayerState))
 		{
-			AGRPlayerState* PlayerState = GRCharacter->GetGRPlayerState();
-
-			if (IsValid(PlayerState))
-			{
-				// 무기 전환
-				PlayerState->SwitchWeapon(TargetWeaponSlot);
-			}
+			// 무기 전환
+			PlayerState->SwitchWeapon(TargetWeaponSlot);
 		}
 	}
 

@@ -276,6 +276,7 @@ bool UGRGameplayAbility_FireWeapon::CheckAndConsumeAmmo()
 		if (!CombatSet->CheckHasAmmo())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[Fire] Client - No ammo"));
+			PlayEmptyFireFX(MuzzleLocation);
 			return false;
 		}
 	}
@@ -491,27 +492,54 @@ void UGRGameplayAbility_FireWeapon::PlayFireFX(
 	const FVector& TraceEnd)
 {
 	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
-	if (GRCharacter && GRCharacter->HasAuthority())
+	if (!GRCharacter)
 	{
-		GRCharacter->ServerRPC_PlayFireFX(MuzzleLocation, TraceEnd);
+		return;
+	}
+
+	// 로컬에서 즉시 재생 (클라이언트 예측)
+	GRCharacter->PlayFireFXLocal(MuzzleLocation, TraceEnd);
+
+	// 서버만 다른 클라이언트들에게 브로드캐스트
+	if (GRCharacter->HasAuthority())
+	{
+		GRCharacter->Multicast_PlayFireFX(MuzzleLocation, TraceEnd);
 	}
 }
 
 void UGRGameplayAbility_FireWeapon::PlayEmptyFireFX(const FVector& MuzzleLocation)
 {
 	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
-	if (GRCharacter && GRCharacter->HasAuthority())
+	if (!GRCharacter)
 	{
-		GRCharacter->ServerRPC_PlayEmptyFireFX(MuzzleLocation);
+		return;
+	}
+
+	// 로컬에서 즉시 재생
+	GRCharacter->PlayEmptyFireFXLocal(MuzzleLocation);
+
+	// 서버만 다른 클라이언트들에게 브로드캐스트
+	if (GRCharacter->HasAuthority())
+	{
+		GRCharacter->Multicast_PlayEmptyFireFX(MuzzleLocation);
 	}
 }
 
 void UGRGameplayAbility_FireWeapon::PlayImpactFX(const FVector& ImpactLocation)
 {
 	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
-	if (GRCharacter && GRCharacter->HasAuthority())
+	if (!GRCharacter)
 	{
-		GRCharacter->ServerRPC_PlayImpactFX(ImpactLocation);
+		return;
+	}
+
+	// 로컬에서 즉시 재생
+	GRCharacter->PlayImpactFXLocal(ImpactLocation);
+
+	// 서버만 다른 클라이언트들에게 브로드캐스트
+	if (GRCharacter->HasAuthority())
+	{
+		GRCharacter->Multicast_PlayImpactFX(ImpactLocation);
 	}
 }
 

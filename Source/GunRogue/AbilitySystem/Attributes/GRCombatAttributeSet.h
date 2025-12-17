@@ -247,5 +247,4 @@ private:
 	void StartSpreadRecoveryTimer(UAbilitySystemComponent* OwningASC, bool bIsInitialDelay = true);
 	void ClearSpreadRecoveryTimer(UAbilitySystemComponent* OwningASC);
 	void ApplySpreadRecovery(UAbilitySystemComponent* OwningASC);
-
 };

@@ -64,8 +64,8 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SpreadIncreasePerShot, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentSpread, COND_None, REPNOTIFY_Always);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentAmmo, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentAmmo, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_OnChanged);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ReloadRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SpeedRate, COND_None, REPNOTIFY_Always);
@@ -361,6 +361,9 @@ void UGRCombatAttributeSet::UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAm
 	const float ClampedCurrent = FMath::Clamp(static_cast<float>(InCurrentAmmo),0.0f,GetMaxAmmo()// 새 무기의 MaxAmmo
 	);
 	SetCurrentAmmo(ClampedCurrent);
+
+	const int32 CurrentInt = FMath::RoundToInt(ClampedCurrent);
+	const int32 MaxInt = InMaxAmmo;
 
 	// 델리게이트 브로드캐스트 (UI 업데이트)
 	OnAmmoChanged.Broadcast(ClampedCurrent, InMaxAmmo);
