@@ -246,7 +246,7 @@ void AGRPlayerState::OnRespawn()
 	{
 		UpdateMetaGoodsUI();
 		UpdateGoldUI();
-		UpdateWeaponInformation();
+		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::ServerRPC_ResetWeaponHandles);
 	}
 }
 

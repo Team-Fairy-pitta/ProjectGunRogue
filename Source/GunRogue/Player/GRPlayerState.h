@@ -176,6 +176,9 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPC_PlayWeaponEquipAnimMontage();
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ResetWeaponHandles();
+	
 	void UpdateWeaponAttachToCharacter();
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
@@ -244,8 +247,6 @@ private:
 	int32 PreviousWeaponSlot = INDEX_NONE;
 
 	int32 FindEmptyWeaponSlot() const;
-
-	void UpdateWeaponInformation();
 
 	void ActivateWeaponInSlot(int32 SlotIndex);
 	void DeactivateWeaponInSlot(int32 SlotIndex);

@@ -314,7 +314,7 @@ void AGRPlayerState::MulticastRPC_PlayWeaponEquipAnimMontage_Implementation()
 	GRCharacter->PlayAnimMontage(EquipAnimMontage);
 }
 
-void AGRPlayerState::UpdateWeaponInformation()
+void AGRPlayerState::ServerRPC_ResetWeaponHandles_Implementation()
 {
 	for (int32 SlotIndex = 0; SlotIndex < WeaponSlots.Num(); ++SlotIndex)
 	{
@@ -325,8 +325,8 @@ void AGRPlayerState::UpdateWeaponInformation()
 		}
 		if (Handle.IsActive())
 		{
-			UpdateWeaponAttachToCharacter();
-			ClientRPC_BroadcastOnWeaponSwitched(-1, SlotIndex);
+			SwitchToSlot(SlotIndex);
+			ClientRPC_BroadcastOnWeaponSwitched(INDEX_NONE, SlotIndex);
 		}
 	}
 }
