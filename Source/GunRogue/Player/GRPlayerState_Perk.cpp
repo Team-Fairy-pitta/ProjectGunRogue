@@ -1,25 +1,15 @@
 #include "Player/GRPlayerState.h"
-#include "Player/GRPlayerController.h"
 #include "Player/Battle/GRBattlePlayerController.h"
+#include "Player/Lobby/GRLobbyPlayerController.h"
 #include "Character/GRCharacter.h"
-#include "Character/GRPawnData.h"
-#include "Character/Attachment/GRAttachmentComponent.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
-#include "AbilitySystem/GRAbilitySet.h"
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
-#include "Net/UnrealNetwork.h"
-#include "Item/GRItemActor.h"
-#include "Item/GRItemDefinition.h"
-#include "Weapon/GRWeaponActor.h"
-#include "Weapon/GRWeaponInstance.h"
-#include "Weapon/GRWeaponDefinition.h"
-#include "Augment/GRAugmentStructs.h"
-#include "Lobby/GRLobbyPlayerController.h"
+#include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "MetaProgression/GRPerkSubsystem.h"
 #include "MetaProgression/GRPerkStructs.h"
 #include "MetaProgression/PerkInfoRow.h"
-#include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
+
 
 FString GetPIENetModeString(const UWorld* World);
 
@@ -111,6 +101,17 @@ void AGRPlayerState::LoadPerkFromSave(const TArray<FPerkEntry>& LoadedPerkInfoRo
 	}
 }
 
+void AGRPlayerState::SavePerkToSave()
+{
+	UGRPerkSubsystem* PerkSubsystem = GetGameInstance()->GetSubsystem<UGRPerkSubsystem>();
+	if (!PerkSubsystem)
+	{
+		return;
+	}
+
+	PerkSubsystem->SavePerks(PlayerID, PerkInfoRows, CurrentMetaGoods);
+}
+
 void AGRPlayerState::InitPlayerID()
 {
 	UWorld* World = GetWorld();
@@ -133,6 +134,11 @@ void AGRPlayerState::InitPlayerID()
 		// [NOTE] 실제 환경에서는 PlayerID를 구분할 필요가 없음 (게임이 하나만 실행되므로)
 		PlayerID = FString::Printf(TEXT("LocalPlayer"));
 	}
+}
+
+void AGRPlayerState::ServerRPC_SetCurrentMetaGoods_Implementation(int32 InMetaGoods)
+{
+	CurrentMetaGoods = InMetaGoods;	
 }
 
 void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation(const TArray<FPerkEntry>& PerkInfos)

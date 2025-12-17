@@ -1,6 +1,7 @@
 #include "System/GRLevel1ControlPanel.h"
 #include "System/GRStreamingDoor.h"
 #include "System/GRNextMapLoader.h"
+#include "GameModes/Level1/GRGameMode_Level1.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Character/GRCharacter.h"
@@ -49,12 +50,29 @@ void AGRLevel1ControlPanel::BeginPlay()
 			UE_LOG(LogTemp, Error, TEXT("InteractWidgetClass is INVALID"));
 		}
 	}
+
+	if (HasAuthority())
+	{
+		AddToGameMode();
+	}
 }
+
+void AGRLevel1ControlPanel::EndPlay(EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (HasAuthority())
+	{
+		RemoveFromGameMode();
+	}
+}
+
 
 void AGRLevel1ControlPanel::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(ThisClass, bHasEliminatedEnemies);
 	DOREPLIFETIME(ThisClass, bWasActivated);
 	DOREPLIFETIME(ThisClass, bIsDoorOpen);
 	DOREPLIFETIME(ThisClass, CachedNextNode);
@@ -125,7 +143,14 @@ bool AGRLevel1ControlPanel::CanInteract(AActor* OtherActor)
 	}
 	else
 	{
-		return true;
+		if (bHasEliminatedEnemies)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
 
@@ -138,6 +163,18 @@ void AGRLevel1ControlPanel::OnUsePanel(FGRLevel1Node NextNode)
 		CachedNextNode = NextNode;
 		OnRep_bIsDoorOpen();
 		OnRep_CachedNextNode();
+	}
+}
+
+void AGRLevel1ControlPanel::SetbHasEliminatedEnemies(bool HasEliminatedEnemies)
+{
+	if (HasEliminatedEnemies)
+	{
+		bHasEliminatedEnemies = 1;
+	}
+	else
+	{
+		bHasEliminatedEnemies = 0;
 	}
 }
 
@@ -163,4 +200,46 @@ void AGRLevel1ControlPanel::OnRep_CachedNextNode()
 	{
 		MapLoaderInstance->SetLevelToLoad(CachedNextNode.LevelToLoad);
 	}
+}
+
+void AGRLevel1ControlPanel::AddToGameMode()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRGameMode_Level1* Level1GameMode = GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+	if (!IsValid(Level1GameMode))
+	{
+		UE_LOG(LogTemp, Error, TEXT("InteractWidgetClass is INVALID"));
+		return;
+	}
+
+	Level1GameMode->AddLevel1ControlPanel(this);
+}
+
+void AGRLevel1ControlPanel::RemoveFromGameMode()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRGameMode_Level1* Level1GameMode = GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+	if (!IsValid(Level1GameMode))
+	{
+		UE_LOG(LogTemp, Error, TEXT("InteractWidgetClass is INVALID"));
+		return;
+	}
+
+	Level1GameMode->RemoveLevel1ControlPanel(this);
 }

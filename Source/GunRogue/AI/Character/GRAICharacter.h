@@ -8,6 +8,23 @@
 #include "GRAICharacter.generated.h"
 
 class UGameplayAbility;
+class UGRZLocationComponent;
+class UGRHealthAttributeSet;
+class UGRCombatAttributeSet;
+class AGRGoodsActor;
+struct FOnAttributeChangeData;
+
+USTRUCT(BlueprintType)
+struct FDropGoodsInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AGRGoodsActor> GoodsClass;
+
+	UPROPERTY(EditAnywhere)
+	int32 Count = 1;
+};
 
 UCLASS()
 class GUNROGUE_API AGRAICharacter : public ACharacter, public IAbilitySystemInterface
@@ -21,11 +38,47 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReapon) override;
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	UAbilitySystemComponent* ASC;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRZLocationComponent> ZLocationComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities",meta=(AllowPrivateAccess))
 	TArray<TSubclassOf<UGameplayAbility>> AttackAbilityClassList;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AttributeSet")
+	TObjectPtr<UGRHealthAttributeSet> HealthAttributeSet;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AttributeSet")
+	TObjectPtr<UGRCombatAttributeSet> CombatAttributeSet;
+
+	void OnHealthChanged(const FOnAttributeChangeData& Data);
+
+private:
+	void InitAbilitySystemComponent();
+	void OnDead();
+
+	void NotifySpawnToGameMode();
+	void NotifyDestroyToGameMode();
+
+#pragma region Drops
+protected:
+	void DropGoods();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DropGoods")
+	TArray<FDropGoodsInfo> DropGoodsList;
+
+private:
+	void DropGoodsForEachPlayer(APlayerController* Player);
+	TArray<FDropGoodsInfo> GetDropGoodsList();
+	void SpawnToTargetPlayer(APlayerState* InPlayerState, TSubclassOf<AGRGoodsActor> GoodsClass, int32 DropCount);
+
+	FVector GetRanomOffsetAround() const;
+	FVector GetGroundLocation(const FVector& InXY) const;
+
+#pragma endregion
 };

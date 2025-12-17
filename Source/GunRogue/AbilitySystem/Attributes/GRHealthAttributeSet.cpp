@@ -1,5 +1,6 @@
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "GameplayTagContainer.h"
@@ -169,6 +170,8 @@ void UGRHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 					ClearShieldRegenTimer(OwningASC);
 				}
 			}
+
+			ShowDamageIndicator(RealDealtAmount, Causer, OwningASC->GetAvatarActor());
 
 			// TODO: 여기서 RealDealtAmount를 사용해 흡혈, 궁극기 게이지 등 구현 가능
 			// 예: GainUltimateGauge(RealDealtAmount);
@@ -580,4 +583,23 @@ void UGRHealthAttributeSet::OnRep_ShieldRegenAmount(const FGameplayAttributeData
 void UGRHealthAttributeSet::OnRep_ShieldBreakInvincibleDuration(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, ShieldBreakInvincibleDuration, OldValue);
+}
+
+void UGRHealthAttributeSet::ShowDamageIndicator(float Damage, AActor* Attacker, AActor* Target)
+{
+	APawn* AttackerPawn = Cast<APawn>(Attacker);
+	if (!IsValid(AttackerPawn))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ShowDamageIndicator] Attacker is NOT pawn"));
+		return;
+	}
+
+	AGRBattlePlayerController* BattlePlayerController = AttackerPawn->GetController<AGRBattlePlayerController>();
+	if (!IsValid(BattlePlayerController))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ShowDamageIndicator] Attacker Controller is NOT AGRBattlePlayerController"));
+		return;
+	}
+
+	BattlePlayerController->ClientRPC_ShowDamageIndicator(Damage, Target);
 }

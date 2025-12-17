@@ -6,12 +6,14 @@
 AGRGameState_Level1::AGRGameState_Level1()
 {
 	CurrentLevel1NodeIndex = 0; // 항상 0번째 방에서 시작
-	Level1ClientData.InitAtClient();
 }
 
 void AGRGameState_Level1::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Level1ClientData.InitAtClient();
+
 	if (HasAuthority())
 	{
 		RequestNextRoomInformation();

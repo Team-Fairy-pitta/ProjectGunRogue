@@ -13,6 +13,7 @@ class UGRAbilitySystemComponent;
 class UGRInputHandleComponent;
 class UGRInteractionComponent;
 class UGRAttachmentComponent;
+class UGRZLocationComponent;
 class UGRPawnData;
 class UGRRadarMapComponent;
 
@@ -53,6 +54,9 @@ public:
 	TObjectPtr<UGRAttachmentComponent> AttachmentComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRZLocationComponent> ZLocationComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
@@ -88,32 +92,37 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
 	UStaticMeshComponent* GetEquippedWeaponStaticMesh() const;
-
+#pragma region WeaponFX
 	// 무기 이펙트/사운드 관련 RPC
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, UnReliable)
 	void ServerRPC_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, UnReliable)
 	void ServerRPC_PlayImpactFX(const FVector& ImpactLocation);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayImpactFX(const FVector& ImpactLocation);
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, UnReliable)
 	void ServerRPC_PlayEmptyFireFX(const FVector& MuzzleLocation);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayEmptyFireFX(const FVector& MuzzleLocation);
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_PlayReloadSound();
+	void ServerRPC_PlayReloadSound(float ReloadRate = 1.0f);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_PlayReloadSound();
+	void Multicast_PlayReloadSound(float ReloadRate = 1.0f);
 
+	// 로컬 FX 재생 함수 (클라이언트 예측용)
+	void PlayFireFXLocal(const FVector& MuzzleLocation, const FVector& TraceEnd);
+	void PlayEmptyFireFXLocal(const FVector& MuzzleLocation);
+	void PlayImpactFXLocal(const FVector& ImpactLocation);
+#pragma endregion WeaponFX
 #pragma region SmoothCameraControl
 public:
 	void SetLastControllerRotation();

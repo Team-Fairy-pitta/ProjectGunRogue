@@ -13,4 +13,6 @@ AGRGameMode::AGRGameMode()
 	GameStateClass = AGRGameState::StaticClass();
 	PlayerControllerClass = AGRPlayerController::StaticClass();
 	PlayerStateClass = AGRPlayerState::StaticClass();
+
+	bUseSeamlessTravel = true;
 }

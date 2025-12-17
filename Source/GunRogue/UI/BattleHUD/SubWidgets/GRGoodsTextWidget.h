@@ -17,13 +17,23 @@ class GUNROGUE_API UGRGoodsTextWidget : public UUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* GoodsNameText;
+	UTextBlock* GoldNameText;
+	
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* GoldCountText;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* GoodsCountText;
+	UTextBlock* GemNameText;
+	
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* GemCountText;
+
+	virtual void NativeConstruct() override;
 
 public:
-	void SetGoodsNameText(const FText& InText);
+	void SetGoldCountText(int32 InCount);
 
-	void SetGoodsCountText(int32 InCount);
+	void SetGemCountText(int32 InCount);
+
+	void SetGoodsTextInPerkHUD();
 };

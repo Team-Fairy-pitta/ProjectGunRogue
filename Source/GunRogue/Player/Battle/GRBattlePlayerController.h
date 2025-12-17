@@ -11,9 +11,11 @@ class UGRWeaponDefinition;
 class UGRWeaponUpgradeWidgetSetting;
 class UGRInventoryWidgetMain;
 class UGRAugmentHUDWidget;
+class UGRDamageIndicator;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
+class UGRInGameHUDWidget;
 
 UCLASS()
 class GUNROGUE_API AGRBattlePlayerController : public AGRPlayerController
@@ -47,6 +49,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnActiveGameplayEffectRemoved(TSubclassOf<UGameplayEffect> EffectClass);
 
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowDamageIndicator(float Damage, AActor* DamagedActor);
+
 	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }	
 
 protected:
@@ -55,6 +60,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRBattleHUDWidget> HUDWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRDamageIndicator> DamageIndicatorWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UGRDamageIndicator> DamageIndicatorWidgetInstance;
 
 	FTimerHandle OtherPlayerStatusUpdateTimer;
 	float OtherPlayerStatusUpdateInterval = 1.0f;
@@ -86,6 +97,8 @@ private:
 
 	UFUNCTION()
 	void OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo);
+
+	void ShowDamageIndicator(float Damage, AActor* DamagedActor);
 
 #pragma endregion HUD
 
@@ -187,4 +200,35 @@ protected:
 	
 #pragma endregion Augment
 
+	// 인게임 메뉴
+#pragma region Menu
+public:
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowInGameMenuWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowInGameMenuWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideInGameMenuWidget();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRInGameHUDWidget> InGameMenuWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UGRInGameHUDWidget> InGameMenuWidgetInstance;
+
+#pragma endregion Menu
+
+/* 재화 관련 코드 */
+#pragma region Goods
+public:
+	UFUNCTION()
+	void SyncMetaGoodsUI();
+
+	UFUNCTION()
+	void SyncGoldUI();
+	
+#pragma endregion Goods
 };
