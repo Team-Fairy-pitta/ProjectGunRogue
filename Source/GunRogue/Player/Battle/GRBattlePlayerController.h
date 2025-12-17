@@ -139,6 +139,7 @@ protected:
 
 	void BindSpectatorInput();
 
+	void SetSpectatePlayer(AActor* TargetPlayer);
 	AActor* GetPreviousSpectateActor();
 	AActor* GetNextSpectateActor();
 

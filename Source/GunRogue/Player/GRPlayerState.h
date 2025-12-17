@@ -245,6 +245,8 @@ private:
 
 	int32 FindEmptyWeaponSlot() const;
 
+	void UpdateWeaponInformation();
+
 	void ActivateWeaponInSlot(int32 SlotIndex);
 	void DeactivateWeaponInSlot(int32 SlotIndex);
 	void SpawnWeaponAtLocation(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& WeaponInstance, const FVector& Location, const FRotator& Rotation);

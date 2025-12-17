@@ -101,20 +101,8 @@ void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* O
 
 void AGRPlayerState::InitAbilitySystemComponent()
 {
-	if (bIsAbilitySystemComponentInit)
-	{
-		UE_LOG(LogTemp, Error, TEXT("AbilitySystemComponent Already Init..."));
-		return;
-	}
-
 	AGRCharacter* GRCharacter = GetGRCharacter();
 	if (!IsValid(GRCharacter))
-	{
-		return;
-	}
-
-	const UGRPawnData* PawnData = GRCharacter->GetPawnData();
-	if (!PawnData)
 	{
 		return;
 	}
@@ -124,19 +112,34 @@ void AGRPlayerState::InitAbilitySystemComponent()
 		return;
 	}
 
-	AbilitySystemComponent->InitAbilityActorInfo(this /*Owner*/, GRCharacter /*Avatar*/);
-
-	for (UGRAbilitySet* AbilitySet : PawnData->AbilitySets)
+	if (bIsAbilitySystemComponentInit)
 	{
-		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
+		UE_LOG(LogTemp, Warning, TEXT("AbilitySystemComponent Already Init..."));
+		
+		AbilitySystemComponent->SetAvatarActor(GRCharacter);
 	}
-
-	if (OnAbilitySystemComponentInit.IsBound())
+	else
 	{
-		OnAbilitySystemComponentInit.Broadcast();
-	}
+		const UGRPawnData* PawnData = GRCharacter->GetPawnData();
+		if (!PawnData)
+		{
+			return;
+		}
 
-	bIsAbilitySystemComponentInit = true;
+		AbilitySystemComponent->InitAbilityActorInfo(this /*Owner*/, GRCharacter /*Avatar*/);
+
+		for (UGRAbilitySet* AbilitySet : PawnData->AbilitySets)
+		{
+			AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
+		}
+
+		if (OnAbilitySystemComponentInit.IsBound())
+		{
+			OnAbilitySystemComponentInit.Broadcast();
+		}
+
+		bIsAbilitySystemComponentInit = true;
+	}
 }
 
 void AGRPlayerState::ApplyAllPerksToASC()
@@ -213,9 +216,6 @@ void AGRPlayerState::OnDead()
 
 		static const float BodyLifeSpan = 1.5f;
 		GetWorldTimerManager().SetTimer(DeadTimer, this, &ThisClass::OnBodyExpired, BodyLifeSpan, false);
-
-		// respawn 이후 ASC 초기화를 다시 진행해야 하므로 값을 false으로 변경함
-		bIsAbilitySystemComponentInit = false;
 	}
 }
 
@@ -223,6 +223,7 @@ void AGRPlayerState::OnRespawn()
 {
 	bIsDead = 0; // uint8 false
 
+	// 체력과 생명력 복구
 	if (!AbilitySystemComponent)
 	{
 		return;
@@ -233,6 +234,20 @@ void AGRPlayerState::OnRespawn()
 
 	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetHealthAttribute(), MaxHealth);
 	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetShieldAttribute(), MaxSheild);
+
+	// HUD 정보 복구
+	AGRCharacter* GRCharacter = GetGRCharacter();
+	if (!IsValid(GRCharacter))
+	{
+		return;
+	}
+
+	if (GRCharacter->IsLocallyControlled())
+	{
+		UpdateMetaGoodsUI();
+		UpdateGoldUI();
+		UpdateWeaponInformation();
+	}
 }
 
 void AGRPlayerState::OnBodyExpired()

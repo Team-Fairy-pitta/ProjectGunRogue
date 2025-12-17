@@ -1,4 +1,4 @@
-#include "GameFramework/Character.h"
+#include "Character/GRCharacter.h"
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "GameModes/GRGameState.h"
@@ -657,32 +657,45 @@ void AGRBattlePlayerController::ClientRPC_SetSpectationTargetPlayerName_Implemen
 
 void AGRBattlePlayerController::ServerRPC_SpectatePreviousPlayer_Implementation()
 {
+	if (GetStateName() != NAME_Spectating)
+	{
+		return;
+	}
+
 	AActor* TargetActor = GetPreviousSpectateActor();
-	if (IsValid(TargetActor))
-	{
-		ChangeState(NAME_Spectating);
-		ClientRPC_SetSpectationTargetPlayerName(TargetActor);
-		SetViewTargetWithBlend(TargetActor);
-	}
-	else
-	{
-		ChangeState(NAME_Playing);
-	}
+	SetSpectatePlayer(TargetActor);
 }
 
 void AGRBattlePlayerController::ServerRPC_SpectateNextPlayer_Implementation()
 {
-	AActor* TargetActor = GetNextSpectateActor();
-	if (IsValid(TargetActor))
+	if (GetStateName() != NAME_Spectating)
 	{
-		ChangeState(NAME_Spectating);
-		ClientRPC_SetSpectationTargetPlayerName(TargetActor);
-		SetViewTargetWithBlend(TargetActor);
+		return;
 	}
-	else
+
+	AActor* TargetActor = GetNextSpectateActor();
+	SetSpectatePlayer(TargetActor);
+}
+
+void AGRBattlePlayerController::SetSpectatePlayer(AActor* TargetPlayer)
+{
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(TargetPlayer);
+	if (!IsValid(GRCharacter))
 	{
 		ChangeState(NAME_Playing);
+		return;
 	}
+
+	AGRPlayerState* GRPlayerState = GRCharacter->GetGRPlayerState();
+	if (!IsValid(GRPlayerState))
+	{
+		ChangeState(NAME_Playing);
+		return;
+	}
+
+	ChangeState(NAME_Spectating);
+	ClientRPC_SetSpectationTargetPlayerName(GRCharacter);
+	SetViewTargetWithBlend(GRCharacter);
 }
 
 void AGRBattlePlayerController::ServerRPC_StartSpectating_Implementation()
@@ -699,5 +712,11 @@ void AGRBattlePlayerController::ServerRPC_StartSpectating_Implementation()
 void AGRBattlePlayerController::ClientRPC_StartSpectating_Implementation()
 {
 	HideBattleHUD();
+	HideInventoryWidget();
+	HideInGameMenuWidget();
+	HideAugmentWidget();
+	HideLevel1SelectWidget();
+	HideUpgradeConsoleWidget();
+
 	ShowSpectatorHUD();
 }
