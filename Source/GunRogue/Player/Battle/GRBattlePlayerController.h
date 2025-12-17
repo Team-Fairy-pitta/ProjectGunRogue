@@ -15,6 +15,7 @@ class UGRDamageIndicator;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
+class UGRInGameHUDWidget;
 
 UCLASS()
 class GUNROGUE_API AGRBattlePlayerController : public AGRPlayerController
@@ -198,6 +199,27 @@ protected:
 	TObjectPtr<UGRAugmentHUDWidget> AugmentWidgetInstance;
 	
 #pragma endregion Augment
+
+	// 인게임 메뉴
+#pragma region Menu
+public:
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowInGameMenuWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowInGameMenuWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideInGameMenuWidget();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRInGameHUDWidget> InGameMenuWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UGRInGameHUDWidget> InGameMenuWidgetInstance;
+
+#pragma endregion Menu
 
 /* 재화 관련 코드 */
 #pragma region Goods
