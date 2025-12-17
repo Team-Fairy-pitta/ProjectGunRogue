@@ -33,4 +33,8 @@ public:
 	// 특정 Index의 Playey를 리스폰한다.
 	UFUNCTION(Exec)
 	void RespawnPlayer(int32 InIndex);
+
+	// 모든 AI를 처치한다.
+	UFUNCTION(Exec)
+	void KillAllAI();
 };

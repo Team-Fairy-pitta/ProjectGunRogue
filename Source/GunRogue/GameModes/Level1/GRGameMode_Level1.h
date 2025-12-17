@@ -18,6 +18,7 @@ public:
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 	
 	void RespawnPlayer(AController* TargetPlayer, AActor* AlivePlayer);
+	void RespawnAllPlayers();
 
 	FGRLevel1Node* GetLevel1Node(int32 Index);
 

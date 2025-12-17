@@ -1,5 +1,6 @@
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "GameModes/Level1/GRGameState_Level1.h"
+#include "Character/GRCharacter.h"
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "System/GRLevel1ControlPanel.h"
@@ -55,6 +56,59 @@ void AGRGameMode_Level1::RespawnPlayer(AController* TargetPlayer, AActor* AliveP
 	BattlePlayerController->ClientRPC_OnRestartPlayer();
 }
 
+void AGRGameMode_Level1::RespawnAllPlayers()
+{
+	TArray<AGRPlayerState*> AlivePlayerStates;
+	TArray<AGRPlayerState*> DeadPlayerStates;
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(*It);
+		if (IsValid(BattlePlayerController))
+		{
+			AGRPlayerState* GRPlayerState = BattlePlayerController->GetPlayerState<AGRPlayerState>();
+			if (IsValid(GRPlayerState))
+			{
+				if (GRPlayerState->IsDead())
+				{
+					DeadPlayerStates.Add(GRPlayerState);
+				}
+				else
+				{
+					AlivePlayerStates.Add(GRPlayerState);
+				}
+			}
+		}
+	}
+
+	if (AlivePlayerStates.Num() <= 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("RespawnAllPlayers: AlivePlayerStates.Num() <= 0"));
+		return;
+	}
+	
+
+	int32 RespawnedPlayerCount = 0;
+	for (AGRPlayerState* PlayerState : DeadPlayerStates)
+	{
+		AGRCharacter* Body = PlayerState->GetPawn<AGRCharacter>();
+		if (IsValid(Body))
+		{
+			continue;
+		}
+
+		APlayerController* PlayerController = PlayerState->GetPlayerController();
+		AActor* AlivePlayerActor = AlivePlayerStates[0]->GetPawn();
+		RespawnPlayer(PlayerController, AlivePlayerActor);
+		RespawnedPlayerCount += 1;
+	}
+
+	if (RespawnedPlayerCount < DeadPlayerStates.Num())
+	{
+		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::RespawnAllPlayers);
+	}
+}
+
 FGRLevel1Node* AGRGameMode_Level1::GetLevel1Node(int32 Index)
 {
 	if (Level1Data.IsValidData())
@@ -77,6 +131,11 @@ void AGRGameMode_Level1::ReceiveDestroyEnemy()
 {
 	EnemyCount = EnemyCount - 1 >= 0 ? EnemyCount - 1 : 0;
 	UpdateLevel1ControlPanel();
+
+	if (EnemyCount <= 0)
+	{
+		RespawnAllPlayers();
+	}
 }
 
 bool AGRGameMode_Level1::CheckGameOver()

@@ -5,6 +5,9 @@
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "GameModes/Level1/GRGameState_Level1.h"
+#include "AI/Character/GRAICharacter.h"
+#include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
+#include "Kismet/GameplayStatics.h"
 
 void UGRBattleCheatManager::SetLevel1NextRoomIndex(int32 InIndex)
 {
@@ -247,6 +250,25 @@ void UGRBattleCheatManager::RespawnPlayer(int32 InIndex)
 	if (AlivePlayers.Num() > 0)
 	{
 		GameMode_Level1->RespawnPlayer(TargetPlayerController, AlivePlayers[0]);
+	}
+}
+
+void UGRBattleCheatManager::KillAllAI()
+{
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGRAICharacter::StaticClass(), FoundActors);
+
+	// 사용 예시
+	for (AActor* Actor : FoundActors)
+	{
+		if (AGRAICharacter* AICharacter = Cast<AGRAICharacter>(Actor))
+		{
+			auto* ASC = AICharacter->GetAbilitySystemComponent();
+			if (ASC)
+			{
+				ASC->SetNumericAttributeBase(UGRHealthAttributeSet::GetHealthAttribute(), 0.0f);
+			}
+		}
 	}
 }
 
