@@ -546,6 +546,16 @@ void AGRBattlePlayerController::HideSpectatorHUD()
 	}
 }
 
+void AGRBattlePlayerController::BindSpectatorInput()
+{
+	// NOTE: 관전 상태에서의 키 입력을 하드 바인딩
+	if (InputComponent)
+	{
+		InputComponent->BindKey(EKeys::PageUp, IE_Pressed, this, &ThisClass::ServerRPC_SpectatePreviousPlayer);
+		InputComponent->BindKey(EKeys::PageDown, IE_Pressed, this, &ThisClass::ServerRPC_SpectateNextPlayer);
+	}
+}
+
 AActor* AGRBattlePlayerController::GetPreviousSpectateActor()
 {
 	TArray<AActor*> AlivePlayerList = GetAlivePlayerList();

@@ -27,6 +27,7 @@ public:
 	AGRBattlePlayerController();
 	virtual void BeginPlay() override;
 	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
+	virtual void SetupInputComponent() override;
 	virtual void OnRep_PlayerState() override;
 
 	UFUNCTION(Client, Reliable)
@@ -136,6 +137,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRSpectatorHUDWidget> SpectatorWidgetClass;
 
+	void BindSpectatorInput();
+
 	AActor* GetPreviousSpectateActor();
 	AActor* GetNextSpectateActor();
 
@@ -244,7 +247,7 @@ protected:
 	
 #pragma endregion Augment
 
-	// 인게임 메뉴
+/* 인게임 메뉴 코드 */
 #pragma region Menu
 public:
 	UFUNCTION(Client, Reliable)

@@ -49,6 +49,14 @@ void AGRBattlePlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
 	FinalizeBattleHUD();
 }
 
+void AGRBattlePlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	// NOTE: 관전 상태에서의 키 입력을 하드 바인딩
+	BindSpectatorInput();
+}
+
 void AGRBattlePlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
