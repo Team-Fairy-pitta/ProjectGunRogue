@@ -157,7 +157,6 @@ public:
 	FGameplayAttributeData ReloadRate;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ReloadRate)
 
-
 	// 무기 데미지 계산 (무기 공격력만)
 	float CalculateWeaponDamage() const;
 

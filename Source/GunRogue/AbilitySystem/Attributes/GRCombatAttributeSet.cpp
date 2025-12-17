@@ -22,7 +22,7 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	DamageReduction = 0.0f;
 	IsCriticalHit = 0.0f;
 
-	FireRate = 2.0f;
+	FireRate = 0.0f;
 	Accuracy = 1.0f;
 	Recoil = 1.0f;
 	SpreadRecoveryRate = 0.5f;
