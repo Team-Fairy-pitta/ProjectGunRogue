@@ -179,6 +179,10 @@ void AGRGoodsActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	{
 		HitPlayerState->AddMetaGoods(Amount);
 	}
+	else if (GoodsDefinition->GoodsType == FName("HealthKit"))
+	{
+		HitPlayerState->AddHealthByHealthKit(Amount);
+	}
 
 	Destroy();
 }

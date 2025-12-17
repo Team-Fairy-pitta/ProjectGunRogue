@@ -301,6 +301,8 @@ public:
 	
 	void UpdateMetaGoodsUI();
 	void UpdateGoldUI();
+
+	void AddHealthByHealthKit(int32 Amount);
 	
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentMetaGoods)
 	int32 CurrentMetaGoods; // 가지고 있던 재화 + 게임에서 얻은 재화
@@ -314,6 +316,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_Gold();
+
+	UPROPERTY(EditAnywhere, Category="Goods")
+	TSubclassOf<UGameplayEffect> GoodsGE;
 	
 #pragma endregion
 };
