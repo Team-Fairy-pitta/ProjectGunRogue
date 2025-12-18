@@ -213,8 +213,11 @@ public:
 
 /* 보스 체력바 관련 코드 */
 #pragma region BossHPBar
+public:
+	UFUNCTION()
 	void OnBossSpawned(AGRLuwoAICharacter* CurrentBoss);
-	
+
+	UFUNCTION()
 	void OnBossDestroyed();
 
 #pragma endregion BossHPBar
