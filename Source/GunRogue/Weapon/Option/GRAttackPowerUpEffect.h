@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CoreMinimal.h"
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "GRAttackPowerUpEffect.generated.h"
 
