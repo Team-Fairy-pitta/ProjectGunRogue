@@ -9,7 +9,7 @@ AGRLuwoAICharacter::AGRLuwoAICharacter()
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
 	if (Capsule)
 	{
-		Capsule->BodyInstance.SetCollisionProfileName(TEXT("AIBoss"));
+		Capsule->BodyInstance.SetCollisionProfileName(TEXT("GRAIBoss"));
 	}
 
 	USkeletalMeshComponent* SkelMesh = GetMesh();

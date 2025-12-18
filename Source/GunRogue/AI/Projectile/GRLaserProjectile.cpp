@@ -19,7 +19,7 @@ AGRLaserProjectile::AGRLaserProjectile()
 	SetReplicateMovement(true);
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("AIProjectile"));
+	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("GRAIBossProjectile"));
 	CollisionComponent->SetSimulatePhysics(false);
 	CollisionComponent->SetNotifyRigidBodyCollision(true);
 	RootComponent = CollisionComponent;
@@ -77,8 +77,6 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		return;
 	}
 	
-	//UE_LOG(LogTemp, Warning, TEXT("AGRRockProjectile::OnHit : Other Actor : %s"),*OtherActor->GetName());
-
 	if (OtherActor->IsA(AGRAICharacter::StaticClass()))
 	{
 		return;
@@ -90,8 +88,8 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		return;
 	}
 
-	UAbilitySystemComponent* BossASC = GetInstigator()->FindComponentByClass<UAbilitySystemComponent>();
-	if (!BossASC)
+	UAbilitySystemComponent* AIASC = GetInstigator()->FindComponentByClass<UAbilitySystemComponent>();
+	if (!AIASC)
 	{
 		return;
 	}
@@ -101,10 +99,10 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		return;
 	}
 
-	FGameplayEffectContextHandle BossEffectContext = BossASC->MakeEffectContext();
+	FGameplayEffectContextHandle BossEffectContext = AIASC->MakeEffectContext();
 	BossEffectContext.AddInstigator(GetInstigator(), this); 
 		
-	FGameplayEffectSpecHandle BossSpecHandle = BossASC->MakeOutgoingSpec(DamageGEClass,1.f,BossEffectContext);
+	FGameplayEffectSpecHandle BossSpecHandle = AIASC->MakeOutgoingSpec(DamageGEClass,1.f,BossEffectContext);
 	
 
 	AGRCharacter* PlayerChar=Cast<AGRCharacter>(OtherActor);
@@ -132,7 +130,7 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 
 		if (BossSpecHandle.IsValid())
 		{
-			BossASC->ApplyGameplayEffectSpecToTarget(*BossSpecHandle.Data.Get(),PlayerASC);
+			AIASC->ApplyGameplayEffectSpecToTarget(*BossSpecHandle.Data.Get(),PlayerASC);
 		}
 	}
 
