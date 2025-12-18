@@ -11,7 +11,26 @@ class UGameplayAbility;
 class UGRZLocationComponent;
 class UGRHealthAttributeSet;
 class UGRCombatAttributeSet;
+class AGRGoodsActor;
 struct FOnAttributeChangeData;
+
+USTRUCT(BlueprintType)
+struct FDropGoodsInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AGRGoodsActor> GoodsClass;
+
+	UPROPERTY(EditAnywhere)
+	int32 Count = 1;
+
+	UPROPERTY(EditAnywhere)
+	int32 RandomRange = 2;
+
+	UPROPERTY(EditAnywhere)
+	float DropChance = 1.0f;
+};
 
 UCLASS()
 class GUNROGUE_API AGRAICharacter : public ACharacter, public IAbilitySystemInterface
@@ -44,11 +63,31 @@ protected:
 	TObjectPtr<UGRCombatAttributeSet> CombatAttributeSet;
 
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	virtual void OnDead();
 
 private:
 	void InitAbilitySystemComponent();
-	void OnDead();
 
 	void NotifySpawnToGameMode();
 	void NotifyDestroyToGameMode();
+
+#pragma region Drops
+protected:
+	void DropGoods();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DropGoods")
+	TArray<FDropGoodsInfo> DropGoodsList;
+
+private:
+	void DropGoodsForEachPlayer(APlayerController* Player);
+	TArray<FDropGoodsInfo> GetDropGoodsList();
+	void SpawnToTargetPlayer(APlayerState* InPlayerState, TSubclassOf<AGRGoodsActor> GoodsClass, int32 DropCount);
+
+	FVector GetRandomOffsetAround() const;
+	FVector GetGroundLocation(const FVector& InXY) const;
+
+	bool CanDropGoods(float Chance) const;
+	int32 GetDropCount(int32 BaseCount, int32 RandomRange) const;
+	
+#pragma endregion
 };

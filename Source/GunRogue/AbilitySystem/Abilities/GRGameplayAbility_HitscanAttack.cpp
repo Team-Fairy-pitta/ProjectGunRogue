@@ -50,7 +50,7 @@ bool UGRGameplayAbility_HitscanAttack::TraceFromMuzzle(
 		OutHit,
 		MuzzleLocation,
 		TraceEnd,
-		ECC_Visibility,
+		ECC_GameTraceChannel3, // Weapon Channel
 		QueryParams
 	);
 }

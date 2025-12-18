@@ -64,8 +64,7 @@ void ATestUIPlayerController::SetDefaultValueInBattleHUDWidget()
 
 	if (UGRGoodsTextWidget* GoodsTextWidget = BattleHUDWidget->GetGoodsTextWidget())
 	{
-		GoodsTextWidget->SetGoodsNameText(FText::FromString(TEXT("Gold: ")));
-		GoodsTextWidget->SetGoodsCountText(9900);
+		GoodsTextWidget->SetGoldCountText(9900);
 	}
 
 	if (UGRTeamStatusListWidget* TeamStatusListWidget = BattleHUDWidget->GetTeamStatusListWidget())

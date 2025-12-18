@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/GRGameplayAbility.h"
+#include "GameplayTagContainer.h"
 #include "GRGameplayAbility_FireWeapon.generated.h"
 
 class UGameplayEffect;
@@ -118,4 +119,17 @@ protected:
 	// 디버그
 	void DrawFireDebug(const FVector& Start, const FVector& End, bool bHit, const FVector& HitLocation);
 
+	// 확률로 탄 소모x
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|NoConsume")
+	FGameplayTag NoAmmoConsumeTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|NoConsume", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float NoAmmoConsumeChance;
+
+	//DotDmamage
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Dot")
+	FGameplayTag DotOnHitTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Dot")
+	TSubclassOf<UGameplayEffect> DotDamageEffect;
 };
