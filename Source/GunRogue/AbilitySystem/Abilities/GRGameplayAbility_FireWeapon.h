@@ -131,5 +131,8 @@ protected:
 	FGameplayTag DotOnHitTag;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Dot")
+	FGameplayTag DotStateTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Dot")
 	TSubclassOf<UGameplayEffect> DotDamageEffect;
 };

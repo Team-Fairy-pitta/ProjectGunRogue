@@ -21,7 +21,7 @@ class GUNROGUE_API AGRAIController : public AAIController
 
 public:
 	AGRAIController();
-	
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;

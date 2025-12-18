@@ -24,6 +24,12 @@ struct FDropGoodsInfo
 
 	UPROPERTY(EditAnywhere)
 	int32 Count = 1;
+
+	UPROPERTY(EditAnywhere)
+	int32 RandomRange = 2;
+
+	UPROPERTY(EditAnywhere)
+	float DropChance = 1.0f;
 };
 
 UCLASS()
@@ -57,10 +63,10 @@ protected:
 	TObjectPtr<UGRCombatAttributeSet> CombatAttributeSet;
 
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	virtual void OnDead();
 
 private:
 	void InitAbilitySystemComponent();
-	void OnDead();
 
 	void NotifySpawnToGameMode();
 	void NotifyDestroyToGameMode();
@@ -77,8 +83,11 @@ private:
 	TArray<FDropGoodsInfo> GetDropGoodsList();
 	void SpawnToTargetPlayer(APlayerState* InPlayerState, TSubclassOf<AGRGoodsActor> GoodsClass, int32 DropCount);
 
-	FVector GetRanomOffsetAround() const;
+	FVector GetRandomOffsetAround() const;
 	FVector GetGroundLocation(const FVector& InXY) const;
 
+	bool CanDropGoods(float Chance) const;
+	int32 GetDropCount(int32 BaseCount, int32 RandomRange) const;
+	
 #pragma endregion
 };

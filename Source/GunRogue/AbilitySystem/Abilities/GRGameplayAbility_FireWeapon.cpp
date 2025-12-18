@@ -21,6 +21,7 @@ UGRGameplayAbility_FireWeapon::UGRGameplayAbility_FireWeapon()
 	NoAmmoConsumeChance = 0.2f;
 
 	DotOnHitTag = FGameplayTag::RequestGameplayTag(FName("Item.Dot.OnHit"));
+	DotStateTag = FGameplayTag::RequestGameplayTag(FName("Item.Dot.DotState"));
 }
 
 void UGRGameplayAbility_FireWeapon::ActivateAbility(
@@ -430,6 +431,12 @@ void UGRGameplayAbility_FireWeapon::ApplyDamageEffect(
 	{
 		UE_LOG(LogTemp, Error, TEXT("[Fire] Invalid SpecHandle"));
 		return;
+	}
+
+	if (TargetASC && DotStateTag.IsValid() && TargetASC->HasMatchingGameplayTag(DotStateTag))
+	{
+		const float Bonus = CombatSet ? CombatSet->GetBonusDamageVsDoT() : 0.0f;
+		Damage *= (1.0f + Bonus);
 	}
 
 	SpecHandle.Data->SetSetByCallerMagnitude(

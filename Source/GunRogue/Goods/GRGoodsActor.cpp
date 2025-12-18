@@ -19,6 +19,7 @@ AGRGoodsActor::AGRGoodsActor()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(SceneRoot);
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	SphereComponent->InitSphereRadius(50.f);
@@ -125,8 +126,6 @@ void AGRGoodsActor::SetInvisible()
 	}
 
 	StaticMeshComponent->SetVisibility(false, true);
-
-	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AGRGoodsActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -178,6 +177,10 @@ void AGRGoodsActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	else if (GoodsDefinition->GoodsType == FName("Gem"))
 	{
 		HitPlayerState->AddMetaGoods(Amount);
+	}
+	else if (GoodsDefinition->GoodsType == FName("HealthKit"))
+	{
+		HitPlayerState->AddHealthByHealthKit(Amount);
 	}
 
 	Destroy();

@@ -5,6 +5,10 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemComponent.h"
+
+#include "Components/SphereComponent.h"
+#include "GameplayEffect.h"
+
 #include "GRTestDummy.generated.h"
 
 class UAbilitySystemComponent;
@@ -46,4 +50,27 @@ protected:
 
 	void OnDummyDeath(AActor* Instigator, AActor* Causer, const FGameplayEffectSpec* Spec,
 		float Magnitude, float OldValue, float NewValue);
+
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USphereComponent> SphereCollision;
+
+	// 오버랩 시 줄 데미지
+	UPROPERTY(EditAnywhere, Category = "Test|Damage")
+	float OverlapDamage = 10.0f;
+
+	// 데미지용 GameplayEffect (GainDamage 사용)
+	UPROPERTY(EditDefaultsOnly, Category = "Test|Damage")
+	TSubclassOf<UGameplayEffect> DamageEffect;
+
+	// 오버랩 이벤트
+	UFUNCTION()
+	void OnOverlapBegin(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
 };

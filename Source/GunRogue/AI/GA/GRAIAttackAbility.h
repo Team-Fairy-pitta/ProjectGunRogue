@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 UCLASS()
 class GUNROGUE_API UGRAIAttackAbility : public UGRGameplayAbility
 {
