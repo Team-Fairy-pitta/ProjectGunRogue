@@ -21,11 +21,6 @@ void UGRAugmentSlotWidget::NativeConstruct()
 		SlotButton->OnUnhovered.AddDynamic(this, &UGRAugmentSlotWidget::OnSlotUnhovered);
 		SlotButton->OnClicked.AddDynamic(this, &UGRAugmentSlotWidget::OnSlotClicked);
 	}
-
-	if (SlotBackground)
-	{
-		DefaultBrushColor = SlotBackground->GetBrushColor();
-	}
 }
 
 void UGRAugmentSlotWidget::SetAugmentSlot(UGRAugmentDefinition* Augment, int32 Level)
@@ -136,25 +131,11 @@ void UGRAugmentSlotWidget::SetSlotCategory()
 void UGRAugmentSlotWidget::OnSlotHovered()
 {
 	OnAugmentSlotHovered.Broadcast(this);
-
-	if (!SlotBackground)
-	{
-		return;
-	}
-
-	SlotBackground->SetBrushColor(HoveredBrushColor);
 }
 
 void UGRAugmentSlotWidget::OnSlotUnhovered()
 {
 	OnAugmentSlotUnhovered.Broadcast(this);
-
-	if (!SlotBackground)
-	{
-		return;
-	}
-
-	SlotBackground->SetBrushColor(DefaultBrushColor);
 }
 
 void UGRAugmentSlotWidget::OnSlotClicked()
