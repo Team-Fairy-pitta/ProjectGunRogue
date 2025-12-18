@@ -56,11 +56,12 @@ void UGRAIFireWithShotgunAbility::LineTraceSingle(const FVector& Direction)
 	ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 	
 	FHitResult Hit;
-	bool bHit = GetWorld()->LineTraceSingleByObjectType(
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
 		Hit,
 		Start,
 		End,
-		ObjectParams,
+		ECC_GameTraceChannel3, // Weapon Channel
 		Params
 	);
 	

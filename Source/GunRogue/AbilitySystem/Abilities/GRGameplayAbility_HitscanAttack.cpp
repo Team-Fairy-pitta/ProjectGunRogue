@@ -46,16 +46,11 @@ bool UGRGameplayAbility_HitscanAttack::TraceFromMuzzle(
 	QueryParams.AddIgnoredActor(GetAvatarActorFromActorInfo());
 	QueryParams.bTraceComplex = false;
 
-	FCollisionObjectQueryParams ObjectParams;
-	ObjectParams.AddObjectTypesToQuery(ECC_Pawn);
-	ObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-
-	return GetWorld()->LineTraceSingleByObjectType(
+	return GetWorld()->LineTraceSingleByChannel(
 		OutHit,
 		MuzzleLocation,
 		TraceEnd,
-		ObjectParams,
+		ECC_GameTraceChannel3, // Weapon Channel
 		QueryParams
 	);
 }
