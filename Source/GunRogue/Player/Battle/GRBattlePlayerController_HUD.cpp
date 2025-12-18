@@ -95,6 +95,11 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 		CombatSet->OnAmmoChanged.AddDynamic(this, &ThisClass::OnAmmoChanged);
 	}
 
+	InitializeRadarWidget();
+}
+
+void AGRBattlePlayerController::InitializeRadarWidget()
+{
 	APawn* OwnerPawn = GetPawn();
 	if (OwnerPawn)
 	{
@@ -102,6 +107,19 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 		if (RadarComponent)
 		{
 			RadarComponent->InitRadarWidget();
+		}
+	}
+}
+
+void AGRBattlePlayerController::ReinitializeRadarWidget()
+{
+	APawn* OwnerPawn = GetPawn();
+	if (OwnerPawn)
+	{
+		UGRRadarMapComponent* RadarComponent = OwnerPawn->FindComponentByClass<UGRRadarMapComponent>();
+		if (RadarComponent)
+		{
+			RadarComponent->ReinitRadarWidget();
 		}
 	}
 }

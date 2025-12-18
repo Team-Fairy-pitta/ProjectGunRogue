@@ -34,6 +34,8 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnRestartPlayer();
 
+	void ReinitializeRadarWidget();
+
 private:
 	void CreateWidgets();
 	void InitUISetup();
@@ -100,6 +102,8 @@ protected:
 private:
 	void InitializeBattleHUD();
 	void FinalizeBattleHUD();
+
+	void InitializeRadarWidget();
 
 	void UpdatePlayerHealth(float Value);
 	void UpdatePlayerMaxHealth(float Value);

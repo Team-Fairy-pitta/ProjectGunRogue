@@ -52,6 +52,16 @@ void UGRRadarMapComponent::InitRadarWidget()
 	);
 }
 
+void UGRRadarMapComponent::ReinitRadarWidget()
+{
+	RadarMapWidgetInstance = nullptr;
+	if (ScanTimer.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ScanTimer);
+	}
+	InitRadarWidget();
+}
+
 void UGRRadarMapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);

@@ -91,6 +91,7 @@ private:
 	void OnDead();
 	void OnRespawn();
 	void OnBodyExpired();
+	void ReinitializeRadarWidget();
 
 	UPROPERTY(Replicated)
 	int8 bIsDead;

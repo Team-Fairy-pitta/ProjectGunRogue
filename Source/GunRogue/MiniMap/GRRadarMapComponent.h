@@ -30,6 +30,7 @@ public:
 	UGRRadarMapComponent();
 
 	void InitRadarWidget();
+	void ReinitRadarWidget();
 
 	void ScanRadar();
 
