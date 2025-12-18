@@ -22,6 +22,11 @@ public:
 	void SetHealth(float Value);
 	void SetMaxHealth(float Value);
 
+	void SetShieldBar(float CurrentSD, float MaxSD);
+
+	void SetShield(float Value);
+	void SetMaxShield(float Value);
+
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
@@ -36,6 +41,12 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* BossHealthBar;	
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* BossShieldBarText;
+
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar* BossShieldBar;
+
 private:
 	UPROPERTY()
 	AGRLuwoAICharacter* BossCharacter;
@@ -43,6 +54,9 @@ private:
 private:
 	float Health = 0;
 	float MaxHealth = 0;
+
+	float Shield = 0;
+	float MaxShield = 0;
 
 	FText BossName;
 };

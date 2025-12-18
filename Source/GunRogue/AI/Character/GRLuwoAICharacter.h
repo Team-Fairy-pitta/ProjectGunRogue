@@ -12,6 +12,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterLanded);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossHealthChanged, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossShieldChanged, float);
 
 
 UCLASS()
@@ -25,6 +26,10 @@ public:
 	float GetBossHealth() const;
 
 	float GetBossMaxHealth() const;
+
+	float GetBossShield() const;
+
+	float GetBossMaxShield() const;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -37,5 +42,7 @@ public:
 	FOnCharacterLanded OnLandedEvent;
 
 	FOnBossHealthChanged OnBossHealthChanged;
+
+	FOnBossShieldChanged OnBossShieldChanged;
 	
 };

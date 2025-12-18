@@ -34,6 +34,11 @@ void AGRLuwoAICharacter::BeginPlay()
 		{
 			OnBossHealthChanged.Broadcast(Data.NewValue);
 		});
+
+		ASC->GetGameplayAttributeValueChangeDelegate(UGRHealthAttributeSet::GetShieldAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
+		{
+			OnBossShieldChanged.Broadcast(Data.NewValue);
+		});
 	}
 
 	if (HasAuthority())
@@ -77,4 +82,14 @@ float AGRLuwoAICharacter::GetBossHealth() const
 float AGRLuwoAICharacter::GetBossMaxHealth() const
 {
 	return HealthAttributeSet->GetMaxHealth();
+}
+
+float AGRLuwoAICharacter::GetBossShield() const
+{
+	return HealthAttributeSet->GetShield();
+}
+
+float AGRLuwoAICharacter::GetBossMaxShield() const
+{
+	return HealthAttributeSet->GetMaxShield();
 }
