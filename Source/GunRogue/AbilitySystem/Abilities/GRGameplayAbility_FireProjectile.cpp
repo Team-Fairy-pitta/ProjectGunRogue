@@ -71,6 +71,12 @@ void UGRGameplayAbility_FireProjectile::SpawnProjectile(
 		return;
 	}
 
+	if (!WeaponDef->DamageEffect)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[FireProjectile] No DamageEffect in WeaponDef"));
+		return;
+	}
+
 	// 데미지 및 폭발 정보 가져오기
 	bool bIsCritical = false;
 	float FinalDamage = CalculateFinalDamage(CombatSet, nullptr, bIsCritical);
@@ -102,9 +108,20 @@ void UGRGameplayAbility_FireProjectile::SpawnProjectile(
 	if (Projectile)
 	{
 		FVector Velocity = SpawnRotation.Vector() * WeaponDef->ProjectileSpeed;
-		Projectile->InitializeProjectile(GRCharacter, FinalDamage,
-			ExplosionRadius, ExplosionFalloff, Velocity, GravityScale,
-			LifeSpan);
+		// WeaponDefinition에서 이펙트/사운드 가져오기
+		Projectile->InitializeProjectile(
+			GRCharacter,
+			FinalDamage,
+			ExplosionRadius,
+			ExplosionFalloff,
+			Velocity,
+			WeaponDef->ProjectileGravityScale,
+			WeaponDef->ProjectileLifeSpan,
+			WeaponDef->DamageEffect,
+			WeaponDef->ImpactEffectNiagara,   // <- WeaponDef에서
+			WeaponDef->ImpactEffectCascade,   // <- WeaponDef에서
+			WeaponDef->ImpactSound            // <- WeaponDef에서
+		);
 
 		UE_LOG(LogTemp, Log, TEXT("[FireProjectile] Projectile spawned successfully"));
 	}

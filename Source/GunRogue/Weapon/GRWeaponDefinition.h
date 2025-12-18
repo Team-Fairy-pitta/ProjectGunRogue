@@ -17,6 +17,7 @@ class UGRAbilitySet;
 class UGRWeaponOptionPool;
 class USoundBase;
 class AGRProjectile;
+class UGameplayEffect;
 
 UCLASS()
 class GUNROGUE_API UGRWeaponDefinition : public UDataAsset
@@ -53,6 +54,10 @@ public:
 	TSubclassOf<AGRProjectile> ProjectileClass;
 
 	// 투사체 속도
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Projectile",
+		meta = (EditCondition = "FireType == EGRWeaponFireType::Projectile", EditConditionHides))
+	TSubclassOf<UGameplayEffect> DamageEffect;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Projectile",
 	meta = (EditCondition = "FireType == EGRWeaponFireType::Projectile", EditConditionHides))
 	float ProjectileSpeed = 3000.0f;

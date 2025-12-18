@@ -12,6 +12,7 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayEffect.h"
 #include "Net/UnrealNetwork.h"
 
 AGRProjectile::AGRProjectile()
@@ -52,6 +53,10 @@ void AGRProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGRProjectile, bHasExploded);
+	DOREPLIFETIME(AGRProjectile, DamageEffectClass);
+	DOREPLIFETIME(AGRProjectile, ExplosionEffectNiagara);
+	DOREPLIFETIME(AGRProjectile, ExplosionEffectCascade);
+	DOREPLIFETIME(AGRProjectile, ExplosionSound);
 }
 
 void AGRProjectile::BeginPlay()
@@ -103,12 +108,20 @@ void AGRProjectile::InitializeProjectile(
 	float InExplosionFalloff,
 	const FVector& InVelocity,
 	float InGravityScale,
-	float InLifeSpan)
+	float InLifeSpan,
+	TSubclassOf<UGameplayEffect> InDamageEffect,
+	UNiagaraSystem* InExplosionEffectNiagara,
+	UParticleSystem* InExplosionEffectCascade,
+	USoundBase* InExplosionSound)
 {
 	OwnerCharacter = InOwnerCharacter;
 	Damage = InDamage;
 	ExplosionRadius = InExplosionRadius;
 	ExplosionFalloff = InExplosionFalloff;
+	DamageEffectClass = InDamageEffect;
+	ExplosionEffectNiagara = InExplosionEffectNiagara;
+	ExplosionEffectCascade = InExplosionEffectCascade;
+	ExplosionSound = InExplosionSound;
 
 	if (ProjectileMovement)
 	{
@@ -132,6 +145,11 @@ void AGRProjectile::InitializeProjectile(
 void AGRProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+
 	if (bHasExploded)
 	{
 		return;
@@ -140,44 +158,36 @@ void AGRProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* O
 	// 충돌 위치
 	const FVector HitLocation = Hit.ImpactPoint;
 
-	if (HasAuthority())
+	bHasExploded = true;
+
+	float ExplosionScale = 0.5f;
+	if (ExplosionRadius > 0.0f)
 	{
-		bHasExploded = true;
-
-		UE_LOG(LogTemp, Log, TEXT("[Projectile] Hit at %s"), *HitLocation.ToString());
-
-		// 데미지 처리 (서버만)
-		if (ExplosionRadius > 0.0f)
-		{
-			const float ExplosionScale = FMath::Clamp(ExplosionRadius / 200.0f, 0.5f, 3.0f);
-			PlayExplosionFX(HitLocation, ExplosionScale);
-
-			UE_LOG(LogTemp, Log, TEXT("[Projectile] Explosion damage (Radius: %.1f)"), ExplosionRadius);
-			ApplyExplosionDamage(HitLocation);
-		}
-		else if (OtherActor && OtherActor != OwnerCharacter)
-		{
-			UE_LOG(LogTemp, Log, TEXT("[Projectile] Direct hit damage"));
-			if (OwnerCharacter)
-			{
-				OwnerCharacter->PlayImpactFXLocal(HitLocation);
-				if(HasAuthority())
-				{
-					OwnerCharacter->Multicast_PlayImpactFX(HitLocation);
-				}
-			}
-			ApplyDirectDamage(OtherActor, Hit);
-		}
-
-		// 약간의 딜레이 후 파괴 (이펙트 재생 시간 확보)
-		SetLifeSpan(0.1f);
+		ExplosionScale = FMath::Clamp(ExplosionRadius / 200.0f, 0.5f, 3.0f);
+		ApplyExplosionDamage(HitLocation);
 	}
+	else if (OtherActor && OtherActor != OwnerCharacter)
+	{
+		ApplyDirectDamage(OtherActor, Hit);
+	}
+
+	// Multicast로 모든 클라이언트에서 이펙트 재생
+	Multicast_PlayExplosionFX(HitLocation, ExplosionScale);
+
+	// 약간의 딜레이 후 파괴
+	SetLifeSpan(0.1f);
 }
 
 void AGRProjectile::ApplyDirectDamage(AActor* HitActor, const FHitResult& Hit)
 {
 	if (!HasAuthority() || !HitActor || !OwnerCharacter)
 	{
+		return;
+	}
+
+	if (!DamageEffectClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] No DamageEffectClass set"));
 		return;
 	}
 
@@ -206,30 +216,62 @@ void AGRProjectile::ApplyDirectDamage(AActor* HitActor, const FHitResult& Hit)
 		return;
 	}
 
-	// DamageEffect 가져오기 (무기 정의에서)
-	AGRPlayerState* PS = OwnerCharacter->GetPlayerState<AGRPlayerState>();
-	if (!PS)
+	// GameplayEffect 생성 및 적용
+	FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
+	EffectContext.AddSourceObject(OwnerCharacter);
+	EffectContext.AddHitResult(Hit);
+
+	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(
+		DamageEffectClass, 1.0f, EffectContext);
+
+	if (!SpecHandle.IsValid())
 	{
+		UE_LOG(LogTemp, Error, TEXT("[Projectile] Invalid SpecHandle"));
 		return;
 	}
 
-	UGRWeaponDefinition* WeaponDef = PS->GetCurrentWeaponDefinition();
-	if (!WeaponDef)
-	{
-		return;
-	}
+	// SetByCaller로 데미지 전달
+	SpecHandle.Data->SetSetByCallerMagnitude(
+		FGameplayTag::RequestGameplayTag(FName("Attribute.Data.Damage")),
+		Damage);
 
-	// Note: DamageEffect는 FireWeapon 어빌리티에 정의되어 있으므로,
-	// 여기서는 간단히 SetByCallerMagnitude로 데미지를 전달
-	// WeaponDefinition에 DamageEffectClass를 추가하는 것도 고려해볼만 함.
+	// 데미지 적용
+	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 
 	UE_LOG(LogTemp, Log, TEXT("[Projectile] Direct damage applied: %.1f to %s"),
 		Damage, *HitActor->GetName());
+
+#if WITH_EDITOR
+	if (GEngine)
+	{
+		const FString Msg = FString::Printf(TEXT("Projectile Hit: %.1f damage"), Damage);
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, Msg);
+	}
+#endif
 }
 
 void AGRProjectile::ApplyExplosionDamage(const FVector& ExplosionLocation)
 {
 	if (!HasAuthority() || !OwnerCharacter)
+	{
+		return;
+	}
+
+	if (!DamageEffectClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] No DamageEffectClass for explosion"));
+		return;
+	}
+
+	// Source ASC 가져오기
+	IAbilitySystemInterface* SourceASI = Cast<IAbilitySystemInterface>(OwnerCharacter);
+	if (!SourceASI)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* SourceASC = SourceASI->GetAbilitySystemComponent();
+	if (!SourceASC)
 	{
 		return;
 	}
@@ -296,9 +338,28 @@ void AGRProjectile::ApplyExplosionDamage(const FVector& ExplosionLocation)
 		UE_LOG(LogTemp, Log, TEXT("[Explosion] Hit %d: %s - Distance: %.1f, Mult: %.2f, Damage: %.1f"),
 			HitCount, *HitActor->GetName(), Distance, DamageMult, FinalDamage);
 
-		// TODO: GAS DamageEffect 적용
-		// 여기서는 실제 데미지 Effect를 적용해야 합니다
-		// 예: ApplyDamageEffect(HitActor, HitResult, FinalDamage);
+		// GameplayEffect 생성 및 적용
+		FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
+		EffectContext.AddSourceObject(OwnerCharacter);
+		EffectContext.AddHitResult(HitResult);
+
+		FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(
+			DamageEffectClass, 1.0f, EffectContext);
+
+		if (SpecHandle.IsValid())
+		{
+			// SetByCaller로 감쇠된 데미지 전달
+			SpecHandle.Data->SetSetByCallerMagnitude(
+				FGameplayTag::RequestGameplayTag(FName("Attribute.Data.Damage")),
+				FinalDamage);
+
+			SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+
+			HitCount++;
+
+			UE_LOG(LogTemp, Log, TEXT("[Explosion] Hit %d: %s - Distance: %.1f, Mult: %.2f, Damage: %.1f"),
+				HitCount, *HitActor->GetName(), Distance, DamageMult, FinalDamage);
+		}
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[Projectile] Explosion hit %d targets"), HitCount);
@@ -307,21 +368,60 @@ void AGRProjectile::ApplyExplosionDamage(const FVector& ExplosionLocation)
 	// 디버그 시각화
 	DrawDebugSphere(GetWorld(), ExplosionLocation, ExplosionRadius, 32,
 		FColor::Red, false, 3.0f, 0, 2.0f);
+
+	if (GEngine)
+	{
+		const FString Msg = FString::Printf(TEXT("Explosion: %d targets hit"), HitCount);
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Orange, Msg);
+	}
 #endif
+}
+
+void AGRProjectile::Multicast_PlayExplosionFX_Implementation(const FVector& HitLocation, float ExplosionScale)
+{
+	PlayExplosionFX(HitLocation, ExplosionScale);
 }
 
 void AGRProjectile::PlayExplosionFX(const FVector& HitLocation, float ExplosionScale)
 {
-	if (!OwnerCharacter)
+	// 나이아가라 우선
+	if (ExplosionEffectNiagara)
 	{
-		return;
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			ExplosionEffectNiagara,
+			HitLocation,
+			FRotator::ZeroRotator,
+			FVector(ExplosionScale),
+			true,
+			true,
+			ENCPoolMethod::AutoRelease
+		);
+	}
+	// 캐스케이드 대체
+	else if (ExplosionEffectCascade)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			ExplosionEffectCascade,
+			HitLocation,
+			FRotator::ZeroRotator,
+			FVector(ExplosionScale),
+			true,
+			EPSCPoolMethod::AutoRelease
+		);
 	}
 
-	OwnerCharacter->PlayExplosionFXLocal(HitLocation, ExplosionScale);
-
-	// 서버만 다른 클라이언트들에게 브로드캐스트
-	if (OwnerCharacter->HasAuthority())
+	// 사운드 재생
+	if (ExplosionSound)
 	{
-		OwnerCharacter->Multicast_PlayExplosionFX(HitLocation, ExplosionScale);
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			ExplosionSound,
+			HitLocation
+		);
 	}
+
+	UE_LOG(LogTemp, Log, TEXT("[Projectile] Explosion FX played at %s"), *HitLocation.ToString());
 }
+

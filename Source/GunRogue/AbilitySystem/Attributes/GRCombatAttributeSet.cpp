@@ -36,6 +36,11 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	MaxAmmo = 0.0f; /* 무기를 들고 있지 않을 때, 탄창의 크기를 0으로 한다. */
 
 	ReloadRate = 1.0f;
+
+	SkillDamage_Base = 0.0f;
+	SkillDamage_Additive = 0.0f;
+	SkillDamage_Multiplicative = 0.0f;
+	SkillCooldownReduction = 0.0f;
 }
 
 void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -72,6 +77,11 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_OnChanged);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ReloadRate, COND_None, REPNOTIFY_Always);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SkillDamage_Base, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SkillDamage_Additive, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SkillDamage_Multiplicative, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SkillCooldownReduction, COND_None, REPNOTIFY_Always);
 }
 
 void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -106,6 +116,10 @@ void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	else if (Attribute == GetExplosionFalloffAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
+	}
+	else if (Attribute == GetSkillCooldownReductionAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.0f, 0.9f);
 	}
 }
 
@@ -365,6 +379,30 @@ void UGRCombatAttributeSet::ApplySpreadRecovery(UAbilitySystemComponent* OwningA
 		CurrentSpreadValue, NewSpread, RecoveryAmount);
 }
 
+// 스킬
+float UGRCombatAttributeSet::CalculateSkillDamage() const
+{
+	// [스킬 공격력] = (기본 공격력 + 증가) × (1 + 증폭)
+	const float Base = GetSkillDamage_Base();
+	const float Additive = GetSkillDamage_Additive();
+	const float Multiplicative = GetSkillDamage_Multiplicative();
+	const float SkillDamage = (Base + Additive) * (1.0f + Multiplicative);
+	return SkillDamage;
+}
+
+float UGRCombatAttributeSet::CalculateFinalSkillDamage(float TargetDamageReduction) const
+{
+	// 공식: [스킬 공격력] × [최종 피해 배율] × [1 - 피해 감소]
+	const float SkillDamage = CalculateSkillDamage();
+	const float FinalMultiplier = CalculateFinalDamageMultiplier();
+	const float FinalDamage = SkillDamage * FinalMultiplier * (1.0f - TargetDamageReduction);
+
+	UE_LOG(LogTemp, Log, TEXT("[Skill Damage Calc] Skill: %.1f, Final: %.2f, Reduction: %.2f => Result: %.1f"),
+		SkillDamage, FinalMultiplier, TargetDamageReduction, FinalDamage);
+
+	return FMath::Max(FinalDamage, 0.0f);
+}
+
 void UGRCombatAttributeSet::UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAmmo)
 {
 	SetMaxAmmo(static_cast<float>(InMaxAmmo));
@@ -508,4 +546,24 @@ void UGRCombatAttributeSet::OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAm
 void UGRCombatAttributeSet::OnRep_ReloadRate(const FGameplayAttributeData& OldReloadRate)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, ReloadRate, OldReloadRate);
+}
+
+void UGRCombatAttributeSet::OnRep_SkillDamage_Base(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, SkillDamage_Base, OldValue);
+}
+
+void UGRCombatAttributeSet::OnRep_SkillDamage_Additive(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, SkillDamage_Additive, OldValue);
+}
+
+void UGRCombatAttributeSet::OnRep_SkillDamage_Multiplicative(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, SkillDamage_Multiplicative, OldValue);
+}
+
+void UGRCombatAttributeSet::OnRep_SkillCooldownReduction(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, SkillCooldownReduction, OldValue);
 }

@@ -167,10 +167,6 @@ public:
 	FGameplayAttributeData ReloadRate;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ReloadRate)
 
-
-	// 무기 데미지 계산 (무기 공격력만)
-	float CalculateWeaponDamage() const;
-
 	// 약점 배율 계산
 	float CalculateCriticalMultiplier(bool bIsCritical) const;
 
@@ -179,6 +175,36 @@ public:
 
 	// 최종 데미지 계산 (모든 요소 통합)
 	float CalculateFinalWeaponDamage(bool bIsCritical, float TargetDamageReduction) const;
+
+	// 무기 데미지 계산 (무기 공격력만)
+	float CalculateWeaponDamage() const;
+
+	// ======== 스킬 데미지 ========
+	// 스킬 기본 공격력 (아이템으로 증가 가능)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|SkillDamage", ReplicatedUsing = OnRep_SkillDamage_Base)
+	FGameplayAttributeData SkillDamage_Base;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SkillDamage_Base)
+
+	// 스킬 공격력 증가 (Flat Addition)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|SkillDamage", ReplicatedUsing = OnRep_SkillDamage_Additive)
+	FGameplayAttributeData SkillDamage_Additive;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SkillDamage_Additive)
+
+	// 스킬 공격력 증폭 (Multiplier)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|SkillDamage", ReplicatedUsing = OnRep_SkillDamage_Multiplicative)
+	FGameplayAttributeData SkillDamage_Multiplicative;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SkillDamage_Multiplicative)
+
+	// 스킬 쿨타임 감소 (0.0 ~ 0.9, 최대 90% 감소)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Skill", ReplicatedUsing = OnRep_SkillCooldownReduction)
+	FGameplayAttributeData SkillCooldownReduction;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SkillCooldownReduction)
+
+	// 스킬 데미지 계산
+	float CalculateSkillDamage() const;
+
+	// 최종 스킬 데미지 계산 (스킬 데미지 + 최종 피해 배율)
+	float CalculateFinalSkillDamage(float TargetDamageReduction) const;
 
 protected:
 	UFUNCTION()
@@ -249,6 +275,18 @@ protected:
 	
 	UFUNCTION()
 	virtual void OnRep_ReloadRate(const FGameplayAttributeData& OldReloadRate);
+
+	UFUNCTION()
+	virtual void OnRep_SkillDamage_Base(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_SkillDamage_Additive(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_SkillDamage_Multiplicative(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_SkillCooldownReduction(const FGameplayAttributeData& OldValue);
 
 private:
 	// 탄퍼짐 자동 회복을 위한 타이머

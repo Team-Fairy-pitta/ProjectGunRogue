@@ -10,6 +10,7 @@ class UStaticMeshComponent;
 class UNiagaraComponent;
 class UNiagaraSystem;
 class AGRCharacter;
+class UGameplayEffect;
 
 /**
  * 투사체 베이스 클래스
@@ -36,7 +37,11 @@ public:
 		float InExplosionFalloff,
 		const FVector& InVelocity,
 		float InGravityScale,
-		float InLifeSpan
+		float InLifeSpan,
+		TSubclassOf<UGameplayEffect> InDamageEffect,
+		UNiagaraSystem* InExplosionEffectNiagara = nullptr,
+		UParticleSystem* InExplosionEffectCascade = nullptr,
+		USoundBase* InExplosionSound = nullptr
 	);
 
 protected:
@@ -73,7 +78,11 @@ private:
 
 	void ApplyExplosionDamage(const FVector& ExplosionLocation);
 	void ApplyDirectDamage(AActor* HitActor, const FHitResult& Hit);
+
 	void PlayExplosionFX(const FVector& Location, float ExplosionScale);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayExplosionFX(const FVector& HitLocation, float ExplosionScale);
 
 	// 메시 크기 기반 충돌 크기 계산
 	void SetupCollisionFromMesh();
@@ -87,4 +96,16 @@ private:
 
 	UPROPERTY(Replicated)
 	bool bHasExploded = false;
+
+	UPROPERTY(Replicated)
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+	UPROPERTY(Replicated)
+	TObjectPtr<UNiagaraSystem> ExplosionEffectNiagara;
+
+	UPROPERTY(Replicated)
+	TObjectPtr<UParticleSystem> ExplosionEffectCascade;
+
+	UPROPERTY(Replicated)
+	TObjectPtr<USoundBase> ExplosionSound;
 };
