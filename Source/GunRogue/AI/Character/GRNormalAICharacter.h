@@ -33,10 +33,14 @@ public:
 	EGRAIWeaponCategory GetWeaponType() const {return WeaponCategory;}
 
 	AActor* GetWeaponActor() const {return WeaponActor;}
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void OnDead() override;
+
 private:
 	void SpawnAndAttachWeapon();
 	void SetWeaponData();

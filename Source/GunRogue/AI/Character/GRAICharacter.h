@@ -57,10 +57,10 @@ protected:
 	TObjectPtr<UGRCombatAttributeSet> CombatAttributeSet;
 
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	virtual void OnDead();
 
 private:
 	void InitAbilitySystemComponent();
-	void OnDead();
 
 	void NotifySpawnToGameMode();
 	void NotifyDestroyToGameMode();

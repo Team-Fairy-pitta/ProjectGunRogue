@@ -221,6 +221,16 @@ void AGRNormalAICharacter::Server_UpdateAimOffset(float DeltaTime)
 	}
 }
 
+void AGRNormalAICharacter::OnDead()
+{
+	if (IsValid(WeaponActor))
+	{
+		WeaponActor->Destroy();
+	}
+
+	Super::OnDead();
+}
+
 void AGRNormalAICharacter::OnRep_AimTarget()
 {
 }
