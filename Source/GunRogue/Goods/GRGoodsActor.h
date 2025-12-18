@@ -28,6 +28,9 @@ public:
 	
 	int32 GetGoodsAmount() const { return Amount; }
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
+	float GoodsLifeSpan = 60.0f; // 드롭 유효 시간
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GunRogue")
 	TObjectPtr<UGRGoodsDefinition> GoodsDefinition;
