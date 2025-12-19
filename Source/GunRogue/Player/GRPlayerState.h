@@ -51,6 +51,9 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 	virtual void CopyProperties(class APlayerState* PlayerState) override;
 
+	bool IsDead() const;
+	void RestoreHealthAndShield();
+
 	UFUNCTION(BlueprintCallable, Category = "GRPlayerState")
 	AGRPlayerController* GetGRPlayerController() const;
 
@@ -81,7 +84,22 @@ private:
 	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
 	void PlaceActorOnGround(AActor* SpawnedActor);
 
+	void BindOnHealthChanged();
+	void AddOnHealthChanged();
+	void RemoveOnHealthChanged();
+	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	void OnDead();
+	void OnRespawn();
+	void OnBodyExpired();
+
+	UPROPERTY(Replicated)
+	int8 bIsDead;
+
+	FTimerHandle DeadTimer;
+	FTimerHandle SpectateTimer;
+
 	bool bIsAbilitySystemComponentInit = false;
+	FDelegateHandle OnHealthChangedHandle;
 
 #pragma region Item
 public:
@@ -159,6 +177,9 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPC_PlayWeaponEquipAnimMontage();
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ResetWeaponHandles();
+	
 	void UpdateWeaponAttachToCharacter();
 
 	UFUNCTION(BlueprintCallable, Category = "GunRogue|Weapon")
@@ -276,6 +297,8 @@ protected:
 	virtual void SavePerkToSave();
 	void InitPlayerID();
 
+	void ApplyAllPerksToASC();
+
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SetCurrentMetaGoods(int32 InMetaGoods);
 
@@ -301,6 +324,8 @@ public:
 	
 	void UpdateMetaGoodsUI();
 	void UpdateGoldUI();
+
+	void AddHealthByHealthKit(int32 Amount);
 	
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentMetaGoods)
 	int32 CurrentMetaGoods; // 가지고 있던 재화 + 게임에서 얻은 재화
@@ -314,6 +339,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_Gold();
+
+	UPROPERTY(EditAnywhere, Category="Goods")
+	TSubclassOf<UGameplayEffect> GoodsGE;
 	
 #pragma endregion
 };

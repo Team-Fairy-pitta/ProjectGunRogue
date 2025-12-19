@@ -26,13 +26,19 @@ void AGRPlayerState::AddGold(int32 Amount)
 
 void AGRPlayerState::OnRep_CurrentMetaGoods()
 {
-	UpdateMetaGoodsUI();
-	SavePerkToSave();
+	if (GetPawn() && GetPawn()->IsLocallyControlled())
+	{
+		UpdateMetaGoodsUI();
+		SavePerkToSave();
+	}
 }
 
 void AGRPlayerState::OnRep_Gold()
 {
-	UpdateGoldUI();
+	if (GetPawn() && GetPawn()->IsLocallyControlled())
+	{
+		UpdateGoldUI();
+	}
 }
 
 void AGRPlayerState::UpdateMetaGoodsUI()
@@ -57,6 +63,31 @@ void AGRPlayerState::UpdateGoldUI()
 	}
 
 	BattlePlayerController->SyncGoldUI();
+}
+
+void AGRPlayerState::AddHealthByHealthKit(int32 Amount)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC || !GoodsGE)
+	{
+		return;
+	}
+
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GoodsGE, 1.f, ASC->MakeEffectContext());
+	if (!SpecHandle.IsValid())
+	{
+		return;
+	}
+
+	FGameplayTag HealthTag = FGameplayTag::RequestGameplayTag(TEXT("Attribute.Data.GainHealing"));
+	
+	SpecHandle.Data->SetSetByCallerMagnitude(HealthTag, static_cast<float>(Amount));
+	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
 #pragma endregion
 

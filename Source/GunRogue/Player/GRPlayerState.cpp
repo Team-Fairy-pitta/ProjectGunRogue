@@ -9,6 +9,7 @@
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
+#include "GameModes/Level1/GRGameMode_Level1.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -45,6 +46,8 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(ThisClass, bIsDead);
+
 	DOREPLIFETIME(ThisClass, ItemHandles);
 	DOREPLIFETIME(ThisClass, WeaponSlots);
 	DOREPLIFETIME(ThisClass, CurrentWeaponSlot);
@@ -58,6 +61,11 @@ void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 void AGRPlayerState::CopyProperties(APlayerState* PlayerState)
 {
 	Super::CopyProperties(PlayerState);
+}
+
+bool AGRPlayerState::IsDead() const
+{
+	return bIsDead == 1;
 }
 
 AGRPlayerController* AGRPlayerState::GetGRPlayerController() const
@@ -85,25 +93,17 @@ void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* O
 	if (IsValid(NewPawn))
 	{
 		InitAbilitySystemComponent();
+		ApplyAllPerksToASC();
+		BindOnHealthChanged();
+
+		OnRespawn();
 	}
 }
 
 void AGRPlayerState::InitAbilitySystemComponent()
 {
-	if (bIsAbilitySystemComponentInit)
-	{
-		UE_LOG(LogTemp, Error, TEXT("AbilitySystemComponent Already Init..."));
-		return;
-	}
-
 	AGRCharacter* GRCharacter = GetGRCharacter();
 	if (!IsValid(GRCharacter))
-	{
-		return;
-	}
-
-	const UGRPawnData* PawnData = GRCharacter->GetPawnData();
-	if (!PawnData)
 	{
 		return;
 	}
@@ -113,16 +113,42 @@ void AGRPlayerState::InitAbilitySystemComponent()
 		return;
 	}
 
-	AbilitySystemComponent->InitAbilityActorInfo(this /*Owner*/, GRCharacter /*Avatar*/);
-
-	for (UGRAbilitySet* AbilitySet : PawnData->AbilitySets)
+	if (bIsAbilitySystemComponentInit)
 	{
-		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
+		UE_LOG(LogTemp, Warning, TEXT("AbilitySystemComponent Already Init..."));
+		
+		AbilitySystemComponent->SetAvatarActor(GRCharacter);
 	}
-
-	if (OnAbilitySystemComponentInit.IsBound())
+	else
 	{
-		OnAbilitySystemComponentInit.Broadcast();
+		const UGRPawnData* PawnData = GRCharacter->GetPawnData();
+		if (!PawnData)
+		{
+			return;
+		}
+
+		AbilitySystemComponent->InitAbilityActorInfo(this /*Owner*/, GRCharacter /*Avatar*/);
+
+		for (UGRAbilitySet* AbilitySet : PawnData->AbilitySets)
+		{
+			AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
+		}
+
+		if (OnAbilitySystemComponentInit.IsBound())
+		{
+			OnAbilitySystemComponentInit.Broadcast();
+		}
+
+		bIsAbilitySystemComponentInit = true;
+	}
+}
+
+void AGRPlayerState::ApplyAllPerksToASC()
+{
+	AGRCharacter* GRCharacter = GetGRCharacter();
+	if (!IsValid(GRCharacter))
+	{
+		return;
 	}
 
 	if (GRCharacter->IsLocallyControlled())
@@ -135,8 +161,150 @@ void AGRPlayerState::InitAbilitySystemComponent()
 			ServerRPC_SetCurrentMetaGoods(CurrentMetaGoods);
 		}
 	}
+}
 
-	bIsAbilitySystemComponentInit = true;
+void AGRPlayerState::BindOnHealthChanged()
+{
+	if (HasAuthority())
+	{
+		RemoveOnHealthChanged();
+		AddOnHealthChanged();
+	}
+}
+
+void AGRPlayerState::AddOnHealthChanged()
+{
+	OnHealthChangedHandle = 
+		AbilitySystemComponent
+		->GetGameplayAttributeValueChangeDelegate(UGRHealthAttributeSet::GetHealthAttribute())
+		.AddUObject(this, &ThisClass::OnHealthChanged);
+}
+
+void AGRPlayerState::RemoveOnHealthChanged()
+{
+	if (OnHealthChangedHandle.IsValid())
+	{
+		AbilitySystemComponent
+			->GetGameplayAttributeValueChangeDelegate(UGRHealthAttributeSet::GetHealthAttribute())
+			.Remove(OnHealthChangedHandle);
+
+		OnHealthChangedHandle.Reset();
+	}
+}
+
+void AGRPlayerState::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	float Health = Data.NewValue;
+	if (Health <= 0)
+	{
+		OnDead();
+	}
+}
+
+void AGRPlayerState::OnDead()
+{
+	if (HasAuthority() && !IsDead())
+	{
+		bIsDead = 1; // uint8 true
+
+		AGRCharacter* GRCharacter = GetGRCharacter();
+		if (!IsValid(GRCharacter))
+		{
+			return;
+		}
+
+		GRCharacter->MulticastRPC_OnDead();
+
+		static const float BodyLifeSpan = 1.5f;
+		GetWorldTimerManager().SetTimer(DeadTimer, this, &ThisClass::OnBodyExpired, BodyLifeSpan, false);
+	}
+}
+
+void AGRPlayerState::OnRespawn()
+{
+	bIsDead = 0; // uint8 false
+
+	if (SpectateTimer.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(SpectateTimer);
+		SpectateTimer.Invalidate();
+	}
+
+	// HUD 정보 복구
+	AGRCharacter* GRCharacter = GetGRCharacter();
+	if (!IsValid(GRCharacter))
+	{
+		return;
+	}
+
+	if (GRCharacter->IsLocallyControlled())
+	{
+		UpdateMetaGoodsUI();
+		UpdateGoldUI();
+		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::ServerRPC_ResetWeaponHandles);
+	}
+}
+
+void AGRPlayerState::RestoreHealthAndShield()
+{
+	// 체력과 생명력 복구
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	float MaxHealth = AbilitySystemComponent->GetNumericAttribute(UGRHealthAttributeSet::GetMaxHealthAttribute());
+	float MaxSheild = AbilitySystemComponent->GetNumericAttribute(UGRHealthAttributeSet::GetMaxShieldAttribute());
+
+	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetHealthAttribute(), MaxHealth);
+	AbilitySystemComponent->SetNumericAttributeBase(UGRHealthAttributeSet::GetShieldAttribute(), MaxSheild);
+}
+
+void AGRPlayerState::OnBodyExpired()
+{
+	AGRCharacter* GRCharacter = GetGRCharacter();
+	if (!IsValid(GRCharacter))
+	{
+		return;
+	}
+
+	GRCharacter->Destroy();
+
+	AGRPlayerController* GRPlayerController = GetGRPlayerController();
+	if (!IsValid(GRPlayerController))
+	{
+		return;
+	}
+
+	AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(GRPlayerController);
+	if (!IsValid(BattlePlayerController))
+	{
+		return;
+	}
+
+	bool bIsGameOver = false;
+	if (GetWorld())
+	{
+		AGRGameMode_Level1* GameMode = GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+		if (IsValid(GameMode))
+		{
+			bIsGameOver = GameMode->CheckGameOver();
+		}
+	}
+
+	if (!bIsGameOver)
+	{
+		BattlePlayerController->ClientRPC_StartSpectating();
+
+		// [NOTE] GRCharacter->Destroy(); 이후에 ServerRPC_StartSpectating()가 호출 되어야 함
+		static const float WaitForActorDestroy = 0.1f;
+		GetWorldTimerManager().SetTimer(
+			SpectateTimer,
+			BattlePlayerController,
+			&AGRBattlePlayerController::ServerRPC_StartSpectating,
+			WaitForActorDestroy,
+			false);
+	}
 }
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)

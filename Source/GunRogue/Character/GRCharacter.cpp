@@ -7,6 +7,7 @@
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -64,8 +65,11 @@ void AGRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	ApplySmoothCameraControl_Rotation(DeltaTime);
-	ApplySmoothCameraControl_CameraArm(DeltaTime);
+	if (IsLocallyControlled())
+	{
+		ApplySmoothCameraControl_Rotation(DeltaTime);
+		ApplySmoothCameraControl_CameraArm(DeltaTime);
+	}
 }
 
 AGRPlayerController* AGRCharacter::GetGRPlayerController() const
@@ -97,45 +101,19 @@ UAbilitySystemComponent* AGRCharacter::GetAbilitySystemComponent() const
 	}
 }
 
-void AGRCharacter::CallSpectateNextPlayer()
+void AGRCharacter::MulticastRPC_OnDead_Implementation()
 {
-	SpectateNextPlayer();
-}
-
-void AGRCharacter::CallSpectatePreviousPlayer()
-{
-	SpectatePreviousPlayer();
-}
-
-void AGRCharacter::CallResetSpectatePlayer()
-{
-	ResetSpectatePlayer();
-}
-
-bool AGRCharacter::IsTargetDead(ACharacter* TargetCharacter) const
-{
-	if (!IsValid(TargetCharacter))
+	if (HasAuthority())
 	{
-		return false;
-	}
-	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(TargetCharacter);
-	const UAbilitySystemComponent* TargetASC = nullptr;
-
-	if (ASCInterface)
-	{
-		TargetASC = ASCInterface->GetAbilitySystemComponent();
+		OnDead_ProcessAuth();
 	}
 
-	if (TargetASC)
+	if (IsLocallyControlled())
 	{
-		if (const UGRHealthAttributeSet* HealthSet = Cast<UGRHealthAttributeSet>(TargetASC->GetAttributeSet(UGRHealthAttributeSet::StaticClass())))
-		{
-			return HealthSet->GetHealth() <= 0.0f;
-		}
+		OnDead_ProcessLocal();
 	}
 
-	
-	return false;
+	OnDead_ProcessRagdoll();
 }
 
 USkeletalMeshComponent* AGRCharacter::GetEquippedWeaponMesh() const
@@ -224,4 +202,36 @@ UStaticMeshComponent* AGRCharacter::GetEquippedWeaponStaticMesh() const
 	}
 
 	return nullptr;
+}
+
+void AGRCharacter::OnDead_ProcessAuth()
+{
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	if (IsValid(MovementComponent))
+	{
+		MovementComponent->DisableMovement();
+	}
+}
+
+void AGRCharacter::OnDead_ProcessLocal()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (IsValid(PlayerController))
+	{
+		DisableInput(PlayerController);
+	}
+}
+
+void AGRCharacter::OnDead_ProcessRagdoll()
+{
+	USkeletalMeshComponent* MeshComponent = GetMesh();
+	if (IsValid(MeshComponent))
+	{
+		MeshComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
+		MeshComponent->SetSimulatePhysics(true);
+		MeshComponent->SetAllBodiesPhysicsBlendWeight(1.0f);
+		MeshComponent->SetCollisionProfileName(FName(TEXT("Ragdoll")));
+		MeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		MeshComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	}
 }

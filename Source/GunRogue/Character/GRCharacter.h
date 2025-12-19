@@ -41,6 +41,9 @@ public:
 	const UGRPawnData* GetPawnData() const { return PawnData; }
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_OnDead();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn Data")
 	TObjectPtr<UGRPawnData> PawnData;
 
@@ -65,34 +68,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UGRRadarMapComponent> RadarMapComponent;
 	
-	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
-	void SpectateNextPlayer();
-	
-	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
-	void SpectatePreviousPlayer();
-	
-	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
-	void ResetSpectatePlayer();
-	
-	UFUNCTION(BlueprintCallable, Category = "Spectate")
-	void CallSpectateNextPlayer();
-	
-	UFUNCTION(BlueprintCallable, Category = "Spectate")
-	void CallSpectatePreviousPlayer();
-	
-	UFUNCTION(BlueprintCallable, Category = "Spectate")
-	void CallResetSpectatePlayer();
-
-	UFUNCTION(BlueprintCallable, Category = "Spectate")
-	bool IsTargetDead(ACharacter* TargetCharacter) const;
-
 	// 장착된 무기 메시 헬퍼
 	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
 	USkeletalMeshComponent* GetEquippedWeaponMesh() const;
 
 	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
 	UStaticMeshComponent* GetEquippedWeaponStaticMesh() const;
+
+protected:
+	void OnDead_ProcessAuth();
+	void OnDead_ProcessLocal();
+	void OnDead_ProcessRagdoll();
+
 #pragma region WeaponFX
+public:
 	// 무기 이펙트/사운드 관련 RPC
 	UFUNCTION(Server, UnReliable)
 	void ServerRPC_PlayFireFX(const FVector& MuzzleLocation, const FVector& TracerEndPoint);
@@ -122,7 +111,8 @@ public:
 	void PlayFireFXLocal(const FVector& MuzzleLocation, const FVector& TraceEnd);
 	void PlayEmptyFireFXLocal(const FVector& MuzzleLocation);
 	void PlayImpactFXLocal(const FVector& ImpactLocation);
-#pragma endregion WeaponFX
+#pragma endregion
+
 #pragma region SmoothCameraControl
 public:
 	void SetLastControllerRotation();
@@ -186,5 +176,5 @@ protected:
 
 	bool bIsCameraAttachedToHead;
 
-#pragma endregion SmoothCameraControl
+#pragma endregion
 };

@@ -16,6 +16,9 @@ class GUNROGUE_API AGRGameMode_Level1 : public AGRGameMode
 public:
 	virtual void BeginPlay() override;
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
+	
+	void RespawnPlayer(AController* TargetPlayer, AActor* AlivePlayer);
+	void RespawnAllPlayers();
 
 	FGRLevel1Node* GetLevel1Node(int32 Index);
 
@@ -31,6 +34,9 @@ public:
 	void ReceiveSpawnEnemy();
 	void ReceiveDestroyEnemy();
 
+	bool CheckGameOver();
+	void GameOver();
+
 	void AddLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
 	void RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
 
@@ -41,4 +47,6 @@ private:
 	int32 EnemyCount = 0;
 
 	void UpdateLevel1ControlPanel();
+
+	FVector FindSpawnableLocation(AActor* AlivePlayer);
 };

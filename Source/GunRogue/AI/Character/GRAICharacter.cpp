@@ -10,6 +10,7 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "AbilitySystemComponent.h"
+#include "Windows/WindowsApplication.h"
 
 AGRAICharacter::AGRAICharacter()
 {
@@ -192,13 +193,33 @@ void AGRAICharacter::DropGoodsForEachPlayer(APlayerController* Player)
 
 	for (const FDropGoodsInfo& DropInfo : DropInfoList)
 	{
-		SpawnToTargetPlayer(GRPlayerState, DropInfo.GoodsClass, DropInfo.Count);
+		if (!CanDropGoods(DropInfo.DropChance))
+		{
+			continue;
+		}
+		
+		int32 RandomCount = GetDropCount(DropInfo.Count, DropInfo.RandomRange);
+		
+		SpawnToTargetPlayer(GRPlayerState, DropInfo.GoodsClass, RandomCount);
 	}
 }
 
+bool AGRAICharacter::CanDropGoods(float Chance) const
+{
+	return FMath::FRand() <= Chance;
+}
+
+int32 AGRAICharacter::GetDropCount(int32 BaseCount, int32 RandomRange) const
+{
+	const int32 MinCount = FMath::Max(1, BaseCount - RandomRange);
+	const int32 MaxCount = BaseCount + RandomRange;
+
+	return FMath::RandRange(MinCount, MaxCount);
+}
+
+
 TArray<FDropGoodsInfo> AGRAICharacter::GetDropGoodsList()
 {
-	// NOTE: 나중에 랜덤 드랍을 구현할 수도 있음
 	return DropGoodsList;
 }
 
@@ -216,10 +237,10 @@ void AGRAICharacter::SpawnToTargetPlayer(APlayerState* InPlayerState, TSubclassO
 		UE_LOG(LogTemp, Error, TEXT("GoodsClass is nullptr"));
 		return;
 	}
-
+	
 	for (int32 i = 0; i < DropCount; ++i)
 	{
-		FVector RandomOffset = GetRanomOffsetAround();
+		FVector RandomOffset = GetRandomOffsetAround();
 		FVector XY = GetActorLocation() + RandomOffset;
 		FVector SpawnLoc = GetGroundLocation(XY);
 
@@ -234,12 +255,12 @@ void AGRAICharacter::SpawnToTargetPlayer(APlayerState* InPlayerState, TSubclassO
 			UE_LOG(LogTemp, Error, TEXT("SpawnActor failed!"));
 			continue;
 		}
-
+		
 		GoodsActor->MulticastRPC_InitGoods();
 	}
 }
 
-FVector AGRAICharacter::GetRanomOffsetAround() const
+FVector AGRAICharacter::GetRandomOffsetAround() const
 {
 	FVector RandomOffset;
 	RandomOffset.X = FMath::RandRange(-100.f, 100.f);
@@ -259,14 +280,14 @@ FVector AGRAICharacter::GetGroundLocation(const FVector& InXY) const
 
 	FVector Result = InXY;
 
-	FVector Start = InXY + FVector(0, 0, 200.f);
+	FVector Start = InXY + FVector(0, 0,  0);
 	FVector End = Start + FallDirection * (CheckDistance);
 
 	FHitResult HitResult;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
-
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+	
+	if (GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, ECC_WorldStatic, Params))
 	{
 		Result.Z = HitResult.ImpactPoint.Z;
 	}

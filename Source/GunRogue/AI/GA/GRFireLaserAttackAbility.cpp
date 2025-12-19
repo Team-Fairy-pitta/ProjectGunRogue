@@ -36,8 +36,8 @@ void UGRFireLaserAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload
 
 void UGRFireLaserAttackAbility::LaunchProjectile()
 {
-	AGRLaserProjectile* LaserProjectile=Cast<AGRLaserProjectile>(Projectile);
-	if (!LaserProjectile)
+	AGRLaserProjectile* AIProjectile=Cast<AGRLaserProjectile>(Projectile);
+	if (!AIProjectile)
 	{
 		EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
 		return;
@@ -77,12 +77,13 @@ void UGRFireLaserAttackAbility::LaunchProjectile()
 		return;
 	}
 	
-	FVector StartLocation = LaserProjectile->GetActorLocation();
+	FVector StartLocation = AIProjectile->GetActorLocation();
 	FVector TargetLocation = TargetActor->GetActorLocation();
 
 	FVector LaunchDirection=(TargetLocation - StartLocation).GetSafeNormal();
 
-	LaserProjectile->Launch(LaunchDirection);
+	AIProjectile->Launch(LaunchDirection);
 	
 	Projectile=nullptr;
 }
+
