@@ -130,7 +130,8 @@ public:
 		const TArray<FVector>& Locations,
 		UNiagaraSystem* NiagaraEffect,
 		UParticleSystem* CascadeEffect,
-		float EffectScale);
+		float EffectScale,
+		USoundBase* SpawnSound);
 #pragma endregion SkillFX
 #pragma region SmoothCameraControl
 public:

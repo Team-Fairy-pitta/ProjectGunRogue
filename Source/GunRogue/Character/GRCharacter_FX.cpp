@@ -311,7 +311,8 @@ void AGRCharacter::Multicast_PlaySkillSpawnEffects_Implementation(
 	const TArray<FVector>& Locations,
 	UNiagaraSystem* NiagaraEffect,
 	UParticleSystem* CascadeEffect,
-	float EffectScale)
+	float EffectScale,
+	USoundBase* SpawnSound)
 {
 	for (const FVector& Location : Locations)
 	{
@@ -337,5 +338,16 @@ void AGRCharacter::Multicast_PlaySkillSpawnEffects_Implementation(
 				FVector(EffectScale)
 			);
 		}
+	}
+
+	// 사운드는 한 번만	재생
+	if (SpawnSound && Locations.Num() > 0)
+	{
+		// 캐릭터 위치에서 재생
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			SpawnSound,
+			GetActorLocation()
+		);
 	}
 }

@@ -6,6 +6,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Character/GRCharacter.h"
+#include "AI/Character/GRAICharacter.h"
 #include "Player/GRPlayerState.h"
 #include "Weapon/GRWeaponDefinition.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
@@ -138,6 +139,59 @@ void AGRProjectile::InitializeProjectile(
 		CollisionComponent->IgnoreActorWhenMoving(OwnerCharacter, true);
 	}
 
+	// 같은 Owner가 쏜 다른 투사체들과 충돌 무시
+	if (CollisionComponent && OwnerCharacter)
+	{
+		TArray<AActor*> FoundProjectiles;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGRProjectile::StaticClass(), FoundProjectiles);
+
+		for (AActor* OtherActor : FoundProjectiles)
+		{
+			AGRProjectile* OtherProjectile = Cast<AGRProjectile>(OtherActor);
+			if (OtherProjectile && OtherProjectile != this)
+			{
+				// 같은 Owner가 쏜 투사체끼리만 무시
+				if (OtherProjectile->OwnerCharacter == OwnerCharacter)
+				{
+					CollisionComponent->IgnoreActorWhenMoving(OtherProjectile, true);
+
+					// 상호 무시 설정
+					if (OtherProjectile->CollisionComponent)
+					{
+						OtherProjectile->CollisionComponent->IgnoreActorWhenMoving(this, true);
+					}
+				}
+			}
+		}
+	}
+
+	// 모든 GRProjectile 투사체와 충돌 무시 하려면 아래 코드 사용
+	/*
+	// 모든 투사체와 충돌 무시
+	if (CollisionComponent)
+	{
+		TArray<AActor*> AllProjectiles;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGRProjectile::StaticClass(), AllProjectiles);
+
+		for (AActor* OtherActor : AllProjectiles)
+		{
+			if (OtherActor != this)
+			{
+				CollisionComponent->IgnoreActorWhenMoving(OtherActor, true);
+				
+				// ✅ 양방향 무시 (상대도 나를 무시하도록)
+				if (AGRProjectile* OtherProjectile = Cast<AGRProjectile>(OtherActor))
+				{
+					if (OtherProjectile->CollisionComponent)
+					{
+						OtherProjectile->CollisionComponent->IgnoreActorWhenMoving(this, true);
+					}
+				}
+			}
+		}
+	}
+	*/
+
 	UE_LOG(LogTemp, Log, TEXT("[Projectile] Initialized - Damage: %.1f, Radius: %.1f, Speed: %.1f, Gravity: %.2f, LifeSpan: %.1f"),
 		Damage, ExplosionRadius, InVelocity.Size(), InGravityScale, InLifeSpan);
 }
@@ -154,6 +208,17 @@ void AGRProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* O
 	{
 		return;
 	}
+
+	if (OtherActor && OtherActor->IsA<AGRProjectile>())
+	{
+		return;
+	}
+
+	if (OtherActor == OwnerCharacter)
+	{
+		return;
+	}
+
 
 	// 충돌 위치
 	const FVector HitLocation = Hit.ImpactPoint;
@@ -188,6 +253,11 @@ void AGRProjectile::ApplyDirectDamage(AActor* HitActor, const FHitResult& Hit)
 	if (!DamageEffectClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Projectile] No DamageEffectClass set"));
+		return;
+	}
+
+	if (!HitActor->IsA(AGRAICharacter::StaticClass()))
+	{
 		return;
 	}
 
@@ -308,6 +378,12 @@ void AGRProjectile::ApplyExplosionDamage(const FVector& ExplosionLocation)
 	{
 		AActor* HitActor = HitResult.GetActor();
 		if (!HitActor || DamagedActors.Contains(HitActor))
+		{
+			continue;
+		}
+
+		// AI 캐릭터만 데미지 적용
+		if (!HitActor->IsA(AGRAICharacter::StaticClass()))
 		{
 			continue;
 		}
