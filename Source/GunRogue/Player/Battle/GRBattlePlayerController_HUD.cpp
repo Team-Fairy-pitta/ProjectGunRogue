@@ -96,19 +96,6 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 	}
 }
 
-void AGRBattlePlayerController::InitializeRadarWidget()
-{
-	APawn* OwnerPawn = GetPawn();
-	if (OwnerPawn)
-	{
-		UGRRadarMapComponent* RadarComponent = OwnerPawn->FindComponentByClass<UGRRadarMapComponent>();
-		if (RadarComponent)
-		{
-			RadarComponent->InitRadarWidget();
-		}
-	}
-}
-
 void AGRBattlePlayerController::FinalizeBattleHUD()
 {
 	AGRPlayerState* GRPlayerState = GetPlayerState<AGRPlayerState>();

@@ -14,6 +14,7 @@ class UGRAugmentHUDWidget;
 class UGRSpectatorHUDWidget;
 class UGRDamageIndicator;
 class UGRGameOverWidget;
+class UGRRadarMapComponent;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
@@ -30,8 +31,6 @@ public:
 	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;
 	virtual void OnRep_PlayerState() override;
-	virtual void OnRep_Pawn() override;
-	virtual void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnRestartPlayer();
@@ -72,7 +71,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideGameOverWidget();
 
-	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }	
+	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRRadarMapComponent> RadarMapComponent;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Map")
@@ -102,8 +104,6 @@ protected:
 private:
 	void InitializeBattleHUD();
 	void FinalizeBattleHUD();
-
-	void InitializeRadarWidget();
 
 	void UpdatePlayerHealth(float Value);
 	void UpdatePlayerMaxHealth(float Value);

@@ -11,11 +11,14 @@
 #include "UI/Inventory/GRInventoryWidgetMain.h"
 #include "UI/Augment/GRAugmentHUDWidget.h"
 #include "UI/InGame/GRInGameHUDWidget.h"
+#include "MiniMap/GRRadarMapComponent.h"
 
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
 	CheatClass = UGRBattleCheatManager::StaticClass();
+
+	RadarMapComponent = CreateDefaultSubobject<UGRRadarMapComponent>(TEXT("RadarMapComponent"));
 }
 
 void AGRBattlePlayerController::BeginPlay()
@@ -79,18 +82,6 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 	{
 		GRPlayerState->OnAbilitySystemComponentInit.AddUObject(this, &ThisClass::InitUISetup);
 	}
-}
-
-void AGRBattlePlayerController::OnRep_Pawn()
-{
-	Super::OnRep_Pawn();
-	InitializeRadarWidget();
-}
-
-void AGRBattlePlayerController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
-	InitializeRadarWidget();
 }
 
 void AGRBattlePlayerController::ClientRPC_OnRestartPlayer_Implementation()
