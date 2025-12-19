@@ -81,6 +81,16 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 	}
 }
 
+void AGRBattlePlayerController::OnRep_Pawn()
+{
+	InitializeRadarWidget();
+}
+
+void AGRBattlePlayerController::OnPossess(APawn* InPawn)
+{
+	InitializeRadarWidget();
+}
+
 void AGRBattlePlayerController::ClientRPC_OnRestartPlayer_Implementation()
 {
 	ShowBattleHUD();

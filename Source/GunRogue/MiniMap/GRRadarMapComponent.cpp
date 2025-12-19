@@ -17,9 +17,10 @@ UGRRadarMapComponent::UGRRadarMapComponent()
 
 void UGRRadarMapComponent::InitRadarWidget()
 {
-	if (RadarMapWidgetInstance)
+	RadarMapWidgetInstance = nullptr;
+	if (ScanTimer.IsValid())
 	{
-		return;
+		GetWorld()->GetTimerManager().ClearTimer(ScanTimer);
 	}
 
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
@@ -50,16 +51,6 @@ void UGRRadarMapComponent::InitRadarWidget()
 		0.1f,
 		true
 	);
-}
-
-void UGRRadarMapComponent::ReinitRadarWidget()
-{
-	RadarMapWidgetInstance = nullptr;
-	if (ScanTimer.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(ScanTimer);
-	}
-	InitRadarWidget();
 }
 
 void UGRRadarMapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)

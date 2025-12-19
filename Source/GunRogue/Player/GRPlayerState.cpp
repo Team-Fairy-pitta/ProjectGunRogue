@@ -242,8 +242,6 @@ void AGRPlayerState::OnRespawn()
 		UpdateMetaGoodsUI();
 		UpdateGoldUI();
 		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::ServerRPC_ResetWeaponHandles);
-
-		ReinitializeRadarWidget();
 	}
 }
 
@@ -307,18 +305,6 @@ void AGRPlayerState::OnBodyExpired()
 			WaitForActorDestroy,
 			false);
 	}
-}
-
-void AGRPlayerState::ReinitializeRadarWidget()
-{
-	AGRBattlePlayerController* BattlePlayerController = GetOwner<AGRBattlePlayerController>();
-	if (!IsValid(BattlePlayerController))
-	{
-		UE_LOG(LogTemp, Error, TEXT("GetOwner() is NOT AGRBattlePlayerController"));
-		return;
-	}
-
-	BattlePlayerController->ReinitializeRadarWidget();
 }
 
 FVector AGRPlayerState::GetGroundPointUsingLineTrace(AActor* SpawnedActor)

@@ -30,11 +30,11 @@ public:
 	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;
 	virtual void OnRep_PlayerState() override;
+	virtual void OnRep_Pawn() override;
+	virtual void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_OnRestartPlayer();
-
-	void ReinitializeRadarWidget();
 
 private:
 	void CreateWidgets();
