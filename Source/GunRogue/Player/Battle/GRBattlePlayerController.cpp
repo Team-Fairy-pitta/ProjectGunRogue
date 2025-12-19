@@ -83,11 +83,13 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 
 void AGRBattlePlayerController::OnRep_Pawn()
 {
+	Super::OnRep_Pawn();
 	InitializeRadarWidget();
 }
 
 void AGRBattlePlayerController::OnPossess(APawn* InPawn)
 {
+	Super::OnPossess(InPawn);
 	InitializeRadarWidget();
 }
 
