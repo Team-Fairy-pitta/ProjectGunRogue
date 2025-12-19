@@ -117,25 +117,30 @@ void FGRWeaponInstance::ApplyAllEffects()
 			continue;
 		}
 
-		FGameplayEffectSpecHandle SpecHandle = CachedASC->MakeOutgoingSpec(
-			Option.EffectClass,
-			1.0f,
-			CachedASC->MakeEffectContext()
-		);
+		FGameplayEffectSpecHandle SpecHandle = CachedASC->MakeOutgoingSpec(Option.EffectClass, 1.f,	CachedASC->MakeEffectContext());
 
 		if (!SpecHandle.IsValid())
 		{
 			continue;
 		}
 
-		FGameplayTag ValueTag = FGameplayTag::RequestGameplayTag("Data.OptionValue");
+		// 🔹 조건 전달
+		for (const FGRConditionRuntime& Cond : Option.Conditions)
+		{
+			FGameplayTag Tag = MakeConditionTag(Cond.ConditionType, Cond.ApplyType);
+			SpecHandle.Data->SetSetByCallerMagnitude(Tag, Cond.Value);
+		}
 
-		SpecHandle.Data->SetSetByCallerMagnitude(ValueTag, Option.Value);
+		// 🔹 효과 전달
+		for (const FGREffectRuntime& Eff : Option.Effects)
+		{
+			FGameplayTag Tag = MakeEffectTag(Eff.EffectType, Eff.ApplyType);
+			SpecHandle.Data->SetSetByCallerMagnitude(Tag, Eff.Value);
+		}
 
 		FActiveGameplayEffectHandle Handle = CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
 		AppliedEffects.Add(Handle);
-
 	}
 }
 
@@ -165,7 +170,7 @@ void FGRWeaponInstance::ClearEffects()
 
 FWeaponOption FGRWeaponInstance::RandomOption() const
 {
-	FWeaponOption EmptyOption;
+	/*FWeaponOption EmptyOption;
 
 	if (!WeaponDefinition || !WeaponDefinition->OptionPool)
 	{
@@ -190,7 +195,48 @@ FWeaponOption FGRWeaponInstance::RandomOption() const
 	NewOption.EffectClass = Entry.EffectClass;
 	NewOption.Value = RandomValue;
 
-	return NewOption;
+	return NewOption;*/
+
+	FWeaponOption EmptyOption;
+
+	if (!WeaponDefinition || !WeaponDefinition->OptionPool)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OptionPool 데이터가 없음"));
+		return EmptyOption;
+	}
+
+	const TArray<FOptionPoolEntry>& Pool = WeaponDefinition->OptionPool->Options;
+
+	if (Pool.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OptionPool이 비어있음"));
+		return EmptyOption;
+	}
+
+	const FOptionPoolEntry& Entry = Pool[FMath::RandRange(0, Pool.Num() - 1)];
+	EmptyOption.EffectClass = Entry.EffectClass;
+
+	// 조건 랜덤
+	for (const FGRConditionData& Cond : Entry.Conditions)
+	{
+		FGRConditionRuntime RuntimeCond;
+		RuntimeCond.ConditionType = Cond.ConditionType;
+		RuntimeCond.ApplyType = Cond.ApplyType;
+		RuntimeCond.Value = FMath::FRandRange(Cond.MinValue, Cond.MaxValue);
+		EmptyOption.Conditions.Add(RuntimeCond);
+	}
+
+	// 효과 랜덤
+	for (const FGREffectData& Eff : Entry.Effects)
+	{
+		FGREffectRuntime RuntimeEff;
+		RuntimeEff.EffectType = Eff.EffectType;
+		RuntimeEff.ApplyType = Eff.ApplyType;
+		RuntimeEff.Value = FMath::FRandRange(Eff.MinValue, Eff.MaxValue);
+		EmptyOption.Effects.Add(RuntimeEff);
+	}
+
+	return EmptyOption;
 }
 
 void FGRWeaponInstance::RerollOption(int32 OptionSlotIndex)

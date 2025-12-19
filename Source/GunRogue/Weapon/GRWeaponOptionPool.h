@@ -9,6 +9,66 @@
  * 
  */
 
+UENUM(BlueprintType)
+enum class EGRValueApplyType : uint8
+{	
+	Plus,		// +
+	Minus,		// -		
+	Multiply,	// *
+	Percent,	// %
+
+};
+
+UENUM(BlueprintType)
+enum class EGRConditionType : uint8
+{
+	Ammo,
+	HP,
+};
+
+USTRUCT(BlueprintType)
+struct FGRConditionData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EGRConditionType ConditionType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EGRValueApplyType ApplyType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MinValue = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxValue = 0.f;
+};
+
+
+UENUM(BlueprintType)
+enum class EGREffectType : uint8
+{
+	Damage,
+	FireRate,
+	ReloadSpeed,
+};
+
+USTRUCT(BlueprintType)
+struct FGREffectData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EGREffectType EffectType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EGRValueApplyType ApplyType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MinValue = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxValue = 0.f;
+};
+
 USTRUCT(BlueprintType)
 struct FOptionPoolEntry
 {
@@ -18,10 +78,10 @@ struct FOptionPoolEntry
 	TSubclassOf<UGRGameplayEffect> EffectClass;
 
 	UPROPERTY(EditAnywhere)
-	float MinValue = 1.f;
+	TArray<FGRConditionData> Conditions;
 
 	UPROPERTY(EditAnywhere)
-	float MaxValue = 5.f;
+	TArray<FGREffectData> Effects;
 
 };
 
