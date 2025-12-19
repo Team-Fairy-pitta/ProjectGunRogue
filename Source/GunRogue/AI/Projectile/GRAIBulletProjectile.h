@@ -41,10 +41,4 @@ protected:
 
 	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
 	TSubclassOf<UGameplayEffect> DamageGEClass;
-
-	UPROPERTY(EditAnywhere, Category="Effects")
-	UParticleSystem* ImpactEffect;
-
-	UPROPERTY(EditAnywhere, Category="Effects")
-	USoundBase* ImpactSound;
 };
