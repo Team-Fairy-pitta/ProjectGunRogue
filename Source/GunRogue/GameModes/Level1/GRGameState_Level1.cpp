@@ -2,6 +2,7 @@
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "GameModes/Level1/GRLevel1Data.h"
 #include "Net/UnrealNetwork.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 
 AGRGameState_Level1::AGRGameState_Level1()
 {
@@ -26,6 +27,7 @@ void AGRGameState_Level1::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 
 	DOREPLIFETIME(ThisClass, CurrentLevel1NodeIndex);
 	DOREPLIFETIME(ThisClass, Level1ClientData);
+	DOREPLIFETIME(ThisClass, CurrentBoss);
 }
 
 void AGRGameState_Level1::SetCurrentRoomIndex(int32 InIndex)
@@ -95,4 +97,54 @@ void AGRGameState_Level1::RequestNextRoomInformation()
 FGRLevel1Node* AGRGameState_Level1::GetCurrentNodeInfo()
 {
 	return Level1ClientData.GetNode(CurrentLevel1NodeIndex);
+}
+
+void AGRGameState_Level1::SetCurrentBoss(AGRLuwoAICharacter* NewBoss)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	CurrentBoss = NewBoss;
+
+	OnRep_CurrentBoss();
+}
+
+void AGRGameState_Level1::ClearCurrentBoss()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	CurrentBoss = nullptr;
+
+	OnRep_CurrentBoss();
+}
+
+void AGRGameState_Level1::OnRep_CurrentBoss()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (AGRBattlePlayerController* PC =	Cast<AGRBattlePlayerController>(It->Get()))
+		{
+			if (CurrentBoss)
+			{
+				// 보스 생성 알림
+				PC->OnBossSpawned(CurrentBoss);
+			}
+			else
+			{
+				// 보스 제거 알림
+				PC->OnBossDestroyed();
+			}
+		}
+	}
 }

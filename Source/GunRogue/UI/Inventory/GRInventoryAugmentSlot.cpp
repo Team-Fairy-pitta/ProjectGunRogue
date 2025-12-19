@@ -129,34 +129,14 @@ void UGRInventoryAugmentSlot::NativeConstruct()
 		SlotButton->OnHovered.AddDynamic(this, &UGRInventoryAugmentSlot::OnSlotHovered);
 		SlotButton->OnUnhovered.AddDynamic(this, &UGRInventoryAugmentSlot::OnSlotUnhovered);
 	}
-
-	if (SlotBackground)
-	{
-		DefaultBrushColor = SlotBackground->GetBrushColor();
-	}
-	
 }
 
 void UGRInventoryAugmentSlot::OnSlotHovered()
 {
 	OnInventoryAugmentSlotHovered.Broadcast(this);
-
-	if (!SlotBackground)
-	{
-		return;
-	}
-
-	SlotBackground->SetBrushColor(HoveredBrushColor);
 }
 
 void UGRInventoryAugmentSlot::OnSlotUnhovered()
 {
 	OnInventoryAugmentSlotUnhovered.Broadcast(this);
-
-	if (!SlotBackground)
-	{
-		return;
-	}
-
-	SlotBackground->SetBrushColor(DefaultBrushColor);
 }

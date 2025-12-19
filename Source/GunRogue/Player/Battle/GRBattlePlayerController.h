@@ -15,10 +15,12 @@ class UGRSpectatorHUDWidget;
 class UGRDamageIndicator;
 class UGRGameOverWidget;
 class UGRRadarMapComponent;
+class UGRInGameHUDWidget;
+class AGRLuwoAICharacter;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
-class UGRInGameHUDWidget;
+
 
 UCLASS()
 class GUNROGUE_API AGRBattlePlayerController : public AGRPlayerController
@@ -305,4 +307,16 @@ public:
 	void SyncGoldUI();
 	
 #pragma endregion Goods
+
+/* 보스 체력바 관련 코드 */
+#pragma region BossHPBar
+public:
+	UFUNCTION()
+	void OnBossSpawned(AGRLuwoAICharacter* CurrentBoss);
+
+	UFUNCTION()
+	void OnBossDestroyed();
+
+#pragma endregion BossHPBar
+
 };
