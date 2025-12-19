@@ -5,10 +5,29 @@
 #include "AI/Character/GRNormalAICharacter.h"
 #include "AI/Controller/GRAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
 UGRAIWeaponFireAbility::UGRAIWeaponFireAbility()
 {
 	ProjectileSocketName = FName("muzzle");
+}
+
+void UGRAIWeaponFireAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (ActorInfo->AvatarActor.Get()->HasAuthority())
+	{
+		if (!PrepareFireContext())
+		{
+			EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
+		}
+		
+		ExecuteWeaponGameplayCue();
+	}
 }
 
 bool UGRAIWeaponFireAbility::PrepareFireContext()
@@ -109,3 +128,15 @@ void UGRAIWeaponFireAbility::SpawnBulletProjectile(const FVector& LaunchDirectio
 		ColComp->IgnoreActorWhenMoving(FireContext.AI, true);
 	}
 }
+
+void UGRAIWeaponFireAbility::ExecuteWeaponGameplayCue()
+{
+	FGameplayTag FireCueTag = FGameplayTag::RequestGameplayTag(FireCueTagName);
+
+	FGameplayCueParameters Params;
+	Params.Location = FireContext.WeaponMesh->GetSocketLocation(ProjectileSocketName);
+	Params.Normal = GetAimDirection();
+
+	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(FireCueTag, Params);
+}
+

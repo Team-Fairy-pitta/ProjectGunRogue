@@ -27,7 +27,7 @@ protected:
 private:
 	void FireShotgun();
 	void LineTraceSingle(const FVector& Direction);
-	
+
 private:
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess))
 	int32 PelletCount = 8;

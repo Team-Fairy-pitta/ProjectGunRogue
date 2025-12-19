@@ -25,7 +25,7 @@ protected:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
+	
 protected:
 	UPROPERTY(VisibleAnywhere, Category="Projectile")
 	USphereComponent* CollisionComp;
@@ -41,4 +41,10 @@ protected:
 
 	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
 	TSubclassOf<UGameplayEffect> DamageGEClass;
+
+	UPROPERTY(EditAnywhere, Category="Effects")
+	UParticleSystem* ImpactEffect;
+
+	UPROPERTY(EditAnywhere, Category="Effects")
+	USoundBase* ImpactSound;
 };

@@ -109,8 +109,16 @@ void AGRAIBulletProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAct
 		if (AISpecHandle.IsValid())
 		{
 			AIASC->ApplyGameplayEffectSpecToTarget(*AISpecHandle.Data.Get(),PlayerASC);
+
+			//Impact Cue
+			FGameplayTag ImpactCueTag = FGameplayTag::RequestGameplayTag("GameplayCue.AI.Bullet.Impact");
+			FGameplayCueParameters Params;
+			Params.Location = Hit.Location;
+			Params.Normal = Hit.Normal;
+			AIASC->ExecuteGameplayCue(ImpactCueTag,Params);
 		}
 	}
-
+	
 	Destroy();
 }
+

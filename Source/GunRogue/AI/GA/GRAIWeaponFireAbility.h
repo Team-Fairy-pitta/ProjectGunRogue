@@ -25,12 +25,20 @@ class GUNROGUE_API UGRAIWeaponFireAbility : public UGRAIAttackAbility
 
 public:
 	UGRAIWeaponFireAbility();
-	
+
 protected:
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData) override;
+	
 	bool PrepareFireContext();
 	FVector GetAimDirection();
 	void SpawnBulletProjectile(const FVector& LaunchDirection);
-
+	void ExecuteWeaponGameplayCue();
+	
 protected:
 	FFireContext FireContext;
+	FName FireCueTagName;
 };
