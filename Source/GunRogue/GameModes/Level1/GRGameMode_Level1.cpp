@@ -86,10 +86,12 @@ void AGRGameMode_Level1::TryRespawnAllDeadPlayers()
 			{
 				if (GRPlayerState->IsDead())
 				{
+					UE_LOG(LogTemp, Log, TEXT("TryRespawnAllDeadPlayers: Add DeadPlayerStates %s"), *GRPlayerState->GetPlayerName());
 					DeadPlayerStates.Add(GRPlayerState);
 				}
 				else
 				{
+					UE_LOG(LogTemp, Log, TEXT("TryRespawnAllDeadPlayers: Add AlivePlayerStates %s"), *GRPlayerState->GetPlayerName());
 					AlivePlayerStates.Add(GRPlayerState);
 				}
 			}
