@@ -94,16 +94,6 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 	{
 		CombatSet->OnAmmoChanged.AddDynamic(this, &ThisClass::OnAmmoChanged);
 	}
-
-	APawn* OwnerPawn = GetPawn();
-	if (OwnerPawn)
-	{
-		UGRRadarMapComponent* RadarComponent = OwnerPawn->FindComponentByClass<UGRRadarMapComponent>();
-		if (RadarComponent)
-		{
-			RadarComponent->InitRadarWidget();
-		}
-	}
 }
 
 void AGRBattlePlayerController::FinalizeBattleHUD()

@@ -11,11 +11,14 @@
 #include "UI/Inventory/GRInventoryWidgetMain.h"
 #include "UI/Augment/GRAugmentHUDWidget.h"
 #include "UI/InGame/GRInGameHUDWidget.h"
+#include "MiniMap/GRRadarMapComponent.h"
 
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
 	CheatClass = UGRBattleCheatManager::StaticClass();
+
+	RadarMapComponent = CreateDefaultSubobject<UGRRadarMapComponent>(TEXT("RadarMapComponent"));
 }
 
 void AGRBattlePlayerController::BeginPlay()

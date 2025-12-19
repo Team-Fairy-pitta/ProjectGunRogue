@@ -15,27 +15,20 @@ UGRRadarMapComponent::UGRRadarMapComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UGRRadarMapComponent::InitRadarWidget()
+void UGRRadarMapComponent::InitializeRadarWidget()
 {
 	if (RadarMapWidgetInstance)
 	{
 		return;
 	}
 
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (!OwnerPawn || !OwnerPawn->IsLocallyControlled())
-	{
-		return;
-	}
-
-	AGRBattlePlayerController* GRPC = Cast<AGRBattlePlayerController>(OwnerPawn->GetController());
+	AGRBattlePlayerController* GRPC = Cast<AGRBattlePlayerController>(GetOwner());
 	if (!GRPC)
 	{
 		return;
 	}
 
 	UGRBattleHUDWidget* HUDWidget = Cast<UGRBattleHUDWidget>(GRPC->GetBattleHUDWidget());
-
 	if(!HUDWidget)
 	{
 		return;
@@ -50,6 +43,15 @@ void UGRRadarMapComponent::InitRadarWidget()
 		0.1f,
 		true
 	);
+}
+
+void UGRRadarMapComponent::FinalizeRadarWidget()
+{
+	RadarMapWidgetInstance = nullptr;
+	if (ScanTimer.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ScanTimer);
+	}
 }
 
 void UGRRadarMapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -71,17 +73,36 @@ void UGRRadarMapComponent::ScanRadar()
 		return;
 	}
 
-	if (!GetOwner())
+	AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(GetOwner());
+	if (!BattlePlayerController)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Onwer of UGRRadarMapComponent is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("Onwer of UGRRadarMapComponent is NOT AGRBattlePlayerController"));
 		return;
+	}
+
+	FVector OwnerLocation;
+	FRotator OwnerRotation;
+	if (IsValid(BattlePlayerController->GetPawn()))
+	{
+		OwnerLocation = BattlePlayerController->GetPawn()->GetActorLocation();
+		OwnerRotation = BattlePlayerController->GetControlRotation();
+	}
+	else if (IsValid(GetOwner()))
+	{
+		OwnerLocation = GetOwner()->GetActorLocation();
+		OwnerRotation = GetOwner()->GetActorRotation();
+	}
+	else
+	{
+		OwnerLocation = FVector::ZeroVector;
+		OwnerRotation = FRotator::ZeroRotator;
 	}
 
 	TArray<AActor*> FoundActors;
 
 	UKismetSystemLibrary::SphereOverlapActors(
 		GetWorld(),
-		GetOwner()->GetActorLocation(),
+		OwnerLocation,
 		ScanRadius,
 		{ 
 			UEngineTypes::ConvertToObjectType(ECC_Pawn),
@@ -96,7 +117,7 @@ void UGRRadarMapComponent::ScanRadar()
 #if WITH_EDITOR
 	DrawDebugSphere(
 		GetWorld(),
-		GetOwner()->GetActorLocation(),
+		OwnerLocation,
 		ScanRadius,
 		16,
 		FColor::Green,
@@ -131,7 +152,7 @@ void UGRRadarMapComponent::ScanRadar()
 		FRadarTargetInfo Info;
 		Info.TargetActor = HitActor;
 		Info.RadarTag = RadarTypeTag;
-		Info.NormalizedTargetDirection = GetNormalizedTargetDirection(HitActor->GetActorLocation());
+		Info.NormalizedTargetDirection = GetNormalizedTargetDirection(OwnerLocation, OwnerRotation, HitActor->GetActorLocation());
 
 		TargetList.Add(Info);
 	}
@@ -140,24 +161,11 @@ void UGRRadarMapComponent::ScanRadar()
 
 }
 
-FVector2D UGRRadarMapComponent::GetNormalizedTargetDirection(FVector TargetLocation) const
+FVector2D UGRRadarMapComponent::GetNormalizedTargetDirection(FVector OwnerLocation, FRotator OwnerRotator, FVector TargetLocation) const
 {
-	FVector OwnerLocation = GetOwner()->GetActorLocation();
 	OwnerLocation.Z = 0;
 	TargetLocation.Z = 0;
 
-	AActor* Owner = GetOwner();
-	FRotator OwnerRotator;
-
-	ACharacter* Character = Cast<ACharacter>(Owner);
-	if (IsValid(Character))
-	{
-		OwnerRotator = Character->GetControlRotation();
-	}
-	else
-	{
-		OwnerRotator = GetOwner()->GetActorRotation();
-	}
 	OwnerRotator.Pitch = 0;
 
 	FVector Direction = TargetLocation - OwnerLocation;

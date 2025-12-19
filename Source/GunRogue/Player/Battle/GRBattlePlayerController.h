@@ -14,10 +14,13 @@ class UGRAugmentHUDWidget;
 class UGRSpectatorHUDWidget;
 class UGRDamageIndicator;
 class UGRGameOverWidget;
+class UGRRadarMapComponent;
+class UGRInGameHUDWidget;
+class AGRLuwoAICharacter;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
-class UGRInGameHUDWidget;
+
 
 UCLASS()
 class GUNROGUE_API AGRBattlePlayerController : public AGRPlayerController
@@ -70,7 +73,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideGameOverWidget();
 
-	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }	
+	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRRadarMapComponent> RadarMapComponent;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Map")
@@ -301,4 +307,16 @@ public:
 	void SyncGoldUI();
 	
 #pragma endregion Goods
+
+/* 보스 체력바 관련 코드 */
+#pragma region BossHPBar
+public:
+	UFUNCTION()
+	void OnBossSpawned(AGRLuwoAICharacter* CurrentBoss);
+
+	UFUNCTION()
+	void OnBossDestroyed();
+
+#pragma endregion BossHPBar
+
 };

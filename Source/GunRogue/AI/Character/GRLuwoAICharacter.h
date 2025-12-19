@@ -11,6 +11,9 @@
  */
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterLanded);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossHealthChanged, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossShieldChanged, float);
+
 
 UCLASS()
 class GUNROGUE_API AGRLuwoAICharacter : public AGRAICharacter
@@ -19,13 +22,27 @@ class GUNROGUE_API AGRLuwoAICharacter : public AGRAICharacter
 	
 public:
 	AGRLuwoAICharacter();
+
+	float GetBossHealth() const;
+
+	float GetBossMaxHealth() const;
+
+	float GetBossShield() const;
+
+	float GetBossMaxShield() const;
 	
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void Landed(const FHitResult& Hit) override;
 
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
+
 public:
 	FOnCharacterLanded OnLandedEvent;
+
+	FOnBossHealthChanged OnBossHealthChanged;
+
+	FOnBossShieldChanged OnBossShieldChanged;
 	
 };
