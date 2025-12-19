@@ -37,7 +37,7 @@ protected:
 	UGRPerkTooltipWidget* PerkTooltipWidget;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Perk")
-	TArray<FName> PerkCategories = { FName("Battle"), FName("Weapon"), FName("Skill"), FName("SubSkill")};
+	TArray<FName> PerkCategories = { FName("Battle"), FName("Weapon"), FName("Skill"), FName("Support")};
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* ExitPerkButton;
