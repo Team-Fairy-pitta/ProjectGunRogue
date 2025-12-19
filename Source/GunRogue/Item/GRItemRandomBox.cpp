@@ -147,6 +147,16 @@ void AGRItemRandomBox::MulticastRPC_StartAnimation_Implementation(AGRPlayerState
 	StartOpenAnimation(GRPlayerState);
 }
 
+void AGRItemRandomBox::ServerAddOnFinishOpenAnimation(float Timer, AGRPlayerState* GRPlayerState)
+{
+	FTimerHandle& TimerHandle = OpenTimerHandles.AddDefaulted_GetRef();
+	
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUObject(this, &ThisClass::OnFinishOpenAnimation, GRPlayerState);
+
+	GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, Timer, false);
+}
+
 void AGRItemRandomBox::OnFinishOpenAnimation(AGRPlayerState* GRPlayerState)
 {
 	if (!HasAuthority())
