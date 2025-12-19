@@ -249,8 +249,36 @@ void UGRBattleCheatManager::RespawnPlayer(int32 InIndex)
 
 	if (AlivePlayers.Num() > 0)
 	{
-		GameMode_Level1->RespawnPlayer(TargetPlayerController, AlivePlayers[0]);
+		GameMode_Level1->TryRespawnPlayer(TargetPlayerController, AlivePlayers[0]);
 	}
+}
+
+void UGRBattleCheatManager::RespawnAllDeadPlayer()
+{
+	APlayerController* PC = GetOuterAPlayerController();
+	if (!IsValid(PC))
+	{
+		return;
+	}
+
+	if (!PC->HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cheat SetLevel1NextRoomIndex requires Authority"));
+		return;
+	}
+
+	if (!PC->GetWorld())
+	{
+		return;
+	}
+
+	AGRGameMode_Level1* GameMode_Level1 = PC->GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+	if (!IsValid(GameMode_Level1))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameMode is NOT AGRGameMode_Level1"));
+		return;
+	}
+	GameMode_Level1->TryRespawnAllDeadPlayers();
 }
 
 void UGRBattleCheatManager::KillAllAI()
