@@ -11,5 +11,11 @@ void UGRNotifyMessageWidget::SetNotifyMessage(const FText& InText)
 		return;
 	}
 
+	if (!Fade)
+	{
+		return;
+	}
+
 	NotifyMessageText->SetText(InText);
+	PlayAnimation(Fade);
 }

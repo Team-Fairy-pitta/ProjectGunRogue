@@ -19,6 +19,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* NotifyMessageText;
 
+	UPROPERTY(meta = (BindWidgetAnim),Transient)
+	class UWidgetAnimation* Fade;
+
 public:
 	void SetNotifyMessage(const FText& InText);
 };
