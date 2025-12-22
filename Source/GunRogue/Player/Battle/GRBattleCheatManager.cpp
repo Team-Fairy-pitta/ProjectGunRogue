@@ -300,7 +300,7 @@ void UGRBattleCheatManager::KillAllAI()
 	}
 }
 
-void UGRBattleCheatManager::BroadcastMessage(FString Message)
+void UGRBattleCheatManager::BroadcastMessage(FString Message, float ShowMessageTime)
 {
 	APlayerController* PC = GetOuterAPlayerController();
 	if (!IsValid(PC))
@@ -322,5 +322,5 @@ void UGRBattleCheatManager::BroadcastMessage(FString Message)
 		UE_LOG(LogTemp, Error, TEXT("GameMode is NOT AGRGameMode_Level1"));
 		return;
 	}
-	GameMode_Level1->BroadcastNotifyMessage(FText::FromString(Message));
+	GameMode_Level1->BroadcastNotifyMessage(FText::FromString(Message), ShowMessageTime);
 }

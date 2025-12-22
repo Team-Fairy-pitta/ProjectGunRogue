@@ -62,7 +62,7 @@ public:
 	void ClientRPC_ShowDamageIndicator(float Damage, AActor* DamagedActor);
 
 	UFUNCTION(Client, Reliable)
-	void ClientRPC_ShowNotifyMessage(const FText& Message);
+	void ClientRPC_ShowNotifyMessage(const FText& Message, float ShowMessageTime);
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void ServerRPC_GameOver();
@@ -143,7 +143,7 @@ private:
 	void ShowDamageIndicator(float Damage, AActor* DamagedActor);
 
 	UFUNCTION()
-	void ShowNotifyMessage(const FText& Message);
+	void ShowNotifyMessage(const FText& Message, float ShowMessageTime);
 
 #pragma endregion HUD
 

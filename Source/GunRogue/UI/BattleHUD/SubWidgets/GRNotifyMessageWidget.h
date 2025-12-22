@@ -22,6 +22,20 @@ protected:
 	UPROPERTY(meta = (BindWidgetAnim),Transient)
 	class UWidgetAnimation* Fade;
 
+	UPROPERTY(meta = (BindWidgetAnim),Transient)
+	class UWidgetAnimation* FadeIn;
+
+	UPROPERTY(meta = (BindWidgetAnim),Transient)
+	class UWidgetAnimation* FadeOut;
+
+	UFUNCTION()
+	void OnAnimFadeInFinished();
+
+	UFUNCTION()
+	void OnAnimFadeFinished();
+
+	float MessageTime = 2.0f;
+	
 public:
-	void SetNotifyMessage(const FText& InText);
+	void SetNotifyMessage(const FText& InText, float ShowMessageTime = 2.0f);
 };

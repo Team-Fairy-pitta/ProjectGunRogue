@@ -44,5 +44,5 @@ public:
 
 	// 메시지 브로드캐스트 테스트
 	UFUNCTION(Exec)
-	void BroadcastMessage(FString Message);
+	void BroadcastMessage(FString Message,float ShowMessageTime);
 };

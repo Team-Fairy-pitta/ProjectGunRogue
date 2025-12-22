@@ -41,7 +41,7 @@ public:
 	void RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
 
 	UFUNCTION(BlueprintCallable)
-	void BroadcastNotifyMessage(const FText& Message);
+	void BroadcastNotifyMessage(const FText& Message, float ShowMessageTime);
 
 private:
 	UPROPERTY()

@@ -772,13 +772,13 @@ void AGRBattlePlayerController::ClientRPC_GameOver_Implementation()
 	ShowGameOverWidget();
 }
 
-void AGRBattlePlayerController::ClientRPC_ShowNotifyMessage_Implementation(const FText& Message)
+void AGRBattlePlayerController::ClientRPC_ShowNotifyMessage_Implementation(const FText& Message,float ShowMessageTime)
 {
-	ShowNotifyMessage(Message);
+	ShowNotifyMessage(Message,ShowMessageTime);
 }
 
 
-void AGRBattlePlayerController::ShowNotifyMessage(const FText& Message)
+void AGRBattlePlayerController::ShowNotifyMessage(const FText& Message, float ShowMessageTime)
 {
 	if (!HUDWidgetInstance)
 	{
@@ -793,7 +793,7 @@ void AGRBattlePlayerController::ShowNotifyMessage(const FText& Message)
 		return;
 	}
 	
-	NotifyWidget->SetNotifyMessage(Message);
+	NotifyWidget->SetNotifyMessage(Message,ShowMessageTime);
 }
 
 void AGRBattlePlayerController::ShowGameOverWidget()

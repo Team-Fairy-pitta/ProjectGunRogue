@@ -211,7 +211,7 @@ void AGRGameMode_Level1::RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1C
 	UpdateLevel1ControlPanel();
 }
 
-void AGRGameMode_Level1::BroadcastNotifyMessage(const FText& Message)
+void AGRGameMode_Level1::BroadcastNotifyMessage(const FText& Message, float ShowMessageTime)
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
@@ -219,7 +219,7 @@ void AGRGameMode_Level1::BroadcastNotifyMessage(const FText& Message)
 
 		if (PC)
 		{
-			PC->ClientRPC_ShowNotifyMessage(Message);
+			PC->ClientRPC_ShowNotifyMessage(Message,ShowMessageTime);
 		}
 	}
 }
