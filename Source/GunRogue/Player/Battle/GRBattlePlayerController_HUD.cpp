@@ -176,6 +176,18 @@ void AGRBattlePlayerController::HideBattleHUD()
 void AGRBattlePlayerController::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	UpdatePlayerHealth(Data.NewValue);
+
+	if (Data.NewValue < Data.OldValue)
+	{
+		if (HealthHitEffectWidget)
+		{
+			UUserWidget* HPHitWidget = CreateWidget<UUserWidget>(this,HealthHitEffectWidget);
+			if (HPHitWidget)
+			{
+				HPHitWidget->AddToViewport();
+			}
+		}
+	}
 }
 
 void AGRBattlePlayerController::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
@@ -186,6 +198,18 @@ void AGRBattlePlayerController::OnMaxHealthChanged(const FOnAttributeChangeData&
 void AGRBattlePlayerController::OnShieldChanged(const FOnAttributeChangeData& Data)
 {
 	UpdatePlayerShield(Data.NewValue);
+
+	if (Data.NewValue < Data.OldValue)
+	{
+		if (ShieldHitEffectWidget)
+		{
+			UUserWidget* ShieldHitWidget = CreateWidget<UUserWidget>(this,ShieldHitEffectWidget);
+			if (ShieldHitWidget)
+			{
+				ShieldHitWidget->AddToViewport();
+			}
+		}
+	}
 }
 
 void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData& Data)
