@@ -26,6 +26,8 @@ public:
 
 	TArray<UGRAugmentDefinition*> GetRandomAugments(FName CharacterType, int32 Count, AGRPlayerState* PS) const;
 
+	TArray<TObjectPtr<UGRAugmentDefinition>> GetAugmentValues(FName CharacterType) const;
+
 private:
 	UPROPERTY()
 	TMap<FName, TObjectPtr<UGRAugmentDefinition>> AugmentMap;

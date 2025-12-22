@@ -20,7 +20,7 @@ AGRRockProjectile::AGRRockProjectile()
 	SetReplicateMovement(true);
 	
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("AIProjectile"));
+	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("GRAIProjectile"));
 	CollisionComponent->SetSimulatePhysics(false);
 	CollisionComponent->SetNotifyRigidBodyCollision(true);
 	CollisionComponent->SetIsReplicated(true);

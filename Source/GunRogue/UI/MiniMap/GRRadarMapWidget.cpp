@@ -1,7 +1,61 @@
 #include "UI/MiniMap/GRRadarMapWidget.h"
-
 #include "UI/MiniMap/GRRadarIconWidget.h"
+#include "Player/Battle/GRBattlePlayerController.h"
+#include "Character/GRCharacter.h"
+#include "MiniMap/GRRadarMapComponent.h"
 #include "Components/CanvasPanel.h"
+
+void UGRRadarMapWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	AGRBattlePlayerController* BattlePlayerController = GetOwningPlayer<AGRBattlePlayerController>();
+	if (!IsValid(BattlePlayerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGRRadarMapWidget: BattlePlayerController is INVALID"));
+		return;
+	}
+
+	if (!BattlePlayerController->IsLocalController())
+	{
+		UE_LOG(LogTemp, Display, TEXT("UGRRadarMapWidget: Local Controller Only"));
+		return;
+	}
+
+	if (!BattlePlayerController->RadarMapComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGRRadarMapWidget: GRCharacter->RadarMapComponent is INVALID"));
+		return;
+	}
+
+	BattlePlayerController->RadarMapComponent->InitializeRadarWidget();
+}
+
+void UGRRadarMapWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	AGRBattlePlayerController* BattlePlayerController = GetOwningPlayer<AGRBattlePlayerController>();
+	if (!IsValid(BattlePlayerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGRRadarMapWidget: BattlePlayerController is INVALID"));
+		return;
+	}
+
+	if (!BattlePlayerController->IsLocalController())
+	{
+		UE_LOG(LogTemp, Display, TEXT("UGRRadarMapWidget: Local Controller Only"));
+		return;
+	}
+
+	if (!BattlePlayerController->RadarMapComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGRRadarMapWidget: GRCharacter->RadarMapComponent is INVALID"));
+		return;
+	}
+
+	BattlePlayerController->RadarMapComponent->FinalizeRadarWidget();
+}
 
 void UGRRadarMapWidget::UpdateRadar(const TArray<FRadarTargetInfo>& Targets)
 {

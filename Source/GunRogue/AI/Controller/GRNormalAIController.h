@@ -37,6 +37,7 @@ public:
 	static const FName IsPlayerDetectedKey;
 	static const FName LastPlayerLocationKey;
 	static const FName PatrolStartLocationKey;
+	static const FName FireWithWeaponAbilityKey;
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = "AI")

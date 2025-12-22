@@ -5,6 +5,7 @@
 #include "AI/Controller/GRAIController.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "AI/Controller/GRNormalAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
@@ -67,6 +68,11 @@ EBTNodeResult::Type UGRBTTask_UseAttackAbility::ExecuteTask(UBehaviorTreeCompone
 
 	TargetPlayer=TargetChar;
 	StopMovement(AIController);
+
+	if (BlackboardComp->GetValueAsClass(AGRNormalAIController::FireWithWeaponAbilityKey))
+	{
+		AbilityToUse = BlackboardComp->GetValueAsClass(AGRNormalAIController::FireWithWeaponAbilityKey);
+	}
 	
 	bool bActivated = ASC->TryActivateAbilityByClass(AbilityToUse);
 	if (bActivated)

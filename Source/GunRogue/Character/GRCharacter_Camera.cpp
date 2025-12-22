@@ -68,7 +68,11 @@ void AGRCharacter::ApplySmoothCameraControl_Rotation(float DeltaTime)
 	DeltaQuat.Normalize();
 	FRotator DeltaRotator = DeltaQuat.Rotator();
 	DeltaRotator.Roll = 0.0f;
-	Controller->SetControlRotation(DeltaRotator);
+
+	if (Controller)
+	{
+		Controller->SetControlRotation(DeltaRotator);
+	}
 }
 
 void AGRCharacter::ApplySmoothCameraControl_CameraArm(float DeltaTime)

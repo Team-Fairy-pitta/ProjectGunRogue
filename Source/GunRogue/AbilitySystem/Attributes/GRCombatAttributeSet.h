@@ -167,6 +167,14 @@ public:
 	FGameplayAttributeData ReloadRate;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ReloadRate)
 
+	//도트 대상 추가데미지
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|DotDamage", ReplicatedUsing = OnRep_BonusDamageVsDoT)
+	FGameplayAttributeData BonusDamageVsDoT;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, BonusDamageVsDoT)
+
+	// 무기 데미지 계산 (무기 공격력만)
+	float CalculateWeaponDamage() const;
+
 	// 약점 배율 계산
 	float CalculateCriticalMultiplier(bool bIsCritical) const;
 
@@ -175,9 +183,6 @@ public:
 
 	// 최종 데미지 계산 (모든 요소 통합)
 	float CalculateFinalWeaponDamage(bool bIsCritical, float TargetDamageReduction) const;
-
-	// 무기 데미지 계산 (무기 공격력만)
-	float CalculateWeaponDamage() const;
 
 	// ======== 스킬 데미지 ========
 	// 스킬 기본 공격력 (아이템으로 증가 가능)
@@ -287,6 +292,9 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_SkillCooldownReduction(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_BonusDamageVsDoT(const FGameplayAttributeData& OldBonusDamageVsDoT);
 
 private:
 	// 탄퍼짐 자동 회복을 위한 타이머

@@ -10,6 +10,7 @@
 const FName AGRNormalAIController::IsPlayerDetectedKey="IsPlayerDetected";
 const FName AGRNormalAIController::LastPlayerLocationKey="LastPlayerLocation";
 const FName AGRNormalAIController::PatrolStartLocationKey="PatrolStartLocation";
+const FName AGRNormalAIController::FireWithWeaponAbilityKey="FireWithWeaponAbility";
 
 AGRNormalAIController::AGRNormalAIController()
 {

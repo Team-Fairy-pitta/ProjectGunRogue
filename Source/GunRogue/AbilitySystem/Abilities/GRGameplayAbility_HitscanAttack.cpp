@@ -2,6 +2,7 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
+#include "AI/Character/GRAICharacter.h"
 
 void UGRGameplayAbility_HitscanAttack::FireWeapon()
 {
@@ -50,7 +51,7 @@ bool UGRGameplayAbility_HitscanAttack::TraceFromMuzzle(
 		OutHit,
 		MuzzleLocation,
 		TraceEnd,
-		ECC_Visibility,
+		ECC_GameTraceChannel3, // Weapon Channel
 		QueryParams
 	);
 }
@@ -76,6 +77,12 @@ void UGRGameplayAbility_HitscanAttack::HandleHit(const FHitResult& Hit)
 	}
 
 	if (SourceASC->GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
+	// AI만 타격
+	if (!HitActor->IsA(AGRAICharacter::StaticClass()))
 	{
 		return;
 	}

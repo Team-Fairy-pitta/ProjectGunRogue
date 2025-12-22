@@ -16,6 +16,12 @@ UGRGameplayAbility_FireWeapon::UGRGameplayAbility_FireWeapon()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	NoAmmoConsumeTag = FGameplayTag::RequestGameplayTag(FName("Item.Ammo.NoConsume"));
+	NoAmmoConsumeChance = 0.2f;
+
+	DotOnHitTag = FGameplayTag::RequestGameplayTag(FName("Item.Dot.OnHit"));
+	DotStateTag = FGameplayTag::RequestGameplayTag(FName("Item.Dot.DotState"));
 }
 
 void UGRGameplayAbility_FireWeapon::ActivateAbility(
@@ -195,6 +201,21 @@ bool UGRGameplayAbility_FireWeapon::CheckAndConsumeAmmo()
 	const bool bIsServer = (ASC->GetOwnerRole() == ROLE_Authority);
 	const FVector MuzzleLocation = GetMuzzleLocation();
 
+	bool bShouldConsumeAmmo = true;
+
+	if (ASC && NoAmmoConsumeTag.IsValid())
+	{
+		if (ASC->HasMatchingGameplayTag(NoAmmoConsumeTag))
+		{
+			const float Roll = FMath::FRand(); // 0.0 ~ 1.0
+			if (Roll < NoAmmoConsumeChance)
+			{
+				bShouldConsumeAmmo = false;
+				UE_LOG(LogTemp, Log, TEXT("[Fire] Ammo NOT consumed (Tag active, Roll=%.2f, Chance=%.2f)"), Roll, NoAmmoConsumeChance);
+			}
+		}
+	}
+
 	if (bIsServer)
 	{
 		// 서버: WeaponInstance 기반 탄약 처리
@@ -233,20 +254,26 @@ bool UGRGameplayAbility_FireWeapon::CheckAndConsumeAmmo()
 			return false;
 		}
 
-		if (!WeaponInstance->ConsumeAmmo())
+		if (bShouldConsumeAmmo)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[Fire] Server - Failed to consume ammo"));
-			return false;
-		}
+			if (!WeaponInstance->ConsumeAmmo())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[Fire] Server - Failed to consume ammo"));
+				return false;
+			}
 
-		// UI 업데이트
-		CombatSet->UpdateAmmoDisplay(
-			WeaponInstance->GetCurrentAmmo(),
-			WeaponInstance->GetMaxAmmo());
+			// UI 업데이트 (탄이 줄어든 경우만)
+			CombatSet->UpdateAmmoDisplay(WeaponInstance->GetCurrentAmmo(), WeaponInstance->GetMaxAmmo());
+		}
+		else
+		{
+			// 탄을 안 썼으니 UI 업데이트는 필요 없음
+			UE_LOG(LogTemp, Verbose, TEXT("[Fire] Server - Ammo kept (no-consume effect)"));
+		}
 	}
 	else
 	{
-		// 클라: AttributeSet 기반 체크
+		// 클라: AttributeSet 기반 체크 (기존 로직 그대로)
 		if (!CombatSet->CheckHasAmmo())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[Fire] Client - No ammo"));
@@ -406,6 +433,12 @@ void UGRGameplayAbility_FireWeapon::ApplyDamageEffect(
 		return;
 	}
 
+	if (TargetASC && DotStateTag.IsValid() && TargetASC->HasMatchingGameplayTag(DotStateTag))
+	{
+		const float Bonus = CombatSet ? CombatSet->GetBonusDamageVsDoT() : 0.0f;
+		Damage *= (1.0f + Bonus);
+	}
+
 	SpecHandle.Data->SetSetByCallerMagnitude(
 		FGameplayTag::RequestGameplayTag(FName("Attribute.Data.Damage")),
 		Damage);
@@ -413,6 +446,25 @@ void UGRGameplayAbility_FireWeapon::ApplyDamageEffect(
 	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 
 	UE_LOG(LogTemp, Log, TEXT("[Fire] Damage: %.1f"), Damage);
+
+	if (DotDamageEffect && SourceASC && TargetASC && DotOnHitTag.IsValid() && SourceASC->HasMatchingGameplayTag(DotOnHitTag))
+	{
+		FGameplayEffectContextHandle DotContext = SourceASC->MakeEffectContext();
+		DotContext.AddSourceObject(Character);
+		DotContext.AddHitResult(Hit);
+
+		FGameplayEffectSpecHandle DotSpecHandle = SourceASC->MakeOutgoingSpec(DotDamageEffect, 1.0f, DotContext);
+
+		if (DotSpecHandle.IsValid())
+		{
+			SourceASC->ApplyGameplayEffectSpecToTarget(*DotSpecHandle.Data.Get(), TargetASC);
+			UE_LOG(LogTemp, Log, TEXT("[Fire] Applied DoT to target (Item.Dot.OnHit)"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Fire] Invalid DoT SpecHandle"));
+		}
+	}
 
 #if WITH_EDITOR
 	if (GEngine)

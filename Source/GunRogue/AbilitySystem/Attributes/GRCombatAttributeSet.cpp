@@ -22,7 +22,7 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	DamageReduction = 0.0f;
 	IsCriticalHit = 0.0f;
 
-	FireRate = 2.0f;
+	FireRate = 0.0f;
 	Accuracy = 1.0f;
 	Recoil = 1.0f;
 	SpreadRecoveryRate = 0.5f;
@@ -41,6 +41,9 @@ UGRCombatAttributeSet::UGRCombatAttributeSet()
 	SkillDamage_Additive = 0.0f;
 	SkillDamage_Multiplicative = 0.0f;
 	SkillCooldownReduction = 0.0f;
+
+	BonusDamageVsDoT = 0.0f;
+
 }
 
 void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -82,6 +85,8 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SkillDamage_Additive, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SkillDamage_Multiplicative, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, SkillCooldownReduction, COND_None, REPNOTIFY_Always);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, BonusDamageVsDoT, COND_None, REPNOTIFY_Always);
 }
 
 void UGRCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -566,4 +571,9 @@ void UGRCombatAttributeSet::OnRep_SkillDamage_Multiplicative(const FGameplayAttr
 void UGRCombatAttributeSet::OnRep_SkillCooldownReduction(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, SkillCooldownReduction, OldValue);
+}
+
+void UGRCombatAttributeSet::OnRep_BonusDamageVsDoT(const FGameplayAttributeData& OldBonusDamageVsDoT)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRCombatAttributeSet, BonusDamageVsDoT, OldBonusDamageVsDoT);
 }
