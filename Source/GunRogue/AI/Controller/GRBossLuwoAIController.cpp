@@ -69,4 +69,6 @@ void AGRBossLuwoAIController::InitBlackboardKey()
 			BlackboardComp->SetValueAsObject(MapCenterTargetPointKey, Actor);
 		}
 	}
+
+	BlackboardComp->SetValueAsBool(IsBossModeKey, false);
 }

@@ -5,6 +5,7 @@
 #include "Character/GRCharacter.h"
 #include "AI/Controller/GRBossLuwoAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AGRBossRoomTrigger::AGRBossRoomTrigger()
 {
@@ -47,17 +48,24 @@ void AGRBossRoomTrigger::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherAc
 		return;
 	}
 	
-	bool bWasEmpty = BossAI->PlayersInBossRoomArray.Num() == 0;
-	if (bWasEmpty)
+	UBlackboardComponent* BB = BossAI->GetBlackboardComponent();
+	if (!BB)
 	{
-		UBlackboardComponent* BB = BossAI->GetBlackboardComponent();
-		if (BB)
-		{
-			BB->SetValueAsBool(BossAI->IsBossModeKey,true);
-		}
+		return;
 	}
-		
+
 	BossAI->AddPlayerInBossRoom(Player);
+	
+	int32 NumInRoom = BossAI->PlayersInBossRoomArray.Num();
+	TArray<AActor*> AllPlayers;
+	int32 TotalPlayers = GetWorld()->GetNumPlayerControllers();
+	if (NumInRoom == TotalPlayers)
+	{
+		BB->SetValueAsBool(BossAI->IsBossModeKey,true);
+	}
+
+	bool valueNow = BB->GetValueAsBool(BossAI->IsBossModeKey);
+	UE_LOG(LogTemp, Warning, TEXT("Blackboard Key [%s] now = %s"), *BossAI->IsBossModeKey.ToString(), valueNow ? TEXT("true") : TEXT("false"));
 }
 
 void AGRBossRoomTrigger::OnOverlapEnd(AActor* OverlappedActor, AActor* OtherActor)
@@ -89,6 +97,8 @@ void AGRBossRoomTrigger::OnOverlapEnd(AActor* OverlappedActor, AActor* OtherActo
 		return;
 	}
 	
+	BossAI->RemovePlayerInBossRoom(Player);
+	
 	bool bWasEmpty = BossAI->PlayersInBossRoomArray.Num() == 0;
 	if (bWasEmpty)
 	{
@@ -98,7 +108,5 @@ void AGRBossRoomTrigger::OnOverlapEnd(AActor* OverlappedActor, AActor* OtherActo
 			BB->SetValueAsBool(BossAI->IsBossModeKey,false);
 		}
 	}
-
-	BossAI->RemovePlayerInBossRoom(Player);
 }
 
