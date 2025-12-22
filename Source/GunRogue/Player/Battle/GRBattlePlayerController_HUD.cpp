@@ -179,9 +179,9 @@ void AGRBattlePlayerController::OnHealthChanged(const FOnAttributeChangeData& Da
 
 	if (Data.NewValue < Data.OldValue)
 	{
-		if (HealthHitEffect)
+		if (HealthHitEffectWidget)
 		{
-			UUserWidget* HPHitWidget = CreateWidget<UUserWidget>(this,HealthHitEffect);
+			UUserWidget* HPHitWidget = CreateWidget<UUserWidget>(this,HealthHitEffectWidget);
 			if (HPHitWidget)
 			{
 				HPHitWidget->AddToViewport();
@@ -201,9 +201,9 @@ void AGRBattlePlayerController::OnShieldChanged(const FOnAttributeChangeData& Da
 
 	if (Data.NewValue < Data.OldValue)
 	{
-		if (ShieldHitEffect)
+		if (ShieldHitEffectWidget)
 		{
-			UUserWidget* ShieldHitWidget = CreateWidget<UUserWidget>(this,ShieldHitEffect);
+			UUserWidget* ShieldHitWidget = CreateWidget<UUserWidget>(this,ShieldHitEffectWidget);
 			if (ShieldHitWidget)
 			{
 				ShieldHitWidget->AddToViewport();
