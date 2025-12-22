@@ -41,4 +41,8 @@ public:
 	// 모든 AI를 처치한다.
 	UFUNCTION(Exec)
 	void KillAllAI();
+
+	// 메시지 브로드캐스트 테스트
+	UFUNCTION(Exec)
+	void BroadcastMessage(FString Message);
 };
