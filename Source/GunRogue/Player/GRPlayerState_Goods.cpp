@@ -101,13 +101,19 @@ void AGRPlayerState::ApplyGoldGain(int32 Amount)
 
 void AGRPlayerState::OnRep_CurrentMetaGoods()
 {
-	UpdateMetaGoodsUI();
-	SavePerkToSave();
+	if (GetPawn() && GetPawn()->IsLocallyControlled())
+	{
+		UpdateMetaGoodsUI();
+		SavePerkToSave();
+	}
 }
 
 void AGRPlayerState::OnRep_Gold()
 {
-	UpdateGoldUI();
+	if (GetPawn() && GetPawn()->IsLocallyControlled())
+	{
+		UpdateGoldUI();
+	}
 }
 
 void AGRPlayerState::UpdateMetaGoodsUI()

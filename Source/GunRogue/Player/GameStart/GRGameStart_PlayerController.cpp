@@ -1,10 +1,13 @@
 #include "Player/GameStart/GRGameStart_PlayerController.h"
+#include "Player/GameStart/GRStartCheatManager.h"
 #include "UI/TitleHUD/GRTitleHUDWidget.h"
 #include "UI/TitleHUD/GRSettingWidget.h"
 
 AGRGameStart_PlayerController::AGRGameStart_PlayerController()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	CheatClass = UGRStartCheatManager::StaticClass();
 }
 
 void AGRGameStart_PlayerController::BeginPlay()

@@ -20,16 +20,6 @@ void AGRLobbyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-#if WITH_EDITOR
-	if (IsLocalController())
-	{
-		if (CheatManager == nullptr)
-		{
-			CheatManager = NewObject<UGRLobbyCheatManager>(this);
-		}
-	}
-#endif
-
 	if (IsLocalController())
 	{
 		CreateWidgets();

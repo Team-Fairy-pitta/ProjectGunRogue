@@ -16,6 +16,8 @@ class UAnimMontage;
 class UGRAbilitySet;
 class UGRWeaponOptionPool;
 class USoundBase;
+class AGRProjectile;
+class UGameplayEffect;
 
 UCLASS()
 class GUNROGUE_API UGRWeaponDefinition : public UDataAsset
@@ -39,6 +41,36 @@ public:
 	// 무기 아이콘
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	TObjectPtr<UTexture2D> WeaponIcon;
+
+	// ======== 발사 타입 ========
+	// 무기 발사 방식
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|FireType")
+	EGRWeaponFireType FireType = EGRWeaponFireType::Hitscan;
+
+	// ======== 투사체 설정 ========
+	// 투사체 클래스 (FireType이 Projectile일 때 사용)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Projectile",
+	meta = (EditCondition = "FireType == EGRWeaponFireType::Projectile", EditConditionHides))
+	TSubclassOf<AGRProjectile> ProjectileClass;
+
+	// 투사체 속도
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Projectile",
+		meta = (EditCondition = "FireType == EGRWeaponFireType::Projectile", EditConditionHides))
+	TSubclassOf<UGameplayEffect> DamageEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Projectile",
+	meta = (EditCondition = "FireType == EGRWeaponFireType::Projectile", EditConditionHides))
+	float ProjectileSpeed = 3000.0f;
+
+	// 투사체 중력 스케일 (0 = 중력 무시)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Projectile",
+	meta = (EditCondition = "FireType == EGRWeaponFireType::Projectile", EditConditionHides))
+	float ProjectileGravityScale = 0.0f;
+
+	// 투사체 수명 (초)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Projectile",
+		meta = (EditCondition = "FireType == EGRWeaponFireType::Projectile", EditConditionHides))
+	float ProjectileLifeSpan = 10.0f;
 
 	// ======== 메시 ========
 	// 무기 메시 (바닥에 떨어져 있을 때)

@@ -15,6 +15,7 @@ class UGRPlayerStatusWidget;
 class UGRTeamStatusListWidget;
 class UGRWeaponListWidget;
 class UGRSkillListWidget;
+class UGRBossBarWidget;
 /**
  * 
  */
@@ -39,6 +40,8 @@ public:
 	UGRWeaponListWidget* GetWeaponListWidget() const { return WeaponList; }
 
 	UGRRadarMapWidget* GetMinimapWidget() const { return Minimap; }
+
+	UGRBossBarWidget* GetBossHPBarWidget() const { return BossHPBar; }
 	
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -67,4 +70,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UGRSkillListWidget* SkillList;
+
+	UPROPERTY(meta = (BindWidget))	
+	UGRBossBarWidget* BossHPBar;
 };
