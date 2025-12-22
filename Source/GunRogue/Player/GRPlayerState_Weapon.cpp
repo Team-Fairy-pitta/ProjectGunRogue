@@ -314,6 +314,23 @@ void AGRPlayerState::MulticastRPC_PlayWeaponEquipAnimMontage_Implementation()
 	GRCharacter->PlayAnimMontage(EquipAnimMontage);
 }
 
+void AGRPlayerState::ServerRPC_ResetWeaponHandles_Implementation()
+{
+	for (int32 SlotIndex = 0; SlotIndex < WeaponSlots.Num(); ++SlotIndex)
+	{
+		const FGRWeaponHandle& Handle = WeaponSlots[SlotIndex];
+		if (Handle.IsEquipped())
+		{
+			ClientRPC_BroadcastOnWeaponEquipped(SlotIndex, Handle.GetWeaponDefinition());
+		}
+		if (Handle.IsActive())
+		{
+			SwitchToSlot(SlotIndex);
+			ClientRPC_BroadcastOnWeaponSwitched(INDEX_NONE, SlotIndex);
+		}
+	}
+}
+
 void AGRPlayerState::UpdateWeaponAttachToCharacter()
 {
 	if (!HasAuthority())

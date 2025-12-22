@@ -11,6 +11,16 @@ class UTexture2D;
 /**
  * 
  */
+UENUM(BlueprintType)
+enum class EPerkModifierOpType : uint8
+{
+	Add,
+	Multiply,
+	InverseMultiply,
+	Divide
+};
+
+
 USTRUCT(BlueprintType)
 struct FPerkInfoRow : public FTableRowBase
 {
@@ -42,4 +52,7 @@ struct FPerkInfoRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag PerkTag;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EPerkModifierOpType PerkModifierOp;
 };

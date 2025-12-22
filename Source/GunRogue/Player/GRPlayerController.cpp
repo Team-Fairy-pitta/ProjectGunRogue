@@ -1,5 +1,6 @@
 #include "Player/GRPlayerController.h"
 #include "Player/GRPlayerState.h"
+#include "GameFramework/GameStateBase.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/GRGameplayEffect.h"
 

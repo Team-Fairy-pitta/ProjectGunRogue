@@ -25,7 +25,10 @@ public:
 	TSubclassOf<AGRCharacter> GetSelectedCharacterClass(APlayerController* Player) const;
 
 protected:
+	UPROPERTY()
 	TArray<FString> PlayerIndexArray;
+
+	UPROPERTY()
 	TMap<FString, TSubclassOf<AGRCharacter>> SelectedCharacterMap;
 
 private:

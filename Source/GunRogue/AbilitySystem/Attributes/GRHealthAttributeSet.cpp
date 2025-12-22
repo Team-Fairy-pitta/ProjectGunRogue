@@ -31,6 +31,8 @@ UGRHealthAttributeSet::UGRHealthAttributeSet()
 	InitGainDamage(0.0f);
 	InitGainHealing(0.0f);
 	InitGainShield(0.0f);
+
+	InitHealthKitMultiplier(1.0f);
 }
 
 void UGRHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -45,6 +47,7 @@ void UGRHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldRegenInterval, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldRegenAmount, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldBreakInvincibleDuration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, HealthKitMultiplier, COND_None, REPNOTIFY_Always);
 }
 
 bool UGRHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
@@ -181,11 +184,23 @@ void UGRHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 	// GainHealing 처리
 	if (Data.EvaluatedData.Attribute == GetGainHealingAttribute())
 	{
-		const float LocalHealing = GetGainHealing();
+		float LocalHealing = GetGainHealing();
+		
 		SetGainHealing(0.0f);
 
 		if (LocalHealing > 0.0f)
 		{
+			const float Multiplier = GetHealthKitMultiplier();
+
+			UE_LOG(LogTemp, Warning,
+				TEXT("[Heal] Base=%f Multiplier=%f Final=%f"),
+				LocalHealing,
+				Multiplier,
+				LocalHealing * Multiplier
+			);
+
+			LocalHealing *= Multiplier;
+			
 			const float NewHealth = FMath::Clamp(GetHealth() + LocalHealing, 0.0f, GetMaxHealth());
 			SetHealth(NewHealth);
 		}
@@ -583,6 +598,11 @@ void UGRHealthAttributeSet::OnRep_ShieldRegenAmount(const FGameplayAttributeData
 void UGRHealthAttributeSet::OnRep_ShieldBreakInvincibleDuration(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, ShieldBreakInvincibleDuration, OldValue);
+}
+
+void UGRHealthAttributeSet::OnRep_HealthKitMultiplier(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRHealthAttributeSet, HealthKitMultiplier, OldValue);
 }
 
 void UGRHealthAttributeSet::ShowDamageIndicator(float Damage, AActor* Attacker, AActor* Target)

@@ -304,3 +304,50 @@ void AGRCharacter::PlayImpactFXLocal(const FVector& ImpactLocation)
 			true, EPSCPoolMethod::AutoRelease);
 	}
 }
+
+// === Skill FX ===
+
+void AGRCharacter::Multicast_PlaySkillSpawnEffects_Implementation(
+	const TArray<FVector>& Locations,
+	UNiagaraSystem* NiagaraEffect,
+	UParticleSystem* CascadeEffect,
+	float EffectScale,
+	USoundBase* SpawnSound)
+{
+	for (const FVector& Location : Locations)
+	{
+		// 나이아가라 우선
+		if (NiagaraEffect)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				NiagaraEffect,
+				Location,
+				FRotator::ZeroRotator,
+				FVector(EffectScale)
+			);
+		}
+		// 캐스케이드 대체
+		else if (CascadeEffect)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				CascadeEffect,
+				Location,
+				FRotator::ZeroRotator,
+				FVector(EffectScale)
+			);
+		}
+	}
+
+	// 사운드는 한 번만	재생
+	if (SpawnSound && Locations.Num() > 0)
+	{
+		// 캐릭터 위치에서 재생
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			SpawnSound,
+			GetActorLocation()
+		);
+	}
+}

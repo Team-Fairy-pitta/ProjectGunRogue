@@ -59,5 +59,6 @@ private:
 	UPROPERTY()
 	FGRWeaponInstance WeaponInstance;
 
+	UPROPERTY()
 	bool bIsActive = false;
 };
