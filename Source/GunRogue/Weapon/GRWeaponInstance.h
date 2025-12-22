@@ -3,73 +3,25 @@
 #include "UObject/NoExportTypes.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/GRGameplayEffect.h"
-#include "GRWeaponOptionPool.h"
 #include "GRWeaponInstance.generated.h"
 
 class UGRWeaponDefinition;
 class UGRAbilitySystemComponent;
 
-USTRUCT(BlueprintType)
-struct FGRConditionRuntime
-{
-	GENERATED_BODY()
 
-	UPROPERTY()
-	EGRConditionType ConditionType;
-
-	UPROPERTY()
-	EGRValueApplyType ApplyType;
-
-	UPROPERTY()
-	float Value;
-};
-
-USTRUCT(BlueprintType)
-struct FGREffectRuntime
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	EGREffectType EffectType;
-
-	UPROPERTY()
-	EGRValueApplyType ApplyType;
-
-	UPROPERTY()
-	float Value;
-};
 
 USTRUCT(BlueprintType)
 struct FWeaponOption
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	TSubclassOf<UGRGameplayEffect> EffectClass;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGRGameplayEffect> EffectClass = nullptr;
 
-	UPROPERTY()
-	TArray<FGRConditionRuntime> Conditions;
-
-	UPROPERTY()
-	TArray<FGREffectRuntime> Effects;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Value = 0.f;
 };
-
-//USTRUCT(BlueprintType)
-//struct FWeaponOption
-//{
-//	GENERATED_BODY()
-//
-//public:
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-//	TSubclassOf<UGRGameplayEffect> EffectClass;
-//
-//	// 실제 적용 값 (랜덤 결과)
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-//	TMap<EGRConditionType, float> ConditionValues;
-//
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-//	TMap<EGREffectType, float> EffectValues;
-//};
 
 // 무기의 런타임 정보를 기록하는 구조체
 // 강화 정보와 가지고 있는 옵션 정보를 저장한다.
