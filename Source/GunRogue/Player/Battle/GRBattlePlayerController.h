@@ -94,6 +94,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRDamageIndicator> DamageIndicatorWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UUserWidget> HealthHitEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UUserWidget> ShieldHitEffect;
+
 	UPROPERTY()
 	TObjectPtr<UGRGameOverWidget> GameOverWidgetInstance;
 

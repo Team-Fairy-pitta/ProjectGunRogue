@@ -15,13 +15,9 @@
   <component name="ChangeListManager">
     <list default="true" id="992caa9f-6972-42fb-8d48-05e4f4623c58" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GunRogue/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/UI/Augment/WBP_GRAugmentSlot.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/UI/Augment/WBP_GRAugmentSlot.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/UI/Augment/WBP_GRAugmentTooltip.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/UI/Augment/WBP_GRAugmentTooltip.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/UI/Inventory/Augment/WBP_Inventory_AugmentSlot.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/UI/Inventory/Augment/WBP_Inventory_AugmentSlot.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/UI/Augment/GRAugmentSlotWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/UI/Augment/GRAugmentSlotWidget.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/UI/Augment/GRAugmentSlotWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/UI/Augment/GRAugmentSlotWidget.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventoryAugmentSlot.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventoryAugmentSlot.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventoryAugmentSlot.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/UI/Inventory/GRInventoryAugmentSlot.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/Player/BP_GRBattlePlayerController.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/Player/BP_GRBattlePlayerController.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/Player/Battle/GRBattlePlayerController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/Player/Battle/GRBattlePlayerController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/Player/Battle/GRBattlePlayerController_HUD.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/Player/Battle/GRBattlePlayerController_HUD.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +56,7 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "feature/ui/inventorydesign",
+    "git-widget-placeholder": "feature/ui/hiteffect",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -211,6 +207,7 @@
       <workItem from="1765330870992" duration="1790000" />
       <workItem from="1765936732120" duration="8545000" />
       <workItem from="1766040522706" duration="3910000" />
+      <workItem from="1766365612761" duration="2039000" />
     </task>
     <servers />
   </component>
