@@ -9,7 +9,9 @@ UGRCriticalPowerUpEffect::UGRCriticalPowerUpEffect()
 	Mod.Attribute = UGRCombatAttributeSet::GetWeaponCriticalMultiplier_BonusAttribute();
 	Mod.ModifierOp = EGameplayModOp::Additive;
 
-	Mod.ModifierMagnitude = FScalableFloat(0.f);
+	FSetByCallerFloat SetByCallerMagnitude;
+	SetByCallerMagnitude.DataTag = FGameplayTag::RequestGameplayTag("Weapon.Option.Value.CriticalDamage_Bouus");
+	Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(SetByCallerMagnitude);
 
 	Modifiers.Add(Mod);
 }

@@ -9,7 +9,9 @@ UGRAttackPowerUpEffect::UGRAttackPowerUpEffect()
 	Mod.Attribute = UGRCombatAttributeSet::GetWeaponDamage_AdditiveAttribute();
 	Mod.ModifierOp = EGameplayModOp::Additive;
 
-	Mod.ModifierMagnitude = FScalableFloat(0.f);
+	FSetByCallerFloat SetByCallerMagnitude;
+	SetByCallerMagnitude.DataTag = FGameplayTag::RequestGameplayTag("Weapon.Option.Value.Damage_Additive");
+	Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(SetByCallerMagnitude);
 
 	Modifiers.Add(Mod);
 }

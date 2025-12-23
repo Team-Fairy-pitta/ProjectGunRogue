@@ -5,7 +5,7 @@ float UGRLowHealthAttackUpMMC::CalculateBaseMagnitude_Implementation(const FGame
 	const float Threshold =	Spec.GetSetByCallerMagnitude(
 			FGameplayTag::RequestGameplayTag("Weapon.Option.Threshold.CurrentHealth"),
 			false,
-			0.3f
+			0.f
 		);
 
 	if (!IsHealthBelow(Spec, Threshold))
@@ -21,7 +21,6 @@ float UGRLowHealthAttackUpMMC::CalculateBaseMagnitude_Implementation(const FGame
 		0.f
 	);
 
-	UE_LOG(LogTemp, Warning, TEXT("%f"), Value);
 
 	return Value;
 }

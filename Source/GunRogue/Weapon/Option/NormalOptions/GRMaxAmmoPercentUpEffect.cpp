@@ -10,7 +10,9 @@ UGRMaxAmmoPercentUpEffect::UGRMaxAmmoPercentUpEffect()
 	Mod.Attribute = UGRCombatAttributeSet::GetMaxAmmoAttribute();
 	Mod.ModifierOp = EGameplayModOp::MultiplyAdditive;
 
-	Mod.ModifierMagnitude = FScalableFloat(0.f);
+	FSetByCallerFloat SetByCallerMagnitude;
+	SetByCallerMagnitude.DataTag = FGameplayTag::RequestGameplayTag("Weapon.Option.Value.MaxAmmo");
+	Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(SetByCallerMagnitude);
 
 	Modifiers.Add(Mod);
 }
