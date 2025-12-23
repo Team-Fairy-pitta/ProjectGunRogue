@@ -42,7 +42,7 @@ protected:
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Radar")
-	float ScanRadius = 2000.f;
+	float ScanRadius = 4000.f;
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UGRRadarMapWidget> RadarMapWidgetInstance;
