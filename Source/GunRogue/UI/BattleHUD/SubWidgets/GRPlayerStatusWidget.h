@@ -9,6 +9,8 @@
 class UGRHPBarWidget;
 class UGRBuffIconWidget;
 class UWrapBox;
+class UImage;
+class UTexture2D;
 class UGameplayEffect;
 
 /**
@@ -25,6 +27,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UWrapBox* BuffIconContainer;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* PlayerFace;
 
 	UPROPERTY(EditDefaultsOnly, Category="Buff")
 	TSubclassOf<UGRBuffIconWidget> BuffIconClass;
@@ -43,6 +48,8 @@ public:
 	void SetPlayerMaxHealth(float Value);
 	void SetPlayerShield(float Value);
 	void SetPlayerMaxShield(float Value);
+
+	void SetCharacterThumbnail(UTexture2D* Thumbnail);
 	
 	UFUNCTION(BlueprintCallable)
 	void CreateBuffIcon();

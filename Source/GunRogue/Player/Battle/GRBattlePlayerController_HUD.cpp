@@ -1,4 +1,5 @@
 #include "Character/GRCharacter.h"
+#include "Character/GRPawnData.h"
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "GameModes/GRGameState.h"
@@ -67,6 +68,8 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 	
 	SyncGoldUI();
 	SyncMetaGoodsUI();
+
+	UpdateCharacterThumbnail();
 
 	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
 
@@ -218,6 +221,28 @@ void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData&
 	UpdatePlayerMaxShield(Data.NewValue);
 }
 
+UTexture2D* AGRBattlePlayerController::GetCharacterThumbnailOfPlayer(APlayerState* InPlayerState)
+{
+	if (!IsValid(InPlayerState))
+	{
+		return nullptr;
+	}
+
+	AGRCharacter* GRCharacter = InPlayerState->GetPawn<AGRCharacter>();
+	if (!IsValid(GRCharacter))
+	{
+		return nullptr;
+	}
+
+	const UGRPawnData* PawnData = GRCharacter->GetPawnData();
+	if (!PawnData)
+	{
+		return nullptr;
+	}
+
+	return PawnData->CharacterThumbnail;
+}
+
 void AGRBattlePlayerController::OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo)
 {
 	if (!HUDWidgetInstance)
@@ -359,6 +384,25 @@ void AGRBattlePlayerController::UpdatePlayerMaxShield(float Value)
 	PlayerStatusWidget->SetPlayerMaxShield(Value);
 }
 
+void AGRBattlePlayerController::UpdateCharacterThumbnail()
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
+	}
+
+	UGRPlayerStatusWidget* PlayerStatusWidget = HUDWidgetInstance->GetPlayerStatusWidget();
+	if (!PlayerStatusWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerStatusWidget (UGRPlayerStatusWidget) is INVALID"));
+		return;
+	}
+
+	UTexture2D* Thumbnail = GetCharacterThumbnailOfPlayer(GetPlayerState<APlayerState>());
+	PlayerStatusWidget->SetCharacterThumbnail(Thumbnail);
+}
+
 void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 {
 	if (!HUDWidgetInstance)
@@ -450,6 +494,10 @@ void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 
 		TeamStatusWidget->SetTeamHPBar(PlayerIndex, Health, MaxHealth);
 		TeamStatusWidget->SetTeamShieldBar(PlayerIndex, Shield, MaxShield);
+
+		UTexture2D* Thumbnail = GetCharacterThumbnailOfPlayer(OtherGRPlayerState);
+		TeamStatusWidget->SetTeamCharacterThumbnail(PlayerIndex, Thumbnail);
+
 		PlayerIndex += 1;
 	}
 }

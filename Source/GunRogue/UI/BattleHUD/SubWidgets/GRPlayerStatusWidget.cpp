@@ -7,6 +7,7 @@
 #include "GRHPBarWidget.h"
 #include "Components/WrapBox.h"
 #include "Components/WrapBoxSlot.h"
+#include "Components/Image.h"
 #include "AbilitySystem/GRGameplayEffect.h"
 
 void UGRPlayerStatusWidget::SetPlayerShieldBar(float CurrentShield, float MaxShield)
@@ -55,6 +56,20 @@ void UGRPlayerStatusWidget::SetPlayerMaxShield(float Value)
 		return;
 	}
 	PlayerHPBar->SetMaxShield(Value);
+}
+
+void UGRPlayerStatusWidget::SetCharacterThumbnail(UTexture2D* Thumbnail)
+{
+	if (!PlayerFace)
+	{
+		return;
+	}
+	if (!Thumbnail)
+	{
+		return;
+	}
+
+	PlayerFace->SetBrushFromTexture(Thumbnail);
 }
 
 void UGRPlayerStatusWidget::CreateBuffIcon()

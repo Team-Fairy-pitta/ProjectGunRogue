@@ -31,6 +31,8 @@ public:
 
 	void SetTeamHPBar(int32 Index, float CurrentHP, float MaxHP);
 
+	void SetTeamCharacterThumbnail(int32 Index, UTexture2D* Thumbnail);
+
 	UFUNCTION(BlueprintCallable)
 	void CreateTeamStatus();
 

@@ -17,6 +17,7 @@ class UGRGameOverWidget;
 class UGRRadarMapComponent;
 class UGRInGameHUDWidget;
 class AGRLuwoAICharacter;
+class UTexture2D;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
@@ -120,6 +121,7 @@ private:
 	void UpdatePlayerMaxHealth(float Value);
 	void UpdatePlayerShield(float Value);
 	void UpdatePlayerMaxShield(float Value);
+	void UpdateCharacterThumbnail();
 	
 	void OnUpdateOtherPlayerStatus();
 
@@ -127,6 +129,8 @@ private:
 	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
 	void OnShieldChanged(const FOnAttributeChangeData& Data);
 	void OnMaxShieldChanged(const FOnAttributeChangeData& Data);
+
+	UTexture2D* GetCharacterThumbnailOfPlayer(APlayerState* InPlayerState);
 
 	UFUNCTION()
 	void OnWeaponEquipped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
