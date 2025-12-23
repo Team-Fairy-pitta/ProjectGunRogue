@@ -45,4 +45,8 @@ public:
 	// 메시지 브로드캐스트 테스트
 	UFUNCTION(Exec)
 	void BroadcastMessage(FString Message,float ShowMessageTime);
+
+	// 특정 Index의 Player에게 10000골드를 지급한다.
+	UFUNCTION(Exec)
+	void ShowMeTheMoney(int32 InIndex);
 };
