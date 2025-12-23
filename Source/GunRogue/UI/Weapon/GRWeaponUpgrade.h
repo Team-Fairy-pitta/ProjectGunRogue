@@ -71,6 +71,7 @@ private:
 	void WeaponOptionUpdate();
 
 	void WeaponUpgradeCostUpdate(int32 UpgradeCost);
+	void WeaponMaxUpgradeUpdate();
 	void WeaponRerollCostUpdate(int32 RerollCost);
 
 	void OnOptionSelected(int32 InOptionSlotIndex);

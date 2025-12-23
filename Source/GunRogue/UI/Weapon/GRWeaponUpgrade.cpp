@@ -84,7 +84,14 @@ void UGRWeaponUpgrade::SettingWeapon()
 
 			int32 UpgradeCost = WeaponInstance->GetUpgradeCost();
 			int32 RerollCost = WeaponInstance->GetRerollCost();
-			WeaponUpgradeCostUpdate(UpgradeCost);
+			if (WeaponLevel < WeaponDefinition->MaxLevel)
+			{
+				WeaponUpgradeCostUpdate(UpgradeCost);
+			}
+			else
+			{
+				WeaponMaxUpgradeUpdate();
+			}
 			WeaponRerollCostUpdate(RerollCost);
 		}
 	}
@@ -337,6 +344,16 @@ void UGRWeaponUpgrade::WeaponUpgradeCostUpdate(int32 UpgradeCost)
 		UpgradeCostText->SetText(CostText);
 	}
 }
+
+void UGRWeaponUpgrade::WeaponMaxUpgradeUpdate()
+{
+	if (UpgradeCostText)
+	{
+		FText CostText = FText::FromString(FString(TEXT("MAX 강화")));
+		UpgradeCostText->SetText(CostText);
+	}
+}
+
 
 void UGRWeaponUpgrade::WeaponRerollCostUpdate(int32 RerollCost)
 {
