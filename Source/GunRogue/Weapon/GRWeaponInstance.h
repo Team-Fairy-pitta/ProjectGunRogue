@@ -16,11 +16,11 @@ struct FWeaponOption
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	TSubclassOf<UGRGameplayEffect> EffectClass = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Value = 0.f;
+	UPROPERTY()
+	TMap<FGameplayTag, float> Values;
 };
 
 // 무기의 런타임 정보를 기록하는 구조체

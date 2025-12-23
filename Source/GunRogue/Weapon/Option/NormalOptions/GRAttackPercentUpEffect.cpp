@@ -9,7 +9,9 @@ UGRAttackPercentUpEffect::UGRAttackPercentUpEffect ()
 	Mod.Attribute = UGRCombatAttributeSet::GetWeaponDamage_MultiplicativeAttribute();
 	Mod.ModifierOp = EGameplayModOp::Additive;
 
-	Mod.ModifierMagnitude = FScalableFloat(0.f);
+	FSetByCallerFloat SetByCallerMagnitude;
+	SetByCallerMagnitude.DataTag = FGameplayTag::RequestGameplayTag("Weapon.Option.Value.Damage_Multiplicative");
+	Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(SetByCallerMagnitude);
 
 	Modifiers.Add(Mod);
 }

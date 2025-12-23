@@ -41,10 +41,10 @@ void UGROptionSlot::InitSlot(int32 InSlotIndex, const FWeaponOption& InOptionDat
 		if (GRGE)
 		{
 			FText Desc = GRGE->EffectDescription;
-			const float OptionValue = InOptionData.Value;
+			//const float OptionValue = InOptionData.Value;
 
 			FString Str = Desc.ToString();
-			Str = Str.Replace(TEXT("#"), *FString::Printf(TEXT("%.1f"), OptionValue));
+			//Str = Str.Replace(TEXT("#"), *FString::Printf(TEXT("%.1f"), OptionValue));
 
 			OptionText->SetText(FText::Format(FText::FromString(TEXT("- {0}")),	FText::FromString(Str)));
 		}

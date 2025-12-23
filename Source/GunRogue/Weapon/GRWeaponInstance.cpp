@@ -86,13 +86,6 @@ void FGRWeaponInstance::UpgradeWeapon()
 			ApplyAllEffects();
 		}
 	}
-
-	for(FWeaponOption& Option : Options)
-	{
-		UE_LOG(LogTemp, Display, TEXT("Option Effect: %s with Value: %f"),
-			*Option.EffectClass->GetName(),
-			Option.Value);
-	}
 }
 
 void FGRWeaponInstance::ApplyAllEffects()
@@ -128,9 +121,13 @@ void FGRWeaponInstance::ApplyAllEffects()
 			continue;
 		}
 
-		FGameplayTag ValueTag = FGameplayTag::RequestGameplayTag("Data.OptionValue");
-
-		SpecHandle.Data->SetSetByCallerMagnitude(ValueTag, Option.Value);
+		for (const auto& Pair : Option.Values)
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(
+				Pair.Key,
+				Pair.Value
+			);
+		}
 
 		FActiveGameplayEffectHandle Handle = CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
@@ -183,14 +180,17 @@ FWeaponOption FGRWeaponInstance::RandomOption() const
 
 	const FOptionPoolEntry& Entry = Pool[FMath::RandRange(0, Pool.Num() - 1)];
 
-	float RandomValue = FMath::FRandRange(Entry.MinValue, Entry.MaxValue);
-	RandomValue = FMath::RoundToFloat(RandomValue * 10.0f) / 10.0f;
+	EmptyOption.EffectClass = Entry.EffectClass;
 
-	FWeaponOption NewOption;
-	NewOption.EffectClass = Entry.EffectClass;
-	NewOption.Value = RandomValue;
+	for (const FOptionValueRange& Range : Entry.ValueRanges)
+	{
+		float Value = FMath::FRandRange(Range.ValueRange.Min, Range.ValueRange.Max);
+		Value = FMath::RoundToFloat(Value * 10.f) / 10.f;
 
-	return NewOption;
+		EmptyOption.Values.Add(Range.DataTag, Value);
+	}
+
+	return EmptyOption;
 }
 
 void FGRWeaponInstance::RerollOption(int32 OptionSlotIndex)
