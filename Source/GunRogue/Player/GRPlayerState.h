@@ -263,6 +263,9 @@ private:
 
 	void DropWeaponAtPlayerFront(UGRWeaponDefinition* WeaponDefinition, const FGRWeaponInstance& Instance);
 
+	bool TryCommitUpgradeWeapon(const FGRWeaponInstance* WeaponInstance);
+	bool TryCommitRerollWeapon(const FGRWeaponInstance* WeaponInstance);
+
 #pragma endregion
 
 #pragma region Augment
