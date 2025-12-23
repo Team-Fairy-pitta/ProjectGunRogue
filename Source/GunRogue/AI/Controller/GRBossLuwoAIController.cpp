@@ -11,9 +11,20 @@ const FName AGRBossLuwoAIController::FarAttackRandomIndexKey="FarAttackRandomInd
 const FName AGRBossLuwoAIController::StartJumpTargetPointKey="StartJumpTargetPoint";
 const FName AGRBossLuwoAIController::ShieldRegenTargetPointKey="ShieldRegenTargetPoint";
 const FName AGRBossLuwoAIController::MapCenterTargetPointKey="MapCenterTargetPoint";
+const FName AGRBossLuwoAIController::IsBossModeKey="IsBossMode";
 
 AGRBossLuwoAIController::AGRBossLuwoAIController()
 {
+}
+
+void AGRBossLuwoAIController::AddPlayerInBossRoom(AActor* Player)
+{
+	PlayersInBossRoomArray.AddUnique(Player);
+}
+
+void AGRBossLuwoAIController::RemovePlayerInBossRoom(AActor* Player)
+{
+	PlayersInBossRoomArray.Remove(Player);
 }
 
 void AGRBossLuwoAIController::BeginPlay()
@@ -22,7 +33,10 @@ void AGRBossLuwoAIController::BeginPlay()
 
 	if (BlackboardComp)
 	{
-		InitBlackboardKey();
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+		{
+			InitBlackboardKey();
+		});
 	}
 }
 
@@ -55,4 +69,6 @@ void AGRBossLuwoAIController::InitBlackboardKey()
 			BlackboardComp->SetValueAsObject(MapCenterTargetPointKey, Actor);
 		}
 	}
+
+	BlackboardComp->SetValueAsBool(IsBossModeKey, false);
 }

@@ -319,6 +319,9 @@ public:
 	void AddMetaGoods(int32 Amount);
 	void AddGold(int32 Amount);
 
+	void ApplyGoldGain(int32 Amount);
+	void ApplyMetaGoodsGain(int32 Amount);
+
 	int32 GetCurrentMetaGoods() const { return CurrentMetaGoods; }
 	int32 GetGold() const { return Gold; }
 	
@@ -340,8 +343,14 @@ private:
 	UFUNCTION()
 	void OnRep_Gold();
 
-	UPROPERTY(EditAnywhere, Category="Goods")
-	TSubclassOf<UGameplayEffect> GoodsGE;
+	UPROPERTY(EditAnywhere, Category="Goods|GameplayEffect")
+	TSubclassOf<UGameplayEffect> GainGoldGE;
+
+	UPROPERTY(EditAnywhere, Category="Goods|GameplayEffect")
+	TSubclassOf<UGameplayEffect> GainGemGE;
+
+	UPROPERTY(EditAnywhere, Category="Goods|GameplayEffect")
+	TSubclassOf<UGameplayEffect> GainHealthKitGE;
 	
 #pragma endregion
 };

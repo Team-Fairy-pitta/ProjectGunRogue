@@ -36,35 +36,42 @@ UClass* AGRGameMode_Level1::GetDefaultPawnClassForController_Implementation(ACon
 	return GRGameInstance->GetSelectedCharacterClass(PlayerController);
 }
 
-void AGRGameMode_Level1::RespawnPlayer(AController* TargetPlayer, AActor* AlivePlayer)
+bool AGRGameMode_Level1::TryRespawnPlayer(AController* TargetPlayer, AActor* AlivePlayer)
 {
 	AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(TargetPlayer);
 	if (!IsValid(BattlePlayerController))
 	{
 		UE_LOG(LogTemp, Error, TEXT("TargetPlayer is NOT AGRBattlePlayerController"));
-		return;
+		return false;
 	}
 
 	AGRPlayerState* GRPlayerState = TargetPlayer->GetPlayerState<AGRPlayerState>();
 	if (!IsValid(GRPlayerState))
 	{
 		UE_LOG(LogTemp, Error, TEXT("GRPlayerState is INVALID"));
-		return;
+		return false;
 	}
-	GRPlayerState->RestoreHealthAndShield();
 
 	FTransform SpawnTransform;
-
 	SpawnTransform.SetLocation(FindSpawnableLocation(AlivePlayer));
-	SpawnTransform.SetScale3D(FVector::OneVector);
-	SpawnTransform.SetRotation(AlivePlayer->GetActorQuat());
 
 	RestartPlayerAtTransform(TargetPlayer, SpawnTransform);
 
-	BattlePlayerController->ClientRPC_OnRestartPlayer();
+	APawn* RestartedPawn = TargetPlayer->GetPawn();
+	if (!IsValid(RestartedPawn))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Fail: RespawnPlayer"));
+		return false;
+	}
+	else
+	{
+		GRPlayerState->RestoreHealthAndShield();
+		BattlePlayerController->ClientRPC_OnRestartPlayer();
+		return true;
+	}
 }
 
-void AGRGameMode_Level1::RespawnAllPlayers()
+void AGRGameMode_Level1::TryRespawnAllDeadPlayers()
 {
 	TArray<AGRPlayerState*> AlivePlayerStates;
 	TArray<AGRPlayerState*> DeadPlayerStates;
@@ -79,10 +86,12 @@ void AGRGameMode_Level1::RespawnAllPlayers()
 			{
 				if (GRPlayerState->IsDead())
 				{
+					UE_LOG(LogTemp, Log, TEXT("TryRespawnAllDeadPlayers: Add DeadPlayerStates %s"), *GRPlayerState->GetPlayerName());
 					DeadPlayerStates.Add(GRPlayerState);
 				}
 				else
 				{
+					UE_LOG(LogTemp, Log, TEXT("TryRespawnAllDeadPlayers: Add AlivePlayerStates %s"), *GRPlayerState->GetPlayerName());
 					AlivePlayerStates.Add(GRPlayerState);
 				}
 			}
@@ -91,7 +100,7 @@ void AGRGameMode_Level1::RespawnAllPlayers()
 
 	if (AlivePlayerStates.Num() <= 0)
 	{
-		UE_LOG(LogTemp, Error, TEXT("RespawnAllPlayers: AlivePlayerStates.Num() <= 0"));
+		UE_LOG(LogTemp, Error, TEXT("TryRespawnAllDeadPlayers: AlivePlayerStates.Num() <= 0"));
 		return;
 	}
 	
@@ -107,13 +116,16 @@ void AGRGameMode_Level1::RespawnAllPlayers()
 
 		APlayerController* PlayerController = PlayerState->GetPlayerController();
 		AActor* AlivePlayerActor = AlivePlayerStates[0]->GetPawn();
-		RespawnPlayer(PlayerController, AlivePlayerActor);
-		RespawnedPlayerCount += 1;
+		bool bRespawnSuccess = TryRespawnPlayer(PlayerController, AlivePlayerActor);
+		if (bRespawnSuccess)
+		{
+			RespawnedPlayerCount += 1;
+		}
 	}
 
 	if (RespawnedPlayerCount < DeadPlayerStates.Num())
 	{
-		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::RespawnAllPlayers);
+		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::TryRespawnAllDeadPlayers);
 	}
 }
 
@@ -142,7 +154,7 @@ void AGRGameMode_Level1::ReceiveDestroyEnemy()
 
 	if (EnemyCount <= 0)
 	{
-		RespawnAllPlayers();
+		TryRespawnAllDeadPlayers();
 	}
 }
 
@@ -197,6 +209,19 @@ void AGRGameMode_Level1::RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1C
 {
 	Panels.Remove(Level1ControlPanel);
 	UpdateLevel1ControlPanel();
+}
+
+void AGRGameMode_Level1::BroadcastNotifyMessage(const FText& Message, float ShowMessageTime)
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AGRBattlePlayerController* PC = Cast<AGRBattlePlayerController>(It->Get());
+
+		if (PC)
+		{
+			PC->ClientRPC_ShowNotifyMessage(Message,ShowMessageTime);
+		}
+	}
 }
 
 void AGRGameMode_Level1::UpdateLevel1ControlPanel()

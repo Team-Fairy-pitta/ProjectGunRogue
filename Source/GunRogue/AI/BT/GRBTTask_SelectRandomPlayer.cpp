@@ -4,7 +4,6 @@
 #include "AI/BT/GRBTTask_SelectRandomPlayer.h"
 #include "AI/Controller/GRBossLuwoAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Character/GRCharacter.h"
 
 UGRBTTask_SelectRandomPlayer::UGRBTTask_SelectRandomPlayer()
@@ -14,6 +13,12 @@ UGRBTTask_SelectRandomPlayer::UGRBTTask_SelectRandomPlayer()
 
 EBTNodeResult::Type UGRBTTask_SelectRandomPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	AGRBossLuwoAIController* BossAI = Cast<AGRBossLuwoAIController>(OwnerComp.GetAIOwner());
+	if (!BossAI)
+	{
+		return EBTNodeResult::Failed;
+	}
+	
 	UBlackboardComponent* BB = OwnerComp.GetBlackboardComponent();
 	if (!BB)
 	{
@@ -25,19 +30,22 @@ EBTNodeResult::Type UGRBTTask_SelectRandomPlayer::ExecuteTask(UBehaviorTreeCompo
 	{
 		return EBTNodeResult::Failed;
 	}
-
-	TArray<AActor*> Players;
-	UGameplayStatics::GetAllActorsOfClass(World, AGRCharacter::StaticClass(), Players);
-
-	if (Players.Num() == 0)
+	
+	if ( BossAI->PlayersInBossRoomArray.Num() == 0)
 	{
 		return EBTNodeResult::Failed;
 	}
 
 	TArray<AActor*> ValidPlayers;
-	for (AActor* Player : Players)
+	for (auto& WeakPtr : BossAI->PlayersInBossRoomArray)
 	{
-		AGRCharacter* PlayerCharacter = Cast<AGRCharacter>(Player);
+		AActor* Actor = WeakPtr.Get();
+		if (!Actor)
+		{
+			continue;
+		}
+		
+		AGRCharacter* PlayerCharacter = Cast<AGRCharacter>(Actor);
 		if (!PlayerCharacter)
 		{
 			continue;

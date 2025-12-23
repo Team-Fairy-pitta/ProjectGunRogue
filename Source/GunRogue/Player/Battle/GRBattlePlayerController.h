@@ -61,6 +61,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_ShowDamageIndicator(float Damage, AActor* DamagedActor);
 
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowNotifyMessage(const FText& Message, float ShowMessageTime);
+
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void ServerRPC_GameOver();
 
@@ -93,6 +96,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRDamageIndicator> DamageIndicatorWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UUserWidget> HealthHitEffectWidget;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UUserWidget> ShieldHitEffectWidget;
 
 	UPROPERTY()
 	TObjectPtr<UGRGameOverWidget> GameOverWidgetInstance;
@@ -132,6 +141,9 @@ private:
 	void OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo);
 
 	void ShowDamageIndicator(float Damage, AActor* DamagedActor);
+
+	UFUNCTION()
+	void ShowNotifyMessage(const FText& Message, float ShowMessageTime);
 
 #pragma endregion HUD
 

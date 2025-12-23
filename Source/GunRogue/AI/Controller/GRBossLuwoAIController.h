@@ -32,7 +32,8 @@ class GUNROGUE_API AGRBossLuwoAIController : public AGRAIController
 
 public:
 	AGRBossLuwoAIController();
-
+	void AddPlayerInBossRoom(AActor* Player);
+	void RemovePlayerInBossRoom(AActor* Player);
 protected:
 	virtual void BeginPlay() override;
 
@@ -45,6 +46,8 @@ public:
 	static const FName StartJumpTargetPointKey;
 	static const FName ShieldRegenTargetPointKey;
 	static const FName MapCenterTargetPointKey;
+	static const FName IsBossModeKey;
 	
-	
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AActor>> PlayersInBossRoomArray;
 };

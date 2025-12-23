@@ -17,8 +17,8 @@ public:
 	virtual void BeginPlay() override;
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 	
-	void RespawnPlayer(AController* TargetPlayer, AActor* AlivePlayer);
-	void RespawnAllPlayers();
+	bool TryRespawnPlayer(AController* TargetPlayer, AActor* AlivePlayer);
+	void TryRespawnAllDeadPlayers();
 
 	FGRLevel1Node* GetLevel1Node(int32 Index);
 
@@ -39,6 +39,9 @@ public:
 
 	void AddLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
 	void RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
+
+	UFUNCTION(BlueprintCallable)
+	void BroadcastNotifyMessage(const FText& Message, float ShowMessageTime);
 
 private:
 	UPROPERTY()

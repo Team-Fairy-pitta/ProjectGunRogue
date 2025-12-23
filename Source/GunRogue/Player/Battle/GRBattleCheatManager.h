@@ -34,7 +34,15 @@ public:
 	UFUNCTION(Exec)
 	void RespawnPlayer(int32 InIndex);
 
+	// 죽어있는 모든 Playey를 리스폰한다.
+	UFUNCTION(Exec)
+	void RespawnAllDeadPlayer();
+
 	// 모든 AI를 처치한다.
 	UFUNCTION(Exec)
 	void KillAllAI();
+
+	// 메시지 브로드캐스트 테스트
+	UFUNCTION(Exec)
+	void BroadcastMessage(FString Message,float ShowMessageTime);
 };

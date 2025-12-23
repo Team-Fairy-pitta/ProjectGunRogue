@@ -55,7 +55,7 @@ void UGRPerkListWidget::SetPerkCategoryText(FName InCategory)
 	{
 		PerkCategoryText->SetText(FText::FromString(TEXT("스킬")));
 	}
-	else if (InCategory == FName("SubSkill"))
+	else if (InCategory == FName("Support"))
 	{
 		PerkCategoryText->SetText(FText::FromString((TEXT("보조"))));
 	}

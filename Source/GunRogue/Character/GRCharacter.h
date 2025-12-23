@@ -15,6 +15,7 @@ class UGRInteractionComponent;
 class UGRAttachmentComponent;
 class UGRZLocationComponent;
 class UGRPawnData;
+class UNiagaraSystem;
 
 UCLASS()
 class GUNROGUE_API AGRCharacter : public ACharacter, public IAbilitySystemInterface
@@ -107,7 +108,17 @@ public:
 	void PlayFireFXLocal(const FVector& MuzzleLocation, const FVector& TraceEnd);
 	void PlayEmptyFireFXLocal(const FVector& MuzzleLocation);
 	void PlayImpactFXLocal(const FVector& ImpactLocation);
-#pragma endregion
+#pragma endregion WeaponFX
+
+#pragma region SkillFX
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlaySkillSpawnEffects(
+		const TArray<FVector>& Locations,
+		UNiagaraSystem* NiagaraEffect,
+		UParticleSystem* CascadeEffect,
+		float EffectScale,
+		USoundBase* SpawnSound);
+#pragma endregion SkillFX
 
 #pragma region SmoothCameraControl
 public:

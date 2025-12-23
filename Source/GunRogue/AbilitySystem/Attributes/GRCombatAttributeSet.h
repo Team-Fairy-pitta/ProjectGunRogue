@@ -138,6 +138,16 @@ public:
 	FGameplayAttributeData CurrentSpread;
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, CurrentSpread)
 
+	// 폭발 범위 (0이면 폭발 없음)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon|Explosion", ReplicatedUsing = OnRep_ExplosionRadius)
+	FGameplayAttributeData ExplosionRadius;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ExplosionRadius)
+
+	// 폭발 데미지 감쇠 비율 (0.0 ~ 1.0) 낮을 수록 가장자리 갈 수록 데미지 낮아짐.
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Weapon|Explosion", ReplicatedUsing = OnRep_ExplosionFalloff)
+	FGameplayAttributeData ExplosionFalloff;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, ExplosionFalloff)
+
 	// 탄퍼짐 회복 관련 고정 상수
 	static constexpr float SPREAD_RECOVERY_DELAY = 0.2f;      // 사격 멈추고 회복시작 하기까지 딜레이(인터벌보다 커야 사격 중 회복 안 됨)
 	static constexpr float SPREAD_RECOVERY_INTERVAL = 0.1f;   // 0.1초마다 회복 틱
@@ -173,6 +183,33 @@ public:
 
 	// 최종 데미지 계산 (모든 요소 통합)
 	float CalculateFinalWeaponDamage(bool bIsCritical, float TargetDamageReduction) const;
+
+	// ======== 스킬 데미지 ========
+	// 스킬 기본 공격력 (아이템으로 증가 가능)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|SkillDamage", ReplicatedUsing = OnRep_SkillDamage_Base)
+	FGameplayAttributeData SkillDamage_Base;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SkillDamage_Base)
+
+	// 스킬 공격력 증가 (Flat Addition)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|SkillDamage", ReplicatedUsing = OnRep_SkillDamage_Additive)
+	FGameplayAttributeData SkillDamage_Additive;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SkillDamage_Additive)
+
+	// 스킬 공격력 증폭 (Multiplier)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|SkillDamage", ReplicatedUsing = OnRep_SkillDamage_Multiplicative)
+	FGameplayAttributeData SkillDamage_Multiplicative;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SkillDamage_Multiplicative)
+
+	// 스킬 쿨타임 감소 (0.0 ~ 0.9, 최대 90% 감소)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Skill", ReplicatedUsing = OnRep_SkillCooldownReduction)
+	FGameplayAttributeData SkillCooldownReduction;
+	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SkillCooldownReduction)
+
+	// 스킬 데미지 계산
+	float CalculateSkillDamage() const;
+
+	// 최종 스킬 데미지 계산 (스킬 데미지 + 최종 피해 배율)
+	float CalculateFinalSkillDamage(float TargetDamageReduction) const;
 
 protected:
 	UFUNCTION()
@@ -230,6 +267,12 @@ protected:
 	virtual void OnRep_CurrentSpread(const FGameplayAttributeData& OldCurrentSpread);
 
 	UFUNCTION()
+	virtual void OnRep_ExplosionRadius(const FGameplayAttributeData& OldExplosionRadius);
+
+	UFUNCTION()
+	virtual void OnRep_ExplosionFalloff(const FGameplayAttributeData& OldExplosionFalloff);
+
+	UFUNCTION()
 	virtual void OnRep_CurrentAmmo(const FGameplayAttributeData& OldCurrentAmmo);
 
 	UFUNCTION()
@@ -239,7 +282,20 @@ protected:
 	virtual void OnRep_ReloadRate(const FGameplayAttributeData& OldReloadRate);
 
 	UFUNCTION()
+	virtual void OnRep_SkillDamage_Base(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_SkillDamage_Additive(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_SkillDamage_Multiplicative(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_SkillCooldownReduction(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
 	virtual void OnRep_BonusDamageVsDoT(const FGameplayAttributeData& OldBonusDamageVsDoT);
+
 private:
 	// 탄퍼짐 자동 회복을 위한 타이머
 	TMap<TWeakObjectPtr<UAbilitySystemComponent>, FTimerHandle> SpreadRecoveryTimers;

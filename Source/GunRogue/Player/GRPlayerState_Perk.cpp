@@ -140,7 +140,6 @@ void AGRPlayerState::ServerRPC_SetCurrentMetaGoods_Implementation(int32 InMetaGo
 {
 	CurrentMetaGoods = InMetaGoods;	
 }
-
 void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation(const TArray<FPerkEntry>& PerkInfos)
 {
 	if (!HasAuthority())
@@ -193,30 +192,30 @@ void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation(const TArray<FP
 		float LevelBonus = Row->ValuePerLevel * Entry.Level;
 		float FinalValue = LevelBonus;
 
-		if (Entry.PerkID == FName("Health") || Entry.PerkID == FName("Shield") || Entry.PerkID == FName("ShieldInvincibleTime") ||
-			Entry.PerkID == FName("ShotgunTraining") || Entry.PerkID == FName("SniperTraining") || Entry.PerkID == FName("WeaponDamage"))
+		if (Row->PerkModifierOp == EPerkModifierOpType::Add)
 		{
 			FinalValue = LevelBonus;
 		}
-		else if (Entry.PerkID == FName("ShieldCooldown") || Entry.PerkID == FName("StrengthenShield") || Entry.PerkID == FName("PistolTraining"))
-		{
-			FinalValue = FMath::Clamp(1.0f - LevelBonus, 0.0f, 1.0f);
-		}
-		else if (Entry.PerkID == FName("RifleTraining"))
+		else if (Row->PerkModifierOp == EPerkModifierOpType::Multiply)
 		{
 			FinalValue = FMath::Clamp(1.0f + LevelBonus, 0.0f, 10.0f);
+		}
+		else if (Row->PerkModifierOp == EPerkModifierOpType::InverseMultiply)
+		{
+			FinalValue = FMath::Clamp(1.0f - LevelBonus, 0.0f, 1.0f);
 		}
 		else
 		{
 			continue;
 		}
-
+		
 		SpecHandle.Data->SetSetByCallerMagnitude(Row->PerkTag, FinalValue);
 		UE_LOG(LogTemp, Warning, TEXT(" -> SetByCaller %s = %f"), *Row->PerkTag.ToString(), FinalValue);
 	}
 
 	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
+
 #pragma endregion
 
 // AI의 도움을 받아 생성한 PIE용 함수
