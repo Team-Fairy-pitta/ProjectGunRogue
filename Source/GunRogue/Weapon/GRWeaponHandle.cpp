@@ -24,7 +24,6 @@ void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefin
 	WeaponInstance = InWeaponInstance;
 
 	WeaponInstance.Init(CachedASC, WeaponDefinition);
-	//WeaponInstance.ApplyAllEffects();
 
 	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.CurrentLevel: %d"),
 		*WeaponDefinition->WeaponName.ToString(),

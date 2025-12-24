@@ -84,9 +84,6 @@ void FGRWeaponInstance::UpgradeWeapon()
 		if (NewOption.EffectClass)
 		{
 			Options.Add(NewOption);
-
-			//ClearEffects();
-			//ApplyAllEffects();
 		}
 	}
 }
@@ -222,8 +219,6 @@ void FGRWeaponInstance::RerollOption(int32 OptionSlotIndex)
 	{
 		Options[OptionSlotIndex] = NewOption;
 		RerollCount += 1;
-		//ClearEffects();
-		//ApplyAllEffects();
 	}
 }
 
@@ -251,8 +246,6 @@ void FGRWeaponInstance::AllRerollOption()
 		}
 	}
 	RerollCount += 1;
-	//ClearEffects();
-	//ApplyAllEffects();
 }
 
 int32 FGRWeaponInstance::GetUpgradeCost() const
