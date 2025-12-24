@@ -24,6 +24,9 @@ public:
 
 	UPROPERTY()
 	bool bIsPercentValue = false;
+
+	UPROPERTY()
+	bool bIsAdditivePercent = false;
 };
 
 // 무기의 런타임 정보를 기록하는 구조체

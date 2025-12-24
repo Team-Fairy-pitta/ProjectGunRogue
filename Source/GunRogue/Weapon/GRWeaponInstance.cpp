@@ -85,8 +85,8 @@ void FGRWeaponInstance::UpgradeWeapon()
 		{
 			Options.Add(NewOption);
 
-			ClearEffects();
-			ApplyAllEffects();
+			//ClearEffects();
+			//ApplyAllEffects();
 		}
 	}
 }
@@ -191,8 +191,8 @@ FWeaponOption FGRWeaponInstance::RandomOption() const
 		Value = FMath::RoundToFloat(Value * 10.f) / 10.f;
 
 		EmptyOption.Values.Add(Range.DataTag, Value);
-
 		EmptyOption.bIsPercentValue = Range.bIsPercentValue;
+		EmptyOption.bIsAdditivePercent = Range.bIsAdditivePercent;
 	}
 
 	return EmptyOption;
@@ -222,8 +222,8 @@ void FGRWeaponInstance::RerollOption(int32 OptionSlotIndex)
 	{
 		Options[OptionSlotIndex] = NewOption;
 		RerollCount += 1;
-		ClearEffects();
-		ApplyAllEffects();
+		//ClearEffects();
+		//ApplyAllEffects();
 	}
 }
 
@@ -251,8 +251,8 @@ void FGRWeaponInstance::AllRerollOption()
 		}
 	}
 	RerollCount += 1;
-	ClearEffects();
-	ApplyAllEffects();
+	//ClearEffects();
+	//ApplyAllEffects();
 }
 
 int32 FGRWeaponInstance::GetUpgradeCost() const

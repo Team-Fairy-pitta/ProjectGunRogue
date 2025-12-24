@@ -222,6 +222,12 @@ void AGRPlayerState::ServerRPC_UpgradeWeapon_Implementation(int32 SlotIndex)
 	{
 		WeaponInstance->UpgradeWeapon();
 		OnRep_WeaponDataUpdata();
+
+		if (SlotIndex == CurrentWeaponSlot)
+		{
+			WeaponInstance->ClearEffects();
+			WeaponInstance->ApplyAllEffects();
+		}
 	}
 }
 
@@ -300,6 +306,12 @@ void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeap
 	{
 		WeaponInstance->AllRerollOption();
 		OnRep_WeaponDataUpdata();
+
+		if (InWeaponSlotIndex == CurrentWeaponSlot)
+		{
+			WeaponInstance->ClearEffects();
+			WeaponInstance->ApplyAllEffects();
+		}
 	}
 }
 
@@ -338,6 +350,12 @@ void AGRPlayerState::ServerRPC_RerollOptionWeapon_Implementation(int32 InWeaponS
 	{
 		WeaponInstance->RerollOption(InOptionSlotIndex);
 		OnRep_WeaponDataUpdata();
+
+		if (InWeaponSlotIndex == CurrentWeaponSlot)
+		{
+			WeaponInstance->ClearEffects();
+			WeaponInstance->ApplyAllEffects();
+		}
 	}
 }
 

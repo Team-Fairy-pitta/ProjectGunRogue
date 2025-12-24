@@ -50,6 +50,10 @@ void UGROptionSlot::InitSlot(int32 InSlotIndex, const FWeaponOption& InOptionDat
 				if (InOptionData.bIsPercentValue)
 				{
 					TargetValue = Pair.Value * 100;
+					if (InOptionData.bIsAdditivePercent)
+					{
+						TargetValue -= 100.0f; // [Note] 공격력이 130% 된다. -> 공격력이 30% 증가
+					}
 				}
 				else
 				{

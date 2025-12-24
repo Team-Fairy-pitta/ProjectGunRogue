@@ -21,6 +21,9 @@ struct FOptionValueRange
 
 	UPROPERTY(EditAnywhere)
 	bool bIsPercentValue = false;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsAdditivePercent = false;
 };
 
 USTRUCT(BlueprintType)
