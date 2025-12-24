@@ -20,17 +20,17 @@ protected:
 	UTextBlock* CurrentLocText;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* DifficultyText;
-
-	UPROPERTY(meta = (BindWidget))
 	UTextBlock* PlayingTimeText;
 
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+	void UpdateGamePlayingTime();
+
+	FTimerHandle GamePlayTimer;
 
 public:
 	void SetCurrentLocText(const FText& InText);
-
-	void SetDifficultyText(const FText& InText);
 	
 	void SetPlayingTime(int32 InSeconds);
 };

@@ -32,6 +32,8 @@ public:
 
 	AGRLuwoAICharacter* GetCurrentBoss() const { return CurrentBoss; }
 
+	FString GetCurrentLocationString();
+
 protected:
 	UFUNCTION()
 	void OnRep_CurrentBoss();

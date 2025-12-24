@@ -71,6 +71,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_GameOver();
 
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_UpdateCurrentLocationText();
+
 	UFUNCTION(BlueprintCallable)
 	void ShowGameOverWidget();
 

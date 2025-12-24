@@ -53,7 +53,7 @@ void ATestUIPlayerController::SetDefaultValueInBattleHUDWidget()
 	if (UGRLevelStatusWidget* LevelStatusWidget = BattleHUDWidget->GetLevelStatusWidget())
 	{
 		LevelStatusWidget->SetCurrentLocText(FText::FromString(TEXT("구역 1-1")));
-		LevelStatusWidget->SetDifficultyText(FText::FromString(TEXT("어려움")));
+		// LevelStatusWidget->SetDifficultyText(FText::FromString(TEXT("어려움")));
 		LevelStatusWidget->SetPlayingTime(PlayingTimeSeconds);
 	}
 

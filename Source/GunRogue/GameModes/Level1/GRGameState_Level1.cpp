@@ -123,6 +123,13 @@ void AGRGameState_Level1::ClearCurrentBoss()
 	OnRep_CurrentBoss();
 }
 
+FString AGRGameState_Level1::GetCurrentLocationString()
+{
+	int32 MainLevel = 1;
+	int32 SubLevel = Level;
+	return FString::Printf(TEXT("%d-%d"), MainLevel, SubLevel);
+}
+
 void AGRGameState_Level1::OnRep_CurrentBoss()
 {
 	UWorld* World = GetWorld();

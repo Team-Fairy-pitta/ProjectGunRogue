@@ -3,10 +3,57 @@
 
 #include "GRLevelStatusWidget.h"
 #include "Components/TextBlock.h"
+#include "GameModes/Level1/GRGameState_Level1.h"
 
 void UGRLevelStatusWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (GamePlayTimer.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(GamePlayTimer);
+		GamePlayTimer.Invalidate();
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(GamePlayTimer, this, &ThisClass::UpdateGamePlayingTime, 0.1f, true);
+}
+
+void UGRLevelStatusWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (GamePlayTimer.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(GamePlayTimer);
+		GamePlayTimer.Invalidate();
+	}
+}
+
+void UGRLevelStatusWidget::UpdateGamePlayingTime()
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGameStateBase* GameStateBase = GetWorld()->GetGameState();
+	if (!IsValid(GameStateBase))
+	{
+		return;
+	}
+
+	float ServerWorldTime = GameStateBase->GetServerWorldTimeSeconds();
+	SetPlayingTime(ServerWorldTime);
 }
 
 void UGRLevelStatusWidget::SetCurrentLocText(const FText& InText)
@@ -17,16 +64,6 @@ void UGRLevelStatusWidget::SetCurrentLocText(const FText& InText)
 	}
 
 	CurrentLocText->SetText(InText);
-}
-
-void UGRLevelStatusWidget::SetDifficultyText(const FText& InText)
-{
-	if (!DifficultyText)
-	{
-		return;
-	}
-
-	DifficultyText->SetText(InText);
 }
 
 void UGRLevelStatusWidget::SetPlayingTime(int32 InSeconds)
