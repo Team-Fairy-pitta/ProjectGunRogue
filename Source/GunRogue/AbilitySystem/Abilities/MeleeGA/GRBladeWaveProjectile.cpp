@@ -1,5 +1,6 @@
 #include "AbilitySystem/Abilities/MeleeGA/GRBladeWaveProjectile.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
@@ -52,46 +53,58 @@ void AGRBladeWaveProjectile::BeginPlay()
 	SetActorScale3D(FVector(WaveScale));
 }
 
-void AGRBladeWaveProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AGRBladeWaveProjectile::OnOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
 {
-	if (!OtherActor || OtherActor == GetOwner())
-	{
-		return;
-	}
-
 	if (!HasAuthority())
 	{
 		return;
 	}
 
-	ApplyDamageTo(OtherActor, SweepResult);
+	if (!OtherActor || OtherActor == this || OtherActor == GetOwner())
+	{
+		return;
+	}
 
-	if (!bPierce)
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor);
+
+	if (!TargetASC)
 	{
 		Destroy();
+		return;
 	}
-}
-
-void AGRBladeWaveProjectile::ApplyDamageTo(AActor* TargetActor, const FHitResult& Hit) const
-{
-	if (!TargetActor || !DamageEffect) return;
 
 	AActor* OwnerActor = GetOwner();
-	if (!OwnerActor) return;
+	if (!OwnerActor || !DamageEffect)
+	{
+		Destroy();
+		return;
+	}
 
-	UAbilitySystemComponent* SourceASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwnerActor);
-	UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
-	if (!SourceASC || !TargetASC) return;
+	UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerActor);
 
-	FGameplayEffectContextHandle Ctx = SourceASC->MakeEffectContext();
-	Ctx.AddSourceObject(this);
-	Ctx.AddHitResult(Hit);
+	if (!SourceASC)
+	{
+		Destroy();
+		return;
+	}
 
-	FGameplayEffectSpecHandle Spec = SourceASC->MakeOutgoingSpec(DamageEffect, 1.0f, Ctx);
-	if (!Spec.IsValid()) return;
+	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+	Context.AddSourceObject(this);
+	Context.AddHitResult(SweepResult);
 
-	Spec.Data->SetSetByCallerMagnitude(DataTag_Damage, Damage);
+	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, 1.0f, Context);
 
-	SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
+	if (SpecHandle.IsValid() && SpecHandle.Data.IsValid())
+	{
+		SpecHandle.Data->SetSetByCallerMagnitude(DataTag_Damage, Damage);
+		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+	}
+
+	Destroy();
 }
-

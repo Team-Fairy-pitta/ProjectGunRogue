@@ -50,7 +50,4 @@ private:
 		int32 OtherBodyIndex,
 		bool bFromSweep,
 		const FHitResult& SweepResult);
-
-	void ApplyDamageTo(AActor* TargetActor, const FHitResult& Hit) const;
-
 };

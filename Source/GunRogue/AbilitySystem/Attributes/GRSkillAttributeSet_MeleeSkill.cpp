@@ -19,7 +19,6 @@ UGRSkillAttributeSet_MeleeSkill::UGRSkillAttributeSet_MeleeSkill()
 	InitBladeWave_DamageMultiplier(1.0f);
 	InitBladeWave_BaseFireInterval(0.8f);
 	InitBladeWave_SlowFireIntervalMultiplier(1.6f);
-	InitBladeWave_BaseDamage(10.0f);
 	InitBladeWave_BaseWaveScale(1.0f);
 	InitBladeWave_SizeAndDamageUp_ScaleMultiplier(1.35f);
 }

@@ -51,7 +51,9 @@ void UGRGameplayAbility_BladeWaveFire::ActivateAbility(
 	}
 
 	UGRAbilitySystemComponent* GRASC = GetGRASC();
+
 	const UGRSkillAttributeSet_MeleeSkill* SkillSet = GetSkillSet();
+
 	ACharacter* OwnerChar = Cast<ACharacter>(GetAvatarActorFromActorInfo());
 
 	if (!GRASC || !SkillSet || !OwnerChar || !ProjectileClass)
@@ -78,17 +80,6 @@ void UGRGameplayAbility_BladeWaveFire::ActivateAbility(
 	}
 	LastFireTimeSeconds = Now;
 
-	if (FireMontage && ActorInfo->IsLocallyControlled())
-	{
-		if (USkeletalMeshComponent* Mesh = OwnerChar->GetMesh())
-		{
-			if (UAnimInstance* Anim = Mesh->GetAnimInstance())
-			{
-				Anim->Montage_Play(FireMontage);
-			}
-		}
-	}
-
 	float Damage = SkillSet->GetBladeWave_BaseDamage();
 	float WaveScale = SkillSet->GetBladeWave_BaseWaveScale();
 
@@ -101,28 +92,46 @@ void UGRGameplayAbility_BladeWaveFire::ActivateAbility(
 
 	if (ActorInfo->IsNetAuthority())
 	{
-		SpawnProjectileServer(Damage, WaveScale, bPierce);
+		const bool bSpawned = SpawnProjectileServer(Damage, WaveScale, bPierce);
+
+		if (bSpawned && FireMontage && ActorInfo->IsLocallyControlled())
+		{
+			if (USkeletalMeshComponent* Mesh = OwnerChar->GetMesh())
+			{
+				if (UAnimInstance* Anim = Mesh->GetAnimInstance())
+				{
+					Anim->Montage_Play(FireMontage);
+				}
+			}
+		}
 	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 
-void UGRGameplayAbility_BladeWaveFire::SpawnProjectileServer(float Damage, float WaveScale, bool bPierce) const
+bool UGRGameplayAbility_BladeWaveFire::SpawnProjectileServer(float Damage, float WaveScale, bool bPierce) const
 {
 	UWorld* World = GetWorld();
-	AGRCharacter* OwnerChar = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
-	if (!World || !OwnerChar || !ProjectileClass) return;
 
-	USkeletalMeshComponent* WeaponMesh = OwnerChar->GetEquippedWeaponMesh(); // ✅ 핵심
+	AGRCharacter* OwnerChar = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
+	if (!World || !OwnerChar || !ProjectileClass)
+	{
+		return false;
+	}
+
+	USkeletalMeshComponent* WeaponMesh = OwnerChar->GetEquippedWeaponMesh();
+
 	USkeletalMeshComponent* CharMesh = OwnerChar->GetMesh();
 
 	FVector SpawnLocation = OwnerChar->GetActorLocation();
+
 	if (WeaponMesh && WeaponMesh->DoesSocketExist(MuzzleSocketName))
 	{
 		SpawnLocation = WeaponMesh->GetSocketLocation(MuzzleSocketName);
 	}
 
 	const FRotator SpawnRotation = OwnerChar->GetBaseAimRotation();
+
 	const FTransform SpawnTM(SpawnRotation, SpawnLocation);
 
 	AGRBladeWaveProjectile* Proj = World->SpawnActorDeferred<AGRBladeWaveProjectile>(
@@ -132,8 +141,13 @@ void UGRGameplayAbility_BladeWaveFire::SpawnProjectileServer(float Damage, float
 		OwnerChar,
 		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-	if (!Proj) return;
+	if (!Proj)
+	{
+		return false;
+	}
 
 	Proj->InitProjectile(Damage, WaveScale, bPierce);
 	Proj->FinishSpawning(SpawnTM);
+
+	return true;
 }

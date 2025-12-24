@@ -57,5 +57,5 @@ private:
 	const UGRSkillAttributeSet_MeleeSkill* GetSkillSet() const;
 
 	bool CanFireNow(double NowSeconds, float FireInterval) const;
-	void SpawnProjectileServer(float Damage, float WaveScale, bool bPierce) const;
+	bool SpawnProjectileServer(float Damage, float WaveScale, bool bPierce) const;
 };
