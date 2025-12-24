@@ -4,18 +4,21 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/BattleHUD/GRSpectatorHUDWidget.h"
+#include "UI/BattleHUD/GRGameOverWidget.h"
 #include "UI/Level1/GRLevel1SelectWidget.h"
 #include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
 #include "UI/Inventory/GRInventoryWidgetMain.h"
 #include "UI/Augment/GRAugmentHUDWidget.h"
 #include "UI/InGame/GRInGameHUDWidget.h"
+#include "MiniMap/GRRadarMapComponent.h"
 
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
-#if WITH_EDITOR
 	CheatClass = UGRBattleCheatManager::StaticClass();
-#endif
+
+	RadarMapComponent = CreateDefaultSubobject<UGRRadarMapComponent>(TEXT("RadarMapComponent"));
 }
 
 void AGRBattlePlayerController::BeginPlay()
@@ -50,6 +53,14 @@ void AGRBattlePlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
 	FinalizeBattleHUD();
 }
 
+void AGRBattlePlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	// NOTE: 관전 상태에서의 키 입력을 하드 바인딩
+	BindSpectatorInput();
+}
+
 void AGRBattlePlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
@@ -73,6 +84,12 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 	}
 }
 
+void AGRBattlePlayerController::ClientRPC_OnRestartPlayer_Implementation()
+{
+	ShowBattleHUD();
+	HideSpectatorHUD();
+}
+
 void AGRBattlePlayerController::InitUISetup()
 {
 	CreateWidgets();
@@ -92,6 +109,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!HUDWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRBattleHUDWidget Widgets"));
+		return;
+	}
+
+	if (!SpectatorWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SpectatorWidgetClass (TSubclassOf<>) is INVALID"));
+		return;
+	}
+
+	SpectatorWidgetInstance = CreateWidget<UGRSpectatorHUDWidget>(this, SpectatorWidgetClass);
+	if (!SpectatorWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create SpectatorWidgetInstance Widgets"));
 		return;
 	}
 
@@ -157,6 +187,19 @@ void AGRBattlePlayerController::CreateWidgets()
 	if (!InGameMenuWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create InGameMenu Widgets"));
+		return;
+	}
+
+	if (!GameOverWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameOverWidgetClass (TSubclassOf<UGRGameOverWidget> is INVALID"));
+		return;
+	}
+
+	GameOverWidgetInstance = CreateWidget<UGRGameOverWidget>(this, GameOverWidgetClass);
+	if (!GameOverWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create GameOverWidgetInstance"));
 		return;
 	}
 }

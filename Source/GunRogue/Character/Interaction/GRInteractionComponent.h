@@ -17,6 +17,8 @@ public:
 
 protected:
 	void FindInteractableActor();
+	AActor* DoLineTrace(FVector& StartLocation, FVector& EndLocation);
+
 	void OnOver(AActor* InActor);
 	void OnOut(AActor* InActor);
 

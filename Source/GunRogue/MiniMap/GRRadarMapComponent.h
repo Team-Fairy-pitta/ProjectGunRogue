@@ -29,11 +29,12 @@ class GUNROGUE_API UGRRadarMapComponent : public UActorComponent
 public:
 	UGRRadarMapComponent();
 
-	void InitRadarWidget();
+	void InitializeRadarWidget();
+	void FinalizeRadarWidget();
 
 	void ScanRadar();
 
-	FVector2D GetNormalizedTargetDirection(FVector TargetLocation) const;
+	FVector2D GetNormalizedTargetDirection(FVector OwnerLocation, FRotator OwnerRotator, FVector TargetLocation) const;
 
 protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -41,7 +42,7 @@ protected:
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Radar")
-	float ScanRadius = 2000.f;
+	float ScanRadius = 4000.f;
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UGRRadarMapWidget> RadarMapWidgetInstance;

@@ -49,9 +49,6 @@ public:
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UButton* SlotButton;
-	
-	UPROPERTY(meta = (BindWidget))
-	UBorder* SlotBackground;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SlotName;
@@ -74,7 +71,6 @@ protected:
 	virtual void NativeConstruct() override;
 
 private:
-	FLinearColor DefaultBrushColor;
 	
 	UPROPERTY()
 	UGRAugmentDefinition* CurrentAugment = nullptr;

@@ -12,6 +12,7 @@
 AGRGoodsActor::AGRGoodsActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.TickInterval = 0.1f;
 	bReplicates = true;
 
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -32,6 +33,8 @@ AGRGoodsActor::AGRGoodsActor()
 void AGRGoodsActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetLifeSpan(GoodsLifeSpan);
 
 	if (HasAuthority())
 	{

@@ -67,6 +67,7 @@ TSubclassOf<AGRCharacter> UGRGameInstance::GetSelectedCharacterClass(APlayerCont
 	{
 		if (SelectedCharacterMap.Contains(ID))
 		{
+			UE_LOG(LogTemp, Log, TEXT("GetSelectedCharacterClass: %s"), *SelectedCharacterMap[ID]->GetName());
 			return SelectedCharacterMap[ID];
 		}
 		else

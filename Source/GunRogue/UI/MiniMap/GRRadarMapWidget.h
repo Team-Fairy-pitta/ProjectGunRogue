@@ -14,6 +14,8 @@ class GUNROGUE_API UGRRadarMapWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateRadar(const TArray<FRadarTargetInfo>& Targets);

@@ -43,6 +43,7 @@ void AGRNormalAICharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 
 	DOREPLIFETIME(AGRNormalAICharacter, AimPitchTarget);
 	DOREPLIFETIME(AGRNormalAICharacter, AimYawTarget);
+	DOREPLIFETIME(AGRNormalAICharacter, WeaponActor);
 }
 
 void AGRNormalAICharacter::Tick(float DeltaTime)

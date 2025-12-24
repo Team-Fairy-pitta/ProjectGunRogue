@@ -56,7 +56,7 @@ protected:
 	UPROPERTY()
 	TSubclassOf<AActor> WeaponClass;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<AActor> WeaponActor;
 	
 	FName EquippedSocketName;

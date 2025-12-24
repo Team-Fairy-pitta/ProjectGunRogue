@@ -32,6 +32,24 @@ void UGRTeamStatusListWidget::SetTeamHPBar(int32 Index, float CurrentHP, float M
 	}
 }
 
+void UGRTeamStatusListWidget::SetTeamCharacterThumbnail(int32 Index, UTexture2D* Thumbnail)
+{
+	if (!Thumbnail)
+	{
+		return;
+	}
+
+	if (!TeamStatusArray.IsValidIndex(Index))
+	{
+		return;
+	}
+
+	if (UGRTeamStatusWidget* TeamStatus = TeamStatusArray[Index])
+	{
+		TeamStatus->SetTeamCharacterThumbnail(Thumbnail);
+	}
+}
+
 void UGRTeamStatusListWidget::CreateTeamStatus()
 {
 	if (!TeamStatusClass || !TeamStatusContainer)

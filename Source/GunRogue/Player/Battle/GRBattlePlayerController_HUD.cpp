@@ -1,3 +1,5 @@
+#include "Character/GRCharacter.h"
+#include "Character/GRPawnData.h"
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "GameModes/GRGameState.h"
@@ -7,12 +9,15 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "Weapon/GRWeaponDefinition.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/BattleHUD/GRSpectatorHUDWidget.h"
+#include "UI/BattleHUD/GRGameOverWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRWeaponListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
 #include "UI/Damage/GRDamageIndicator.h"
 #include "MiniMap/GRRadarMapComponent.h"
+#include "UI/BattleHUD/SubWidgets/GRNotifyMessageWidget.h"
 
 void AGRBattlePlayerController::InitializeBattleHUD()
 {
@@ -64,6 +69,8 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 	SyncGoldUI();
 	SyncMetaGoodsUI();
 
+	UpdateCharacterThumbnail();
+
 	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
 
 
@@ -90,16 +97,6 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 	if (!CombatSet->OnAmmoChanged.IsAlreadyBound(this, &ThisClass::OnAmmoChanged))
 	{
 		CombatSet->OnAmmoChanged.AddDynamic(this, &ThisClass::OnAmmoChanged);
-	}
-
-	APawn* OwnerPawn = GetPawn();
-	if (OwnerPawn)
-	{
-		UGRRadarMapComponent* RadarComponent = OwnerPawn->FindComponentByClass<UGRRadarMapComponent>();
-		if (RadarComponent)
-		{
-			RadarComponent->InitRadarWidget();
-		}
 	}
 }
 
@@ -183,6 +180,18 @@ void AGRBattlePlayerController::HideBattleHUD()
 void AGRBattlePlayerController::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	UpdatePlayerHealth(Data.NewValue);
+
+	if (Data.NewValue < Data.OldValue)
+	{
+		if (HealthHitEffectWidget)
+		{
+			UUserWidget* HPHitWidget = CreateWidget<UUserWidget>(this,HealthHitEffectWidget);
+			if (HPHitWidget)
+			{
+				HPHitWidget->AddToViewport();
+			}
+		}
+	}
 }
 
 void AGRBattlePlayerController::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
@@ -193,11 +202,45 @@ void AGRBattlePlayerController::OnMaxHealthChanged(const FOnAttributeChangeData&
 void AGRBattlePlayerController::OnShieldChanged(const FOnAttributeChangeData& Data)
 {
 	UpdatePlayerShield(Data.NewValue);
+
+	if (Data.NewValue < Data.OldValue)
+	{
+		if (ShieldHitEffectWidget)
+		{
+			UUserWidget* ShieldHitWidget = CreateWidget<UUserWidget>(this,ShieldHitEffectWidget);
+			if (ShieldHitWidget)
+			{
+				ShieldHitWidget->AddToViewport();
+			}
+		}
+	}
 }
 
 void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData& Data)
 {
 	UpdatePlayerMaxShield(Data.NewValue);
+}
+
+UTexture2D* AGRBattlePlayerController::GetCharacterThumbnailOfPlayer(APlayerState* InPlayerState)
+{
+	if (!IsValid(InPlayerState))
+	{
+		return nullptr;
+	}
+
+	AGRCharacter* GRCharacter = InPlayerState->GetPawn<AGRCharacter>();
+	if (!IsValid(GRCharacter))
+	{
+		return nullptr;
+	}
+
+	const UGRPawnData* PawnData = GRCharacter->GetPawnData();
+	if (!PawnData)
+	{
+		return nullptr;
+	}
+
+	return PawnData->CharacterThumbnail;
 }
 
 void AGRBattlePlayerController::OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo)
@@ -341,6 +384,25 @@ void AGRBattlePlayerController::UpdatePlayerMaxShield(float Value)
 	PlayerStatusWidget->SetPlayerMaxShield(Value);
 }
 
+void AGRBattlePlayerController::UpdateCharacterThumbnail()
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
+	}
+
+	UGRPlayerStatusWidget* PlayerStatusWidget = HUDWidgetInstance->GetPlayerStatusWidget();
+	if (!PlayerStatusWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerStatusWidget (UGRPlayerStatusWidget) is INVALID"));
+		return;
+	}
+
+	UTexture2D* Thumbnail = GetCharacterThumbnailOfPlayer(GetPlayerState<APlayerState>());
+	PlayerStatusWidget->SetCharacterThumbnail(Thumbnail);
+}
+
 void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 {
 	if (!HUDWidgetInstance)
@@ -432,6 +494,10 @@ void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 
 		TeamStatusWidget->SetTeamHPBar(PlayerIndex, Health, MaxHealth);
 		TeamStatusWidget->SetTeamShieldBar(PlayerIndex, Shield, MaxShield);
+
+		UTexture2D* Thumbnail = GetCharacterThumbnailOfPlayer(OtherGRPlayerState);
+		TeamStatusWidget->SetTeamCharacterThumbnail(PlayerIndex, Thumbnail);
+
 		PlayerIndex += 1;
 	}
 }
@@ -512,4 +578,302 @@ void AGRBattlePlayerController::ShowDamageIndicator(float Damage, AActor* Damage
 
 	DamageIndicatorWidgetInstance->SetData(Damage, DamagedActor);
 	DamageIndicatorWidgetInstance->AddToViewport();
+}
+
+
+void AGRBattlePlayerController::ShowSpectatorHUD()
+{
+	if (!SpectatorWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SpectatorWidgetInstance is INVALID"));
+		return;
+	}
+	if (!SpectatorWidgetInstance->IsInViewport())
+	{
+		SpectatorWidgetInstance->AddToViewport();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
+}
+
+void AGRBattlePlayerController::HideSpectatorHUD()
+{
+	if (!SpectatorWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SpectatorWidgetInstance is INVALID"));
+		return;
+	}
+	if (SpectatorWidgetInstance->IsInViewport())
+	{
+		SpectatorWidgetInstance->RemoveFromParent();
+	}
+}
+
+void AGRBattlePlayerController::BindSpectatorInput()
+{
+	// NOTE: 관전 상태에서의 키 입력을 하드 바인딩
+	if (InputComponent)
+	{
+		InputComponent->BindKey(EKeys::PageUp, IE_Pressed, this, &ThisClass::ServerRPC_SpectatePreviousPlayer);
+		InputComponent->BindKey(EKeys::PageDown, IE_Pressed, this, &ThisClass::ServerRPC_SpectateNextPlayer);
+	}
+}
+
+AActor* AGRBattlePlayerController::GetPreviousSpectateActor()
+{
+	TArray<AActor*> AlivePlayerList = GetAlivePlayerList();
+	if (AlivePlayerList.IsValidIndex(CurrentSpectateIndex))
+	{
+		CurrentSpectateIndex = CurrentSpectateIndex - 1 < 0 ? AlivePlayerList.Num() - 1 : CurrentSpectateIndex - 1;
+		return AlivePlayerList[CurrentSpectateIndex];
+	}
+	else
+	{
+		if (AlivePlayerList.Num() > 0)
+		{
+			CurrentSpectateIndex = 0;
+			return AlivePlayerList[CurrentSpectateIndex];
+		}
+		else
+		{
+			CurrentSpectateIndex = INDEX_NONE;
+			return nullptr;
+		}
+	}
+}
+
+AActor* AGRBattlePlayerController::GetNextSpectateActor()
+{
+	TArray<AActor*> AlivePlayerList = GetAlivePlayerList();
+	if (AlivePlayerList.IsValidIndex(CurrentSpectateIndex))
+	{
+		CurrentSpectateIndex = CurrentSpectateIndex + 1 >= AlivePlayerList.Num() ? 0 : CurrentSpectateIndex + 1;
+		return AlivePlayerList[CurrentSpectateIndex];
+	}
+	else
+	{
+		if (AlivePlayerList.Num() > 0)
+		{
+			CurrentSpectateIndex = 0;
+			return AlivePlayerList[CurrentSpectateIndex];
+		}
+		else
+		{
+			CurrentSpectateIndex = INDEX_NONE;
+			return nullptr;
+		}
+	}
+}
+
+TArray<AActor*> AGRBattlePlayerController::GetAlivePlayerList()
+{
+	if (!GetWorld())
+	{
+		return TArray<AActor*>();
+	}
+
+	AGameStateBase* GameStateBsae = GetWorld()->GetGameState<AGameStateBase>();
+	if (!IsValid(GameStateBsae))
+	{
+		return TArray<AActor*>();
+	}
+
+	TArray<AActor*> PlayerList;
+
+	for (APlayerState* ItState : GameStateBsae->PlayerArray)
+	{
+		AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(ItState);
+		if (IsValid(GRPlayerState) && !GRPlayerState->IsDead())
+		{
+			APawn* ItPawn = GRPlayerState->GetPawn();
+			if (IsValid(ItPawn))
+			{
+				PlayerList.Add(ItPawn);
+			}
+		}
+	}
+
+	return PlayerList;
+}
+
+void AGRBattlePlayerController::ClientRPC_SetSpectationTargetPlayerName_Implementation(AActor* Target)
+{
+	if (!IsValid(Target))
+	{
+		return;
+	}
+
+	ACharacter* TargetCharacter = Cast<ACharacter>(Target);
+	if (IsValid(TargetCharacter))
+	{
+		if (TargetCharacter->GetPlayerState())
+		{
+			const FString& PlayerName = TargetCharacter->GetPlayerState()->GetPlayerName();
+			
+			if (SpectatorWidgetInstance)
+			{
+				SpectatorWidgetInstance->SetTargetPlayerName(PlayerName);
+			}
+		}
+	}
+}
+
+void AGRBattlePlayerController::ServerRPC_SpectatePreviousPlayer_Implementation()
+{
+	if (GetStateName() != NAME_Spectating)
+	{
+		return;
+	}
+
+	AActor* TargetActor = GetPreviousSpectateActor();
+	SetSpectatePlayer(TargetActor);
+}
+
+void AGRBattlePlayerController::ServerRPC_SpectateNextPlayer_Implementation()
+{
+	if (GetStateName() != NAME_Spectating)
+	{
+		return;
+	}
+
+	AActor* TargetActor = GetNextSpectateActor();
+	SetSpectatePlayer(TargetActor);
+}
+
+void AGRBattlePlayerController::SetSpectatePlayer(AActor* TargetPlayer)
+{
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(TargetPlayer);
+	if (!IsValid(GRCharacter))
+	{
+		ChangeState(NAME_Playing);
+		return;
+	}
+
+	AGRPlayerState* GRPlayerState = GRCharacter->GetGRPlayerState();
+	if (!IsValid(GRPlayerState))
+	{
+		ChangeState(NAME_Playing);
+		return;
+	}
+
+	ChangeState(NAME_Spectating);
+	ClientRPC_SetSpectationTargetPlayerName(GRCharacter);
+	SetViewTargetWithBlend(GRCharacter);
+}
+
+void AGRBattlePlayerController::ServerRPC_StartSpectating_Implementation()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	ChangeState(NAME_Spectating);
+	ServerRPC_SpectateNextPlayer();
+}
+
+void AGRBattlePlayerController::ClientRPC_StartSpectating_Implementation()
+{
+	HideBattleHUD();
+	HideInventoryWidget();
+	HideInGameMenuWidget();
+	HideAugmentWidget();
+	HideLevel1SelectWidget();
+	HideUpgradeConsoleWidget();
+
+	ShowSpectatorHUD();
+}
+
+void AGRBattlePlayerController::ServerRPC_GameOver_Implementation()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (LobbyMap.IsNull())
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbyMap is NULL"));
+		return;
+	}
+
+	FString MapPath = LobbyMap.GetLongPackageName() + TEXT("?listen");
+	GetWorld()->ServerTravel(MapPath);
+}
+
+void AGRBattlePlayerController::ClientRPC_GameOver_Implementation()
+{
+	HideAugmentWidget();
+	HideBattleHUD();
+	HideInGameMenuWidget();
+	HideInventoryWidget();
+	HideLevel1SelectWidget();
+	HideSpectatorHUD();
+	
+	ShowGameOverWidget();
+}
+
+void AGRBattlePlayerController::ClientRPC_ShowNotifyMessage_Implementation(const FText& Message,float ShowMessageTime)
+{
+	ShowNotifyMessage(Message,ShowMessageTime);
+}
+
+
+void AGRBattlePlayerController::ShowNotifyMessage(const FText& Message, float ShowMessageTime)
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
+	}
+
+	UGRNotifyMessageWidget* NotifyWidget = HUDWidgetInstance->GetNotifyMessageWidget();
+
+	if (!NotifyWidget)
+	{
+		return;
+	}
+	
+	NotifyWidget->SetNotifyMessage(Message,ShowMessageTime);
+}
+
+void AGRBattlePlayerController::ShowGameOverWidget()
+{
+	if (!GameOverWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameOverWidgetInstance is INVALID"));
+		return;
+	}
+	if (!GameOverWidgetInstance->IsInViewport())
+	{
+		GameOverWidgetInstance->AddToViewport();
+	}
+
+	FInputModeUIOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = true;
+}
+
+void AGRBattlePlayerController::HideGameOverWidget()
+{
+	if (!GameOverWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameOverWidgetInstance is INVALID"));
+		return;
+	}
+	if (GameOverWidgetInstance->IsInViewport())
+	{
+		GameOverWidgetInstance->RemoveFromParent();
+	}
+
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = false;
 }

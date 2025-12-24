@@ -81,6 +81,18 @@ void UGRWeaponUpgrade::SettingWeapon()
 			WeaponMagazineUpdate(WeaponMagazine);
 			WeaponExplainUpdate(WeaponExplain);
 			WeaponOptionUpdate();
+
+			int32 UpgradeCost = WeaponInstance->GetUpgradeCost();
+			int32 RerollCost = WeaponInstance->GetRerollCost();
+			if (WeaponLevel < WeaponDefinition->MaxLevel)
+			{
+				WeaponUpgradeCostUpdate(UpgradeCost);
+			}
+			else
+			{
+				WeaponMaxUpgradeUpdate();
+			}
+			WeaponRerollCostUpdate(RerollCost);
 		}
 	}
 }
@@ -321,6 +333,34 @@ void UGRWeaponUpgrade::WeaponOptionUpdate()
 
 		bool bSelected = (i == CurrentOptionSlotIndex);
 		OptionWidgets[i]->SetSelected(bSelected);
+	}
+}
+
+void UGRWeaponUpgrade::WeaponUpgradeCostUpdate(int32 UpgradeCost)
+{
+	if (UpgradeCostText)
+	{
+		FText CostText = FText::FromString(FString::Printf(TEXT("%d골드"), UpgradeCost));
+		UpgradeCostText->SetText(CostText);
+	}
+}
+
+void UGRWeaponUpgrade::WeaponMaxUpgradeUpdate()
+{
+	if (UpgradeCostText)
+	{
+		FText CostText = FText::FromString(FString(TEXT("MAX 강화")));
+		UpgradeCostText->SetText(CostText);
+	}
+}
+
+
+void UGRWeaponUpgrade::WeaponRerollCostUpdate(int32 RerollCost)
+{
+	if (RerollCostText)
+	{
+		FText CostText = FText::FromString(FString::Printf(TEXT("%d골드"), RerollCost));
+		RerollCostText->SetText(CostText);
 	}
 }
 

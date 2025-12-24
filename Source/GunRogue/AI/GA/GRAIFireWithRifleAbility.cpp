@@ -5,6 +5,7 @@
 
 UGRAIFireWithRifleAbility::UGRAIFireWithRifleAbility()
 {
+	FireCueTagName=FName("GameplayCue.AI.Weapon.Rifle.Fire");
 }
 
 void UGRAIFireWithRifleAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -16,11 +17,6 @@ void UGRAIFireWithRifleAbility::ActivateAbility(const FGameplayAbilitySpecHandle
 	if (ActorInfo->AvatarActor.Get()->HasAuthority())
 	{
 		PlayAttackMontageAndWaitTask();
-
-		if (!PrepareFireContext())
-		{
-			EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
-		}
 		
 		StartBurstFire();
 	}

@@ -218,9 +218,51 @@ void AGRPlayerState::ServerRPC_UpgradeWeapon_Implementation(int32 SlotIndex)
 		return;
 	}
 
-	WeaponInstance->UpgradeWeapon();
+	if (TryCommitUpgradeWeapon(WeaponInstance))
+	{
+		WeaponInstance->UpgradeWeapon();
+		OnRep_WeaponDataUpdata();
+	}
+}
 
-	OnRep_WeaponDataUpdata();
+bool AGRPlayerState::TryCommitUpgradeWeapon(const FGRWeaponInstance* WeaponInstance)
+{
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return false;
+	}
+
+	int32 UpgradeCost = WeaponInstance->GetUpgradeCost();
+	if (UpgradeCost <= Gold)
+	{
+		ApplyGoldGain(-UpgradeCost);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool AGRPlayerState::TryCommitRerollWeapon(const FGRWeaponInstance* WeaponInstance)
+{
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return false;
+	}
+
+	int32 RerollCost = WeaponInstance->GetRerollCost();
+	if (RerollCost <= Gold)
+	{
+		ApplyGoldGain(-RerollCost);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeaponSlotIndex)
@@ -254,7 +296,11 @@ void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeap
 		return;
 	}
 
-	WeaponInstance->AllRerollOption();
+	if (TryCommitRerollWeapon(WeaponInstance))
+	{
+		WeaponInstance->AllRerollOption();
+		OnRep_WeaponDataUpdata();
+	}
 }
 
 void AGRPlayerState::ServerRPC_RerollOptionWeapon_Implementation(int32 InWeaponSlotIndex, int32 InOptionSlotIndex)
@@ -288,7 +334,11 @@ void AGRPlayerState::ServerRPC_RerollOptionWeapon_Implementation(int32 InWeaponS
 		return;
 	}
 
-	WeaponInstance->RerollOption(InOptionSlotIndex);
+	if (TryCommitRerollWeapon(WeaponInstance))
+	{
+		WeaponInstance->RerollOption(InOptionSlotIndex);
+		OnRep_WeaponDataUpdata();
+	}
 }
 
 void AGRPlayerState::MulticastRPC_PlayWeaponEquipAnimMontage_Implementation()
@@ -312,6 +362,23 @@ void AGRPlayerState::MulticastRPC_PlayWeaponEquipAnimMontage_Implementation()
 	}
 
 	GRCharacter->PlayAnimMontage(EquipAnimMontage);
+}
+
+void AGRPlayerState::ServerRPC_ResetWeaponHandles_Implementation()
+{
+	for (int32 SlotIndex = 0; SlotIndex < WeaponSlots.Num(); ++SlotIndex)
+	{
+		const FGRWeaponHandle& Handle = WeaponSlots[SlotIndex];
+		if (Handle.IsEquipped())
+		{
+			ClientRPC_BroadcastOnWeaponEquipped(SlotIndex, Handle.GetWeaponDefinition());
+		}
+		if (Handle.IsActive())
+		{
+			SwitchToSlot(SlotIndex);
+			ClientRPC_BroadcastOnWeaponSwitched(INDEX_NONE, SlotIndex);
+		}
+	}
 }
 
 void AGRPlayerState::UpdateWeaponAttachToCharacter()

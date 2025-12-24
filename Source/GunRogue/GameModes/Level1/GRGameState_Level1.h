@@ -6,6 +6,8 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnReceiveNextRoomInformation)
 
+class AGRLuwoAICharacter;
+
 UCLASS()
 class GUNROGUE_API AGRGameState_Level1 : public AGRGameState
 {
@@ -24,10 +26,23 @@ public:
 	const FGRLevel1Data& GetLevel1ClientData() const { return Level1ClientData; }
 	FGRLevel1Node* GetCurrentNodeInfo();
 
+	void SetCurrentBoss(AGRLuwoAICharacter* NewBoss);
+
+	void ClearCurrentBoss();
+
+	AGRLuwoAICharacter* GetCurrentBoss() const { return CurrentBoss; }
+
+protected:
+	UFUNCTION()
+	void OnRep_CurrentBoss();
+
 protected:
 	UPROPERTY(Replicated)
 	int32 CurrentLevel1NodeIndex;
 
 	UPROPERTY(Replicated)
 	FGRLevel1Data Level1ClientData; /* GameMode의 그것과는 다르게, 일부 정보만 가지고 있음 */
+
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentBoss)
+	AGRLuwoAICharacter* CurrentBoss = nullptr;
 };

@@ -21,4 +21,32 @@ public:
 	// 모든 맵이 보스맵으로 바뀐다.
 	UFUNCTION(Exec)
 	void SetLevel1NextRoomBoss();
+
+	// 특정 Index의 Player의 이름을 알아낸다.
+	UFUNCTION(Exec)
+	void GetPlayerName(int32 InIndex);
+
+	// 특정 Index의 Player의 체력을 0으로 만든다.
+	UFUNCTION(Exec)
+	void KillPlayer(int32 InIndex);
+
+	// 특정 Index의 Playey를 리스폰한다.
+	UFUNCTION(Exec)
+	void RespawnPlayer(int32 InIndex);
+
+	// 죽어있는 모든 Playey를 리스폰한다.
+	UFUNCTION(Exec)
+	void RespawnAllDeadPlayer();
+
+	// 모든 AI를 처치한다.
+	UFUNCTION(Exec)
+	void KillAllAI();
+
+	// 메시지 브로드캐스트 테스트
+	UFUNCTION(Exec)
+	void BroadcastMessage(FString Message,float ShowMessageTime);
+
+	// 특정 Index의 Player에게 10000골드를 지급한다.
+	UFUNCTION(Exec)
+	void ShowMeTheMoney(int32 InIndex);
 };

@@ -147,6 +147,16 @@ void AGRItemRandomBox::MulticastRPC_StartAnimation_Implementation(AGRPlayerState
 	StartOpenAnimation(GRPlayerState);
 }
 
+void AGRItemRandomBox::ServerAddOnFinishOpenAnimation(float Timer, AGRPlayerState* GRPlayerState)
+{
+	FTimerHandle& TimerHandle = OpenTimerHandles.AddDefaulted_GetRef();
+	
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUObject(this, &ThisClass::OnFinishOpenAnimation, GRPlayerState);
+
+	GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, Timer, false);
+}
+
 void AGRItemRandomBox::OnFinishOpenAnimation(AGRPlayerState* GRPlayerState)
 {
 	if (!HasAuthority())
@@ -338,6 +348,7 @@ void AGRItemRandomBox::SpawnItemToSpecificPlayer(AGRPlayerState* GRPlayerState, 
 	FRotator SpawnRotation = FRotator::ZeroRotator;
 	FActorSpawnParameters SpawnParam;
 	SpawnParam.Owner = GRPlayerState; /* 특정 플레이어에게만 아이템을 보여줌 */
+	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AGRItemActor* ItemActor = World->SpawnActor<AGRItemActor>(ItemActorClass, Location, SpawnRotation, SpawnParam);
 	if (ItemActor)

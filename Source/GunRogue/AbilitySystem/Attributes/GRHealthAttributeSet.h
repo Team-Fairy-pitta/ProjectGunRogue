@@ -76,6 +76,10 @@ public:
 	FGameplayAttributeData ShieldBreakInvincibleDuration; // 실드 파괴 후 x초 무적
 	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, ShieldBreakInvincibleDuration);
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthKitMultiplier, Category = "Health|Perk")
+	FGameplayAttributeData HealthKitMultiplier;
+	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, HealthKitMultiplier);
+
 	// ========== Meta Attributes (복제되지 않음) ==========
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health|Meta")
@@ -89,7 +93,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Health|Meta")
 	FGameplayAttributeData GainShield;
 	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, GainShield);
-
+	
 	// ========== Delegates ==========
 
 	FGRAttributeEvent OnHealthChanged;
@@ -124,6 +128,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_ShieldBreakInvincibleDuration(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	void OnRep_HealthKitMultiplier(const FGameplayAttributeData& OldValue);
 
 private:
 	// Before 값 저장 (델리게이트용)
