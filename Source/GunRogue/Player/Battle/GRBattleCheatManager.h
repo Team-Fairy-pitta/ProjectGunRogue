@@ -41,4 +41,8 @@ public:
 	// 모든 AI를 처치한다.
 	UFUNCTION(Exec)
 	void KillAllAI();
+
+	// 증강 화면을 띄운다.
+	UFUNCTION(Exec)
+	void ShowAugment();
 };

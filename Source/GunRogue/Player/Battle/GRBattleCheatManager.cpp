@@ -300,3 +300,20 @@ void UGRBattleCheatManager::KillAllAI()
 	}
 }
 
+void UGRBattleCheatManager::ShowAugment()
+{
+	APlayerController* PC = GetPlayerController();
+	if (!IsValid(PC))
+	{
+		return;
+	}
+
+	AGRBattlePlayerController* BattlePC = Cast<AGRBattlePlayerController>(PC);
+	if (!BattlePC)
+	{
+		return;
+	}
+
+	BattlePC->ShowAugmentWidget();
+}
+

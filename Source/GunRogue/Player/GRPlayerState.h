@@ -284,8 +284,13 @@ public:
 protected:
 	void AddAugment(FName AugmentID);
 	void LevelUpAugment(int32 Index);
+
+	void ApplyAugmentToASC(FName AugmentID);
 	
 	TArray<FAugmentEntry> PreviousOwnedAugments;
+
+	UPROPERTY(EditAnywhere, Category="Augment|GameplayEffect")
+	TSubclassOf<UGameplayEffect> Augment_BombGE;
 	
 #pragma endregion
 
