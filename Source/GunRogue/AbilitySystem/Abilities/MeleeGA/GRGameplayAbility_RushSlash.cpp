@@ -10,6 +10,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TimerManager.h"
+#include "Character/GRCharacter.h"
 
 UGRGameplayAbility_RushSlash::UGRGameplayAbility_RushSlash()
 {
@@ -25,6 +26,35 @@ const UGRSkillAttributeSet_MeleeSkill* UGRGameplayAbility_RushSlash::GetSkillSet
 	const UGRAbilitySystemComponent* GRASC = Cast<UGRAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
 
 	return GRASC ? GRASC->GetSet<UGRSkillAttributeSet_MeleeSkill>() : nullptr;
+}
+
+bool UGRGameplayAbility_RushSlash::CanActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags,
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(
+		Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false;
+	}
+
+	AGRCharacter* GRChar = Cast<AGRCharacter>(ActorInfo->AvatarActor.Get());
+	if (!GRChar)
+	{
+		return false;
+	}
+
+	USkeletalMeshComponent* WeaponMesh = GRChar->GetEquippedWeaponMesh();
+
+	if (!WeaponMesh || !WeaponMesh->GetSkeletalMeshAsset())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void UGRGameplayAbility_RushSlash::ActivateAbility(
@@ -346,7 +376,6 @@ void UGRGameplayAbility_RushSlash::ApplyDamageToTarget(AActor* TargetActor, cons
 		return;
 	}
 
-	// 멀티: 서버에서만 적용 (GA 자체가 서버에서만 돌지만 안전하게)
 	AActor* Avatar = GetAvatarActorFromActorInfo();
 	if (!Avatar || !Avatar->HasAuthority())
 	{

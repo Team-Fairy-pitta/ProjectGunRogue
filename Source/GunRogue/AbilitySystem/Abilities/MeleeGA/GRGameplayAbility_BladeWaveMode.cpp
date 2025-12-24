@@ -1,6 +1,7 @@
 #include "AbilitySystem/Abilities/MeleeGA/GRGameplayAbility_BladeWaveMode.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
+#include "Character/GRCharacter.h"
 
 UGRGameplayAbility_BladeWaveMode::UGRGameplayAbility_BladeWaveMode()
 {
@@ -8,6 +9,35 @@ UGRGameplayAbility_BladeWaveMode::UGRGameplayAbility_BladeWaveMode()
 	Tag_BladeWaveMode = FGameplayTag::RequestGameplayTag(TEXT("State.BladeWaveMode"));
 
 	ActivationOwnedTags.AddTag(Tag_BladeWaveMode);
+}
+
+bool UGRGameplayAbility_BladeWaveMode::CanActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags,
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(
+		Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false;
+	}
+
+	AGRCharacter* GRChar = Cast<AGRCharacter>(ActorInfo->AvatarActor.Get());
+	if (!GRChar)
+	{
+		return false;
+	}
+
+	USkeletalMeshComponent* WeaponMesh = GRChar->GetEquippedWeaponMesh();
+
+	if (!WeaponMesh || !WeaponMesh->GetSkeletalMeshAsset())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void UGRGameplayAbility_BladeWaveMode::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
