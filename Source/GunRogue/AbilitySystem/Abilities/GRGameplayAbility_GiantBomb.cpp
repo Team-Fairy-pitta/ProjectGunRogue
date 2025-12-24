@@ -249,24 +249,16 @@ float UGRGameplayAbility_GiantBomb::CalculateFinalSkillDamage()
 	}
 
 	// 스킬 기본 데미지
-	const float BaseDamage = SkillAttributeSet->GetBaseDamage();
+	const float SkillBaseDamage = SkillAttributeSet->GetBaseDamage();
 
 	// CombatSet이 없으면 기본값만 반환
 	if (!CombatAttributeSet)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[GiantBomb] No CombatSet - using base damage: %.1f"), BaseDamage);
-		return BaseDamage;
+		UE_LOG(LogTemp, Warning, TEXT("[GiantBomb] No CombatSet - using base damage: %.1f"), SkillBaseDamage);
+		return SkillBaseDamage;
 	}
 
-	// 공식: (스킬 기본 데미지 + CombatSet 스킬 데미지) × 최종 피해 배율
-	const float CombatSkillDamage = CombatAttributeSet->CalculateSkillDamage();
-	const float FinalMultiplier = CombatAttributeSet->CalculateFinalDamageMultiplier();
-	const float TotalDamage = (BaseDamage + CombatSkillDamage) * FinalMultiplier;
-
-	UE_LOG(LogTemp, Log, TEXT("[GiantBomb] Damage Calc - Base: %.1f, Combat: %.1f, Final Mult: %.2f => Total: %.1f"),
-		BaseDamage, CombatSkillDamage, FinalMultiplier, TotalDamage);
-
-	return TotalDamage;
+	return CombatAttributeSet->CalculateFinalSkillDamage(SkillBaseDamage, 0.0f);
 }
 
 void UGRGameplayAbility_GiantBomb::StartCooldown()

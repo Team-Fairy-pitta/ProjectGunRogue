@@ -301,22 +301,15 @@ float UGRGameplayAbility_MissileBarrage::CalculateFinalSkillDamage()
 		return 0.0f;
 	}
 
-	const float BaseDamage = SkillAttributeSet->GetBaseDamage();
+	const float SkillBaseDamage = SkillAttributeSet->GetBaseDamage();
 
 	if (!CombatAttributeSet)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[MissileBarrage] No CombatSet - using base damage: %.1f"), BaseDamage);
-		return BaseDamage;
+		UE_LOG(LogTemp, Warning, TEXT("[MissileBarrage] No CombatSet - using base damage: %.1f"), SkillBaseDamage);
+		return SkillBaseDamage;
 	}
 
-	const float CombatSkillDamage = CombatAttributeSet->CalculateSkillDamage();
-	const float FinalMultiplier = CombatAttributeSet->CalculateFinalDamageMultiplier();
-	const float TotalDamage = (BaseDamage + CombatSkillDamage) * FinalMultiplier;
-
-	UE_LOG(LogTemp, Verbose, TEXT("[MissileBarrage] Damage Calc - Base: %.1f, Combat: %.1f, Final Mult: %.2f => Total: %.1f"),
-		BaseDamage, CombatSkillDamage, FinalMultiplier, TotalDamage);
-
-	return TotalDamage;
+	return CombatAttributeSet->CalculateFinalSkillDamage(SkillBaseDamage, 0.0f);
 }
 
 void UGRGameplayAbility_MissileBarrage::StartCooldown()

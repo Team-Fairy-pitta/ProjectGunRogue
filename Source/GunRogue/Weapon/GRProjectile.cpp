@@ -388,6 +388,10 @@ void AGRProjectile::ApplyDirectDamage(AActor* HitActor, const FHitResult& Hit)
 		return;
 	}
 
+	const UGRCombatAttributeSet* TargetCombat = TargetASC->GetSet<UGRCombatAttributeSet>();
+	float TargetDamageReduction = TargetCombat ? TargetCombat->GetDamageReduction() : 0.0f;
+	float FinalDamage = Damage * (1.0f - TargetDamageReduction);
+
 	// GameplayEffect 생성 및 적용
 	FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
 	EffectContext.AddSourceObject(OwnerCharacter);
@@ -405,7 +409,7 @@ void AGRProjectile::ApplyDirectDamage(AActor* HitActor, const FHitResult& Hit)
 	// SetByCaller로 데미지 전달
 	SpecHandle.Data->SetSetByCallerMagnitude(
 		FGameplayTag::RequestGameplayTag(FName("Attribute.Data.Damage")),
-		Damage);
+		FinalDamage);
 
 	// 데미지 적용
 	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
@@ -503,13 +507,17 @@ void AGRProjectile::ApplyExplosionDamage(const FVector& ExplosionLocation)
 			continue;
 		}
 
+		const UGRCombatAttributeSet* TargetCombat = TargetASC->GetSet<UGRCombatAttributeSet>();
+
 		DamagedActors.Add(HitActor);
 
 		// 거리에 따른 데미지 감쇠
 		float Distance = FVector::Dist(ExplosionLocation, HitActor->GetActorLocation());
 		float DistanceRatio = FMath::Clamp(Distance / ExplosionRadius, 0.0f, 1.0f);
 		float DamageMult = FMath::Lerp(1.0f, ExplosionFalloff, DistanceRatio);
-		float FinalDamage = Damage * DamageMult;
+		float BaseDamage = Damage * DamageMult;
+		float TargetDamageReduction = TargetCombat ? TargetCombat->GetDamageReduction() : 0.0f;
+		float FinalDamage = BaseDamage * (1.0f - TargetDamageReduction);
 
 		HitCount++;
 
