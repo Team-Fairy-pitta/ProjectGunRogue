@@ -62,6 +62,13 @@ protected:
 		bool bReplicateEndAbility,
 		bool bWasCancelled) override;
 
+	bool CanActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayTagContainer* SourceTags,
+		const FGameplayTagContainer* TargetTags,
+		FGameplayTagContainer* OptionalRelevantTags) const;
+
 private:
 
 	const UGRSkillAttributeSet_MeleeSkill* GetSkillSet() const;
@@ -83,10 +90,5 @@ private:
 
 	UFUNCTION()
 	void OnDashFinished();
-	bool CanActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayTagContainer* SourceTags,
-		const FGameplayTagContainer* TargetTags,
-		FGameplayTagContainer* OptionalRelevantTags) const;
+	
 };
