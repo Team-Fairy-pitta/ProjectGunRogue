@@ -191,6 +191,8 @@ FWeaponOption FGRWeaponInstance::RandomOption() const
 		Value = FMath::RoundToFloat(Value * 10.f) / 10.f;
 
 		EmptyOption.Values.Add(Range.DataTag, Value);
+
+		EmptyOption.bIsPercentValue = Range.bIsPercentValue;
 	}
 
 	return EmptyOption;

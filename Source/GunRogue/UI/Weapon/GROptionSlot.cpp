@@ -46,8 +46,22 @@ void UGROptionSlot::InitSlot(int32 InSlotIndex, const FWeaponOption& InOptionDat
 
 			for(const TPair< FGameplayTag, float>& Pair : InOptionData.Values)
 			{
+				float TargetValue = 0.0f;
+				if (InOptionData.bIsPercentValue)
+				{
+					TargetValue = Pair.Value * 100;
+				}
+				else
+				{
+					TargetValue = Pair.Value;
+				}
+
+				TargetValue *= 10;
+				TargetValue = FMath::RoundToFloat(TargetValue);
+				TargetValue /= 10;
+
 				FString TagString = Pair.Key.ToString();
-				FString ValueString = FString::SanitizeFloat(Pair.Value);
+				FString ValueString = FString::SanitizeFloat(TargetValue);
 				Str = Str.Replace(*FString::Printf(TEXT("{%s}"), *TagString), *ValueString);
 			}
 

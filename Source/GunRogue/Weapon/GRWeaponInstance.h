@@ -21,6 +21,9 @@ public:
 
 	UPROPERTY()
 	TMap<FGameplayTag, float> Values;
+
+	UPROPERTY()
+	bool bIsPercentValue = false;
 };
 
 // 무기의 런타임 정보를 기록하는 구조체

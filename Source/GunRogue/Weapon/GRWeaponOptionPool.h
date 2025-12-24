@@ -18,6 +18,9 @@ struct FOptionValueRange
 
 	UPROPERTY(EditAnywhere)
 	FFloatInterval ValueRange;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsPercentValue = false;
 };
 
 USTRUCT(BlueprintType)
