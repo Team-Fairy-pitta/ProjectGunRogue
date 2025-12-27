@@ -28,12 +28,10 @@ public:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData) override;
 
-	virtual bool CanActivateAbility(
+	virtual void ApplyCooldown(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayTagContainer* SourceTags,
-		const FGameplayTagContainer* TargetTags,
-		FGameplayTagContainer* OptionalRelevantTags) const override;
+		const FGameplayAbilityActivationInfo ActivationInfo) const override;
 
 	virtual void EndAbility(
 		const FGameplayAbilitySpecHandle Handle,
@@ -104,9 +102,5 @@ private:
 	TArray<FVector> SpawnLocations;
 	int32 CurrentMissileIndex;
 
-	//쿨타임 관련
-	void StartCooldown();
-	bool bIsOnCooldown = false;
-	float CooldownEndTime = 0.0f;
-	FTimerHandle CooldownTimerHandle;
+	float GetCooldown() const;
 };

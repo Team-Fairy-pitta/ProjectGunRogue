@@ -57,31 +57,23 @@ void UGRGameplayAbility_GiantBomb::ActivateAbility(
 		return;
 	}
 	PlaceBomb();
-	StartCooldown();
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 
-bool UGRGameplayAbility_GiantBomb::CanActivateAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayTagContainer* SourceTags,
-	const FGameplayTagContainer* TargetTags,
-	FGameplayTagContainer* OptionalRelevantTags) const
+void UGRGameplayAbility_GiantBomb::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	if (CooldownGameplayEffectClass)
 	{
-		return false;
+		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(CooldownGameplayEffectClass);
+		if (SpecHandle.IsValid() && SpecHandle.Data.Get())
+		{
+			FGameplayTag CoolDownTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Cooldown.Magnitude"));
+			float FinalCooldown = GetCooldown();
+			SpecHandle.Data.Get()->SetSetByCallerMagnitude(CoolDownTag, FinalCooldown);
+			ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+		}
 	}
-
-	// 쿨다운 체크
-	if (bIsOnCooldown)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GiantBomb is on cooldown!"));
-		return false;
-	}
-
-	return true;
 }
 
 void UGRGameplayAbility_GiantBomb::EndAbility(
@@ -261,11 +253,11 @@ float UGRGameplayAbility_GiantBomb::CalculateFinalSkillDamage()
 	return CombatAttributeSet->CalculateFinalSkillDamage(SkillBaseDamage, 0.0f);
 }
 
-void UGRGameplayAbility_GiantBomb::StartCooldown()
+float UGRGameplayAbility_GiantBomb::GetCooldown() const
 {
 	if (!SkillAttributeSet)
 	{
-		return;
+		return 0.0f;
 	}
 
 	float BaseCooldown = SkillAttributeSet->GetBaseCooldown();
@@ -273,21 +265,5 @@ void UGRGameplayAbility_GiantBomb::StartCooldown()
 	float CombetSetCooldownReduction = CombatAttributeSet->GetSkillCooldownReduction();
 	float FinalCooldown = BaseCooldown * (1.0f - CooldownReduction) * (1.0f - CombetSetCooldownReduction);
 
-	bIsOnCooldown = true;
-	CooldownEndTime = GetWorld()->GetTimeSeconds() + FinalCooldown;
-
-	TWeakObjectPtr<UGRGameplayAbility_GiantBomb> WeakThis(this);
-	GetWorld()->GetTimerManager().SetTimer(
-		CooldownTimerHandle,
-		[WeakThis]()
-		{
-			if (WeakThis.IsValid())
-			{
-				WeakThis->bIsOnCooldown = false;
-				UE_LOG(LogTemp, Log, TEXT("GiantBomb cooldown finished!"));
-			}
-		},
-		FinalCooldown,
-		false
-	);
+	return FinalCooldown;
 }

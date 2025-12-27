@@ -61,25 +61,21 @@ void UGRGameplayAbility_MissileBarrage::ActivateAbility(
 	}
 
 	ExecuteBarrage();
-
-	StartCooldown();
 }
 
-bool UGRGameplayAbility_MissileBarrage::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+void UGRGameplayAbility_MissileBarrage::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	if (CooldownGameplayEffectClass)
 	{
-		return false;
+		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(CooldownGameplayEffectClass);
+		if (SpecHandle.IsValid() && SpecHandle.Data.Get())
+		{
+			FGameplayTag CoolDownTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Cooldown.Magnitude"));
+			float FinalCooldown = GetCooldown();
+			SpecHandle.Data.Get()->SetSetByCallerMagnitude(CoolDownTag, FinalCooldown);
+			ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+		}
 	}
-
-	// 쿨다운 체크
-	if (bIsOnCooldown)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GiantBomb is on cooldown!"));
-		return false;
-	}
-
-	return true;
 }
 
 void UGRGameplayAbility_MissileBarrage::EndAbility(
@@ -312,11 +308,11 @@ float UGRGameplayAbility_MissileBarrage::CalculateFinalSkillDamage()
 	return CombatAttributeSet->CalculateFinalSkillDamage(SkillBaseDamage, 0.0f);
 }
 
-void UGRGameplayAbility_MissileBarrage::StartCooldown()
+float UGRGameplayAbility_MissileBarrage::GetCooldown() const
 {
 	if (!SkillAttributeSet)
 	{
-		return;
+		return 0.0f;
 	}
 
 	float BaseCooldown = SkillAttributeSet->GetBaseCooldown();
@@ -324,21 +320,5 @@ void UGRGameplayAbility_MissileBarrage::StartCooldown()
 	float CombetSetCooldownReduction = CombatAttributeSet->GetSkillCooldownReduction();
 	float FinalCooldown = BaseCooldown * (1.0f - CooldownReduction) * (1.0f - CombetSetCooldownReduction);
 
-	bIsOnCooldown = true;
-	CooldownEndTime = GetWorld()->GetTimeSeconds() + FinalCooldown;
-
-	TWeakObjectPtr<UGRGameplayAbility_MissileBarrage> WeakThis(this);
-	GetWorld()->GetTimerManager().SetTimer(
-		CooldownTimerHandle,
-		[WeakThis]()
-		{
-			if (WeakThis.IsValid())
-			{
-				WeakThis->bIsOnCooldown = false;
-				UE_LOG(LogTemp, Log, TEXT("MissileBarrage cooldown finished!"));
-			}
-		},
-		FinalCooldown,
-		false
-	);
+	return FinalCooldown;
 }

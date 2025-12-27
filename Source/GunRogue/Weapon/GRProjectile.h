@@ -27,6 +27,7 @@ public:
 	AGRProjectile();
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	// 투사체 초기화 (발사 시 호출)

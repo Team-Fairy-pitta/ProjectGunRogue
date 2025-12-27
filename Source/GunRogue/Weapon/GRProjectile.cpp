@@ -80,6 +80,17 @@ void AGRProjectile::BeginPlay()
 	}
 }
 
+void AGRProjectile::EndPlay(EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (FuseTimerHandle.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(FuseTimerHandle);
+		FuseTimerHandle.Invalidate();
+	}
+}
+
 void AGRProjectile::SetupCollisionFromMesh()
 {
 	if (!MeshComponent || !CollisionComponent)
