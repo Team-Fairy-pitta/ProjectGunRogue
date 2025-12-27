@@ -211,6 +211,19 @@ void AGRGameMode_Level1::RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1C
 	UpdateLevel1ControlPanel();
 }
 
+void AGRGameMode_Level1::BroadcastNotifyMessage(const FText& Message, float ShowMessageTime)
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AGRBattlePlayerController* PC = Cast<AGRBattlePlayerController>(It->Get());
+
+		if (PC)
+		{
+			PC->ClientRPC_ShowNotifyMessage(Message,ShowMessageTime);
+		}
+	}
+}
+
 void AGRGameMode_Level1::UpdateLevel1ControlPanel()
 {
 	bool bHasEliminatedEnemies;

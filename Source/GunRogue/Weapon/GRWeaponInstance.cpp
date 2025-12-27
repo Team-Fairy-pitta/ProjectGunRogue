@@ -11,6 +11,7 @@ FGRWeaponInstance::FGRWeaponInstance()
 	UpgradeLevel = 0;
 	UpgradeDamage = 0.f;
 	CurrentAmmo = 0;
+	RerollCount = 0;
 }
 
 FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
@@ -23,6 +24,7 @@ FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
 	CurrentAmmo = Other.CurrentAmmo;
 	CachedASC = nullptr;
 	WeaponDefinition = nullptr;
+	RerollCount = Other.RerollCount;
 }
 
 FGRWeaponInstance& FGRWeaponInstance::operator=(const FGRWeaponInstance& Other)
@@ -35,6 +37,7 @@ FGRWeaponInstance& FGRWeaponInstance::operator=(const FGRWeaponInstance& Other)
 	this->CurrentAmmo = Other.CurrentAmmo;
 	this->CachedASC = nullptr;
 	this->WeaponDefinition = nullptr;
+	this->RerollCount = Other.RerollCount;
 	return *this;
 }
 
@@ -216,6 +219,7 @@ void FGRWeaponInstance::RerollOption(int32 OptionSlotIndex)
 	if (NewOption.EffectClass)
 	{
 		Options[OptionSlotIndex] = NewOption;
+		RerollCount += 1;
 		ClearEffects();
 		ApplyAllEffects();
 	}
@@ -244,8 +248,19 @@ void FGRWeaponInstance::AllRerollOption()
 			Options.Add(NewOption);
 		}
 	}
+	RerollCount += 1;
 	ClearEffects();
 	ApplyAllEffects();
+}
+
+int32 FGRWeaponInstance::GetUpgradeCost() const
+{
+	return (GetLevel() + 1) * UpgradeCostPerLevel;
+}
+
+int32 FGRWeaponInstance::GetRerollCost() const
+{
+	return (RerollCount + 1) * RerollCostPerCount;
 }
 
 // 탄약 관련 구현

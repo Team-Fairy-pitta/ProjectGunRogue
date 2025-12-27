@@ -17,6 +17,7 @@ class UGRGameOverWidget;
 class UGRRadarMapComponent;
 class UGRInGameHUDWidget;
 class AGRLuwoAICharacter;
+class UTexture2D;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
@@ -60,6 +61,9 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_ShowDamageIndicator(float Damage, AActor* DamagedActor);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowNotifyMessage(const FText& Message, float ShowMessageTime);
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void ServerRPC_GameOver();
@@ -117,6 +121,7 @@ private:
 	void UpdatePlayerMaxHealth(float Value);
 	void UpdatePlayerShield(float Value);
 	void UpdatePlayerMaxShield(float Value);
+	void UpdateCharacterThumbnail();
 	
 	void OnUpdateOtherPlayerStatus();
 
@@ -124,6 +129,8 @@ private:
 	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
 	void OnShieldChanged(const FOnAttributeChangeData& Data);
 	void OnMaxShieldChanged(const FOnAttributeChangeData& Data);
+
+	UTexture2D* GetCharacterThumbnailOfPlayer(APlayerState* InPlayerState);
 
 	UFUNCTION()
 	void OnWeaponEquipped(int32 SlotIndex, UGRWeaponDefinition* WeaponDefinition);
@@ -138,6 +145,9 @@ private:
 	void OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo);
 
 	void ShowDamageIndicator(float Damage, AActor* DamagedActor);
+
+	UFUNCTION()
+	void ShowNotifyMessage(const FText& Message, float ShowMessageTime);
 
 #pragma endregion HUD
 

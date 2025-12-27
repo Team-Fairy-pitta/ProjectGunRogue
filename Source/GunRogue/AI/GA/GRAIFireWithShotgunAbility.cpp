@@ -2,9 +2,11 @@
 
 
 #include "AI/GA/GRAIFireWithShotgunAbility.h"
+#include "AbilitySystemComponent.h"
 
 UGRAIFireWithShotgunAbility::UGRAIFireWithShotgunAbility()
 {
+	FireCueTagName=FName("GameplayCue.AI.Weapon.Shotgun.Fire");
 }
 
 void UGRAIFireWithShotgunAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -16,11 +18,6 @@ void UGRAIFireWithShotgunAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	if (ActorInfo->AvatarActor.Get()->HasAuthority())
 	{
 		PlayAttackMontageAndWaitTask();
-
-		if (!PrepareFireContext())
-		{
-			EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
-		}
 		
 		FireShotgun();
 	}
@@ -97,6 +94,12 @@ void UGRAIFireWithShotgunAbility::LineTraceSingle(const FVector& Direction)
 				1.0f
 			);
 #endif
+
+			FGameplayTag ImpactCueTag = FGameplayTag::RequestGameplayTag("GameplayCue.AI.Bullet.Impact");
+			FGameplayCueParameters CueParams;
+			CueParams.Location = Hit.ImpactPoint;
+			CueParams.Normal = Hit.Normal;
+			GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(ImpactCueTag,CueParams);
 		}
 	}
 }

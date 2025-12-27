@@ -59,6 +59,9 @@ public:
 
 	float GetDamage() const { return UpgradeDamage; };
 
+	int32 GetUpgradeCost() const;
+	int32 GetRerollCost() const;
+
 	// 탄약 관련 함수
 	int32 GetCurrentAmmo() const { return CurrentAmmo; }
 	int32 GetMaxAmmo() const;
@@ -83,6 +86,12 @@ public:
 	UPROPERTY()
 	TObjectPtr<UGRWeaponDefinition> WeaponDefinition = nullptr;
 
+	// 무기 강화에 필요한 재화 (레벨 비례)
+	const int32 UpgradeCostPerLevel = 100;
+
+	// 무기 옵션 리롤에 필요한 재화 (횟수 비례)
+	const int32 RerollCostPerCount = 50;
+
 	// 현재 탄약 (이 무기 인스턴스의 탄약 상태)
 	UPROPERTY()
 	int32 CurrentAmmo;
@@ -93,6 +102,9 @@ protected:
 
 	UPROPERTY()
 	float UpgradeDamage;
+
+	UPROPERTY()
+	int32 RerollCount;
 
 	UPROPERTY();
 	int8 bIsValid;
