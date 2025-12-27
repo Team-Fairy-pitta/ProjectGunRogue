@@ -84,17 +84,12 @@ void ATestUIPlayerController::SetDefaultValueInBattleHUDWidget()
 		if (UGRSkillSlotWidget* FirstSKillSlotWidget = SkillListWidget->GetFirstSkillSlot())
 		{
 			FirstSKillSlotWidget->SetSkillKey(FText::FromString("Q"));
-			FirstSKillSlotWidget->SetSkillCountText(3);
+			//FirstSKillSlotWidget->SetSkillCountText(3);
 		}
 		if (UGRSkillSlotWidget* SecondSKillSlotWidget = SkillListWidget->GetSecondSkillSlot())
 		{
 			SecondSKillSlotWidget->SetSkillKey(FText::FromString("E"));
-			SecondSKillSlotWidget->SetSkillCountText(5);
-		}
-		if (UGRSkillSlotWidget* ThirdSkillSlotWidget = SkillListWidget->GetThirdSkillSlot())
-		{
-			ThirdSkillSlotWidget->SetSkillKey(FText::FromString("Shift"));
-			ThirdSkillSlotWidget->SetSkillCountText(0);
+			//SecondSKillSlotWidget->SetSkillCountText(5);
 		}
 	}
 	
@@ -122,21 +117,17 @@ void ATestUIPlayerController::HandleSkillInput(FName SkillKey)
 		{
 			TargetSlot = SkillListWidget->GetSecondSkillSlot();
 		}
-		else if (SkillKey == "Shift")
-		{
-			TargetSlot = SkillListWidget->GetThirdSkillSlot();
-		}
 
 		if (TargetSlot)
 		{
-			int32 CurrentCount = TargetSlot->GetSkillCount();
-			if (CurrentCount > 0)
-			{
-				int32 NewCount = FMath::Clamp(CurrentCount - 1, 0, CurrentCount);
-				TargetSlot->SetSkillCountText(NewCount);
-			}
+			//int32 CurrentCount = TargetSlot->GetSkillCount();
+			//if (CurrentCount > 0)
+			//{
+			//	int32 NewCount = FMath::Clamp(CurrentCount - 1, 0, CurrentCount);
+			//	//TargetSlot->SetSkillCountText(NewCount);
+			//}
 
-			TargetSlot->StartCooldown(5.0f);
+			//TargetSlot->StartCooldown(5.0f);
 		}
 	}
 }
