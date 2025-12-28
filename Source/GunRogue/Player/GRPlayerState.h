@@ -30,8 +30,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponSwitched, int32, OldSlotIndex, int32, NewSlotIndex);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAugmentChanged, FName, AugmentID, int32, NewLevel);
-
 namespace WeaponSlot
 {
 	constexpr int32 MaxWeaponSlots = 2;  // 무기 슬롯 개수
@@ -270,9 +268,6 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_OwnedAugments)
 	TArray<FAugmentEntry> OwnedAugments;
 	
-	UPROPERTY(BlueprintAssignable)
-	FAugmentChanged OnAugmentChanged;
-	
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_OnAugmentSelected(FName AugmentID);
 
@@ -287,11 +282,9 @@ protected:
 
 	void ApplyAugmentToASC(FName AugmentID);
 	
-	TArray<FAugmentEntry> PreviousOwnedAugments;
+	UPROPERTY()
+	TMap<FName, FActiveGameplayEffectHandle> ActiveAugmentEffectHandles;
 
-	UPROPERTY(EditAnywhere, Category="Augment|GameplayEffect")
-	TSubclassOf<UGameplayEffect> Augment_BombGE;
-	
 #pragma endregion
 
 #pragma region Perk;

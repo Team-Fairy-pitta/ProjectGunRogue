@@ -69,12 +69,7 @@ void AGRPlayerState::ApplyAugmentToASC(FName AugmentID)
 	{
 		return;
 	}
-
-	if (!Augment_BombGE)
-	{
-		return;
-	}
-
+	
 	UGRAugmentSubsystem* AugmentSubsystem = GetGameInstance()->GetSubsystem<UGRAugmentSubsystem>();
 	if (!AugmentSubsystem)
 	{
@@ -87,17 +82,18 @@ void AGRPlayerState::ApplyAugmentToASC(FName AugmentID)
 		return;
 	}
 
-	FGameplayTag AugmentRootTag = FGameplayTag::RequestGameplayTag(FName("Augment"));
-	ASC->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(AugmentRootTag));
-
-	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(Augment_BombGE,1.f, ASC->MakeEffectContext());
+	if (FActiveGameplayEffectHandle* ExistingHandle = ActiveAugmentEffectHandles.Find(AugmentID))
+	{
+		ASC->RemoveActiveGameplayEffect(*ExistingHandle);
+		ActiveAugmentEffectHandles.Remove(AugmentID);
+	}
+	
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(CurrentAugmentDefinition->AugmentGameplayEffect,1.f, ASC->MakeEffectContext());
 	if (!SpecHandle.IsValid())
 	{
 		return;
 	}
-
-	SpecHandle.Data->DynamicGrantedTags.AddTag(AugmentRootTag);
-
+	
 	const int32 CurrentAugmentLevel = GetAugmentLevel(AugmentID);
 	if (CurrentAugmentLevel <= 0)
 	{
@@ -129,10 +125,20 @@ void AGRPlayerState::ApplyAugmentToASC(FName AugmentID)
 		else if (AugmentModifierOp == EAugmentModifierOpType::Multiply)
 		{
 			FinalValue = FMath::Clamp(1.0f + LevelValue, 0.0f, 10.0f);
+
+			if (FinalValue <= 0.0f)
+			{
+				continue;
+			}
 		}
 		else if (AugmentModifierOp == EAugmentModifierOpType::InverseMultiply)
 		{
 			FinalValue = FMath::Clamp(1.0f - LevelValue, 0.0f, 10.0f);
+
+			if (FinalValue <= 0.0f)
+			{
+				continue;
+			}
 		}
 		else
 		{
@@ -142,7 +148,55 @@ void AGRPlayerState::ApplyAugmentToASC(FName AugmentID)
 		SpecHandle.Data->SetSetByCallerMagnitude(Value.AugmentTag, FinalValue);
 	}
 
-	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	if (CurrentAugmentLevel >= 3)
+	{
+		for (const FAugmentAdditionalValue& Additional : CurrentAugmentDefinition->AugmentAdditionalValues)
+		{
+			EAugmentModifierOpType AugmentModifierOp = Additional.AugmentAdditionalModifierOp;
+
+			float AdditionalValue = Additional.AugmentAdditionalValue;
+			float FinalValue = 0.0f;
+
+			if (AugmentModifierOp == EAugmentModifierOpType::Add)
+			{
+				FinalValue = AdditionalValue;
+			}
+			else if (AugmentModifierOp == EAugmentModifierOpType::Subtract)
+			{
+				FinalValue = -AdditionalValue;
+			}
+			else if (AugmentModifierOp == EAugmentModifierOpType::Multiply)
+			{
+				FinalValue = FMath::Clamp(1.0f + AdditionalValue, 0.0f, 10.0f);
+
+				if (FinalValue <= 0.0f)
+				{
+					continue;
+				}
+			}
+			else if (AugmentModifierOp == EAugmentModifierOpType::InverseMultiply)
+			{
+				FinalValue = FMath::Clamp(1.0f - AdditionalValue, 0.0f, 10.0f);
+
+				if (FinalValue <= 0.0f)
+				{
+					continue;
+				}
+			}
+			else
+			{
+				continue;
+			}
+
+			SpecHandle.Data->SetSetByCallerMagnitude(Additional.AugmentAdditionalTag, FinalValue);
+		}
+	}
+	
+	FActiveGameplayEffectHandle NewHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	if (NewHandle.IsValid())
+	{
+		ActiveAugmentEffectHandles.Add(AugmentID, NewHandle);
+	}
 }
 
 int32 AGRPlayerState::GetAugmentLevel(FName AugmentID)
@@ -160,27 +214,6 @@ int32 AGRPlayerState::GetAugmentLevel(FName AugmentID)
 
 void AGRPlayerState::OnRep_OwnedAugments()
 {
-	for (const FAugmentEntry& Entry : OwnedAugments)
-	{
-		const FAugmentEntry* PrevEntry = nullptr;
-		for (const FAugmentEntry& Prev : PreviousOwnedAugments)
-		{
-			if (Prev.AugmentID == Entry.AugmentID)
-			{
-				PrevEntry = &Prev;
-				break;
-			}
-		}
-
-		if (!PrevEntry || PrevEntry->Level != Entry.Level)
-		{
-			OnAugmentChanged.Broadcast(Entry.AugmentID, Entry.Level);
-			UE_LOG(LogTemp, Warning, TEXT("OnRep_OwnedAugments called"));
-		}
-	}
-
-	PreviousOwnedAugments = OwnedAugments;
-
 	AGRBattlePlayerController* BattlePlayerController = GetOwner<AGRBattlePlayerController>();
 	if (!IsValid(BattlePlayerController))
 	{

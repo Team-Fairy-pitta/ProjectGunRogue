@@ -266,6 +266,10 @@ public:
 
 	UFUNCTION()
 	void RequestSelectAugment(FName AugmentID);
+
+	//Test
+	UFUNCTION(EXec)
+	void ShowAugmentInBattlePC();
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
