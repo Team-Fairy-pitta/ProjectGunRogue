@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Blueprint/UserWidget.h"
+#include "GameModes/Level1/GRLevel1Data.h"
 #include "GRLevel1RoomWidget.generated.h"
 
 struct FGRLevel1Node;
@@ -17,6 +18,9 @@ class GUNROGUE_API UGRLevel1RoomWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
+
 	void InitRoomWidget(int32 InIndex, const FGRLevel1Node& Level1Data, UGRLevel1SelectWidget* InParentWidget);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
@@ -51,5 +55,6 @@ protected:
 	void OnButtonClicked();
 
 	UGRLevel1SelectWidget* ParentWidget;
+	FGRLevel1Node CachedNodeInfo;
 	int32 Index = -1;
 };

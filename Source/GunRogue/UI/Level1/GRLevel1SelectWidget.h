@@ -5,8 +5,10 @@
 
 class UUniformGridPanel;
 class UGRLevel1RoomWidget;
+class UGRLevel1PopupWidget;
 class AGRLevel1ControlPanel;
 struct FGRLevel1Data;
+struct FGRLevel1Node;
 
 UCLASS()
 class GUNROGUE_API UGRLevel1SelectWidget : public UUserWidget
@@ -23,9 +25,16 @@ public:
 
 	void OnRoomClicked(int32 Index);
 
+	void ShowPopup();
+	void SetPopupText(const FGRLevel1Node& Level1Data, int32 Index);
+	void HidePopup();
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUniformGridPanel> RoomGridPanel;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UGRLevel1PopupWidget> PopupWidget;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue")
 	TSubclassOf<UGRLevel1RoomWidget> RoomWidgetClass;
