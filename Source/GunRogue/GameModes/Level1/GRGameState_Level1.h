@@ -22,6 +22,7 @@ public:
 
 	void SetCurrentRoomIndex(int32 InIndex);
 	void RequestNextRoomInformation();
+	void RequestAllRoomsInformation();
 
 	const FGRLevel1Data& GetLevel1ClientData() const { return Level1ClientData; }
 	FGRLevel1Node* GetCurrentNodeInfo();
@@ -41,7 +42,7 @@ protected:
 	int32 CurrentLevel1NodeIndex;
 
 	UPROPERTY(Replicated)
-	FGRLevel1Data Level1ClientData; /* GameMode의 그것과는 다르게, 일부 정보만 가지고 있음 */
+	FGRLevel1Data Level1ClientData;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentBoss)
 	AGRLuwoAICharacter* CurrentBoss = nullptr;

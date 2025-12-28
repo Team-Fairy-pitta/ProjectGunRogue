@@ -1,6 +1,6 @@
 #include "GREnemySpawnManager.h"
-
 #include "GREnemySpawner.h"
+#include "GameModes/Level1/GRGameState_Level1.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 
@@ -24,6 +24,35 @@ void AGREnemySpawnManager::BeginPlay()
 	}
 }
 
+float AGREnemySpawnManager::GetDifficultyMultiplier()
+{
+	if (!GetWorld())
+	{
+		return 1.0f;
+	}
+
+	AGRGameState_Level1* GRGameState = GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GRGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRGameState is INVALID"));
+		return 1.0f;
+	}
+
+	if (!GRGameState->GetCurrentNodeInfo())
+	{
+		return 1.0f;
+	}
+	ENodeType CurrentNodeType = GRGameState->GetCurrentNodeInfo()->NodeType;
+	if (CurrentNodeType == ENodeType::HARD)
+	{
+		return 1.5f;
+	}
+	else
+	{
+		return 1.0f;
+	}
+}
+
 void AGREnemySpawnManager::SpawnEnemies()
 {
 	for (const FSpawnInfo& Info : SpawnInfos)
@@ -42,6 +71,8 @@ void AGREnemySpawnManager::SpawnEnemies()
 		{
 			SpawnCount = FMath::RandRange(Info.SpawnCountRange.Min, Info.SpawnCountRange.Max);			
 		}
+
+		SpawnCount = (int32)((float)SpawnCount * GetDifficultyMultiplier());
 
 		for (int32 i = 0; i < SpawnCount; ++i)
 		{

@@ -7,6 +7,8 @@ struct FGRLevel1Node;
 class UBorder;
 class UTextBlock;
 class UButton;
+class UImage;
+class UTexture2D;
 class UGRLevel1SelectWidget;
 
 UCLASS()
@@ -17,6 +19,24 @@ class GUNROGUE_API UGRLevel1RoomWidget : public UUserWidget
 public:
 	void InitRoomWidget(int32 InIndex, const FGRLevel1Node& Level1Data, UGRLevel1SelectWidget* InParentWidget);
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
+	TObjectPtr<UTexture2D> BaseIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
+	TObjectPtr<UTexture2D> HardIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
+	TObjectPtr<UTexture2D> BossIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
+	FSlateColor BaseIconColor;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
+	FSlateColor HardIconColor;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
+	FSlateColor BossIconColor;
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> RoomButton;
@@ -25,7 +45,7 @@ protected:
 	TObjectPtr<UBorder> Border;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> MapIndex;
+	TObjectPtr<UImage> TypeIcon;
 
 	UFUNCTION()
 	void OnButtonClicked();

@@ -4,6 +4,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
+#include "Components/Image.h"
 
 void UGRLevel1RoomWidget::InitRoomWidget(int32 InIndex, const FGRLevel1Node& Level1Data, UGRLevel1SelectWidget* InParentWidget)
 {
@@ -11,7 +12,7 @@ void UGRLevel1RoomWidget::InitRoomWidget(int32 InIndex, const FGRLevel1Node& Lev
 	{
 		return;
 	}
-	if (!MapIndex)
+	if (!TypeIcon)
 	{
 		return;
 	}
@@ -31,24 +32,42 @@ void UGRLevel1RoomWidget::InitRoomWidget(int32 InIndex, const FGRLevel1Node& Lev
 	switch (Level1Data.NodeStatus)
 	{
 	case ENodeStatus::NONE:
-		MapIndex->SetText(FText());
 		Border->SetBrushColor(FLinearColor(0.0f, 0.0f, 0.0f));
 		RoomButton->SetIsEnabled(false);
 		break;
 	case ENodeStatus::CURRENT:
-		MapIndex->SetText(FText());
 		Border->SetBrushColor(FLinearColor(0.0f, 1.0f, 0.0f));
 		RoomButton->SetIsEnabled(false);
 		break;
 	case ENodeStatus::NEXT:
-		MapIndex->SetText(FText());
 		Border->SetBrushColor(FLinearColor(0.0f, 0.0f, 1.0f));
 		RoomButton->SetIsEnabled(true);
 		break;
 	case ENodeStatus::CLEARD:
-		MapIndex->SetText(FText());
 		Border->SetBrushColor(FLinearColor(0.2f, 0.2f, 0.2f));
 		RoomButton->SetIsEnabled(false);
+		break;
+	}
+
+	switch (Level1Data.NodeType)
+	{
+	case ENodeType::BASE:
+		TypeIcon->SetVisibility(ESlateVisibility::Visible);
+		TypeIcon->SetBrushTintColor(BaseIconColor);
+		TypeIcon->SetBrushFromTexture(BaseIcon);
+		break;
+	case ENodeType::NORMAL:
+		TypeIcon->SetVisibility(ESlateVisibility::Hidden);
+		break;
+	case ENodeType::HARD:
+		TypeIcon->SetVisibility(ESlateVisibility::Visible);
+		TypeIcon->SetBrushTintColor(HardIconColor);
+		TypeIcon->SetBrushFromTexture(HardIcon);
+		break;
+	case ENodeType::BOSS:
+		TypeIcon->SetVisibility(ESlateVisibility::Visible);
+		TypeIcon->SetBrushTintColor(BossIconColor);
+		TypeIcon->SetBrushFromTexture(BossIcon);
 		break;
 	}
 }
