@@ -73,7 +73,10 @@ public:
 
 	int32 GetLevel() const { return UpgradeLevel; };
 
-	float GetDamage() const { return UpgradeDamage; };
+	float GetTotalDamage() const;
+	float GetTotalWeakMultuplier() const;
+	float GetTotalFireRate() const;
+	float GetTotalMagazine() const;
 
 	int32 GetUpgradeCost() const;
 	int32 GetRerollCost() const;
@@ -120,11 +123,22 @@ protected:
 	int32 UpgradeLevel;
 
 	UPROPERTY()
-	float UpgradeDamage;
-
-	UPROPERTY()
 	int32 RerollCount;
 
 	UPROPERTY();
 	int8 bIsValid;
+
+	UPROPERTY();
+	float CachedTotalDamage;
+
+	UPROPERTY();
+	float CachedTotalWeakMultuplier;
+
+	UPROPERTY();
+	float CachedTotalFireRate;
+
+	UPROPERTY();
+	float CachedTotalMagazine;
+
+	void UpdateCachedAttributes();
 };

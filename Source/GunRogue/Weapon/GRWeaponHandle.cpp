@@ -30,7 +30,7 @@ void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefin
 		WeaponInstance.GetLevel());
 	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.CurrentDamage: %f"),
 		*WeaponDefinition->WeaponName.ToString(),
-		WeaponInstance.GetDamage());
+		WeaponInstance.GetTotalDamage());
 
 	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s Ammo: %d / %d"),
 		*WeaponDefinition->WeaponName.ToString(),
