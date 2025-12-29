@@ -6,7 +6,7 @@ UGRSkillAttributeSet_MissileBrg::UGRSkillAttributeSet_MissileBrg()
 	// 기본값 설정
 	InitBaseDamage(0.0f);
 	InitExplosionRadius(0.0f);
-	InitExplosionFalloff(0.3f);
+	InitExplosionFalloff(0.0f);
 	InitProjectileSpeed(0.0f);
 	InitGravityScale(0.0f);
 	InitLifeSpan(0.0f);
@@ -15,7 +15,7 @@ UGRSkillAttributeSet_MissileBrg::UGRSkillAttributeSet_MissileBrg()
 	InitSpawnRadius(0.0f);
 	InitSpawnHeightOffset(0.0f);
 
-	InitFireInterval(0.08f);
+	InitFireInterval(0.0f);
 	InitSpawnDelay(0.0f);
 
 	InitBaseCooldown(0.0f);
