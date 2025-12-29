@@ -44,12 +44,14 @@ void UGROptionSlot::InitSlot(int32 InSlotIndex, const FWeaponOption& InOptionDat
 			FString Str = Desc.ToString();
 
 
-			for(const TPair< FGameplayTag, float>& Pair : InOptionData.Values)
+			for(const FOptionItem& OptionItem : InOptionData.OptionItems)
 			{
+				const FGameplayTag& Tag = OptionItem.OptionTag;
+
 				float TargetValue = 0.0f;
 				if (InOptionData.bIsPercentValue)
 				{
-					TargetValue = Pair.Value * 100;
+					TargetValue = OptionItem.Value * 100;
 					if (InOptionData.bIsAdditivePercent)
 					{
 						TargetValue -= 100.0f; // [Note] 공격력이 130% 된다. -> 공격력이 30% 증가
@@ -57,14 +59,14 @@ void UGROptionSlot::InitSlot(int32 InSlotIndex, const FWeaponOption& InOptionDat
 				}
 				else
 				{
-					TargetValue = Pair.Value;
+					TargetValue = OptionItem.Value;
 				}
 
 				TargetValue *= 10;
 				TargetValue = FMath::RoundToFloat(TargetValue);
 				TargetValue /= 10;
 
-				FString TagString = Pair.Key.ToString();
+				FString TagString = Tag.ToString();
 				FString ValueString = FString::SanitizeFloat(TargetValue);
 				Str = Str.Replace(*FString::Printf(TEXT("{%s}"), *TagString), *ValueString);
 			}

@@ -121,11 +121,11 @@ void FGRWeaponInstance::ApplyAllEffects()
 			continue;
 		}
 
-		for (const auto& Pair : Option.Values)
+		for (const FOptionItem& OptionItem : Option.OptionItems)
 		{
 			SpecHandle.Data->SetSetByCallerMagnitude(
-				Pair.Key,
-				Pair.Value
+				OptionItem.OptionTag,
+				OptionItem.Value
 			);
 		}
 
@@ -187,7 +187,7 @@ FWeaponOption FGRWeaponInstance::RandomOption() const
 		float Value = FMath::FRandRange(Range.ValueRange.Min, Range.ValueRange.Max);
 		Value = FMath::RoundToFloat(Value * 10.f) / 10.f;
 
-		EmptyOption.Values.Add(Range.DataTag, Value);
+		EmptyOption.OptionItems.Add({ Range.DataTag, Value });
 		EmptyOption.bIsPercentValue = Range.bIsPercentValue;
 		EmptyOption.bIsAdditivePercent = Range.bIsAdditivePercent;
 	}

@@ -319,7 +319,7 @@ void UGRWeaponUpgrade::WeaponOptionUpdate()
 		return;
 	}
 
-	const TArray<FWeaponOption>& Options = WeaponInstance->Options;  
+	const TArray<FWeaponOption>& Options = WeaponInstance->GetOptions();
 
 	for (int32 i = 0; i < Options.Num(); i++)
 	{

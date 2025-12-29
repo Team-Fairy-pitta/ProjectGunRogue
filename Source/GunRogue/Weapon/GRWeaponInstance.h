@@ -8,7 +8,17 @@
 class UGRWeaponDefinition;
 class UGRAbilitySystemComponent;
 
+USTRUCT(BlueprintType)
+struct FOptionItem
+{
+	GENERATED_BODY()
 
+	UPROPERTY()
+	FGameplayTag OptionTag;
+
+	UPROPERTY()
+	float Value;
+};
 
 USTRUCT(BlueprintType)
 struct FWeaponOption
@@ -20,7 +30,7 @@ public:
 	TSubclassOf<UGRGameplayEffect> EffectClass = nullptr;
 
 	UPROPERTY()
-	TMap<FGameplayTag, float> Values;
+	TArray<FOptionItem> OptionItems;
 
 	UPROPERTY()
 	bool bIsPercentValue = false;
@@ -78,10 +88,9 @@ public:
 	bool ConsumeAmmo();
 	void Reload();
 
-public:
+	const TArray<FWeaponOption>& GetOptions() const { return Options; }
 
-	UPROPERTY()
-	TArray<FWeaponOption> Options;
+public:
 
 	UPROPERTY()
 	TArray<FActiveGameplayEffectHandle> AppliedEffects;
@@ -103,6 +112,10 @@ public:
 	int32 CurrentAmmo;
 
 protected:
+
+	UPROPERTY()
+	TArray<FWeaponOption> Options;
+
 	UPROPERTY()
 	int32 UpgradeLevel;
 
