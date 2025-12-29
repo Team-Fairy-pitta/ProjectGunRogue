@@ -9,6 +9,16 @@
 /**
  * 
  */
+UENUM(BlueprintType)
+enum class EAugmentModifierOpType : uint8
+{
+	Add,
+	Subtract,
+	Multiply,
+	InverseMultiply,
+	Divide
+};
+
 USTRUCT(BlueprintType)
 struct FAugmentValues
 {
@@ -21,6 +31,12 @@ struct FAugmentValues
 	// 변수의 레벨 당 값 (Ex: 20%/50%/100% 등) 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<float> ValuePerLevel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EAugmentModifierOpType AugmentModifierOp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bDisplayAsPercent = false;
 };
 
 USTRUCT(BlueprintType)
@@ -39,6 +55,12 @@ struct FAugmentAdditionalValue
 	//추가되는 변수의 값 (필요 시)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AugmentAdditionalValue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EAugmentModifierOpType AugmentAdditionalModifierOp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bDisplayAsPercent = false;
 };
 
 USTRUCT(BlueprintType)

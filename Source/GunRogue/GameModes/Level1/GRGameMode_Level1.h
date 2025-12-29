@@ -43,6 +43,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BroadcastNotifyMessage(const FText& Message, float ShowMessageTime);
 
+	void BroadcastClearMessage();
+	void BroadcastOpenNextStage();
+
 private:
 	UPROPERTY()
 	TArray<TObjectPtr<AGRLevel1ControlPanel>> Panels;

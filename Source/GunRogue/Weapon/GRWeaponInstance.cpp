@@ -1,6 +1,7 @@
 #include "Weapon/GRWeaponInstance.h"
 
 #include "AbilitySystem/GRAbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "Weapon/GRWeaponOptionPool.h"
 #include "Weapon/GRWeaponDefinition.h"
 
@@ -9,7 +10,6 @@ FGRWeaponInstance::FGRWeaponInstance()
 {
 	bIsValid = 0;
 	UpgradeLevel = 0;
-	UpgradeDamage = 0.f;
 	CurrentAmmo = 0;
 	RerollCount = 0;
 }
@@ -18,26 +18,35 @@ FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
 {
 	bIsValid = Other.bIsValid;
 	UpgradeLevel = Other.UpgradeLevel;
-	UpgradeDamage = Other.UpgradeDamage;
 	Options = Other.Options;
 	AppliedEffects = Other.AppliedEffects;
 	CurrentAmmo = Other.CurrentAmmo;
 	CachedASC = nullptr;
 	WeaponDefinition = nullptr;
 	RerollCount = Other.RerollCount;
+
+	CachedTotalDamage = Other.CachedTotalDamage;
+	CachedTotalWeakMultuplier = Other.CachedTotalWeakMultuplier;
+	CachedTotalFireRate = Other.CachedTotalFireRate;
+	CachedTotalMagazine = Other.CachedTotalMagazine;
 }
 
 FGRWeaponInstance& FGRWeaponInstance::operator=(const FGRWeaponInstance& Other)
 {
 	this->bIsValid = Other.bIsValid;
 	this->UpgradeLevel = Other.UpgradeLevel;
-	this->UpgradeDamage = Other.UpgradeDamage;
 	this->Options = Other.Options;
 	this->AppliedEffects = Other.AppliedEffects;
 	this->CurrentAmmo = Other.CurrentAmmo;
 	this->CachedASC = nullptr;
 	this->WeaponDefinition = nullptr;
 	this->RerollCount = Other.RerollCount;
+
+	this->CachedTotalDamage = Other.CachedTotalDamage;
+	this->CachedTotalWeakMultuplier = Other.CachedTotalWeakMultuplier;
+	this->CachedTotalFireRate = Other.CachedTotalFireRate;
+	this->CachedTotalMagazine = Other.CachedTotalMagazine;
+
 	return *this;
 }
 
@@ -45,12 +54,6 @@ void FGRWeaponInstance::Init(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition
 {
 	CachedASC = ASC;
 	WeaponDefinition = InWeaponDefinition;
-
-	if (UpgradeLevel == 0)
-	{
-		UpgradeDamage = WeaponDefinition->BaseDamage;
-	}
-
 }
 
 void FGRWeaponInstance::UpgradeWeapon()
@@ -73,10 +76,8 @@ void FGRWeaponInstance::UpgradeWeapon()
 	}
 
 	UpgradeLevel++;
-	UpgradeDamage += WeaponDefinition->UpgradeDamageIncrease;
 
 	UE_LOG(LogTemp, Display, TEXT("Upgrade Level:%d"), UpgradeLevel);
-	UE_LOG(LogTemp, Display, TEXT("Upgrade Damage:%f"), UpgradeDamage);
 
 	if (UpgradeLevel % 3 == 0)
 	{
@@ -84,17 +85,7 @@ void FGRWeaponInstance::UpgradeWeapon()
 		if (NewOption.EffectClass)
 		{
 			Options.Add(NewOption);
-
-			ClearEffects();
-			ApplyAllEffects();
 		}
-	}
-
-	for(FWeaponOption& Option : Options)
-	{
-		UE_LOG(LogTemp, Display, TEXT("Option Effect: %s with Value: %f"),
-			*Option.EffectClass->GetName(),
-			Option.Value);
 	}
 }
 
@@ -111,8 +102,30 @@ void FGRWeaponInstance::ApplyAllEffects()
 		return;
 	}
 
-	AppliedEffects.Empty();
 
+	// 기본 데미지 효과 적용
+	if (WeaponDefinition && WeaponDefinition->BaseDamageEffect)
+	{
+		FGameplayEffectSpecHandle SpecHandle =
+			CachedASC->MakeOutgoingSpec(
+				WeaponDefinition->BaseDamageEffect,
+				1.f,
+				CachedASC->MakeEffectContext()
+			);
+
+		float AdditiveDamage = UpgradeLevel * WeaponDefinition->UpgradeDamageIncrease;
+
+		SpecHandle.Data->SetSetByCallerMagnitude(
+			FGameplayTag::RequestGameplayTag(TEXT("Weapon.BaseDamage")),
+			AdditiveDamage
+		);
+
+		FActiveGameplayEffectHandle Handle = CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+
+		AppliedEffects.Add(Handle);
+	}
+
+	// 옵션 효과 적용
 	for (const FWeaponOption& Option : Options)
 	{
 		if (!Option.EffectClass)
@@ -131,15 +144,21 @@ void FGRWeaponInstance::ApplyAllEffects()
 			continue;
 		}
 
-		FGameplayTag ValueTag = FGameplayTag::RequestGameplayTag("Data.OptionValue");
-
-		SpecHandle.Data->SetSetByCallerMagnitude(ValueTag, Option.Value);
+		for (const FOptionItem& OptionItem : Option.OptionItems)
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(
+				OptionItem.OptionTag,
+				OptionItem.Value
+			);
+		}
 
 		FActiveGameplayEffectHandle Handle = CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
 		AppliedEffects.Add(Handle);
 
 	}
+
+	UpdateCachedAttributes();
 }
 
 void FGRWeaponInstance::ClearEffects()
@@ -186,14 +205,19 @@ FWeaponOption FGRWeaponInstance::RandomOption() const
 
 	const FOptionPoolEntry& Entry = Pool[FMath::RandRange(0, Pool.Num() - 1)];
 
-	float RandomValue = FMath::FRandRange(Entry.MinValue, Entry.MaxValue);
-	RandomValue = FMath::RoundToFloat(RandomValue * 10.0f) / 10.0f;
+	EmptyOption.EffectClass = Entry.EffectClass;
 
-	FWeaponOption NewOption;
-	NewOption.EffectClass = Entry.EffectClass;
-	NewOption.Value = RandomValue;
+	for (const FOptionValueRange& Range : Entry.ValueRanges)
+	{
+		float Value = FMath::FRandRange(Range.ValueRange.Min, Range.ValueRange.Max);
+		Value = FMath::RoundToFloat(Value * 10.f) / 10.f;
 
-	return NewOption;
+		EmptyOption.OptionItems.Add({ Range.DataTag, Value });
+		EmptyOption.bIsPercentValue = Range.bIsPercentValue;
+		EmptyOption.bIsAdditivePercent = Range.bIsAdditivePercent;
+	}
+
+	return EmptyOption;
 }
 
 void FGRWeaponInstance::RerollOption(int32 OptionSlotIndex)
@@ -220,8 +244,6 @@ void FGRWeaponInstance::RerollOption(int32 OptionSlotIndex)
 	{
 		Options[OptionSlotIndex] = NewOption;
 		RerollCount += 1;
-		ClearEffects();
-		ApplyAllEffects();
 	}
 }
 
@@ -249,8 +271,26 @@ void FGRWeaponInstance::AllRerollOption()
 		}
 	}
 	RerollCount += 1;
-	ClearEffects();
-	ApplyAllEffects();
+}
+
+float FGRWeaponInstance::GetTotalDamage() const
+{
+	return CachedTotalDamage;
+}
+
+float FGRWeaponInstance::GetTotalWeakMultuplier() const
+{
+	return CachedTotalWeakMultuplier;
+}
+
+float FGRWeaponInstance::GetTotalFireRate() const
+{
+	return CachedTotalFireRate;
+}
+
+float FGRWeaponInstance::GetTotalMagazine() const
+{
+	return CachedTotalMagazine;
 }
 
 int32 FGRWeaponInstance::GetUpgradeCost() const
@@ -310,4 +350,25 @@ void FGRWeaponInstance::Reload()
 
 	UE_LOG(LogTemp, Log, TEXT("[WeaponInstance] Reloaded: %d -> %d"),
 		OldAmmo, CurrentAmmo);
+}
+
+void FGRWeaponInstance::UpdateCachedAttributes()
+{
+	if (!CachedASC)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CachedASC is INVALID"));
+		return;
+	}
+
+	const UGRCombatAttributeSet* CombatAttributeSet = Cast<UGRCombatAttributeSet>(CachedASC->GetAttributeSet(UGRCombatAttributeSet::StaticClass()));
+	if (!CombatAttributeSet)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UGRCombatAttributeSet is INVALID"));
+		return;
+	}
+
+	CachedTotalDamage = CombatAttributeSet->CalculateWeaponDamage();
+	CachedTotalWeakMultuplier = CombatAttributeSet->CalculateCriticalMultiplier(true /*bIsCritical*/);
+	CachedTotalFireRate = CombatAttributeSet->GetFireRate();
+	CachedTotalMagazine = CombatAttributeSet->GetMaxAmmo();
 }

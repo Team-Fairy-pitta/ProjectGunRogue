@@ -139,22 +139,19 @@ public:
 	TObjectPtr<UParticleSystem> BulletTracerCascade;
 
 	// ======== 무기 스탯 ========
-	/* 무기 강화 파트에서 사용하고 있는 값 */
-	/* [NOTE] 무기의 Status Effect 랑 어떻게 통합할 수 있을까..? */
-	// 무기 기본 데미지
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
-	float BaseDamage = 10.f;
+	TSubclassOf<UGameplayEffect> BaseDamageEffect;
 
 	// 무기 최대 레벨
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Upgrade")
 	int32 MaxLevel = 15;
 
 	// 무기 레벨업 당 증가하는 데미지
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Upgrade")
 	float UpgradeDamageIncrease = 2.f;
 
 	// 무기 옵션 풀
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Upgrade")
 	UGRWeaponOptionPool* OptionPool = nullptr;
 
 	// 탄창 크기 (최대 탄약)

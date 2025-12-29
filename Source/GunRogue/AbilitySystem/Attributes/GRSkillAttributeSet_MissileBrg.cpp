@@ -1,4 +1,6 @@
 #include "GRSkillAttributeSet_MissileBrg.h"
+
+#include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
 
 UGRSkillAttributeSet_MissileBrg::UGRSkillAttributeSet_MissileBrg()
@@ -10,7 +12,7 @@ UGRSkillAttributeSet_MissileBrg::UGRSkillAttributeSet_MissileBrg()
 	InitProjectileSpeed(0.0f);
 	InitGravityScale(0.0f);
 	InitLifeSpan(0.0f);
-
+	
 	InitMissileCount(0.0f);
 	InitSpawnRadius(0.0f);
 	InitSpawnHeightOffset(0.0f);
