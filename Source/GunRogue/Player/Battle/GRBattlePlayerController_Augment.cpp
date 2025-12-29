@@ -51,8 +51,3 @@ void AGRBattlePlayerController::RequestSelectAugment(FName AugmentID)
 
 	PS->ServerRPC_OnAugmentSelected(AugmentID);
 }
-
-void AGRBattlePlayerController::ShowAugmentInBattlePC()
-{
-	ShowAugmentWidget();
-}
