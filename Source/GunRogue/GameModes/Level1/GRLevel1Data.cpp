@@ -7,6 +7,7 @@ FGRLevel1Node::FGRLevel1Node()
 	NextRightIndex = -1;
 	LevelToLoad = nullptr;
 	NodeStatus = ENodeStatus::NONE;
+	NodeType = ENodeType::NONE;
 }
 
 void FGRLevel1Node::CopyNodeInformation(const FGRLevel1Node& Other)
@@ -14,6 +15,7 @@ void FGRLevel1Node::CopyNodeInformation(const FGRLevel1Node& Other)
 	NextLeftIndex = Other.NextLeftIndex;
 	NextRightIndex = Other.NextRightIndex;
 	LevelToLoad = Other.LevelToLoad;
+	NodeType = Other.NodeType;
 }
 
 FGRLevel1Node* FGRLevel1Data::GetNode(int32 Index)
@@ -67,6 +69,7 @@ void FGRLevel1Data::InitAtServer(AGRGameMode_Level1* GRGameMode)
 	TotalRoomCount = RowCount * ColCount;
 
 	MakeAndConnectEmptyRooms();
+	SetupFirstRoom();
 	SetupEachRoomRandomly(GRGameMode);
 	SetupLastRoom(GRGameMode);
 	bIsValid = 1;
@@ -122,6 +125,12 @@ void FGRLevel1Data::MakeAndConnectEmptyRooms()
 	}
 }
 
+void FGRLevel1Data::SetupFirstRoom()
+{
+	FGRLevel1Node& FirstNode = Nodes[0];
+	FirstNode.NodeType = ENodeType::BASE;
+}
+
 void FGRLevel1Data::SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode)
 {
 	// 랜덤으로 각 방을 설정한다.
@@ -172,6 +181,18 @@ void FGRLevel1Data::SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode)
 			}
 
 			Node.LevelToLoad = RandomLevel;
+
+
+
+			int32 RandomDice = FMath::RandRange(0, 99);
+			if (RandomDice <= 20)
+			{
+				Node.NodeType = ENodeType::HARD;
+			}
+			else
+			{
+				Node.NodeType = ENodeType::NORMAL;
+			}
 			break;
 		}
 	}
@@ -193,5 +214,6 @@ void FGRLevel1Data::SetupLastRoom(AGRGameMode_Level1* GRGameMode)
 
 	FGRLevel1Node& LastNode = Nodes.Last();
 	LastNode.LevelToLoad = GRGameMode->BossLevel;
+	LastNode.NodeType = ENodeType::BOSS;
 }
 

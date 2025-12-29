@@ -1,6 +1,7 @@
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "GameModes/Level1/GRGameState_Level1.h"
+#include "GameModes/Level1/GRGameMode_Level1.h"
 #include "System/GRLevel1ControlPanel.h"
 #include "UI/Level1/GRLevel1SelectWidget.h"
 
@@ -68,6 +69,14 @@ void AGRBattlePlayerController::ServerRPC_OnSelectNextRoom_Implementation(int32 
 			}
 		}
 	}
+
+	AGRGameMode_Level1* GameMode_Level1 = GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+	if (!IsValid(GameMode_Level1))
+	{
+		return;
+	}
+
+	GameMode_Level1->BroadcastOpenNextStage();
 }
 
 void AGRBattlePlayerController::SetLevel1SelectWidget(const FGRLevel1Data& Level1Data, AGRLevel1ControlPanel* ControlPanel)

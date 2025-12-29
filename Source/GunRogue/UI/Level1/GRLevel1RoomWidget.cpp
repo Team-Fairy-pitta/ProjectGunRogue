@@ -1,9 +1,20 @@
 #include "UI/Level1/GRLevel1RoomWidget.h"
 #include "UI/Level1/GRLevel1SelectWidget.h"
-#include "GameModes/Level1/GRLevel1Data.h"
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
+#include "Components/Image.h"
+
+void UGRLevel1RoomWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	ParentWidget->SetPopupText(CachedNodeInfo, Index);
+	ParentWidget->ShowPopup();
+}
+
+void UGRLevel1RoomWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+{
+	ParentWidget->HidePopup();
+}
 
 void UGRLevel1RoomWidget::InitRoomWidget(int32 InIndex, const FGRLevel1Node& Level1Data, UGRLevel1SelectWidget* InParentWidget)
 {
@@ -11,7 +22,7 @@ void UGRLevel1RoomWidget::InitRoomWidget(int32 InIndex, const FGRLevel1Node& Lev
 	{
 		return;
 	}
-	if (!MapIndex)
+	if (!TypeIcon)
 	{
 		return;
 	}
@@ -22,33 +33,52 @@ void UGRLevel1RoomWidget::InitRoomWidget(int32 InIndex, const FGRLevel1Node& Lev
 
 	Index = InIndex;
 	ParentWidget = InParentWidget;
+	CachedNodeInfo = Level1Data;
 
 	if (!RoomButton->OnClicked.IsAlreadyBound(this, &ThisClass::OnButtonClicked))
 	{
 		RoomButton->OnClicked.AddDynamic(this, &ThisClass::OnButtonClicked);
 	}
 
-	switch (Level1Data.NodeStatus)
+	switch (CachedNodeInfo.NodeStatus)
 	{
 	case ENodeStatus::NONE:
-		MapIndex->SetText(FText());
 		Border->SetBrushColor(FLinearColor(0.0f, 0.0f, 0.0f));
 		RoomButton->SetIsEnabled(false);
 		break;
 	case ENodeStatus::CURRENT:
-		MapIndex->SetText(FText());
 		Border->SetBrushColor(FLinearColor(0.0f, 1.0f, 0.0f));
 		RoomButton->SetIsEnabled(false);
 		break;
 	case ENodeStatus::NEXT:
-		MapIndex->SetText(FText());
 		Border->SetBrushColor(FLinearColor(0.0f, 0.0f, 1.0f));
 		RoomButton->SetIsEnabled(true);
 		break;
 	case ENodeStatus::CLEARD:
-		MapIndex->SetText(FText());
 		Border->SetBrushColor(FLinearColor(0.2f, 0.2f, 0.2f));
 		RoomButton->SetIsEnabled(false);
+		break;
+	}
+
+	switch (CachedNodeInfo.NodeType)
+	{
+	case ENodeType::BASE:
+		TypeIcon->SetVisibility(ESlateVisibility::Visible);
+		TypeIcon->SetBrushTintColor(BaseIconColor);
+		TypeIcon->SetBrushFromTexture(BaseIcon);
+		break;
+	case ENodeType::NORMAL:
+		TypeIcon->SetVisibility(ESlateVisibility::Hidden);
+		break;
+	case ENodeType::HARD:
+		TypeIcon->SetVisibility(ESlateVisibility::Visible);
+		TypeIcon->SetBrushTintColor(HardIconColor);
+		TypeIcon->SetBrushFromTexture(HardIcon);
+		break;
+	case ENodeType::BOSS:
+		TypeIcon->SetVisibility(ESlateVisibility::Visible);
+		TypeIcon->SetBrushTintColor(BossIconColor);
+		TypeIcon->SetBrushFromTexture(BossIcon);
 		break;
 	}
 }
