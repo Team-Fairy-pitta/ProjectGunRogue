@@ -282,8 +282,13 @@ public:
 protected:
 	void AddAugment(FName AugmentID);
 	void LevelUpAugment(int32 Index);
-
+	
 	void ApplyAugmentToASC(FName AugmentID);
+
+	float CalculateFinalAugmentValue(float Value, EAugmentModifierOpType Op);
+	void ApplyAugmentValues(FGameplayEffectSpecHandle& SpecHandle, const UGRAugmentDefinition* AugmentDef, int32 CurrentAugmentLevel);
+	void ApplyAdditionalAugmentValues(FGameplayEffectSpecHandle& SpecHandle, const UGRAugmentDefinition* AugmentDef);
+	void InitAugmentDefaults(FGameplayEffectSpecHandle& SpecHandle, const UGRAugmentDefinition* AugmentDef);
 	
 	UPROPERTY()
 	TMap<FName, FActiveGameplayEffectHandle> ActiveAugmentEffectHandles;

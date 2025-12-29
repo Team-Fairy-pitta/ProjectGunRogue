@@ -1,3 +1,5 @@
+#include <rapidjson/document.h>
+
 #include "Augment/GRAugmentDefinition.h"
 #include "Player/GRPlayerState.h"
 #include "Player/Battle/GRBattlePlayerController.h"
@@ -76,8 +78,8 @@ void AGRPlayerState::ApplyAugmentToASC(FName AugmentID)
 		return;
 	}
 
-	UGRAugmentDefinition* CurrentAugmentDefinition = AugmentSubsystem->GetAugment(AugmentID);
-	if (!CurrentAugmentDefinition)
+	UGRAugmentDefinition* AugmentDef = AugmentSubsystem->GetAugment(AugmentID);
+	if (!AugmentDef)
 	{
 		return;
 	}
@@ -88,7 +90,7 @@ void AGRPlayerState::ApplyAugmentToASC(FName AugmentID)
 		ActiveAugmentEffectHandles.Remove(AugmentID);
 	}
 	
-	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(CurrentAugmentDefinition->AugmentGameplayEffect,1.f, ASC->MakeEffectContext());
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(AugmentDef->AugmentGameplayEffect,1.f, ASC->MakeEffectContext());
 	if (!SpecHandle.IsValid())
 	{
 		return;
@@ -100,102 +102,105 @@ void AGRPlayerState::ApplyAugmentToASC(FName AugmentID)
 		return;
 	}
 	
-	const int32 LevelIndex = CurrentAugmentLevel - 1;
-	
-	for (const FAugmentValues& Value : CurrentAugmentDefinition->AugmentValues)
-	{
-		if (!Value.ValuePerLevel.IsValidIndex(LevelIndex))
-		{
-			continue;
-		}
+	InitAugmentDefaults(SpecHandle, AugmentDef);
 
-		EAugmentModifierOpType AugmentModifierOp = Value.AugmentModifierOp;
-
-		float LevelValue = Value.ValuePerLevel[LevelIndex];
-		float FinalValue = 0.0f;
-
-		if (AugmentModifierOp == EAugmentModifierOpType::Add)
-		{
-			FinalValue = LevelValue;
-		}
-		else if (AugmentModifierOp == EAugmentModifierOpType::Subtract)
-		{
-			FinalValue = -LevelValue;
-		}
-		else if (AugmentModifierOp == EAugmentModifierOpType::Multiply)
-		{
-			FinalValue = FMath::Clamp(1.0f + LevelValue, 0.0f, 10.0f);
-
-			if (FinalValue <= 0.0f)
-			{
-				continue;
-			}
-		}
-		else if (AugmentModifierOp == EAugmentModifierOpType::InverseMultiply)
-		{
-			FinalValue = FMath::Clamp(1.0f - LevelValue, 0.0f, 10.0f);
-
-			if (FinalValue <= 0.0f)
-			{
-				continue;
-			}
-		}
-		else
-		{
-			continue;
-		}
-		
-		SpecHandle.Data->SetSetByCallerMagnitude(Value.AugmentTag, FinalValue);
-	}
+	ApplyAugmentValues(SpecHandle, AugmentDef, CurrentAugmentLevel);
 
 	if (CurrentAugmentLevel >= 3)
 	{
-		for (const FAugmentAdditionalValue& Additional : CurrentAugmentDefinition->AugmentAdditionalValues)
-		{
-			EAugmentModifierOpType AugmentModifierOp = Additional.AugmentAdditionalModifierOp;
-
-			float AdditionalValue = Additional.AugmentAdditionalValue;
-			float FinalValue = 0.0f;
-
-			if (AugmentModifierOp == EAugmentModifierOpType::Add)
-			{
-				FinalValue = AdditionalValue;
-			}
-			else if (AugmentModifierOp == EAugmentModifierOpType::Subtract)
-			{
-				FinalValue = -AdditionalValue;
-			}
-			else if (AugmentModifierOp == EAugmentModifierOpType::Multiply)
-			{
-				FinalValue = FMath::Clamp(1.0f + AdditionalValue, 0.0f, 10.0f);
-
-				if (FinalValue <= 0.0f)
-				{
-					continue;
-				}
-			}
-			else if (AugmentModifierOp == EAugmentModifierOpType::InverseMultiply)
-			{
-				FinalValue = FMath::Clamp(1.0f - AdditionalValue, 0.0f, 10.0f);
-
-				if (FinalValue <= 0.0f)
-				{
-					continue;
-				}
-			}
-			else
-			{
-				continue;
-			}
-
-			SpecHandle.Data->SetSetByCallerMagnitude(Additional.AugmentAdditionalTag, FinalValue);
-		}
+		ApplyAdditionalAugmentValues(SpecHandle, AugmentDef);
 	}
 	
 	FActiveGameplayEffectHandle NewHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	if (NewHandle.IsValid())
 	{
 		ActiveAugmentEffectHandles.Add(AugmentID, NewHandle);
+	}
+}
+
+float AGRPlayerState::CalculateFinalAugmentValue(float Value, EAugmentModifierOpType Op)
+{
+	if (Op == EAugmentModifierOpType::Add)
+	{
+		return Value;
+	}
+	else if (Op == EAugmentModifierOpType::Subtract)
+	{
+		return -Value;
+	}
+	else if (Op == EAugmentModifierOpType::Multiply)
+	{
+		return FMath::Clamp(1.0f + Value , 0.0f, 10.0f);
+	}
+	else if (Op == EAugmentModifierOpType::InverseMultiply)
+	{
+		return FMath::Clamp(1.0f - Value , 0.0f, 10.0f);
+	}
+	else
+	{
+		return 0.0f;
+	}
+}
+
+void AGRPlayerState::ApplyAugmentValues(FGameplayEffectSpecHandle& SpecHandle, const UGRAugmentDefinition* AugmentDef,
+	int32 CurrentAugmentLevel)
+{
+	const int32 LevelIndex = CurrentAugmentLevel - 1;
+
+	for (const FAugmentValues& Value : AugmentDef->AugmentValues)
+	{
+		if (!Value.ValuePerLevel.IsValidIndex(LevelIndex))
+		{
+			continue;
+		}
+
+		const float FinalValue = CalculateFinalAugmentValue(Value.ValuePerLevel[LevelIndex], Value.AugmentModifierOp);
+
+		if (FinalValue != 0.0f)
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(Value.AugmentTag, FinalValue);
+		}
+	}
+}
+
+void AGRPlayerState::ApplyAdditionalAugmentValues(FGameplayEffectSpecHandle& SpecHandle,
+	const UGRAugmentDefinition* AugmentDef)
+{
+	for (const FAugmentAdditionalValue& Additional : AugmentDef->AugmentAdditionalValues)
+	{
+		const float FinalValue = CalculateFinalAugmentValue(Additional.AugmentAdditionalValue, Additional.AugmentAdditionalModifierOp);
+
+		if (FinalValue != 0.0f)
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(Additional.AugmentAdditionalTag, FinalValue);
+		}
+	}
+}
+
+void AGRPlayerState::InitAugmentDefaults(FGameplayEffectSpecHandle& SpecHandle, const UGRAugmentDefinition* AugmentDef)
+{
+	for (const FAugmentValues& Value : AugmentDef->AugmentValues)
+	{
+		float DefaultValue = 0.0f;
+
+		if (Value.AugmentModifierOp == EAugmentModifierOpType::Multiply || Value.AugmentModifierOp == EAugmentModifierOpType::InverseMultiply)
+		{
+			DefaultValue = 1.0f;
+		}
+
+		SpecHandle.Data->SetSetByCallerMagnitude(Value.AugmentTag, DefaultValue);
+	}
+
+	for (const FAugmentAdditionalValue& Additional : AugmentDef->AugmentAdditionalValues)
+	{
+		float DefaultValue = 0.0f;
+
+		if (Additional.AugmentAdditionalModifierOp == EAugmentModifierOpType::Multiply || Additional.AugmentAdditionalModifierOp == EAugmentModifierOpType::InverseMultiply)
+		{
+			DefaultValue = 1.0f;
+		}
+
+		SpecHandle.Data->SetSetByCallerMagnitude(Additional.AugmentAdditionalTag, DefaultValue);
 	}
 }
 
