@@ -252,6 +252,11 @@ void UGRGameplayAbility_RushSlash::PerformHitCheck(const FGameplayAbilityActorIn
 				continue;
 			}
 
+			if (HitActor->IsA(AGRCharacter::StaticClass()))
+			{
+				continue;
+			}
+
 			AlreadyHitActors.Add(HitActor);
 			bHitAtLeastOneNewTarget = true;
 

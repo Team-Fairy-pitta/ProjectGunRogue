@@ -6,6 +6,8 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/GRGameplayEffect.h"
 
+#include "Character/GRCharacter.h"
+
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "TimerManager.h"
@@ -68,6 +70,12 @@ void AGRBladeWaveProjectile::OnOverlap(
 
 	if (!OtherActor || OtherActor == this || OtherActor == GetOwner())
 	{
+		return;
+	}
+
+	if (OtherActor->IsA(AGRCharacter::StaticClass()))
+	{
+		Destroy();
 		return;
 	}
 
