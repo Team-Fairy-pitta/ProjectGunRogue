@@ -48,7 +48,7 @@ void UGRGameplayAbility_BladeWaveMode::ActivateAbility(const FGameplayAbilitySpe
 		return;
 	}
 
-	//후에 애니메이션 추가
+	//TODO : 애니메이션 추가
 
 	UAbilityTask_WaitDelay* WaitTask = UAbilityTask_WaitDelay::WaitDelay(this, ModeDuration);
 	WaitTask->OnFinish.AddDynamic(this, &UGRGameplayAbility_BladeWaveMode::OnModeEnded);

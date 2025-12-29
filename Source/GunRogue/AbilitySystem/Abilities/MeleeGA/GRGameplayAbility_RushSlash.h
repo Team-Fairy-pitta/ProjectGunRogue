@@ -85,7 +85,7 @@ private:
 		bool bIsPiercing,
 		bool bIsKnockbackUpgraded) const;
 
-	void ApplyAmmoRestoreIfNeeded(bool bAnyTargetHit);
+	void ApplyAmmoRestore();
 	void ApplyDamageToTarget(AActor* TargetActor, const FHitResult& Hit, float Damage) const;
 
 	UFUNCTION()

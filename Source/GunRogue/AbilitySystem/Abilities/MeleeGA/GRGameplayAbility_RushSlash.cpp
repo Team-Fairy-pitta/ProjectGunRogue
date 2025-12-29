@@ -69,7 +69,7 @@ void UGRGameplayAbility_RushSlash::ActivateAbility(
 		return;
 	}
 
-	if (!HasAuthority(&ActivationInfo) || !CommitAbility(Handle, ActorInfo, ActivationInfo))
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
@@ -86,7 +86,11 @@ void UGRGameplayAbility_RushSlash::ActivateAbility(
 	PreviousActorLocation = ActorInfo->AvatarActor->GetActorLocation();
 
 	StartDash();
-	StartHitCheck();
+
+	if (ActorInfo->IsNetAuthority())
+	{
+		StartHitCheck();
+	}
 }
 
 void UGRGameplayAbility_RushSlash::EndAbility(
@@ -266,9 +270,9 @@ void UGRGameplayAbility_RushSlash::PerformHitCheck(const FGameplayAbilityActorIn
 		}
 	}
 
-	if (bHasAmmoRestoreAugment)
+	if (bHasAmmoRestoreAugment && bHitAtLeastOneNewTarget)
 	{
-		ApplyAmmoRestoreIfNeeded(bHitAtLeastOneNewTarget);
+		ApplyAmmoRestore();
 	}
 
 	PreviousActorLocation = CurrentLocation;
@@ -325,13 +329,8 @@ void UGRGameplayAbility_RushSlash::ApplyKnockbackToTarget(
 	);
 }
 
-void UGRGameplayAbility_RushSlash::ApplyAmmoRestoreIfNeeded(bool bAnyTargetHit)
+void UGRGameplayAbility_RushSlash::ApplyAmmoRestore()
 {
-	if (!bAnyTargetHit)
-	{
-		return;
-	}
-
 	if (!AmmoRestoreEffect)
 	{
 		return;
@@ -353,7 +352,10 @@ void UGRGameplayAbility_RushSlash::ApplyAmmoRestoreIfNeeded(bool bAnyTargetHit)
 
 void UGRGameplayAbility_RushSlash::OnDashFinished()
 {
-	StopHitCheck();
+	if (CurrentActorInfo && CurrentActorInfo->IsNetAuthority())
+	{
+		StopHitCheck();
+	}
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 

@@ -9,21 +9,20 @@ class UGRAbilitySystemComponent;
 class UGRSkillAttributeSet_MeleeSkill;
 class UAnimMontage;
 class AGRBladeWaveProjectile;
+class UAbilityTask_PlayMontageAndWait;
 
 UCLASS()
 class GUNROGUE_API UGRGameplayAbility_BladeWaveFire : public UGRGameplayAbility
 {
 	GENERATED_BODY()
-	
+
 public:
 	UGRGameplayAbility_BladeWaveFire();
 
 protected:
-	//Normal Attack Change Tag
 	UPROPERTY(EditDefaultsOnly, Category = "BladeWave|Tags")
 	FGameplayTag Tag_BladeWaveMode;
 
-	//Augment Tags
 	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Tags")
 	FGameplayTag Tag_SizeAndDamageUp;
 
@@ -33,7 +32,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Tags")
 	FGameplayTag Tag_KillReduceSupportCooldown;
 
-	// Projectile
 	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Projectile")
 	TSubclassOf<AGRBladeWaveProjectile> ProjectileClass;
 
@@ -52,10 +50,26 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData) override;
 
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility,
+		bool bWasCancelled) override;
+
 private:
 	UGRAbilitySystemComponent* GetGRASC() const;
 	const UGRSkillAttributeSet_MeleeSkill* GetSkillSet() const;
 
 	bool CanFireNow(double NowSeconds, float FireInterval) const;
 	bool SpawnProjectileServer(float Damage, float WaveScale, bool bPierce) const;
+
+	UPROPERTY()
+	UAbilityTask_PlayMontageAndWait* PlayMontageTask = nullptr;
+
+	UFUNCTION()
+	void OnFireMontageCompleted();
+
+	UFUNCTION()
+	void OnFireMontageCancelled();
 };
