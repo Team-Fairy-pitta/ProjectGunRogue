@@ -30,6 +30,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Augment")
 	TSubclassOf<UGRGameplayEffect> AmmoRestoreEffect;
 
+	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Augment")
+	TSubclassOf<UGRGameplayEffect> KnockbackEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Augment")
+	TSubclassOf<UGRGameplayEffect> PierceEffect;
+
 	//Augment Tags
 	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Tags")
 	FGameplayTag Tag_AmmoRestoreOnHit;

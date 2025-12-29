@@ -10,9 +10,9 @@ UGRSkillAttributeSet_MeleeSkill::UGRSkillAttributeSet_MeleeSkill()
 	InitRushSlash_DashForce(1800.0f);
 	InitRushSlash_HitRadius(60.0f);
 	InitRushSlash_HitCheckInterval(0.02f);
-	InitRushSlash_KnockbackStrength(600.0f);
-	InitRushSlash_KnockbackUpward(60.0f);          
-	InitRushSlash_KnockbackUpgradeMultiplier(1.25f); 
+	InitRushSlash_KnockbackStrength(500.0f);
+	InitRushSlash_KnockbackUpward(100.0f);          
+	InitRushSlash_KnockbackUpgradeMultiplier(1.0f); 
 
 	// ===== BladeWave =====
 	InitBladeWave_BaseDamage(100.0f);
