@@ -50,7 +50,6 @@ void FGRWeaponInstance::Init(UGRAbilitySystemComponent* ASC, UGRWeaponDefinition
 	{
 		UpgradeDamage = WeaponDefinition->BaseDamage;
 	}
-
 }
 
 void FGRWeaponInstance::UpgradeWeapon()
@@ -101,8 +100,28 @@ void FGRWeaponInstance::ApplyAllEffects()
 		return;
 	}
 
-	AppliedEffects.Empty();
 
+	// 기본 데미지 효과 적용
+	if (WeaponDefinition && WeaponDefinition->BaseDamageEffect)
+	{
+		FGameplayEffectSpecHandle SpecHandle =
+			CachedASC->MakeOutgoingSpec(
+				WeaponDefinition->BaseDamageEffect,
+				1.f,
+				CachedASC->MakeEffectContext()
+			);
+
+		SpecHandle.Data->SetSetByCallerMagnitude(
+			FGameplayTag::RequestGameplayTag(TEXT("Weapon.BaseDamage")),
+			UpgradeDamage
+		);
+
+		FActiveGameplayEffectHandle Handle = CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+
+		AppliedEffects.Add(Handle);
+	}
+
+	// 옵션 효과 적용
 	for (const FWeaponOption& Option : Options)
 	{
 		if (!Option.EffectClass)

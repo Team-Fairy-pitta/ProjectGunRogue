@@ -145,6 +145,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	float BaseDamage = 10.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	TSubclassOf<UGameplayEffect> BaseDamageEffect;
+
 	// 무기 최대 레벨
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
 	int32 MaxLevel = 15;
