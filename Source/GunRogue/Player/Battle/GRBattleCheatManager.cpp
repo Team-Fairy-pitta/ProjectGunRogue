@@ -364,10 +364,23 @@ void UGRBattleCheatManager::ShowMeTheMoney(int32 InIndex)
 
 void UGRBattleCheatManager::ShowAugment()
 {
-	APlayerController* PC = GetPlayerController();
+	APlayerController* PC = GetOuterAPlayerController();
+	if (!IsValid(PC))
+	{
+		return;
+	}
+
+	if (!PC->HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cheat SetLevel1NextRoomIndex requires Authority"));
+		return;
+	}
 
 	AGRBattlePlayerController* BattlePC = Cast<AGRBattlePlayerController>(PC);
-	if (!BattlePC)
+	if (!IsValid(BattlePC))
+	{
+		return;
+	}
 
 	BattlePC->ShowAugmentWidget();
 }

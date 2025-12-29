@@ -171,12 +171,16 @@ void UGRAugmentHUDWidget::CreateAugmentSlot()
 		return;
 	}
 
-	FText CharacterNameText = GRCharacter->GetPawnData()->CharacterName;
-	FName CharacterType = FName(CharacterNameText.ToString());
+	if (!GRCharacter->GetPawnData())
+	{
+		return;
+	}
 
-	UE_LOG(LogTemp, Display, TEXT("CharacterType: %s"), *CharacterType.ToString());
+	FName CharacterID = GRCharacter->GetPawnData()->CharacterID;
+
+	UE_LOG(LogTemp, Display, TEXT("CharacterID: %s"), *CharacterID.ToString());
 	
-	TArray<UGRAugmentDefinition*> RandomAugments = AugmentSubsystem->GetRandomAugments(CharacterType, 3, PS);
+	TArray<UGRAugmentDefinition*> RandomAugments = AugmentSubsystem->GetRandomAugments(CharacterID, 3, PS);
 
 	for (UGRAugmentDefinition* Augment : RandomAugments)
 	{

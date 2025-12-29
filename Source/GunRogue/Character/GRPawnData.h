@@ -14,6 +14,10 @@ class GUNROGUE_API UGRPawnData : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	// 캐릭터를 구분하는 ID
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|ID")
+	FName CharacterID;
+
 	// Character의 입력 설정
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inputs")
 	TObjectPtr<UGRInputConfig> InputConfig;
