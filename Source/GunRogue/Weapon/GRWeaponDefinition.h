@@ -72,6 +72,18 @@ public:
 		meta = (EditCondition = "FireType == EGRWeaponFireType::Projectile", EditConditionHides))
 	float ProjectileLifeSpan = 10.0f;
 
+	// ======== 산탄총 설정 ========
+
+	// 펠렛 개수 (WeaponCategory가 Shotgun일 때 사용)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Shotgun",
+		meta = (EditCondition = "WeaponCategory == EGRWeaponCategory::Shotgun", EditConditionHides, ClampMin = "1"))
+	int32 PelletCount = 8;
+
+	// 펠렛 확산 각도 (WeaponCategory가 Shotgun일 때 사용)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Shotgun",
+		meta = (EditCondition = "WeaponCategory == EGRWeaponCategory::Shotgun", EditConditionHides, ClampMin = "0.0"))
+	float PelletSpreadAngle = 5.0f;
+
 	// ======== 메시 ========
 	// 무기 메시 (바닥에 떨어져 있을 때)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Mesh")

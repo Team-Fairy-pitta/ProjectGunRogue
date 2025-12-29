@@ -20,8 +20,6 @@ protected:
 
 	virtual void FireWeapon() override;
 
-private:
-
 	// Muzzle에서 타겟으로 라인 트레이스 (히트스캔 전용)
 	bool TraceFromMuzzle(const FVector& MuzzleLoc, const FVector& TargetPoint, FHitResult& OutHit);
 
