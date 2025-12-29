@@ -25,9 +25,9 @@ public:
 	UGRSkillAttributeSet_MissileBrg();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	
 	// ======== 투사체 능력치 ========
-
+	
 	// 기본 데미지
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BaseDamage, Category = "Skill|MissileBarrage")
 	FGameplayAttributeData BaseDamage;
@@ -115,7 +115,7 @@ protected:
 	// RepNotify 함수들
 	UFUNCTION()
 	virtual void OnRep_BaseDamage(const FGameplayAttributeData& OldValue);
-
+	
 	UFUNCTION()
 	virtual void OnRep_ExplosionRadius(const FGameplayAttributeData& OldValue);
 
@@ -130,7 +130,7 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_LifeSpan(const FGameplayAttributeData& OldValue);
-
+	
 	UFUNCTION()
 	virtual void OnRep_MissileCount(const FGameplayAttributeData& OldValue);
 
@@ -154,7 +154,7 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_TargetRange(const FGameplayAttributeData& OldValue);
-
+	
 	UFUNCTION()
 	virtual void OnRep_SpreadAngle(const FGameplayAttributeData& OldValue);
 	

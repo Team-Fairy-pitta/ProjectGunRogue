@@ -206,10 +206,10 @@ public:
 	ATTRIBUTE_ACCESSORS(UGRCombatAttributeSet, SkillCooldownReduction)
 
 	// 스킬 데미지 계산
-	float CalculateSkillDamage() const;
+	float CalculateSkillDamage(float SkillBaseDamage) const;
 
 	// 최종 스킬 데미지 계산 (스킬 데미지 + 최종 피해 배율)
-	float CalculateFinalSkillDamage(float TargetDamageReduction) const;
+	float CalculateFinalSkillDamage(float SkillBaseDamage, float TargetDamageReduction = 0.0f) const;
 
 protected:
 	UFUNCTION()

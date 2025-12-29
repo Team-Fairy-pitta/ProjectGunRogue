@@ -1,5 +1,6 @@
 #include "UI/Level1/GRLevel1SelectWidget.h"
 #include "UI/Level1/GRLevel1RoomWidget.h"
+#include "UI/Level1/GRLevel1PopupWidget.h"
 #include "Components/UniformGridPanel.h"
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "GameModes/Level1/GRLevel1Data.h"
@@ -72,6 +73,63 @@ void UGRLevel1SelectWidget::OnRoomClicked(int32 Index)
 	}
 
 	BattlePlayerController->ServerRPC_OnSelectNextRoom(Index, CachedControlPanel);
+}
+
+void UGRLevel1SelectWidget::ShowPopup()
+{
+	if (PopupWidget)
+	{
+		PopupWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void UGRLevel1SelectWidget::SetPopupText(const FGRLevel1Node& Level1Data, int32 Index)
+{
+	if (PopupWidget)
+	{
+		FString StatusString;
+		FString TypeString;
+		switch (Level1Data.NodeStatus)
+		{
+		case ENodeStatus::NONE:
+			StatusString = FString(TEXT("비활성"));
+			break;
+		case ENodeStatus::CURRENT:
+			StatusString = FString(TEXT("현재 위치"));
+			break;
+		case ENodeStatus::NEXT:
+			StatusString = FString(TEXT("이동 가능"));
+			break;
+		case ENodeStatus::CLEARD:
+			StatusString = FString(TEXT("완료"));
+			break;
+		}
+
+		switch (Level1Data.NodeType)
+		{
+		case ENodeType::BASE:
+			TypeString = FString(TEXT("시작 지점"));
+			break;
+		case ENodeType::NORMAL:
+			TypeString = FString(TEXT("일반 구역"));
+			break;
+		case ENodeType::HARD:
+			TypeString = FString(TEXT("적 개체 다수 감지"));
+			break;
+		case ENodeType::BOSS:
+			TypeString = FString(TEXT("높은 에너지 반응"));
+			break;
+		}
+		PopupWidget->SetPopupText(Index, StatusString, TypeString);
+	}
+}
+
+void UGRLevel1SelectWidget::HidePopup()
+{
+	if (PopupWidget)
+	{
+		PopupWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void UGRLevel1SelectWidget::CreateRoomWidgets()

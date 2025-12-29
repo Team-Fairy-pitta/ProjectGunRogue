@@ -71,6 +71,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPC_GameOver();
 
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_UpdateCurrentLocationText();
+
 	UFUNCTION(BlueprintCallable)
 	void ShowGameOverWidget();
 
@@ -282,7 +285,7 @@ public:
 
 	UFUNCTION()
 	void RequestSelectAugment(FName AugmentID);
-	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRAugmentHUDWidget> AugmentWidgetClass;

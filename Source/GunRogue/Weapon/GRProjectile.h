@@ -27,6 +27,7 @@ public:
 	AGRProjectile();
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	// 투사체 초기화 (발사 시 호출)
@@ -44,6 +45,21 @@ public:
 		USoundBase* InExplosionSound = nullptr
 	);
 
+	// Giant Bomb용 정적 투사체 초기화
+	void InitializeStaticBomb(
+		AGRCharacter* InOwnerCharacter,
+		float InDamage,
+		float InExplosionRadius,
+		float InExplosionFalloff,
+		float InFuseTime,
+		TSubclassOf<UGameplayEffect> InDamageEffect,
+		UNiagaraSystem* InExplosionEffectNiagara = nullptr,
+		UParticleSystem* InExplosionEffectCascade = nullptr,
+		USoundBase* InExplosionSound = nullptr);
+
+	UPROPERTY(Replicated)
+	bool bIsStaticBomb = false;
+
 protected:
 	// ======== 컴포넌트 ========
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -59,9 +75,6 @@ protected:
 	TObjectPtr<UNiagaraComponent> TrailEffect;
 
 	// ======== 투사체 외형 설정 ========
-	// 투사체 메시 - 외형
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Visual")
-	TObjectPtr<UStaticMesh> ProjectileMesh;
 
 	// 트레일 이펙트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Visual")
@@ -108,4 +121,7 @@ private:
 
 	UPROPERTY(Replicated)
 	TObjectPtr<USoundBase> ExplosionSound;
+
+	// Giant Bomb 전용: 점화 시간
+	FTimerHandle FuseTimerHandle;
 };
