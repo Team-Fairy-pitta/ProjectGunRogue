@@ -22,8 +22,8 @@ void UGRGameplayAbility_FireProjectile::FireWeapon()
 	const FRotator SpawnRotation = Direction.Rotation();
 
 	// 투사체 스폰
-	AActor* AvatarActor = GetAvatarActorFromActorInfo();
-	if (AvatarActor && AvatarActor->HasAuthority())
+	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	if (Character && Character->HasAuthority())
 	{
 		SpawnProjectile(MuzzleLocation, SpawnRotation);
 	}

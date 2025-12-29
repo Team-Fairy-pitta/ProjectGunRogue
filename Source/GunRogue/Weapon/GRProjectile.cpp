@@ -54,6 +54,7 @@ void AGRProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGRProjectile, bHasExploded);
+	DOREPLIFETIME(AGRProjectile, bIsStaticBomb);
 	DOREPLIFETIME(AGRProjectile, DamageEffectClass);
 	DOREPLIFETIME(AGRProjectile, ExplosionEffectNiagara);
 	DOREPLIFETIME(AGRProjectile, ExplosionEffectCascade);
@@ -65,10 +66,8 @@ void AGRProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	// 메시 설정
-	if (ProjectileMesh)
+	if (MeshComponent && MeshComponent->GetStaticMesh())
 	{
-		MeshComponent->SetStaticMesh(ProjectileMesh);
-
 		// 메시 크기 기반으로 충돌 크기 자동 설정
 		SetupCollisionFromMesh();
 	}
@@ -81,15 +80,32 @@ void AGRProjectile::BeginPlay()
 	}
 }
 
+void AGRProjectile::EndPlay(EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (FuseTimerHandle.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(FuseTimerHandle);
+		FuseTimerHandle.Invalidate();
+	}
+}
+
 void AGRProjectile::SetupCollisionFromMesh()
 {
-	if (!ProjectileMesh || !CollisionComponent)
+	if (!MeshComponent || !CollisionComponent)
+	{
+		return;
+	}
+
+	UStaticMesh* Mesh = MeshComponent->GetStaticMesh();
+	if (!Mesh)
 	{
 		return;
 	}
 
 	// 메시의 바운딩 박스 크기 가져오기
-	FBox BoundingBox = ProjectileMesh->GetBoundingBox();
+	FBox BoundingBox = Mesh->GetBoundingBox();
 	FVector BoxExtent = BoundingBox.GetExtent();
 
 	// 가장 큰 축을 기준으로 구체 반경 설정
@@ -150,6 +166,11 @@ void AGRProjectile::InitializeProjectile(
 			AGRProjectile* OtherProjectile = Cast<AGRProjectile>(OtherActor);
 			if (OtherProjectile && OtherProjectile != this)
 			{
+				if (OtherProjectile->bIsStaticBomb)
+				{
+					continue;
+				}
+
 				// 같은 Owner가 쏜 투사체끼리만 무시
 				if (OtherProjectile->OwnerCharacter == OwnerCharacter)
 				{
@@ -179,7 +200,7 @@ void AGRProjectile::InitializeProjectile(
 			{
 				CollisionComponent->IgnoreActorWhenMoving(OtherActor, true);
 				
-				// ✅ 양방향 무시 (상대도 나를 무시하도록)
+				// 양방향 무시 (상대도 나를 무시하도록)
 				if (AGRProjectile* OtherProjectile = Cast<AGRProjectile>(OtherActor))
 				{
 					if (OtherProjectile->CollisionComponent)
@@ -196,6 +217,83 @@ void AGRProjectile::InitializeProjectile(
 		Damage, ExplosionRadius, InVelocity.Size(), InGravityScale, InLifeSpan);
 }
 
+void AGRProjectile::InitializeStaticBomb(
+	AGRCharacter* InOwnerCharacter,
+	float InDamage,
+	float InExplosionRadius,
+	float InExplosionFalloff,
+	float InFuseTime,
+	TSubclassOf<UGameplayEffect> InDamageEffect,
+	UNiagaraSystem* InExplosionEffectNiagara,
+	UParticleSystem* InExplosionEffectCascade,
+	USoundBase* InExplosionSound)
+{
+	OwnerCharacter = InOwnerCharacter;
+	Damage = InDamage;
+	ExplosionRadius = InExplosionRadius;
+	ExplosionFalloff = InExplosionFalloff;
+	DamageEffectClass = InDamageEffect;
+
+	ExplosionEffectNiagara = InExplosionEffectNiagara;
+	ExplosionEffectCascade = InExplosionEffectCascade;
+	ExplosionSound = InExplosionSound;
+
+	bIsStaticBomb = true;
+
+	// 움직임 비활성화
+	if (ProjectileMovement)
+	{
+		ProjectileMovement->Deactivate();
+		ProjectileMovement->SetComponentTickEnabled(false);
+	}
+
+	// 충돌 설정: AI 공격 차단
+	if (CollisionComponent)
+	{
+		// WorldDynamic 차단 (AI 투사체)
+		CollisionComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+
+		// ECC_GameTraceChannel3 차단 (AI 히트스캔)
+		CollisionComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Block);
+
+		// Pawn도 Block (플레이어가 통과하지 못하게)
+		CollisionComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+
+		// 일반 히트 이벤트 비활성화 (자동 폭발 방지)
+		//CollisionComponent->OnComponentHit.RemoveDynamic(this, &AGRProjectile::OnProjectileHit);
+	}
+
+	// 점화 타이머 시작
+	TWeakObjectPtr<AGRProjectile> WeakThis(this);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		FuseTimerHandle,
+		[WeakThis]()
+		{
+			if (!WeakThis.IsValid()) //객체가 여전히 존재하는지 확인
+			{
+				return;
+			}
+
+			AGRProjectile* Projectile = WeakThis.Get();
+			if (Projectile->HasAuthority() && !Projectile->bHasExploded)
+			{
+				Projectile->bHasExploded = true;
+				const FVector ExplosionLoc = Projectile->GetActorLocation();
+				Projectile->Multicast_PlayExplosionFX(ExplosionLoc, 2.0f);
+				//Projectile->PlayExplosionFX(Projectile->GetActorLocation(), 2.0f);
+				Projectile->ApplyExplosionDamage(Projectile->GetActorLocation());
+				Projectile->Destroy();
+			}
+		},
+		InFuseTime,
+		false
+	);
+
+	UE_LOG(LogTemp, Log, TEXT("[GiantBomb] Static bomb initialized - Damage: %.1f, Radius: %.1f, Fuse: %.1f"),
+		Damage, ExplosionRadius, InFuseTime);
+}
+
 void AGRProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -209,16 +307,31 @@ void AGRProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* O
 		return;
 	}
 
-	if (OtherActor && OtherActor->IsA<AGRProjectile>())
+	if (bIsStaticBomb)
 	{
 		return;
+	}
+
+	if (OtherActor && OtherActor->IsA<AGRProjectile>())
+	{
+		AGRProjectile* OtherProjectile = Cast<AGRProjectile>(OtherActor);
+
+		// Static Bomb(Giant Bomb)에 맞은 경우: 이 투사체가 폭발
+		if (OtherProjectile && OtherProjectile->bIsStaticBomb)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[Projectile] Hit Giant Bomb - Exploding on surface!"));
+		}
+		// 일반 투사체끼리 충돌: 무시
+		else
+		{
+			return;
+		}
 	}
 
 	if (OtherActor == OwnerCharacter)
 	{
 		return;
 	}
-
 
 	// 충돌 위치
 	const FVector HitLocation = Hit.ImpactPoint;
@@ -286,6 +399,10 @@ void AGRProjectile::ApplyDirectDamage(AActor* HitActor, const FHitResult& Hit)
 		return;
 	}
 
+	const UGRCombatAttributeSet* TargetCombat = TargetASC->GetSet<UGRCombatAttributeSet>();
+	float TargetDamageReduction = TargetCombat ? TargetCombat->GetDamageReduction() : 0.0f;
+	float FinalDamage = Damage * (1.0f - TargetDamageReduction);
+
 	// GameplayEffect 생성 및 적용
 	FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
 	EffectContext.AddSourceObject(OwnerCharacter);
@@ -303,7 +420,7 @@ void AGRProjectile::ApplyDirectDamage(AActor* HitActor, const FHitResult& Hit)
 	// SetByCaller로 데미지 전달
 	SpecHandle.Data->SetSetByCallerMagnitude(
 		FGameplayTag::RequestGameplayTag(FName("Attribute.Data.Damage")),
-		Damage);
+		FinalDamage);
 
 	// 데미지 적용
 	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
@@ -401,13 +518,17 @@ void AGRProjectile::ApplyExplosionDamage(const FVector& ExplosionLocation)
 			continue;
 		}
 
+		const UGRCombatAttributeSet* TargetCombat = TargetASC->GetSet<UGRCombatAttributeSet>();
+
 		DamagedActors.Add(HitActor);
 
 		// 거리에 따른 데미지 감쇠
 		float Distance = FVector::Dist(ExplosionLocation, HitActor->GetActorLocation());
 		float DistanceRatio = FMath::Clamp(Distance / ExplosionRadius, 0.0f, 1.0f);
 		float DamageMult = FMath::Lerp(1.0f, ExplosionFalloff, DistanceRatio);
-		float FinalDamage = Damage * DamageMult;
+		float BaseDamage = Damage * DamageMult;
+		float TargetDamageReduction = TargetCombat ? TargetCombat->GetDamageReduction() : 0.0f;
+		float FinalDamage = BaseDamage * (1.0f - TargetDamageReduction);
 
 		HitCount++;
 

@@ -5,6 +5,7 @@
 
 UGRAIFireWithPistolAbility::UGRAIFireWithPistolAbility()
 {
+	FireCueTagName=FName("GameplayCue.AI.Weapon.Pistol.Fire");
 }
 
 void UGRAIFireWithPistolAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -16,11 +17,6 @@ void UGRAIFireWithPistolAbility::ActivateAbility(const FGameplayAbilitySpecHandl
 	if (ActorInfo->AvatarActor.Get()->HasAuthority())
 	{
 		PlayAttackMontageAndWaitTask();
-
-		if (!PrepareFireContext())
-		{
-			EndAbility(SavedSpecHandle, SavedActorInfo, SavedActivationInfo, true, false);
-		}
 		
 		SpawnBulletProjectile(GetAimDirection());
 	}

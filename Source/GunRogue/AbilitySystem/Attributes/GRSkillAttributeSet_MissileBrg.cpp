@@ -17,7 +17,7 @@ UGRSkillAttributeSet_MissileBrg::UGRSkillAttributeSet_MissileBrg()
 	InitSpawnRadius(0.0f);
 	InitSpawnHeightOffset(0.0f);
 
-	InitFireInterval(0.08f);
+	InitFireInterval(0.0f);
 	InitSpawnDelay(0.0f);
 
 	InitBaseCooldown(0.0f);

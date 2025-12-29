@@ -40,6 +40,9 @@ public:
 	void AddLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
 	void RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1ControlPanel);
 
+	UFUNCTION(BlueprintCallable)
+	void BroadcastNotifyMessage(const FText& Message, float ShowMessageTime);
+
 private:
 	UPROPERTY()
 	TArray<TObjectPtr<AGRLevel1ControlPanel>> Panels;

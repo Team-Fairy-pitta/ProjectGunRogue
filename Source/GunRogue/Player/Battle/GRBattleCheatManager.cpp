@@ -300,20 +300,74 @@ void UGRBattleCheatManager::KillAllAI()
 	}
 }
 
-void UGRBattleCheatManager::ShowAugment()
+void UGRBattleCheatManager::BroadcastMessage(FString Message, float ShowMessageTime)
 {
-	APlayerController* PC = GetPlayerController();
+	APlayerController* PC = GetOuterAPlayerController();
+	if (!IsValid(PC))
+	{
+		return;
+	}
+	if (!PC->HasAuthority())
+	{
+		return;
+	}
+	if (!PC->GetWorld())
+	{
+		return;
+	}
+
+	AGRGameMode_Level1* GameMode_Level1 = PC->GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+	if (!IsValid(GameMode_Level1))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameMode is NOT AGRGameMode_Level1"));
+		return;
+	}
+	GameMode_Level1->BroadcastNotifyMessage(FText::FromString(Message), ShowMessageTime);
+}
+
+void UGRBattleCheatManager::ShowMeTheMoney(int32 InIndex)
+{
+	APlayerController* PC = GetOuterAPlayerController();
 	if (!IsValid(PC))
 	{
 		return;
 	}
 
-	AGRBattlePlayerController* BattlePC = Cast<AGRBattlePlayerController>(PC);
-	if (!BattlePC)
+	if (!PC->HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cheat SetLevel1NextRoomIndex requires Authority"));
+		return;
+	}
+
+	AGRGameState_Level1* GameState_Level1 = PC->GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GameState_Level1))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameState is NOT AGRGameState_Level1"));
+		return;
+	}
+
+	if (!GameState_Level1->PlayerArray.IsValidIndex(InIndex))
 	{
 		return;
 	}
 
-	BattlePC->ShowAugmentWidget();
+	APlayerState* PlayerState = GameState_Level1->PlayerArray[InIndex];
+	AGRPlayerState* GRPlayerState = Cast<AGRPlayerState>(PlayerState);
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerState is NOT AGRPlayerState"));
+		return;
+	}
+
+	GRPlayerState->ApplyGoldGain(10000);
 }
 
+void UGRBattleCheatManager::ShowAugment()
+{
+	APlayerController* PC = GetPlayerController();
+
+	AGRBattlePlayerController* BattlePC = Cast<AGRBattlePlayerController>(PC);
+	if (!BattlePC)
+
+	BattlePC->ShowAugmentWidget();
+}

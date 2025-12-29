@@ -109,12 +109,7 @@ AActor* UGRInteractionComponent::TraceForInteractable()
 	OwnerController->GetPlayerViewPoint(StartLocation, CameraRotation);
 	FVector EndLocation = StartLocation + CameraRotation.Vector() * InteractionDistance;
 
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(Owner);
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
-	AActor* HitActor = bHit ? HitResult.GetActor() : nullptr;
+	AActor* HitActor = DoLineTrace(StartLocation, EndLocation);
 
 	// [NOTE] 상호 작용 디버깅이 필요하다면, 아래 코드를 활성화
 #if 0
@@ -133,6 +128,34 @@ AActor* UGRInteractionComponent::TraceForInteractable()
 #endif
 
 	return HitActor;
+}
+
+AActor* UGRInteractionComponent::DoLineTrace(FVector& StartLocation, FVector& EndLocation)
+{
+	TArray<FHitResult> HitResults;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetOwner());
+
+	// ECC_GameTraceChannel4 = Interaction Channel
+	GetWorld()->LineTraceMultiByChannel(HitResults, StartLocation, EndLocation, ECC_GameTraceChannel4, Params);
+
+	float MinDistance = -1.0f;
+	AActor* ClosestActor = nullptr;
+	for (const FHitResult& HitResult : HitResults)
+	{
+		AActor* HitActor = HitResult.GetActor();
+		IGRInteractableActor* InteractableActor = Cast<IGRInteractableActor>(HitActor);
+		bool bCanInteract = InteractableActor && InteractableActor->CanInteract(GetOwner());
+		if (bCanInteract)
+		{
+			if (MinDistance < 0 || HitResult.Distance < MinDistance)
+			{
+				MinDistance = HitResult.Distance;
+				ClosestActor = HitActor;
+			}
+		}
+	}
+	return ClosestActor;
 }
 
 void UGRInteractionComponent::AddOutline(AActor* InActor)
