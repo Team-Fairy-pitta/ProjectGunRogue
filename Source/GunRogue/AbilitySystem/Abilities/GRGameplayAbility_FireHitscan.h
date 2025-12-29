@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/GRGameplayAbility_FireWeapon.h"
-#include "GRGameplayAbility_HitscanAttack.generated.h"
+#include "GRGameplayAbility_FireHitscan.generated.h"
 
 class UGameplayEffect;
 
@@ -11,7 +11,7 @@ class UGameplayEffect;
  */
 
 UCLASS()
-class GUNROGUE_API UGRGameplayAbility_HitscanAttack : public UGRGameplayAbility_FireWeapon
+class GUNROGUE_API UGRGameplayAbility_FireHitscan : public UGRGameplayAbility_FireWeapon
 {
 	GENERATED_BODY()
 

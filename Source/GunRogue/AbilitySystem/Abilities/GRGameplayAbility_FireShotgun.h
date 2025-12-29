@@ -1,14 +1,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/GRGameplayAbility_HitscanAttack.h"
+#include "AbilitySystem/Abilities/GRGameplayAbility_FireHitscan.h"
 #include "GRGameplayAbility_FireShotgun.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUNROGUE_API UGRGameplayAbility_FireShotgun : public UGRGameplayAbility_HitscanAttack
+class GUNROGUE_API UGRGameplayAbility_FireShotgun : public UGRGameplayAbility_FireHitscan
 {
 	GENERATED_BODY()
 

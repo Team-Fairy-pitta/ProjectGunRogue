@@ -1,10 +1,10 @@
-#include "AbilitySystem/Abilities/GRGameplayAbility_HitscanAttack.h"
+#include "AbilitySystem/Abilities/GRGameplayAbility_FireHitscan.h"
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "AI/Character/GRAICharacter.h"
 
-void UGRGameplayAbility_HitscanAttack::FireWeapon()
+void UGRGameplayAbility_FireHitscan::FireWeapon()
 {
 	// 발사 위치/방향
 	FVector CameraLocation, MuzzleLocation;
@@ -35,7 +35,7 @@ void UGRGameplayAbility_HitscanAttack::FireWeapon()
 	}
 }
 
-bool UGRGameplayAbility_HitscanAttack::TraceFromMuzzle(
+bool UGRGameplayAbility_FireHitscan::TraceFromMuzzle(
 	const FVector& MuzzleLocation,
 	const FVector& TargetPoint,
 	FHitResult& OutHit)
@@ -56,7 +56,7 @@ bool UGRGameplayAbility_HitscanAttack::TraceFromMuzzle(
 	);
 }
 
-void UGRGameplayAbility_HitscanAttack::HandleHit(const FHitResult& Hit)
+void UGRGameplayAbility_FireHitscan::HandleHit(const FHitResult& Hit)
 {
 	PlayImpactFX(Hit.Location);
 
