@@ -11,7 +11,8 @@ UGRSkillAttributeSet_Robot::UGRSkillAttributeSet_Robot()
 	InitAttackSpeed(1.0f);
 	InitSelfDestructDamage(50.0f);
 	InitSelfDestructRadius(300.0f);
-	InitCooldown(5.0f);
+	InitMainCooldown(15.0f);
+	InitSubCooldown(3.0f);
 }
 
 void UGRSkillAttributeSet_Robot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -23,7 +24,8 @@ void UGRSkillAttributeSet_Robot::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_Robot, AttackSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_Robot, SelfDestructDamage, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_Robot, SelfDestructRadius, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_Robot, Cooldown, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_Robot, MainCooldown, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_Robot, SubCooldown, COND_None, REPNOTIFY_Always);
 }
 
 void UGRSkillAttributeSet_Robot::OnRep_Damage(const FGameplayAttributeData& OldValue)
@@ -51,7 +53,12 @@ void UGRSkillAttributeSet_Robot::OnRep_SelfDestructRadius(const FGameplayAttribu
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_Robot, SelfDestructRadius, OldValue);
 }
 
-void UGRSkillAttributeSet_Robot::OnRep_Cooldown(const FGameplayAttributeData& OldValue)
+void UGRSkillAttributeSet_Robot::OnRep_MainCooldown(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_Robot, Cooldown, OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_Robot, MainCooldown, OldValue);
+}
+
+void UGRSkillAttributeSet_Robot::OnRep_SubCooldown(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_Robot, SubCooldown, OldValue);
 }

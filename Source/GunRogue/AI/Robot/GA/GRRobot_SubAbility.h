@@ -30,4 +30,11 @@ protected:
 		const FGameplayEventData* TriggerEventData
 	) override;
 	
+	virtual void ApplyCooldown(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo) const override;
+
+private:
+	float GetCooldown(const FGameplayAbilityActorInfo* ActorInfo) const;
 };

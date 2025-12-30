@@ -3,6 +3,9 @@
 
 #include "AI/Robot/GA/GRRobot_MainAbility.h"
 #include "AI/Robot/Drone/GRDroneManagerComponent.h"
+#include "AI/Robot/AT/GRSkillAttributeSet_Robot.h"
+#include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
+
 
 UGRRobot_MainAbility::UGRRobot_MainAbility()
 {
@@ -51,6 +54,21 @@ void UGRRobot_MainAbility::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
+void UGRRobot_MainAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (CooldownGameplayEffectClass)
+	{
+		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(CooldownGameplayEffectClass);
+		if (SpecHandle.IsValid() && SpecHandle.Data.Get())
+		{
+			FGameplayTag CoolDownTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Cooldown.Magnitude"));
+			float FinalCooldown = GetCooldown(ActorInfo);
+			SpecHandle.Data.Get()->SetSetByCallerMagnitude(CoolDownTag, FinalCooldown);
+			ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+		}
+	}
+}
+
 FVector UGRRobot_MainAbility::GetAimDirection()
 {
 	AActor* Avatar = GetAvatarActorFromActorInfo();
@@ -72,3 +90,19 @@ FVector UGRRobot_MainAbility::GetAimDirection()
 
 	return CamRot.Vector();
 }
+
+float UGRRobot_MainAbility::GetCooldown(const FGameplayAbilityActorInfo* ActorInfo) const
+{
+	const UGRSkillAttributeSet_Robot* SkillAttributeSet = ActorInfo->AbilitySystemComponent->GetSet<UGRSkillAttributeSet_Robot>();
+	const UGRCombatAttributeSet* CombatAttributeSet = ActorInfo->AbilitySystemComponent->GetSet<UGRCombatAttributeSet>();
+
+	if (!SkillAttributeSet || !CombatAttributeSet)
+	{
+		return 0.0f;
+	}
+	float BaseCooldown = SkillAttributeSet->GetMainCooldown();
+	float CombetSetCooldownReduction = CombatAttributeSet->GetSkillCooldownReduction();
+	float FinalCooldown = BaseCooldown * (1.0f - CombetSetCooldownReduction);
+	return FinalCooldown;
+}
+

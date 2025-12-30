@@ -52,9 +52,13 @@ public:
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, SelfDestructRadius)
 
 	// 기본 쿨타임
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Cooldown, Category = "Robot Attributes")
-	FGameplayAttributeData Cooldown;
-	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, Cooldown)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MainCooldown, Category = "Robot Attributes")
+	FGameplayAttributeData MainCooldown;
+	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, MainCooldown)
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SubCooldown, Category = "Robot Attributes")
+	FGameplayAttributeData SubCooldown;
+	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, SubCooldown)
 
 	UFUNCTION()
 	virtual void OnRep_Damage(const FGameplayAttributeData& OldValue);
@@ -72,6 +76,9 @@ public:
 	virtual void OnRep_SelfDestructRadius(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_Cooldown(const FGameplayAttributeData& OldValue);
+	virtual void OnRep_MainCooldown(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_SubCooldown(const FGameplayAttributeData& OldValue);
 
 };
