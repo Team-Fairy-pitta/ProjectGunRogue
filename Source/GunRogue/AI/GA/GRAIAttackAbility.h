@@ -29,6 +29,7 @@ protected:
 	void SpawnProjectile();
 	void DetectByOverlapSphereMulti();
 	void CauseDamage(AActor* Target);
+	void ExecuteGameplayCueAtGround();
 	
 	UFUNCTION()
 	virtual void OnAttackTriggerNotify(FGameplayEventData Payload);
@@ -60,4 +61,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Damage")
 	float SphereRadius;
+
+	FName GameplayCueTagName;
 };

@@ -134,6 +134,13 @@ void AGRLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		}
 	}
 
+	//Impact Cue
+	FGameplayTag ImpactCueTag = FGameplayTag::RequestGameplayTag("GameplayCue.AI.Boss.Projectile.Laser");
+	FGameplayCueParameters Params;
+	Params.Location = Hit.Location;
+	Params.Normal = Hit.Normal;
+	AIASC->ExecuteGameplayCue(ImpactCueTag,Params);
+	
 	Destroy();
 }
 

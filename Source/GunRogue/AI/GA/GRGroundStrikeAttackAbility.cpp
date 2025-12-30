@@ -2,13 +2,11 @@
 
 
 #include "AI/GA/GRGroundStrikeAttackAbility.h"
-#include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
-#include "Character/GRCharacter.h"
-#include "Engine/OverlapResult.h"
 
 UGRGroundStrikeAttackAbility::UGRGroundStrikeAttackAbility()
 {
+	GameplayCueTagName=FName("GameplayCue.AI.Boss.GroundStrike");
 }
 
 void UGRGroundStrikeAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -36,6 +34,7 @@ void UGRGroundStrikeAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payl
 	Super::OnAttackTriggerNotify(Payload);
 	
 	DetectByOverlapSphereMulti();
+	ExecuteGameplayCueAtGround();
 }
 
 
