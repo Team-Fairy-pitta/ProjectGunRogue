@@ -12,6 +12,8 @@
 #include "Components/TextBlock.h"
 #include "Player/GRPlayerState.h"
 #include "Player/Battle/GRBattlePlayerController.h"
+#include "Character/GRCharacter.h"
+#include "Character/GRPawnData.h"
 
 void UGRAugmentHUDWidget::NativeConstruct()
 {
@@ -157,8 +159,28 @@ void UGRAugmentHUDWidget::CreateAugmentSlot()
 		return;
 	}
 
-	FName CharacterType = TEXT("Bomb"); //테스트용 원래는 따로 CharacterType을 받아야함
-	TArray<UGRAugmentDefinition*> RandomAugments = AugmentSubsystem->GetRandomAugments(CharacterType, 3, PS);
+	ACharacter* CurrentCharacter = PC->GetCharacter();
+	if (!CurrentCharacter)
+	{
+		return;
+	}
+
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(CurrentCharacter);
+	if (!GRCharacter)
+	{
+		return;
+	}
+
+	if (!GRCharacter->GetPawnData())
+	{
+		return;
+	}
+
+	FName CharacterID = GRCharacter->GetPawnData()->CharacterID;
+
+	UE_LOG(LogTemp, Display, TEXT("CharacterID: %s"), *CharacterID.ToString());
+	
+	TArray<UGRAugmentDefinition*> RandomAugments = AugmentSubsystem->GetRandomAugments(CharacterID, 3, PS);
 
 	for (UGRAugmentDefinition* Augment : RandomAugments)
 	{

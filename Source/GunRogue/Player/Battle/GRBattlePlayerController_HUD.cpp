@@ -1,7 +1,9 @@
 #include "Character/GRCharacter.h"
+#include "Character/GRPawnData.h"
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "GameModes/GRGameState.h"
+#include "GameModes/Level1/GRGameState_Level1.h"
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
@@ -14,8 +16,10 @@
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRLevelStatusWidget.h"
 #include "UI/Damage/GRDamageIndicator.h"
 #include "MiniMap/GRRadarMapComponent.h"
+#include "UI/BattleHUD/SubWidgets/GRNotifyMessageWidget.h"
 
 void AGRBattlePlayerController::InitializeBattleHUD()
 {
@@ -66,6 +70,8 @@ void AGRBattlePlayerController::InitializeBattleHUD()
 	
 	SyncGoldUI();
 	SyncMetaGoodsUI();
+
+	UpdateCharacterThumbnail();
 
 	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
 
@@ -217,6 +223,28 @@ void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData&
 	UpdatePlayerMaxShield(Data.NewValue);
 }
 
+UTexture2D* AGRBattlePlayerController::GetCharacterThumbnailOfPlayer(APlayerState* InPlayerState)
+{
+	if (!IsValid(InPlayerState))
+	{
+		return nullptr;
+	}
+
+	AGRCharacter* GRCharacter = InPlayerState->GetPawn<AGRCharacter>();
+	if (!IsValid(GRCharacter))
+	{
+		return nullptr;
+	}
+
+	const UGRPawnData* PawnData = GRCharacter->GetPawnData();
+	if (!PawnData)
+	{
+		return nullptr;
+	}
+
+	return PawnData->CharacterThumbnail;
+}
+
 void AGRBattlePlayerController::OnAmmoChanged(int32 CurrentAmmo, int32 MaxAmmo)
 {
 	if (!HUDWidgetInstance)
@@ -358,6 +386,25 @@ void AGRBattlePlayerController::UpdatePlayerMaxShield(float Value)
 	PlayerStatusWidget->SetPlayerMaxShield(Value);
 }
 
+void AGRBattlePlayerController::UpdateCharacterThumbnail()
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
+	}
+
+	UGRPlayerStatusWidget* PlayerStatusWidget = HUDWidgetInstance->GetPlayerStatusWidget();
+	if (!PlayerStatusWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerStatusWidget (UGRPlayerStatusWidget) is INVALID"));
+		return;
+	}
+
+	UTexture2D* Thumbnail = GetCharacterThumbnailOfPlayer(GetPlayerState<APlayerState>());
+	PlayerStatusWidget->SetCharacterThumbnail(Thumbnail);
+}
+
 void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 {
 	if (!HUDWidgetInstance)
@@ -449,6 +496,10 @@ void AGRBattlePlayerController::OnUpdateOtherPlayerStatus()
 
 		TeamStatusWidget->SetTeamHPBar(PlayerIndex, Health, MaxHealth);
 		TeamStatusWidget->SetTeamShieldBar(PlayerIndex, Shield, MaxShield);
+
+		UTexture2D* Thumbnail = GetCharacterThumbnailOfPlayer(OtherGRPlayerState);
+		TeamStatusWidget->SetTeamCharacterThumbnail(PlayerIndex, Thumbnail);
+
 		PlayerIndex += 1;
 	}
 }
@@ -530,6 +581,7 @@ void AGRBattlePlayerController::ShowDamageIndicator(float Damage, AActor* Damage
 	DamageIndicatorWidgetInstance->SetData(Damage, DamagedActor);
 	DamageIndicatorWidgetInstance->AddToViewport();
 }
+
 
 void AGRBattlePlayerController::ShowSpectatorHUD()
 {
@@ -768,6 +820,61 @@ void AGRBattlePlayerController::ClientRPC_GameOver_Implementation()
 	HideSpectatorHUD();
 	
 	ShowGameOverWidget();
+}
+
+void AGRBattlePlayerController::ClientRPC_ShowNotifyMessage_Implementation(const FText& Message,float ShowMessageTime)
+{
+	ShowNotifyMessage(Message,ShowMessageTime);
+}
+
+
+void AGRBattlePlayerController::ShowNotifyMessage(const FText& Message, float ShowMessageTime)
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
+	}
+
+	UGRNotifyMessageWidget* NotifyWidget = HUDWidgetInstance->GetNotifyMessageWidget();
+
+	if (!NotifyWidget)
+	{
+		return;
+	}
+	
+	NotifyWidget->SetNotifyMessage(Message,ShowMessageTime);
+}
+
+void AGRBattlePlayerController::ClientRPC_UpdateCurrentLocationText_Implementation()
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
+	}
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRGameState_Level1* GRGameState = GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GRGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRGameState (AGRGameState_Level1) is INVALID"));
+		return;
+	}
+
+	UGRLevelStatusWidget* LevelStatusWidget = HUDWidgetInstance->GetLevelStatusWidget();
+	if (!LevelStatusWidget)
+	{
+		return;
+	}
+
+	FString LocString = GRGameState->GetCurrentLocationString();
+	FText LocText = FText::FromString(LocString);
+	LevelStatusWidget->SetCurrentLocText(LocText);
 }
 
 void AGRBattlePlayerController::ShowGameOverWidget()

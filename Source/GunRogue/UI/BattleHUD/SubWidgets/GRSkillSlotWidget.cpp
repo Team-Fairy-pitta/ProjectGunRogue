@@ -5,28 +5,7 @@
 
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
-
-void UGRSkillSlotWidget::SetSkillCountText(int32 InCount)
-{
-	if (!SkillCountText)
-	{
-		return;
-	}
-
-	CurrentSkillCount = InCount;
-	
-	if (InCount > 0)
-	{
-		SkillCountText->SetText(FText::AsNumber(CurrentSkillCount));
-
-		SkillCountText->SetVisibility(ESlateVisibility::Visible);
-		
-	}
-	else
-	{
-		SkillCountText->SetVisibility(ESlateVisibility::Hidden);
-	}
-}
+#include "Components/Image.h"
 
 void UGRSkillSlotWidget::SetCooldown(float RemainingTime, float MaxTime)
 {
@@ -54,24 +33,6 @@ void UGRSkillSlotWidget::SetCooldown(float RemainingTime, float MaxTime)
 	}
 }
 
-void UGRSkillSlotWidget::SetCharge(float CurrentCharge, float MaxCharge)
-{
-	if (!SkillCooldown || !SkillCooldownText)
-	{
-		return;
-	}
-
-	if (MaxCharge <= 0)
-	{
-		return;
-	}
-
-	float ChargePercent = FMath::Clamp(CurrentCharge / MaxCharge, 0.0f, 1.0f);
-	SkillCooldown->SetPercent(ChargePercent);
-
-	SkillCooldownText->SetText(FText::AsNumber(FMath::RoundToInt(CurrentCharge)));
-}
-
 void UGRSkillSlotWidget::SetSkillKey(const FText& InText)
 {
 	if (!SkillKeyText)
@@ -82,36 +43,16 @@ void UGRSkillSlotWidget::SetSkillKey(const FText& InText)
 	SkillKeyText->SetText(InText);
 }
 
-void UGRSkillSlotWidget::StartCooldown(float MaxTime)
+void UGRSkillSlotWidget::SetSkillIcon(UTexture2D* InIcon)
 {
-	if (!GetWorld())
+	if (!SkillIcon)
+	{
+		return;
+	}
+	if (!InIcon)
 	{
 		return;
 	}
 
-	CooldownRemainingTime = MaxTime;
-	CooldownMaxTime = MaxTime;
-
-	SetCooldown(CooldownRemainingTime, CooldownMaxTime);
-
-	GetWorld()->GetTimerManager().ClearTimer(CooldownTimerHandle);
-	GetWorld()->GetTimerManager().SetTimer(
-		CooldownTimerHandle,
-		this,
-		&UGRSkillSlotWidget::UpdateCooldown,
-		1.0f,
-		true
-	);
-}
-
-void UGRSkillSlotWidget::UpdateCooldown()
-{
-	CooldownRemainingTime -= 1.0f;
-	SetCooldown(CooldownRemainingTime, CooldownMaxTime);
-
-	if (CooldownRemainingTime <= 0.0f)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(CooldownTimerHandle);
-		SetCooldown(0.0f, CooldownMaxTime);
-	}
+	SkillIcon->SetBrushFromTexture(InIcon);
 }

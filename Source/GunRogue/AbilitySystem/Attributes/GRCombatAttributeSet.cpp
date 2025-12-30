@@ -385,20 +385,23 @@ void UGRCombatAttributeSet::ApplySpreadRecovery(UAbilitySystemComponent* OwningA
 }
 
 // 스킬
-float UGRCombatAttributeSet::CalculateSkillDamage() const
+float UGRCombatAttributeSet::CalculateSkillDamage(float SkillBaseDamage) const
 {
 	// [스킬 공격력] = (기본 공격력 + 증가) × (1 + 증폭)
 	const float Base = GetSkillDamage_Base();
 	const float Additive = GetSkillDamage_Additive();
 	const float Multiplicative = GetSkillDamage_Multiplicative();
-	const float SkillDamage = (Base + Additive) * (1.0f + Multiplicative);
+
+	const float TotalBase = SkillBaseDamage + Base + Additive;
+	const float SkillDamage = TotalBase * (1.0f + Multiplicative);
+
 	return SkillDamage;
 }
 
-float UGRCombatAttributeSet::CalculateFinalSkillDamage(float TargetDamageReduction) const
+float UGRCombatAttributeSet::CalculateFinalSkillDamage(float SkillBaseDamage, float TargetDamageReduction) const
 {
 	// 공식: [스킬 공격력] × [최종 피해 배율] × [1 - 피해 감소]
-	const float SkillDamage = CalculateSkillDamage();
+	const float SkillDamage = CalculateSkillDamage(SkillBaseDamage);
 	const float FinalMultiplier = CalculateFinalDamageMultiplier();
 	const float FinalDamage = SkillDamage * FinalMultiplier * (1.0f - TargetDamageReduction);
 

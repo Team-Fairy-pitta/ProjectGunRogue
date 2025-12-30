@@ -155,6 +155,7 @@ void AGRGameMode_Level1::ReceiveDestroyEnemy()
 	if (EnemyCount <= 0)
 	{
 		TryRespawnAllDeadPlayers();
+		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::BroadcastClearMessage);
 	}
 }
 
@@ -211,6 +212,19 @@ void AGRGameMode_Level1::RemoveLevel1ControlPanel(AGRLevel1ControlPanel* Level1C
 	UpdateLevel1ControlPanel();
 }
 
+void AGRGameMode_Level1::BroadcastNotifyMessage(const FText& Message, float ShowMessageTime)
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AGRBattlePlayerController* PC = Cast<AGRBattlePlayerController>(It->Get());
+
+		if (PC)
+		{
+			PC->ClientRPC_ShowNotifyMessage(Message,ShowMessageTime);
+		}
+	}
+}
+
 void AGRGameMode_Level1::UpdateLevel1ControlPanel()
 {
 	bool bHasEliminatedEnemies;
@@ -238,4 +252,20 @@ FVector AGRGameMode_Level1::FindSpawnableLocation(AActor* AlivePlayer)
 	}
 
 	return AlivePlayer->GetActorLocation();
+}
+
+void AGRGameMode_Level1::BroadcastClearMessage()
+{
+	FString MessageString(TEXT("문 개폐장치가 활성화 되었습니다."));
+	FText Message = FText::FromString(MessageString);
+	float Duration = 4.0f;
+	BroadcastNotifyMessage(Message, Duration);
+}
+
+void AGRGameMode_Level1::BroadcastOpenNextStage()
+{
+	FString MessageString(TEXT("다음 스테이지가 선택되었습니다."));
+	FText Message = FText::FromString(MessageString);
+	float Duration = 4.0f;
+	BroadcastNotifyMessage(Message, Duration);
 }

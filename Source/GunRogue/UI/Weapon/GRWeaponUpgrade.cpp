@@ -66,10 +66,10 @@ void UGRWeaponUpgrade::SettingWeapon()
 			FText WeaponName = WeaponDefinition->WeaponName;
 			UTexture2D* WeaponIcon = WeaponDefinition->WeaponIcon;
 			int32 WeaponLevel = WeaponInstance->GetLevel();
-			float WeaponDamage = WeaponInstance->GetDamage();
-			float WeaponWeakpoint = 150.f;
-			float WeaponLaunchspeed = 500;
-			float WeaponMagazine = 300;
+			float WeaponDamage = WeaponInstance->GetTotalDamage();
+			float WeaponWeakpoint = WeaponInstance->GetTotalWeakMultuplier() * 100; // percentage
+			float WeaponLaunchspeed = WeaponInstance->GetTotalFireRate() * 60; // per minutes
+			float WeaponMagazine = WeaponInstance->GetTotalMagazine();
 			FText WeaponExplain = WeaponDefinition->WeaponDescription;
 
 			WeaponNameUpdate(WeaponName);
@@ -81,6 +81,18 @@ void UGRWeaponUpgrade::SettingWeapon()
 			WeaponMagazineUpdate(WeaponMagazine);
 			WeaponExplainUpdate(WeaponExplain);
 			WeaponOptionUpdate();
+
+			int32 UpgradeCost = WeaponInstance->GetUpgradeCost();
+			int32 RerollCost = WeaponInstance->GetRerollCost();
+			if (WeaponLevel < WeaponDefinition->MaxLevel)
+			{
+				WeaponUpgradeCostUpdate(UpgradeCost);
+			}
+			else
+			{
+				WeaponMaxUpgradeUpdate();
+			}
+			WeaponRerollCostUpdate(RerollCost);
 		}
 	}
 }
@@ -307,7 +319,7 @@ void UGRWeaponUpgrade::WeaponOptionUpdate()
 		return;
 	}
 
-	const TArray<FWeaponOption>& Options = WeaponInstance->Options;  
+	const TArray<FWeaponOption>& Options = WeaponInstance->GetOptions();
 
 	for (int32 i = 0; i < Options.Num(); i++)
 	{
@@ -321,6 +333,34 @@ void UGRWeaponUpgrade::WeaponOptionUpdate()
 
 		bool bSelected = (i == CurrentOptionSlotIndex);
 		OptionWidgets[i]->SetSelected(bSelected);
+	}
+}
+
+void UGRWeaponUpgrade::WeaponUpgradeCostUpdate(int32 UpgradeCost)
+{
+	if (UpgradeCostText)
+	{
+		FText CostText = FText::FromString(FString::Printf(TEXT("%d골드"), UpgradeCost));
+		UpgradeCostText->SetText(CostText);
+	}
+}
+
+void UGRWeaponUpgrade::WeaponMaxUpgradeUpdate()
+{
+	if (UpgradeCostText)
+	{
+		FText CostText = FText::FromString(FString(TEXT("MAX 강화")));
+		UpgradeCostText->SetText(CostText);
+	}
+}
+
+
+void UGRWeaponUpgrade::WeaponRerollCostUpdate(int32 RerollCost)
+{
+	if (RerollCostText)
+	{
+		FText CostText = FText::FromString(FString::Printf(TEXT("%d골드"), RerollCost));
+		RerollCostText->SetText(CostText);
 	}
 }
 

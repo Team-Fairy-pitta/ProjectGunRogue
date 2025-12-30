@@ -24,14 +24,13 @@ void FGRWeaponHandle::EquipWeapon(UGRAbilitySystemComponent* ASC, UGRWeaponDefin
 	WeaponInstance = InWeaponInstance;
 
 	WeaponInstance.Init(CachedASC, WeaponDefinition);
-	WeaponInstance.ApplyAllEffects();
 
 	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.CurrentLevel: %d"),
 		*WeaponDefinition->WeaponName.ToString(),
 		WeaponInstance.GetLevel());
 	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s  WeaponInstance.CurrentDamage: %f"),
 		*WeaponDefinition->WeaponName.ToString(),
-		WeaponInstance.GetDamage());
+		WeaponInstance.GetTotalDamage());
 
 	UE_LOG(LogTemp, Display, TEXT("[FGRWeaponHandle] %s Ammo: %d / %d"),
 		*WeaponDefinition->WeaponName.ToString(),
@@ -64,7 +63,7 @@ void FGRWeaponHandle::UnequipWeapon()
 	}
 
 	WeaponDefinition = nullptr;
-	WeaponInstance.ClearEffects();
+	//WeaponInstance.ClearEffects();
 	WeaponInstance.Invalidate();
 	CachedASC = nullptr;
 }
@@ -103,6 +102,9 @@ void FGRWeaponHandle::ActivateWeapon()
 			WeaponInstance.GetMaxAmmo());
 	}
 
+	WeaponInstance.ClearEffects();
+	WeaponInstance.ApplyAllEffects();
+
 	bIsActive = true;
 
 	UE_LOG(LogTemp, Display, TEXT("Weapon Activated: %s"),
@@ -122,6 +124,8 @@ void FGRWeaponHandle::DeactivateWeapon()
 		UE_LOG(LogTemp, Error, TEXT("CachedASC is INVALID"));
 		return;
 	}
+
+	WeaponInstance.ClearEffects();
 
 	// 부여된 어빌리티/이펙트 제거
 	GrantedHandles.TakeFromAbilitySystem(CachedASC);

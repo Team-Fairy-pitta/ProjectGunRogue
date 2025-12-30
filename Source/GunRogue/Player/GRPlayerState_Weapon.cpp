@@ -89,6 +89,11 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 		}
 		else
 		{
+			// [NOTE] Widget Update를 위해 무기를 잠시 스위칭해서 Attributes를 계산한다.
+			WeaponSlots[CurrentWeaponSlot].DeactivateWeapon();
+			WeaponSlots[EmptySlot].ActivateWeapon();
+			WeaponSlots[EmptySlot].DeactivateWeapon();
+			WeaponSlots[CurrentWeaponSlot].ActivateWeapon();
 			UE_LOG(LogTemp, Display, TEXT("[EquipWeapon] Weapon stored in slot %d (inactive)"), EmptySlot);
 		}
 	}
@@ -218,9 +223,64 @@ void AGRPlayerState::ServerRPC_UpgradeWeapon_Implementation(int32 SlotIndex)
 		return;
 	}
 
-	WeaponInstance->UpgradeWeapon();
+	if (TryCommitUpgradeWeapon(WeaponInstance))
+	{
+		WeaponInstance->UpgradeWeapon();
+		if (SlotIndex == CurrentWeaponSlot)
+		{
+			WeaponInstance->ClearEffects();
+			WeaponInstance->ApplyAllEffects();
+		}
+		else
+		{
+			// [NOTE] Widget Update를 위해 무기를 잠시 스위칭해서 Attributes를 계산한다.
+			WeaponSlots[CurrentWeaponSlot].DeactivateWeapon();
+			WeaponSlots[SlotIndex].ActivateWeapon();
+			WeaponSlots[SlotIndex].DeactivateWeapon();
+			WeaponSlots[CurrentWeaponSlot].ActivateWeapon();
+		}
+		OnRep_WeaponDataUpdata();
+	}
+}
 
-	OnRep_WeaponDataUpdata();
+bool AGRPlayerState::TryCommitUpgradeWeapon(const FGRWeaponInstance* WeaponInstance)
+{
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return false;
+	}
+
+	int32 UpgradeCost = WeaponInstance->GetUpgradeCost();
+	if (UpgradeCost <= Gold)
+	{
+		ApplyGoldGain(-UpgradeCost);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool AGRPlayerState::TryCommitRerollWeapon(const FGRWeaponInstance* WeaponInstance)
+{
+	if (!WeaponInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponInstance is INVALID"));
+		return false;
+	}
+
+	int32 RerollCost = WeaponInstance->GetRerollCost();
+	if (RerollCost <= Gold)
+	{
+		ApplyGoldGain(-RerollCost);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeaponSlotIndex)
@@ -254,7 +314,24 @@ void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeap
 		return;
 	}
 
-	WeaponInstance->AllRerollOption();
+	if (TryCommitRerollWeapon(WeaponInstance))
+	{
+		WeaponInstance->AllRerollOption();
+		if (InWeaponSlotIndex == CurrentWeaponSlot)
+		{
+			WeaponInstance->ClearEffects();
+			WeaponInstance->ApplyAllEffects();
+		}
+		else
+		{
+			// [NOTE] Widget Update를 위해 무기를 잠시 스위칭해서 Attributes를 계산한다.
+			WeaponSlots[CurrentWeaponSlot].DeactivateWeapon();
+			WeaponSlots[InWeaponSlotIndex].ActivateWeapon();
+			WeaponSlots[InWeaponSlotIndex].DeactivateWeapon();
+			WeaponSlots[CurrentWeaponSlot].ActivateWeapon();
+		}
+		OnRep_WeaponDataUpdata();
+	}
 }
 
 void AGRPlayerState::ServerRPC_RerollOptionWeapon_Implementation(int32 InWeaponSlotIndex, int32 InOptionSlotIndex)
@@ -288,7 +365,24 @@ void AGRPlayerState::ServerRPC_RerollOptionWeapon_Implementation(int32 InWeaponS
 		return;
 	}
 
-	WeaponInstance->RerollOption(InOptionSlotIndex);
+	if (TryCommitRerollWeapon(WeaponInstance))
+	{
+		WeaponInstance->RerollOption(InOptionSlotIndex);
+		if (InWeaponSlotIndex == CurrentWeaponSlot)
+		{
+			WeaponInstance->ClearEffects();
+			WeaponInstance->ApplyAllEffects();
+		}
+		else
+		{
+			// [NOTE] Widget Update를 위해 무기를 잠시 스위칭해서 Attributes를 계산한다.
+			WeaponSlots[CurrentWeaponSlot].DeactivateWeapon();
+			WeaponSlots[InWeaponSlotIndex].ActivateWeapon();
+			WeaponSlots[InWeaponSlotIndex].DeactivateWeapon();
+			WeaponSlots[CurrentWeaponSlot].ActivateWeapon();
+		}
+		OnRep_WeaponDataUpdata();
+	}
 }
 
 void AGRPlayerState::MulticastRPC_PlayWeaponEquipAnimMontage_Implementation()

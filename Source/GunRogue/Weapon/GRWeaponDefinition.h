@@ -72,6 +72,18 @@ public:
 		meta = (EditCondition = "FireType == EGRWeaponFireType::Projectile", EditConditionHides))
 	float ProjectileLifeSpan = 10.0f;
 
+	// ======== 산탄총 설정 ========
+
+	// 펠렛 개수 (WeaponCategory가 Shotgun일 때 사용)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Shotgun",
+		meta = (EditCondition = "WeaponCategory == EGRWeaponCategory::Shotgun", EditConditionHides, ClampMin = "1"))
+	int32 PelletCount = 8;
+
+	// 펠렛 확산 각도 (WeaponCategory가 Shotgun일 때 사용)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Shotgun",
+		meta = (EditCondition = "WeaponCategory == EGRWeaponCategory::Shotgun", EditConditionHides, ClampMin = "0.0"))
+	float PelletSpreadAngle = 5.0f;
+
 	// ======== 메시 ========
 	// 무기 메시 (바닥에 떨어져 있을 때)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Mesh")
@@ -139,22 +151,19 @@ public:
 	TObjectPtr<UParticleSystem> BulletTracerCascade;
 
 	// ======== 무기 스탯 ========
-	/* 무기 강화 파트에서 사용하고 있는 값 */
-	/* [NOTE] 무기의 Status Effect 랑 어떻게 통합할 수 있을까..? */
-	// 무기 기본 데미지
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
-	float BaseDamage = 10.f;
+	TSubclassOf<UGameplayEffect> BaseDamageEffect;
 
 	// 무기 최대 레벨
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Upgrade")
 	int32 MaxLevel = 15;
 
 	// 무기 레벨업 당 증가하는 데미지
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Upgrade")
 	float UpgradeDamageIncrease = 2.f;
 
 	// 무기 옵션 풀
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Basic")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Upgrade")
 	UGRWeaponOptionPool* OptionPool = nullptr;
 
 	// 탄창 크기 (최대 탄약)

@@ -17,6 +17,8 @@ UGRGameplayAbility_FireWeapon::UGRGameplayAbility_FireWeapon()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.BladeWaveMode")));
+
 	NoAmmoConsumeTag = FGameplayTag::RequestGameplayTag(FName("Item.Ammo.NoConsume"));
 	NoAmmoConsumeChance = 0.2f;
 

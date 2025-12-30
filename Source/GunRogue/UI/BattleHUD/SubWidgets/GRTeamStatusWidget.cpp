@@ -4,6 +4,7 @@
 #include "GRTeamStatusWidget.h"
 
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "GRHPBarWidget.h"
 
 
@@ -36,4 +37,18 @@ void UGRTeamStatusWidget::SetTeamHPBar(float CurrentHP, float MaxHP)
 	}
 	
 	TeamHPBar->SetHPBar(CurrentHP, MaxHP);
+}
+
+void UGRTeamStatusWidget::SetTeamCharacterThumbnail(UTexture2D* Thumbnail)
+{
+	if (!TeamFace)
+	{
+		return;
+	}
+	if (!Thumbnail)
+	{
+		return;
+	}
+
+	TeamFace->SetBrushFromTexture(Thumbnail);
 }

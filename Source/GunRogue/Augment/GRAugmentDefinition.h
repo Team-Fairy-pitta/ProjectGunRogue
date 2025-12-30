@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GRAugmentStructs.h"
+#include "AbilitySystem/GRGameplayEffect.h"
 #include "GRAugmentDefinition.generated.h"
 
 class UTexture2D;
@@ -28,6 +29,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UTexture2D> AugmentIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGRGameplayEffect> AugmentGameplayEffect;
 
 	//캐릭터 구분용
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -5,6 +5,7 @@
 #include "Character/GRCharacter.h"
 #include "Weapon/GRProjectile.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameplayEffect.h"
 #include "DrawDebugHelpers.h"
 
 UGRGameplayAbility_MissileBarrage::UGRGameplayAbility_MissileBarrage()
@@ -21,12 +22,21 @@ void UGRGameplayAbility_MissileBarrage::OnGiveAbility(const FGameplayAbilityActo
 	// 한 번만 가져와서 캐싱
 	if (ActorInfo && ActorInfo->AbilitySystemComponent.IsValid())
 	{
+		UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+
 		SkillAttributeSet = const_cast<UGRSkillAttributeSet_MissileBrg*>(
 			ActorInfo->AbilitySystemComponent->GetSet<UGRSkillAttributeSet_MissileBrg>());
 
 		if (!SkillAttributeSet)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[MissileBarrage] SkillAttributeSet not found!"));
+		}
+
+		CombatAttributeSet = const_cast<UGRCombatAttributeSet*>(
+			ASC->GetSet<UGRCombatAttributeSet>());
+		if (!CombatAttributeSet)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[MissileBarrage] Failed to find CombatAttributeSet"));
 		}
 	}
 }
@@ -50,26 +60,69 @@ void UGRGameplayAbility_MissileBarrage::ActivateAbility(
 		return;
 	}
 
+	ExecuteBarrage();
+}
+
+void UGRGameplayAbility_MissileBarrage::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (CooldownGameplayEffectClass)
+	{
+		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(CooldownGameplayEffectClass);
+		if (SpecHandle.IsValid() && SpecHandle.Data.Get())
+		{
+			FGameplayTag CoolDownTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Cooldown.Magnitude"));
+			float FinalCooldown = GetCooldown();
+			SpecHandle.Data.Get()->SetSetByCallerMagnitude(CoolDownTag, FinalCooldown);
+			ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+		}
+	}
+}
+
+void UGRGameplayAbility_MissileBarrage::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility,
+	bool bWasCancelled)
+{
+	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+	CurrentMissileIndex = 0;
+	SpawnLocations.Empty();
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UGRGameplayAbility_MissileBarrage::ExecuteBarrage()
+{
+	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	if (!Character || !Character->HasAuthority())
+	{
+		return;
+	}
+
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
+	if (!GRCharacter)
+	{
+		return;
+	}
+
 	OnSkillActivated.Broadcast();
 
+	// 스폰 위치 계산
 	SpawnLocations = CalculateSpawnLocations();
 	CurrentMissileIndex = 0;
 
-	AGRCharacter* GRCharacter = Cast<AGRCharacter>(GetAvatarActorFromActorInfo());
-	if (GRCharacter && GRCharacter->HasAuthority())
-	{
-		GRCharacter->Multicast_PlaySkillSpawnEffects(
-			SpawnLocations,
-			SpawnEffectNiagara,
-			SpawnEffectCascade,
-			SpawnEffectScale,
-			SpawnSound
-		);
-	}
+	// 스폰 이펙트 재생
+	GRCharacter->Multicast_PlaySkillSpawnEffects(
+		SpawnLocations,
+		SpawnEffectNiagara,
+		SpawnEffectCascade,
+		SpawnEffectScale,
+		SpawnSound
+	);
 
-	// SpawnDelay를 AttributeSet에서 가져옴
+	// SpawnDelay 후 발사 시작
 	float SpawnDelay = SkillAttributeSet->GetSpawnDelay();
-
 	TWeakObjectPtr<UGRGameplayAbility_MissileBarrage> WeakThis(this);
 	GetWorld()->GetTimerManager().SetTimer(
 		FireTimerHandle,
@@ -130,20 +183,24 @@ void UGRGameplayAbility_MissileBarrage::FireNextMissile()
 		return;
 	}
 
-	AActor* AvatarActor = GetAvatarActorFromActorInfo();
-	if (!AvatarActor || !AvatarActor->HasAuthority())
+	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	if (!Character || !Character->HasAuthority())
 	{
 		CurrentMissileIndex++;
 		return;
 	}
 
-	AGRCharacter* GRCharacter = Cast<AGRCharacter>(AvatarActor);
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
 	if (!GRCharacter)
 	{
 		CurrentMissileIndex++;
 		return;
 	}
 
+	// 데미지 계산
+	const float FinalDamage = CalculateFinalSkillDamage();
+
+	// 카메라 위치 및 회전 가져오기
 	FVector CameraLocation;
 	FRotator CameraRotation;
 	GRCharacter->GetActorEyesViewPoint(CameraLocation, CameraRotation);
@@ -181,7 +238,7 @@ void UGRGameplayAbility_MissileBarrage::FireNextMissile()
 
 		Projectile->InitializeProjectile(
 			GRCharacter,
-			SkillAttributeSet->GetBaseDamage(),
+			FinalDamage,
 			SkillAttributeSet->GetExplosionRadius(),
 			SkillAttributeSet->GetExplosionFalloff(),
 			Velocity,
@@ -201,8 +258,8 @@ TArray<FVector> UGRGameplayAbility_MissileBarrage::CalculateSpawnLocations()
 {
 	TArray<FVector> Locations;
 
-	AActor* AvatarActor = GetAvatarActorFromActorInfo();
-	if (!AvatarActor)
+	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	if (!Character)
 	{
 		return Locations;
 	}
@@ -216,7 +273,7 @@ TArray<FVector> UGRGameplayAbility_MissileBarrage::CalculateSpawnLocations()
 	float SpawnRadius = SkillAttributeSet->GetSpawnRadius();
 	float SpawnHeightOffset = SkillAttributeSet->GetSpawnHeightOffset();
 
-	const FVector CenterLocation = AvatarActor->GetActorLocation() + FVector(0, 0, SpawnHeightOffset);
+	const FVector CenterLocation = Character->GetActorLocation() + FVector(0, 0, SpawnHeightOffset);
 
 	for (int32 i = 0; i < MissileCount; ++i)
 	{
@@ -232,16 +289,36 @@ TArray<FVector> UGRGameplayAbility_MissileBarrage::CalculateSpawnLocations()
 	return Locations;
 }
 
-void UGRGameplayAbility_MissileBarrage::EndAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateEndAbility,
-	bool bWasCancelled)
+float UGRGameplayAbility_MissileBarrage::CalculateFinalSkillDamage()
 {
-	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
-	CurrentMissileIndex = 0;
-	SpawnLocations.Empty();
+	if (!SkillAttributeSet)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[MissileBarrage] No SkillAttributeSet for damage calculation"));
+		return 0.0f;
+	}
 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	const float SkillBaseDamage = SkillAttributeSet->GetBaseDamage();
+
+	if (!CombatAttributeSet)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[MissileBarrage] No CombatSet - using base damage: %.1f"), SkillBaseDamage);
+		return SkillBaseDamage;
+	}
+
+	return CombatAttributeSet->CalculateFinalSkillDamage(SkillBaseDamage, 0.0f);
+}
+
+float UGRGameplayAbility_MissileBarrage::GetCooldown() const
+{
+	if (!SkillAttributeSet)
+	{
+		return 0.0f;
+	}
+
+	float BaseCooldown = SkillAttributeSet->GetBaseCooldown();
+	float CooldownReduction = SkillAttributeSet->GetCooldownReduction();
+	float CombetSetCooldownReduction = CombatAttributeSet->GetSkillCooldownReduction();
+	float FinalCooldown = BaseCooldown * (1.0f - CooldownReduction) * (1.0f - CombetSetCooldownReduction);
+
+	return FinalCooldown;
 }

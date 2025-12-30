@@ -70,6 +70,10 @@ private:
 	UFUNCTION()
 	void WeaponOptionUpdate();
 
+	void WeaponUpgradeCostUpdate(int32 UpgradeCost);
+	void WeaponMaxUpgradeUpdate();
+	void WeaponRerollCostUpdate(int32 RerollCost);
+
 	void OnOptionSelected(int32 InOptionSlotIndex);
 
 
@@ -110,6 +114,12 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UScrollBox* OptionList;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* UpgradeCostText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* RerollCostText;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UGROptionSlot> OptionSlotClass;

@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Engine/LevelStreamingDynamic.h"
 #include "GameFramework/Character.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -182,5 +183,25 @@ void AGRNextMapLoader::OnRep_ShouldLoadLevel()
 	if (bShouldLoadLevel)
 	{
 		LoadMap(LevelToLoad);
+		UpdateLevelStatusWidget();
 	}
+}
+
+void AGRNextMapLoader::UpdateLevelStatusWidget()
+{
+	// [NOTE] 하드 코딩된 로직
+	// 맵 로딩 이후, HUD에 있는 레벨 정보 (0-0)를 업데이트함
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	AGRBattlePlayerController* BattlePlayerController = Cast<AGRBattlePlayerController>(PlayerController);
+	if (!IsValid(BattlePlayerController))
+	{
+		return;
+	}
+
+	BattlePlayerController->ClientRPC_UpdateCurrentLocationText();
 }

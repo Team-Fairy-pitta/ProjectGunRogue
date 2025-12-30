@@ -13,6 +13,17 @@ enum class ENodeStatus : uint8
 	CLEARD
 };
 
+UENUM()
+enum class ENodeType : uint8
+{
+	NONE,
+	BASE,
+	NORMAL,
+	HARD,
+	BOSS
+};
+
+
 USTRUCT()
 struct GUNROGUE_API FGRLevel1Node
 {
@@ -30,6 +41,9 @@ public:
 
 	UPROPERTY()
 	ENodeStatus NodeStatus;
+
+	UPROPERTY()
+	ENodeType NodeType;
 
 	UPROPERTY()
 	TSoftObjectPtr<UWorld> LevelToLoad;
@@ -67,6 +81,7 @@ private:
 	TArray<FGRLevel1Node> Nodes;
 
 	void MakeAndConnectEmptyRooms();
+	void SetupFirstRoom();
 	void SetupEachRoomRandomly(AGRGameMode_Level1* GRGameMode);
 	void SetupLastRoom(AGRGameMode_Level1* GRGameMode);
 };

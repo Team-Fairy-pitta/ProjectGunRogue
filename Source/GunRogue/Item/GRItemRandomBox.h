@@ -42,6 +42,9 @@ public:
 	void StartOpenAnimation(AGRPlayerState* GRPlayerState);
 
 	UFUNCTION(BlueprintCallable)
+	void ServerAddOnFinishOpenAnimation(float Timer, AGRPlayerState* GRPlayerState);
+
+	UFUNCTION()
 	void OnFinishOpenAnimation(AGRPlayerState* GRPlayerState);
 
 protected:
@@ -91,4 +94,6 @@ private:
 
 	UPROPERTY()
 	TMap<AGRPlayerState*, FSpawnedActor> SpawnedActors;
+
+	TArray<FTimerHandle> OpenTimerHandles;
 };
