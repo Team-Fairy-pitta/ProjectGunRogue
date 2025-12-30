@@ -7,6 +7,8 @@
 #include "AI/Character/GRAICharacter.h"
 #include "AI/Projectile/GRDroneProjectile.h"
 #include "Player/GRPlayerState.h"
+#include "Character/GRCharacter.h"
+#include "AI/Robot/AT/GRSkillAttributeSet_Robot.h"
 #include "Engine/OverlapResult.h"
 #include "Net/UnrealNetwork.h"
 
@@ -76,11 +78,13 @@ void AGRDrone::BeginPlay()
 		DetectSphere->OnComponentBeginOverlap.AddDynamic(this, &AGRDrone::OnDetectBegin);
 		DetectSphere->OnComponentEndOverlap.AddDynamic(this, &AGRDrone::OnDetectEnd);
 		
+		float Duration = GetDurationFromInstigator();
+
 		 GetWorld()->GetTimerManager().SetTimer(
                 ExplodeTimerHandle,
                 this,
                 &AGRDrone::Explode,
-                MaxLifeTime,
+                Duration,
                 false
             );
 	}
@@ -317,7 +321,7 @@ void AGRDrone::Fire()
 		return;
 	}
 	
-	FireCooldown = FireInterval;
+	FireCooldown += GetFireIntervalFromInstigator();
 
 	FVector MuzzleLocation =
 		Mesh->DoesSocketExist(MuzzleSocketName)
@@ -384,6 +388,8 @@ void AGRDrone::Explode()
 	FVector Origin = GetActorLocation();
 	TArray<FOverlapResult> Overlaps;
 
+	float ExplodeDistance = GetExplodeDistanceFromInstigator();
+
 	FCollisionShape SphereShape = FCollisionShape::MakeSphere(ExplodeDistance);
 	FCollisionQueryParams QueryParams;
 	ECollisionChannel TraceChannel = ECC_Pawn;
@@ -416,6 +422,9 @@ void AGRDrone::Explode()
 		
 	FGameplayEffectSpecHandle PlayerSpecHandle = PlayerASC->MakeOutgoingSpec(ExplodeDamageGEClass,1.f,PlayerEffectContext);
 	
+	float Damage = GetExplodeDamageFromInstigator();
+	PlayerSpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Ability.Damage.DroneExplode")), Damage);
+
 	for (const FOverlapResult& Result : Overlaps)
 	{
 		AActor* Other = Result.GetActor();
@@ -533,6 +542,98 @@ void AGRDrone::UpdateDroneStateMachine()
 		DashToDirection();
 		break;
 	}
+}
+
+float AGRDrone::GetDurationFromInstigator() const
+{
+	AGRCharacter* GRCharacter = GetInstigator<AGRCharacter>();
+	if (!IsValid(GRCharacter))
+	{
+		return 0.0f;
+	}
+
+	UAbilitySystemComponent* OwnerASC = GRCharacter->GetAbilitySystemComponent();
+	if (!OwnerASC)
+	{
+		return 0.0f;
+	}
+
+	const UGRSkillAttributeSet_Robot* SkillAttributeSet = OwnerASC->GetSet<UGRSkillAttributeSet_Robot>();
+	if (!SkillAttributeSet)
+	{
+		return 0.0f;
+	}
+
+	return SkillAttributeSet->GetDuration();
+}
+
+float AGRDrone::GetFireIntervalFromInstigator() const
+{
+	AGRCharacter* GRCharacter = GetInstigator<AGRCharacter>();
+	if (!IsValid(GRCharacter))
+	{
+		return 0.0f;
+	}
+
+	UAbilitySystemComponent* OwnerASC = GRCharacter->GetAbilitySystemComponent();
+	if (!OwnerASC)
+	{
+		return 0.0f;
+	}
+
+	const UGRSkillAttributeSet_Robot* SkillAttributeSet = OwnerASC->GetSet<UGRSkillAttributeSet_Robot>();
+	if (!SkillAttributeSet)
+	{
+		return 0.0f;
+	}
+
+	return SkillAttributeSet->GetAttackSpeed() * FireInterval;
+}
+
+float AGRDrone::GetExplodeDistanceFromInstigator() const
+{
+	AGRCharacter* GRCharacter = GetInstigator<AGRCharacter>();
+	if (!IsValid(GRCharacter))
+	{
+		return 0.0f;
+	}
+
+	UAbilitySystemComponent* OwnerASC = GRCharacter->GetAbilitySystemComponent();
+	if (!OwnerASC)
+	{
+		return 0.0f;
+	}
+
+	const UGRSkillAttributeSet_Robot* SkillAttributeSet = OwnerASC->GetSet<UGRSkillAttributeSet_Robot>();
+	if (!SkillAttributeSet)
+	{
+		return 0.0f;
+	}
+
+	return SkillAttributeSet->GetSelfDestructRadius();
+}
+
+float AGRDrone::GetExplodeDamageFromInstigator() const
+{
+	AGRCharacter* GRCharacter = GetInstigator<AGRCharacter>();
+	if (!IsValid(GRCharacter))
+	{
+		return 0.0f;
+	}
+
+	UAbilitySystemComponent* OwnerASC = GRCharacter->GetAbilitySystemComponent();
+	if (!OwnerASC)
+	{
+		return 0.0f;
+	}
+
+	const UGRSkillAttributeSet_Robot* SkillAttributeSet = OwnerASC->GetSet<UGRSkillAttributeSet_Robot>();
+	if (!SkillAttributeSet)
+	{
+		return 0.0f;
+	}
+
+	return SkillAttributeSet->GetSelfDestructDamage();
 }
 
 

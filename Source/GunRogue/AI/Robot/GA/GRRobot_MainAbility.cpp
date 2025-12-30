@@ -11,6 +11,35 @@ UGRRobot_MainAbility::UGRRobot_MainAbility()
 {
 }
 
+bool UGRRobot_MainAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		AActor* Avatar = ActorInfo->AvatarActor.Get();
+		if (!Avatar)
+		{
+			return false;
+		}
+
+		UGRDroneManagerComponent* DroneMgr = Avatar->FindComponentByClass<UGRDroneManagerComponent>();
+		if (!DroneMgr)
+		{
+			return false;
+		}
+
+		if (DroneMgr->GetDrones().Num() == 0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void UGRRobot_MainAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                            const FGameplayEventData* TriggerEventData)

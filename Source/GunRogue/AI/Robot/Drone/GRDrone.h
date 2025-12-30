@@ -117,22 +117,21 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "MainSkillAttack")
 	float MainSkillSpeed = 1000.f;
 
-	UPROPERTY(EditDefaultsOnly, Category="MainSkillAttack")
-	float ExplodeDistance = 200.f;
-
 	bool bIsMainSkillActive = false;
 
 	UPROPERTY(EditAnywhere, Category="MainSkillAttack")
 	TSubclassOf<UGameplayEffect> ExplodeDamageGEClass;
 	
 	FTimerHandle ExplodeTimerHandle;
-    
-    UPROPERTY(EditDefaultsOnly, Category="Property")
-    float MaxLifeTime = 10.0f;
 
 	UPROPERTY(Replicated)
 	FVector DesiredLocation;
 
 	UPROPERTY(Replicated)
 	FRotator DesiredRotation;
+
+	float GetDurationFromInstigator() const;
+	float GetFireIntervalFromInstigator() const;
+	float GetExplodeDistanceFromInstigator() const;
+	float GetExplodeDamageFromInstigator() const;
 };

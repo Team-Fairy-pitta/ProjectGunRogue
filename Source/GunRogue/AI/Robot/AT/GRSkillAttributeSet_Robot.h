@@ -31,12 +31,12 @@ public:
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, Damage)
 
-	// 로봇 지속시간
+	// 로봇 지속시간 (초)
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Duration, Category = "Robot Attributes")
 	FGameplayAttributeData Duration;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, Duration)
 
-	// 로봇 공격속도
+	// 로봇 공격속도. 1.0이 보통. 값이 커질수록 빨라짐. 2.0이 되면 공격속도 두배.
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AttackSpeed, Category = "Robot Attributes")
 	FGameplayAttributeData AttackSpeed;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, AttackSpeed)
@@ -51,11 +51,12 @@ public:
 	FGameplayAttributeData SelfDestructRadius;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, SelfDestructRadius)
 
-	// 기본 쿨타임
+	// 기본 쿨타임 (초)
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MainCooldown, Category = "Robot Attributes")
 	FGameplayAttributeData MainCooldown;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, MainCooldown)
 
+	// 기본 쿨타임 (초)
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SubCooldown, Category = "Robot Attributes")
 	FGameplayAttributeData SubCooldown;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, SubCooldown)

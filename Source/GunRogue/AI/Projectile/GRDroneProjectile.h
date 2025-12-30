@@ -41,4 +41,6 @@ protected:
 
 	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
 	TSubclassOf<UGameplayEffect> DamageGEClass;
+
+	float GetFireDamageFromInstigator() const;
 };

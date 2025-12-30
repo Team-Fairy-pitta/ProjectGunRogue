@@ -7,6 +7,8 @@
 #include "AbilitySystemComponent.h"
 #include "AI/Character/GRAICharacter.h"
 #include "Player/GRPlayerState.h"
+#include "Character/GRCharacter.h"
+#include "AI/Robot/AT/GRSkillAttributeSet_Robot.h"
 
 AGRDroneProjectile::AGRDroneProjectile()
 	:Velocity(3000.0f)
@@ -92,9 +94,11 @@ void AGRDroneProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	}
 
 	FGameplayEffectContextHandle PlayerEffectContext = PlayerASC->MakeEffectContext();
-	PlayerEffectContext.AddInstigator(GetInstigator(), this); 
+	PlayerEffectContext.AddInstigator(GetInstigator()/*Instigator=Player*/, GetInstigator()/*Causer=Player*/);
 		
 	FGameplayEffectSpecHandle PlayerSpecHandle = PlayerASC->MakeOutgoingSpec(DamageGEClass,1.f,PlayerEffectContext);
+	float Damage = GetFireDamageFromInstigator();
+	PlayerSpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Ability.Damage.DroneFire")), Damage);
 	
 	AGRAICharacter* AIChar=Cast<AGRAICharacter>(OtherActor);
 	if (AIChar)
@@ -130,6 +134,29 @@ void AGRDroneProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	}
 	
 	Destroy();
+}
+
+float AGRDroneProjectile::GetFireDamageFromInstigator() const
+{
+	AGRCharacter* GRCharacter = GetInstigator<AGRCharacter>();
+	if (!IsValid(GRCharacter))
+	{
+		return 0.0f;
+	}
+
+	UAbilitySystemComponent* OwnerASC = GRCharacter->GetAbilitySystemComponent();
+	if (!OwnerASC)
+	{
+		return 0.0f;
+	}
+
+	const UGRSkillAttributeSet_Robot* SkillAttributeSet = OwnerASC->GetSet<UGRSkillAttributeSet_Robot>();
+	if (!SkillAttributeSet)
+	{
+		return 0.0f;
+	}
+
+	return SkillAttributeSet->GetDamage();
 }
 
 

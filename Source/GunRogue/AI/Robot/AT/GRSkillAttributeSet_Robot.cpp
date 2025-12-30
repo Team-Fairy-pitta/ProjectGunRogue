@@ -7,9 +7,9 @@
 UGRSkillAttributeSet_Robot::UGRSkillAttributeSet_Robot()
 {
 	InitDamage(10.0f);
-	InitDuration(5.0f);
+	InitDuration(10.0f);
 	InitAttackSpeed(1.0f);
-	InitSelfDestructDamage(50.0f);
+	InitSelfDestructDamage(100.0f);
 	InitSelfDestructRadius(300.0f);
 	InitMainCooldown(15.0f);
 	InitSubCooldown(3.0f);
