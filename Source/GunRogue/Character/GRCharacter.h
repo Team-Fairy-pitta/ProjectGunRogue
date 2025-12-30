@@ -16,6 +16,7 @@ class UGRAttachmentComponent;
 class UGRZLocationComponent;
 class UGRPawnData;
 class UNiagaraSystem;
+class UGRDroneManagerComponent;
 
 UCLASS()
 class GUNROGUE_API AGRCharacter : public ACharacter, public IAbilitySystemInterface
@@ -64,6 +65,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> CameraComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRDroneManagerComponent> DroneManagerComponent;
 	
 	// 장착된 무기 메시 헬퍼
 	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")

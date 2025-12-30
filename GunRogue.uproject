@@ -14,7 +14,9 @@
 				"GameplayAbilities",
 				"UMG",
 				"AIModule",
-				"CoreUObject"
+				"CoreUObject",
+				"StateTreeModule",
+				"GameplayStateTreeModule"
 			]
 		}
 	],
@@ -28,6 +30,10 @@
 		},
 		{
 			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayStateTree",
 			"Enabled": true
 		}
 	]

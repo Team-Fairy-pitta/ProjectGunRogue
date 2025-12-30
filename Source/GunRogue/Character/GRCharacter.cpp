@@ -12,6 +12,7 @@
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "AI/Robot/Drone/GRDroneManagerComponent.h"
 
 AGRCharacter::AGRCharacter()
 {
@@ -30,6 +31,8 @@ AGRCharacter::AGRCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	DroneManagerComponent = CreateDefaultSubobject<UGRDroneManagerComponent>(TEXT("DroneManagerComponent"));
 
 	LastControllerRotation = FQuat::Identity;
 	TargetCameraRotation = FQuat::Identity;
