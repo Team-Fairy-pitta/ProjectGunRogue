@@ -41,10 +41,35 @@ void UGROptionSlot::InitSlot(int32 InSlotIndex, const FWeaponOption& InOptionDat
 		if (GRGE)
 		{
 			FText Desc = GRGE->EffectDescription;
-			const float OptionValue = InOptionData.Value;
-
 			FString Str = Desc.ToString();
-			Str = Str.Replace(TEXT("#"), *FString::Printf(TEXT("%.1f"), OptionValue));
+
+
+			for(const FOptionItem& OptionItem : InOptionData.OptionItems)
+			{
+				const FGameplayTag& Tag = OptionItem.OptionTag;
+
+				float TargetValue = 0.0f;
+				if (InOptionData.bIsPercentValue)
+				{
+					TargetValue = OptionItem.Value * 100;
+					if (InOptionData.bIsAdditivePercent)
+					{
+						TargetValue -= 100.0f; // [Note] 공격력이 130% 된다. -> 공격력이 30% 증가
+					}
+				}
+				else
+				{
+					TargetValue = OptionItem.Value;
+				}
+
+				TargetValue *= 10;
+				TargetValue = FMath::RoundToFloat(TargetValue);
+				TargetValue /= 10;
+
+				FString TagString = Tag.ToString();
+				FString ValueString = FString::SanitizeFloat(TargetValue);
+				Str = Str.Replace(*FString::Printf(TEXT("{%s}"), *TagString), *ValueString);
+			}
 
 			OptionText->SetText(FText::Format(FText::FromString(TEXT("- {0}")),	FText::FromString(Str)));
 		}

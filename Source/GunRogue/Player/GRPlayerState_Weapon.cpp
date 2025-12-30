@@ -89,6 +89,11 @@ void AGRPlayerState::ServerRPC_EquipWeapon_Implementation(UGRWeaponDefinition* W
 		}
 		else
 		{
+			// [NOTE] Widget Update를 위해 무기를 잠시 스위칭해서 Attributes를 계산한다.
+			WeaponSlots[CurrentWeaponSlot].DeactivateWeapon();
+			WeaponSlots[EmptySlot].ActivateWeapon();
+			WeaponSlots[EmptySlot].DeactivateWeapon();
+			WeaponSlots[CurrentWeaponSlot].ActivateWeapon();
 			UE_LOG(LogTemp, Display, TEXT("[EquipWeapon] Weapon stored in slot %d (inactive)"), EmptySlot);
 		}
 	}
@@ -221,6 +226,19 @@ void AGRPlayerState::ServerRPC_UpgradeWeapon_Implementation(int32 SlotIndex)
 	if (TryCommitUpgradeWeapon(WeaponInstance))
 	{
 		WeaponInstance->UpgradeWeapon();
+		if (SlotIndex == CurrentWeaponSlot)
+		{
+			WeaponInstance->ClearEffects();
+			WeaponInstance->ApplyAllEffects();
+		}
+		else
+		{
+			// [NOTE] Widget Update를 위해 무기를 잠시 스위칭해서 Attributes를 계산한다.
+			WeaponSlots[CurrentWeaponSlot].DeactivateWeapon();
+			WeaponSlots[SlotIndex].ActivateWeapon();
+			WeaponSlots[SlotIndex].DeactivateWeapon();
+			WeaponSlots[CurrentWeaponSlot].ActivateWeapon();
+		}
 		OnRep_WeaponDataUpdata();
 	}
 }
@@ -299,6 +317,19 @@ void AGRPlayerState::ServerRPC_AllRerollOptionWeapon_Implementation(int32 InWeap
 	if (TryCommitRerollWeapon(WeaponInstance))
 	{
 		WeaponInstance->AllRerollOption();
+		if (InWeaponSlotIndex == CurrentWeaponSlot)
+		{
+			WeaponInstance->ClearEffects();
+			WeaponInstance->ApplyAllEffects();
+		}
+		else
+		{
+			// [NOTE] Widget Update를 위해 무기를 잠시 스위칭해서 Attributes를 계산한다.
+			WeaponSlots[CurrentWeaponSlot].DeactivateWeapon();
+			WeaponSlots[InWeaponSlotIndex].ActivateWeapon();
+			WeaponSlots[InWeaponSlotIndex].DeactivateWeapon();
+			WeaponSlots[CurrentWeaponSlot].ActivateWeapon();
+		}
 		OnRep_WeaponDataUpdata();
 	}
 }
@@ -337,6 +368,19 @@ void AGRPlayerState::ServerRPC_RerollOptionWeapon_Implementation(int32 InWeaponS
 	if (TryCommitRerollWeapon(WeaponInstance))
 	{
 		WeaponInstance->RerollOption(InOptionSlotIndex);
+		if (InWeaponSlotIndex == CurrentWeaponSlot)
+		{
+			WeaponInstance->ClearEffects();
+			WeaponInstance->ApplyAllEffects();
+		}
+		else
+		{
+			// [NOTE] Widget Update를 위해 무기를 잠시 스위칭해서 Attributes를 계산한다.
+			WeaponSlots[CurrentWeaponSlot].DeactivateWeapon();
+			WeaponSlots[InWeaponSlotIndex].ActivateWeapon();
+			WeaponSlots[InWeaponSlotIndex].DeactivateWeapon();
+			WeaponSlots[CurrentWeaponSlot].ActivateWeapon();
+		}
 		OnRep_WeaponDataUpdata();
 	}
 }

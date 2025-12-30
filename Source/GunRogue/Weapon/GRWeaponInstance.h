@@ -8,7 +8,17 @@
 class UGRWeaponDefinition;
 class UGRAbilitySystemComponent;
 
+USTRUCT(BlueprintType)
+struct FOptionItem
+{
+	GENERATED_BODY()
 
+	UPROPERTY()
+	FGameplayTag OptionTag;
+
+	UPROPERTY()
+	float Value;
+};
 
 USTRUCT(BlueprintType)
 struct FWeaponOption
@@ -16,11 +26,17 @@ struct FWeaponOption
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	TSubclassOf<UGRGameplayEffect> EffectClass = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Value = 0.f;
+	UPROPERTY()
+	TArray<FOptionItem> OptionItems;
+
+	UPROPERTY()
+	bool bIsPercentValue = false;
+
+	UPROPERTY()
+	bool bIsAdditivePercent = false;
 };
 
 // 무기의 런타임 정보를 기록하는 구조체
@@ -57,7 +73,10 @@ public:
 
 	int32 GetLevel() const { return UpgradeLevel; };
 
-	float GetDamage() const { return UpgradeDamage; };
+	float GetTotalDamage() const;
+	float GetTotalWeakMultuplier() const;
+	float GetTotalFireRate() const;
+	float GetTotalMagazine() const;
 
 	int32 GetUpgradeCost() const;
 	int32 GetRerollCost() const;
@@ -72,10 +91,9 @@ public:
 	bool ConsumeAmmo();
 	void Reload();
 
-public:
+	const TArray<FWeaponOption>& GetOptions() const { return Options; }
 
-	UPROPERTY()
-	TArray<FWeaponOption> Options;
+public:
 
 	UPROPERTY()
 	TArray<FActiveGameplayEffectHandle> AppliedEffects;
@@ -97,15 +115,30 @@ public:
 	int32 CurrentAmmo;
 
 protected:
-	UPROPERTY()
-	int32 UpgradeLevel;
 
 	UPROPERTY()
-	float UpgradeDamage;
+	TArray<FWeaponOption> Options;
+
+	UPROPERTY()
+	int32 UpgradeLevel;
 
 	UPROPERTY()
 	int32 RerollCount;
 
 	UPROPERTY();
 	int8 bIsValid;
+
+	UPROPERTY();
+	float CachedTotalDamage;
+
+	UPROPERTY();
+	float CachedTotalWeakMultuplier;
+
+	UPROPERTY();
+	float CachedTotalFireRate;
+
+	UPROPERTY();
+	float CachedTotalMagazine;
+
+	void UpdateCachedAttributes();
 };

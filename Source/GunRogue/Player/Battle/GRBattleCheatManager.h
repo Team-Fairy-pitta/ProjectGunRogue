@@ -42,6 +42,10 @@ public:
 	UFUNCTION(Exec)
 	void KillAllAI();
 
+	// 증강 화면을 띄운다.
+	UFUNCTION(Exec)
+	void ShowAugment();
+	
 	// 메시지 브로드캐스트 테스트
 	UFUNCTION(Exec)
 	void BroadcastMessage(FString Message,float ShowMessageTime);

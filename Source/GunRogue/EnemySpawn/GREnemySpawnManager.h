@@ -47,5 +47,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn", meta = (EditCondition = "bAutoFindSpawners", ClampMin = "0"))
 	int32 AutoSpawnCount = 5;
 
-	
+private:
+	float GetDifficultyMultiplier();
 };

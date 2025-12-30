@@ -30,8 +30,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped, int32, SlotIndex
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponDropped, int32, SlotIndex, UGRWeaponDefinition*, WeaponDefinition);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponSwitched, int32, OldSlotIndex, int32, NewSlotIndex);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAugmentChanged, FName, AugmentID, int32, NewLevel);
-
 namespace WeaponSlot
 {
 	constexpr int32 MaxWeaponSlots = 2;  // 무기 슬롯 개수
@@ -273,9 +271,6 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_OwnedAugments)
 	TArray<FAugmentEntry> OwnedAugments;
 	
-	UPROPERTY(BlueprintAssignable)
-	FAugmentChanged OnAugmentChanged;
-	
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_OnAugmentSelected(FName AugmentID);
 
@@ -288,8 +283,16 @@ protected:
 	void AddAugment(FName AugmentID);
 	void LevelUpAugment(int32 Index);
 	
-	TArray<FAugmentEntry> PreviousOwnedAugments;
+	void ApplyAugmentToASC(FName AugmentID);
+
+	float CalculateFinalAugmentValue(float Value, EAugmentModifierOpType Op);
+	void ApplyAugmentValues(FGameplayEffectSpecHandle& SpecHandle, const UGRAugmentDefinition* AugmentDef, int32 CurrentAugmentLevel);
+	void ApplyAdditionalAugmentValues(FGameplayEffectSpecHandle& SpecHandle, const UGRAugmentDefinition* AugmentDef);
+	void InitAugmentDefaults(FGameplayEffectSpecHandle& SpecHandle, const UGRAugmentDefinition* AugmentDef);
 	
+	UPROPERTY()
+	TMap<FName, FActiveGameplayEffectHandle> ActiveAugmentEffectHandles;
+
 #pragma endregion
 
 #pragma region Perk;

@@ -54,9 +54,21 @@ FText UGRAugmentTooltipWidget::SetLevelDescriptionText(int32 Index)
 	TArray<FFormatArgumentValue> Args;
 	for (const FAugmentValues& Val : CurrentAugment->AugmentValues)
 	{
-		Args.Add(FFormatArgumentValue(Val.ValuePerLevel[Index]));
-	}
+		if (!Val.ValuePerLevel.IsValidIndex(Index))
+		{
+			continue;
+		}
+		
+		float DisplayValue = Val.ValuePerLevel[Index];
 
+		if (Val.bDisplayAsPercent)
+		{
+			DisplayValue *= 100.f;
+		}
+		
+		Args.Add(FFormatArgumentValue(DisplayValue));
+	}
+	
 	FText FinalDescription = FText::Format(CurrentAugment->AugmentDescription, Args);
 	
 	if ( Index == 2 && CurrentAugment->AugmentAdditionalValues.Num() > 0)
@@ -66,8 +78,15 @@ FText UGRAugmentTooltipWidget::SetLevelDescriptionText(int32 Index)
 			FText AddText;
 			if (AddVal.AugmentAdditionalValue != 0.f)
 			{
+				float DisplayValue = AddVal.AugmentAdditionalValue;
+
+				if (AddVal.bDisplayAsPercent)
+				{
+					DisplayValue *= 100.f;
+				}
+				
 				TArray<FFormatArgumentValue> AddArgs;
-				AddArgs.Add(FFormatArgumentValue(AddVal.AugmentAdditionalValue));
+				AddArgs.Add(FFormatArgumentValue(DisplayValue));
 
 				AddText = FText::Format(AddVal.AugmentAdditionalDescription, AddArgs);
 

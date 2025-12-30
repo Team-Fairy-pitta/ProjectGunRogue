@@ -66,10 +66,10 @@ void UGRWeaponUpgrade::SettingWeapon()
 			FText WeaponName = WeaponDefinition->WeaponName;
 			UTexture2D* WeaponIcon = WeaponDefinition->WeaponIcon;
 			int32 WeaponLevel = WeaponInstance->GetLevel();
-			float WeaponDamage = WeaponInstance->GetDamage();
-			float WeaponWeakpoint = 150.f;
-			float WeaponLaunchspeed = 500;
-			float WeaponMagazine = 300;
+			float WeaponDamage = WeaponInstance->GetTotalDamage();
+			float WeaponWeakpoint = WeaponInstance->GetTotalWeakMultuplier() * 100; // percentage
+			float WeaponLaunchspeed = WeaponInstance->GetTotalFireRate() * 60; // per minutes
+			float WeaponMagazine = WeaponInstance->GetTotalMagazine();
 			FText WeaponExplain = WeaponDefinition->WeaponDescription;
 
 			WeaponNameUpdate(WeaponName);
@@ -319,7 +319,7 @@ void UGRWeaponUpgrade::WeaponOptionUpdate()
 		return;
 	}
 
-	const TArray<FWeaponOption>& Options = WeaponInstance->Options;  
+	const TArray<FWeaponOption>& Options = WeaponInstance->GetOptions();
 
 	for (int32 i = 0; i < Options.Num(); i++)
 	{

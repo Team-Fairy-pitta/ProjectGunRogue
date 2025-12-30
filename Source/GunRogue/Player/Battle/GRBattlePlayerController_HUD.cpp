@@ -3,6 +3,7 @@
 #include "Player/Battle/GRBattlePlayerController.h"
 #include "Player/GRPlayerState.h"
 #include "GameModes/GRGameState.h"
+#include "GameModes/Level1/GRGameState_Level1.h"
 #include "AbilitySystem/GRGameplayEffect.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
@@ -15,6 +16,7 @@
 #include "UI/BattleHUD/SubWidgets/GRPlayerStatusWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusListWidget.h"
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
+#include "UI/BattleHUD/SubWidgets/GRLevelStatusWidget.h"
 #include "UI/Damage/GRDamageIndicator.h"
 #include "MiniMap/GRRadarMapComponent.h"
 #include "UI/BattleHUD/SubWidgets/GRNotifyMessageWidget.h"
@@ -842,6 +844,37 @@ void AGRBattlePlayerController::ShowNotifyMessage(const FText& Message, float Sh
 	}
 	
 	NotifyWidget->SetNotifyMessage(Message,ShowMessageTime);
+}
+
+void AGRBattlePlayerController::ClientRPC_UpdateCurrentLocationText_Implementation()
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
+	}
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRGameState_Level1* GRGameState = GetWorld()->GetGameState<AGRGameState_Level1>();
+	if (!IsValid(GRGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GRGameState (AGRGameState_Level1) is INVALID"));
+		return;
+	}
+
+	UGRLevelStatusWidget* LevelStatusWidget = HUDWidgetInstance->GetLevelStatusWidget();
+	if (!LevelStatusWidget)
+	{
+		return;
+	}
+
+	FString LocString = GRGameState->GetCurrentLocationString();
+	FText LocText = FText::FromString(LocString);
+	LevelStatusWidget->SetCurrentLocText(LocText);
 }
 
 void AGRBattlePlayerController::ShowGameOverWidget()

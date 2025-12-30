@@ -361,3 +361,26 @@ void UGRBattleCheatManager::ShowMeTheMoney(int32 InIndex)
 
 	GRPlayerState->ApplyGoldGain(10000);
 }
+
+void UGRBattleCheatManager::ShowAugment()
+{
+	APlayerController* PC = GetOuterAPlayerController();
+	if (!IsValid(PC))
+	{
+		return;
+	}
+
+	if (!PC->HasAuthority())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cheat SetLevel1NextRoomIndex requires Authority"));
+		return;
+	}
+
+	AGRBattlePlayerController* BattlePC = Cast<AGRBattlePlayerController>(PC);
+	if (!IsValid(BattlePC))
+	{
+		return;
+	}
+
+	BattlePC->ShowAugmentWidget();
+}

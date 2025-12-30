@@ -8,6 +8,23 @@
 /**
  * 
  */
+USTRUCT(BlueprintType)
+struct FOptionValueRange
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, meta = (Categories = "Weapon.Option"))
+	FGameplayTag DataTag;
+
+	UPROPERTY(EditAnywhere)
+	FFloatInterval ValueRange;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsPercentValue = false;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsAdditivePercent = false;
+};
 
 USTRUCT(BlueprintType)
 struct FOptionPoolEntry
@@ -18,10 +35,7 @@ struct FOptionPoolEntry
 	TSubclassOf<UGRGameplayEffect> EffectClass;
 
 	UPROPERTY(EditAnywhere)
-	float MinValue = 1.f;
-
-	UPROPERTY(EditAnywhere)
-	float MaxValue = 5.f;
+	TArray<FOptionValueRange> ValueRanges;
 
 };
 

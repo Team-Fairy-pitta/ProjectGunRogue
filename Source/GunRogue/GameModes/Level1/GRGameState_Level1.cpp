@@ -17,7 +17,16 @@ void AGRGameState_Level1::BeginPlay()
 
 	if (HasAuthority())
 	{
-		RequestNextRoomInformation();
+		bool bDiscloseAllRoomsInformation = true;
+		if (bDiscloseAllRoomsInformation)
+		{
+			RequestAllRoomsInformation();
+			RequestNextRoomInformation();
+		}
+		else
+		{
+			RequestNextRoomInformation();
+		}
 	}
 }
 
@@ -94,6 +103,46 @@ void AGRGameState_Level1::RequestNextRoomInformation()
 	Level1ClientData.GetNode(CurrentLevel1NodeIndex)->NodeStatus = ENodeStatus::CURRENT;
 }
 
+void AGRGameState_Level1::RequestAllRoomsInformation()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGRGameMode_Level1* GRGameMode = GetWorld()->GetAuthGameMode<AGRGameMode_Level1>();
+	if (!IsValid(GRGameMode))
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("GRGameMode is INVALID"));
+		return;
+	}
+
+	int32 TotalRoomCount = Level1ClientData.GetNodes().Num();
+	for (int32 RoomIndex = 0; RoomIndex < TotalRoomCount; ++RoomIndex)
+	{
+		FGRLevel1Node* CurrentRoom = GRGameMode->GetLevel1Node(RoomIndex);
+
+		int32 LeftRoomIndex = CurrentRoom->NextLeftIndex;
+		if (LeftRoomIndex != -1)
+		{
+			FGRLevel1Node* LeftRoom = GRGameMode->GetLevel1Node(LeftRoomIndex);
+			Level1ClientData.SetNode(LeftRoomIndex, *LeftRoom);
+		}
+
+		int32 RightRoomIndex = CurrentRoom->NextRightIndex;
+		if (RightRoomIndex != -1)
+		{
+			FGRLevel1Node* RightRoom = GRGameMode->GetLevel1Node(RightRoomIndex);
+			Level1ClientData.SetNode(RightRoomIndex, *RightRoom);
+		}
+	}
+}
+
 FGRLevel1Node* AGRGameState_Level1::GetCurrentNodeInfo()
 {
 	return Level1ClientData.GetNode(CurrentLevel1NodeIndex);
@@ -121,6 +170,13 @@ void AGRGameState_Level1::ClearCurrentBoss()
 	CurrentBoss = nullptr;
 
 	OnRep_CurrentBoss();
+}
+
+FString AGRGameState_Level1::GetCurrentLocationString()
+{
+	int32 MainLevel = 1;
+	int32 SubLevel = Level;
+	return FString::Printf(TEXT("%d-%d"), MainLevel, SubLevel);
 }
 
 void AGRGameState_Level1::OnRep_CurrentBoss()
