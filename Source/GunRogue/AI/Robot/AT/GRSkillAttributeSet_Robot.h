@@ -23,35 +23,55 @@ class GUNROGUE_API UGRSkillAttributeSet_Robot : public UAttributeSet
 
 public:
 	UGRSkillAttributeSet_Robot();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	// 로봇 피해량
-	UPROPERTY(BlueprintReadOnly, Category = "Robot Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Damage, Category = "Robot Attributes")
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, Damage)
 
 	// 로봇 지속시간
-	UPROPERTY(BlueprintReadOnly, Category = "Robot Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Duration, Category = "Robot Attributes")
 	FGameplayAttributeData Duration;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, Duration)
 
 	// 로봇 공격속도
-	UPROPERTY(BlueprintReadOnly, Category = "Robot Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AttackSpeed, Category = "Robot Attributes")
 	FGameplayAttributeData AttackSpeed;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, AttackSpeed)
 
 	// 자폭 피해량
-	UPROPERTY(BlueprintReadOnly, Category = "Robot Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SelfDestructDamage, Category = "Robot Attributes")
 	FGameplayAttributeData SelfDestructDamage;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, SelfDestructDamage)
 	
 	// 자폭 반경
-	UPROPERTY(BlueprintReadOnly, Category = "Robot Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SelfDestructRadius, Category = "Robot Attributes")
 	FGameplayAttributeData SelfDestructRadius;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, SelfDestructRadius)
 
 	// 기본 쿨타임
-	UPROPERTY(BlueprintReadOnly, Category = "Robot Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Cooldown, Category = "Robot Attributes")
 	FGameplayAttributeData Cooldown;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_Robot, Cooldown)
+
+	UFUNCTION()
+	virtual void OnRep_Damage(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_Duration(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_AttackSpeed(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_SelfDestructDamage(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_SelfDestructRadius(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_Cooldown(const FGameplayAttributeData& OldValue);
+
 };

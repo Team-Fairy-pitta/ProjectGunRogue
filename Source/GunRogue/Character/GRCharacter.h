@@ -65,9 +65,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> CameraComponent;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UGRDroneManagerComponent> DroneManagerComponent;
 	
 	// 장착된 무기 메시 헬퍼
 	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
