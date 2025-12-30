@@ -224,7 +224,7 @@ public:
 
 	TArray<FGRItemHandle>& GetItemHandles() { return ItemHandles; }
 
-	FGRCharacterAttachmentHandle GetCurrentWeaponAttachmentHandle() const { return CurrentWeaponAttachmentHandle; }
+	FGRCharacterAttachmentHandle& GetCurrentWeaponAttachmentHandle() { return CurrentWeaponAttachmentHandle; }
 
 
 protected:

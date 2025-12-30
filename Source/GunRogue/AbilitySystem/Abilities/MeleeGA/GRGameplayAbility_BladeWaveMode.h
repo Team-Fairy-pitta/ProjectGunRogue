@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/GRGameplayAbility.h"
 #include "GameplayTagContainer.h"
+#include "Character/Attachment/GRCharacterAttachment.h"
 #include "GRGameplayAbility_BladeWaveMode.generated.h"
 
 
@@ -24,6 +25,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "BladeWave|Animation")
 	UAnimMontage* AvtiavteMontage = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BladeWave|Mesh")
+	FGRCharacterAttachment SwordAttachment;
+
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
@@ -40,4 +44,10 @@ private:
 		const FGameplayTagContainer* SourceTags,
 		const FGameplayTagContainer* TargetTags,
 		FGameplayTagContainer* OptionalRelevantTags) const;
+
+	void AttachSwordToCharacter();
+	void RollbackAttachment();
+
+	UPROPERTY(Transient)
+	FGRCharacterAttachmentHandle SwordAttachmentHandle;
 };

@@ -5,7 +5,7 @@
 #include "GameplayTagContainer.h"
 #include "GRBladeWaveProjectile.generated.h"
 
-class USphereComponent;
+class UCapsuleComponent;
 class UProjectileMovementComponent;
 class UGRGameplayEffect;
 
@@ -20,8 +20,11 @@ public:
 	void InitProjectile(float InDamage, float InWaveScale, bool bInPierce);
 
 protected:
-	UPROPERTY(VisibleAnywhere)
-	USphereComponent* Collision = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USceneComponent* Root = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UCapsuleComponent* Collision = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 	UProjectileMovementComponent* Movement = nullptr;

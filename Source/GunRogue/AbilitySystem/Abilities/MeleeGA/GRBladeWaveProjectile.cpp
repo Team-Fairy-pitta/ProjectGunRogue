@@ -8,7 +8,7 @@
 
 #include "Character/GRCharacter.h"
 
-#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
@@ -17,9 +17,11 @@ AGRBladeWaveProjectile::AGRBladeWaveProjectile()
 {
 	bReplicates = true;
 
-	Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
-	SetRootComponent(Collision);
-	Collision->InitSphereRadius(18.0f);
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(Root);
+
+	Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
+	Collision->SetupAttachment(Root);
 	Collision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Collision->SetCollisionObjectType(ECC_WorldDynamic);
 	Collision->SetCollisionResponseToAllChannels(ECR_Ignore);
