@@ -13,6 +13,7 @@
 
 AGRRockProjectile::AGRRockProjectile()
 	:DamageGEClass(nullptr)
+	,TorqueStrength(1000.0f)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -55,6 +56,10 @@ void AGRRockProjectile::Throw(const FVector& LaunchVelocity)
 	{
 		CollisionComponent->SetSimulatePhysics(true);
 		CollisionComponent->AddImpulse(LaunchVelocity, NAME_None, true);
+
+		// Torque로 회전
+		FVector RotationAxis = FVector::CrossProduct(FVector::UpVector, LaunchVelocity.GetSafeNormal());
+		CollisionComponent->AddTorqueInRadians(RotationAxis * TorqueStrength, NAME_None, true);
 	}
 }
 

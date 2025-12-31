@@ -5,6 +5,7 @@
 #include "AI/Character/GRNormalAICharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 UGRGameplayCueNotify_WeaponFire::UGRGameplayCueNotify_WeaponFire()
 {
@@ -25,6 +26,22 @@ void  UGRGameplayCueNotify_WeaponFire::HandleGameplayCue(AActor* MyTarget, EGame
 			);
 		}
 
+		if (NiagaraSystems.Num() > 0)
+		{
+			for (UNiagaraSystem* System : NiagaraSystems)
+			{
+				if (System)
+				{
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+						MyTarget->GetWorld(),
+						System,
+						Parameters.Location,
+						Parameters.Normal.Rotation()
+					);
+				}
+			}
+		}
+		
 		if (Sound)
 		{
 			UGameplayStatics::PlaySoundAtLocation(
