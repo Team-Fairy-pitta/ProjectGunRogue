@@ -117,7 +117,8 @@ public:
 		UNiagaraSystem* NiagaraEffect,
 		UParticleSystem* CascadeEffect,
 		float EffectScale,
-		USoundBase* SpawnSound);
+		USoundBase* SpawnSound,
+		float EffectDuration = 0.0f);
 #pragma endregion SkillFX
 
 #pragma region SmoothCameraControl
