@@ -15,9 +15,9 @@ UGRSkillAttributeSet_MeleeSkill::UGRSkillAttributeSet_MeleeSkill()
 	InitRushSlash_KnockbackUpgradeMultiplier(1.0f); 
 
 	// ===== BladeWave =====
-	InitBladeWave_BaseDamage(150.0f);
+	InitBladeWave_BaseDamage(100.0f);
 	InitBladeWave_DamageMultiplier(1.0f);
-	InitBladeWave_BaseFireInterval(1.8f);
+	InitBladeWave_BaseFireInterval(0.5f);
 	InitBladeWave_FireIntervalMultiplier(1.0f);
 	InitBladeWave_BaseWaveScale(1.0f);
 	InitBladeWave_BaseWaveScaleMultiplier(1.0f);

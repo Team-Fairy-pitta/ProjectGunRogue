@@ -63,7 +63,7 @@ void AGRBladeWaveProjectile::InitProjectile(float InDamage, float InWaveScale, b
 				const UGRSkillAttributeSet_MeleeSkill* SkillSet = SourceASC->GetSet<UGRSkillAttributeSet_MeleeSkill>();
 				if (SkillSet)
 				{
-					const float MultScale = SkillSet->GetBladeWave_SizeAndDamageUp_ScaleMultiplier();
+					const float MultScale = SkillSet->GetBladeWave_BaseWaveScaleMultiplier();
 					WaveScale *= MultScale;
 				}
 			}
@@ -126,7 +126,7 @@ void AGRBladeWaveProjectile::ComputeParametersOnServer()
 	Damage = SkillSet->GetBladeWave_BaseDamage();
 
 	const float BaseScale = SkillSet->GetBladeWave_BaseWaveScale();
-	const float MultScale = SkillSet->GetBladeWave_SizeAndDamageUp_ScaleMultiplier();
+	const float MultScale = SkillSet->GetBladeWave_BaseWaveScaleMultiplier();
 
 	WaveScale = BaseScale * MultScale;
 }

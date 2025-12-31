@@ -12,8 +12,7 @@ UGRGameplayAbility_BladeWaveFire::UGRGameplayAbility_BladeWaveFire()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 
-	Tag_BladeWaveMode				= FGameplayTag::RequestGameplayTag(TEXT("State.BladeWaveMode"));
-	Tag_KillReduceSupportCooldown	= FGameplayTag::RequestGameplayTag(TEXT("Augment.BladeWave.KillReduceCooldown"));
+	Tag_BladeWaveMode = FGameplayTag::RequestGameplayTag(TEXT("State.BladeWaveMode"));
 
 	ActivationRequiredTags.AddTag(Tag_BladeWaveMode);
 }
@@ -63,11 +62,7 @@ void UGRGameplayAbility_BladeWaveFire::ActivateAbility(
 	}
 
 	float FireInterval = SkillSet->GetBladeWave_BaseFireInterval();
-
-	if (GRASC->HasMatchingGameplayTag(Tag_SlowPierceAndDamageUp))
-	{
-		FireInterval *= SkillSet->GetBladeWave_SlowFireIntervalMultiplier();
-	}
+	FireInterval *= SkillSet->GetBladeWave_FireIntervalMultiplier();
 
 	const double Now = GetWorld()->GetTimeSeconds();
 	if (!CanFireNow(Now, FireInterval))
@@ -83,7 +78,7 @@ void UGRGameplayAbility_BladeWaveFire::ActivateAbility(
 			this,
 			NAME_None,
 			FireMontage,
-			1.0f,
+			1.5f,
 			NAME_None,
 			true,
 			1.0f
