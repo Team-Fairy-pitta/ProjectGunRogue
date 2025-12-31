@@ -165,7 +165,8 @@ void UGRGameplayAbility_FireWeapon::PerformFire()
 	if (!CheckAndConsumeAmmo())
 	{
 		StopContinuousFire();
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		// [NOTE] 총알이 없는 경우, 방아쇠를 놓고 다시 눌러야 총을 발사할 수 있도록 변경
+		// EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
 

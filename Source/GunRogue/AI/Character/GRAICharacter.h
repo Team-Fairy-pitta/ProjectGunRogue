@@ -62,11 +62,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AttributeSet")
 	TObjectPtr<UGRCombatAttributeSet> CombatAttributeSet;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AttributeSet|InitStatus")
+	float InitMaxHealth;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AttributeSet|InitStatus")
+	float InitMaxShield;
+
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
 	virtual void OnDead();
 
 private:
 	void InitAbilitySystemComponent();
+	void InitStatus();
 
 	void NotifySpawnToGameMode();
 	void NotifyDestroyToGameMode();

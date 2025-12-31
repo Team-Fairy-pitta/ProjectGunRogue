@@ -35,4 +35,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere,meta=(AllowPrivateAccess=true))
 	TSubclassOf<UGameplayEffect> DamageGEClass;
+
+	UPROPERTY(EditAnywhere)
+	float TorqueStrength;
 };
