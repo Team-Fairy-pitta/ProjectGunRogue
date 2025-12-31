@@ -16,6 +16,7 @@ class UGRAttachmentComponent;
 class UGRZLocationComponent;
 class UGRPawnData;
 class UNiagaraSystem;
+class UGRDroneManagerComponent;
 
 UCLASS()
 class GUNROGUE_API AGRCharacter : public ACharacter, public IAbilitySystemInterface
@@ -117,7 +118,8 @@ public:
 		UNiagaraSystem* NiagaraEffect,
 		UParticleSystem* CascadeEffect,
 		float EffectScale,
-		USoundBase* SpawnSound);
+		USoundBase* SpawnSound,
+		float EffectDuration = 0.0f);
 #pragma endregion SkillFX
 
 #pragma region SmoothCameraControl

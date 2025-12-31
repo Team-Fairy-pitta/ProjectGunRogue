@@ -312,20 +312,43 @@ void AGRCharacter::Multicast_PlaySkillSpawnEffects_Implementation(
 	UNiagaraSystem* NiagaraEffect,
 	UParticleSystem* CascadeEffect,
 	float EffectScale,
-	USoundBase* SpawnSound)
+	USoundBase* SpawnSound,
+	float EffectDuration)
 {
 	for (const FVector& Location : Locations)
 	{
 		// 나이아가라 우선
 		if (NiagaraEffect)
 		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 				GetWorld(),
 				NiagaraEffect,
 				Location,
 				FRotator::ZeroRotator,
-				FVector(EffectScale)
+				FVector(EffectScale),
+				true,  // Auto Destroy
+				true,
+				ENCPoolMethod::AutoRelease
 			);
+
+			if (NiagaraComp && EffectDuration > 0.0f)
+			{
+				TWeakObjectPtr<UNiagaraComponent> WeakComp(NiagaraComp);
+				FTimerHandle TimerHandle;
+				GetWorld()->GetTimerManager().SetTimer(
+					TimerHandle,
+					[WeakComp]()
+					{
+						if (WeakComp.IsValid())
+						{
+							WeakComp->Deactivate();
+							WeakComp->DestroyComponent();
+						}
+					},
+					EffectDuration,
+					false
+				);
+			}
 		}
 		// 캐스케이드 대체
 		else if (CascadeEffect)
@@ -335,7 +358,9 @@ void AGRCharacter::Multicast_PlaySkillSpawnEffects_Implementation(
 				CascadeEffect,
 				Location,
 				FRotator::ZeroRotator,
-				FVector(EffectScale)
+				FVector(EffectScale),
+				true,
+				EPSCPoolMethod::AutoRelease
 			);
 		}
 	}

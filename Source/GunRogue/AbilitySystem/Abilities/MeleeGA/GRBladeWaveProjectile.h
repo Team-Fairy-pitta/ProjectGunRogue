@@ -8,18 +8,24 @@
 class UCapsuleComponent;
 class UProjectileMovementComponent;
 class UGRGameplayEffect;
+class UGRAbilitySystemComponent;
+class UGRSkillAttributeSet_MeleeSkill;
 
 UCLASS()
 class GUNROGUE_API AGRBladeWaveProjectile : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AGRBladeWaveProjectile();
 
 	void InitProjectile(float InDamage, float InWaveScale, bool bInPierce);
 
 protected:
+	virtual void BeginPlay() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USceneComponent* Root = nullptr;
 
@@ -38,13 +44,26 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "BladeWave|Life")
 	float LifeSeconds = 3.0f;
 
+	UPROPERTY(Replicated)
 	float Damage = 0.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_WaveScale)
 	float WaveScale = 1.f;
+
+	UPROPERTY(Replicated)
 	bool bPierce = false;
 
-	virtual void BeginPlay() override;
+	UFUNCTION()
+	void OnRep_WaveScale();
 
 private:
+	FGameplayTag Tag_SizeAndDamageUp;
+	FGameplayTag Tag_SlowPierceAndDamageUp;
+
+	TSet<TWeakObjectPtr<AActor>> HitActors;
+
+	void ComputeParametersOnServer();
+
 	UFUNCTION()
 	void OnOverlap(
 		UPrimitiveComponent* OverlappedComponent,
