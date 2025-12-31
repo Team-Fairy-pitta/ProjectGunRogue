@@ -119,7 +119,7 @@ void UGRGameplayAbility_MissileBarrage::ExecuteBarrage()
 		SpawnEffectCascade,
 		SpawnEffectScale,
 		SpawnSound,
-		SkillAttributeSet->GetSpawnDelay() * 8.0f
+		SkillAttributeSet->GetSpawnDelay() * 6.0f
 	);
 
 	// SpawnDelay 후 발사 시작
