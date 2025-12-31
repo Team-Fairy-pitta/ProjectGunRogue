@@ -35,21 +35,13 @@ bool UGRGameplayAbility_RushSlash::CanActivateAbility(
 	const FGameplayTagContainer* TargetTags,
 	FGameplayTagContainer* OptionalRelevantTags) const
 {
-	if (!Super::CanActivateAbility(
-		Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
 	}
 
 	AGRCharacter* GRChar = Cast<AGRCharacter>(ActorInfo->AvatarActor.Get());
 	if (!GRChar)
-	{
-		return false;
-	}
-
-	USkeletalMeshComponent* WeaponMesh = GRChar->GetEquippedWeaponMesh();
-
-	if (!WeaponMesh || !WeaponMesh->GetSkeletalMeshAsset())
 	{
 		return false;
 	}
