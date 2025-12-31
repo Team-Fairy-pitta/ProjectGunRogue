@@ -21,6 +21,8 @@ void UGRAugmentHUDWidget::NativeConstruct()
 
 	CreateAugmentSlot();
 
+	SetCharacterName();
+
 	if (AugmentTooltipClass)
 	{
 		APlayerController* PC = GetOwningPlayer();
@@ -61,14 +63,51 @@ void UGRAugmentHUDWidget::NativeDestruct()
 	}
 }
 
-void UGRAugmentHUDWidget::SetCharacterName(FText InText)
+void UGRAugmentHUDWidget::SetCharacterName()
 {
 	if (!CharacterName)
 	{
 		return;
 	}
 
-	CharacterName->SetText(InText);
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+	{
+		return;
+	}
+	
+	UGameInstance* GI = GetGameInstance();
+	if (!GI)
+	{
+		return;
+	}
+
+	UGRAugmentSubsystem* AugmentSubsystem = GI->GetSubsystem<UGRAugmentSubsystem>();
+	if (!AugmentSubsystem)
+	{
+		return;
+	}
+
+	ACharacter* CurrentCharacter = PC->GetCharacter();
+	if (!CurrentCharacter)
+	{
+		return;
+	}
+	
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(CurrentCharacter);
+	if (!GRCharacter)
+	{
+		return;
+	}
+
+	if (!GRCharacter->GetPawnData())
+	{
+		return;
+	}
+
+	FText CharacterNameText = GRCharacter->GetPawnData()->CharacterName;
+
+	CharacterName->SetText(CharacterNameText);
 }
 
 void UGRAugmentHUDWidget::UpdateTooltip(UGRAugmentSlotWidget* AugmentSlot)

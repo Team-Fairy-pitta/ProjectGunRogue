@@ -24,19 +24,10 @@ protected:
 	FGameplayTag Tag_BladeWaveMode;
 
 	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Tags")
-	FGameplayTag Tag_SizeAndDamageUp;
-
-	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Tags")
 	FGameplayTag Tag_SlowPierceAndDamageUp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Tags")
 	FGameplayTag Tag_KillReduceSupportCooldown;
-
-	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Projectile")
-	TSubclassOf<AGRBladeWaveProjectile> ProjectileClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Projectile")
-	FName MuzzleSocketName = TEXT("muzzle");
 
 	UPROPERTY(EditDefaultsOnly, Category = "BladeWave|Anim")
 	UAnimMontage* FireMontage = nullptr;
@@ -62,7 +53,6 @@ private:
 	const UGRSkillAttributeSet_MeleeSkill* GetSkillSet() const;
 
 	bool CanFireNow(double NowSeconds, float FireInterval) const;
-	bool SpawnProjectileServer(float Damage, float WaveScale, bool bPierce) const;
 
 	UPROPERTY()
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = nullptr;

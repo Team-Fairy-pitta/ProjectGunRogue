@@ -16,6 +16,7 @@ class UGRAttachmentComponent;
 class UGRZLocationComponent;
 class UGRPawnData;
 class UNiagaraSystem;
+class UGRDroneManagerComponent;
 
 UCLASS()
 class GUNROGUE_API AGRCharacter : public ACharacter, public IAbilitySystemInterface

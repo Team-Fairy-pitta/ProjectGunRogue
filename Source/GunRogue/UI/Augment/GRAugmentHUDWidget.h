@@ -39,7 +39,7 @@ protected:
 	virtual void NativeDestruct() override;
 	
 public:
-	void SetCharacterName(FText InText);
+	void SetCharacterName();
 
 	void UpdateTooltip(UGRAugmentSlotWidget* AugmentSlot);
 	
