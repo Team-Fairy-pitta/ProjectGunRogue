@@ -20,7 +20,7 @@ UGRSkillAttributeSet_MeleeSkill::UGRSkillAttributeSet_MeleeSkill()
 	InitBladeWave_BaseFireInterval(0.8f);
 	InitBladeWave_SlowFireIntervalMultiplier(1.6f);
 	InitBladeWave_BaseWaveScale(1.0f);
-	InitBladeWave_SizeAndDamageUp_ScaleMultiplier(1.35f);
+	InitBladeWave_SizeAndDamageUp_ScaleMultiplier(1.0f);
 }
 
 void UGRSkillAttributeSet_MeleeSkill::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
