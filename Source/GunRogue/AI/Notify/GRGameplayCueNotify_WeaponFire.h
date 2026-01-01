@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+class UNiagaraSystem;
+
 UCLASS()
 class GUNROGUE_API UGRGameplayCueNotify_WeaponFire : public UGameplayCueNotify_Static
 {
@@ -28,6 +31,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* Particle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Effect")
+	TArray<UNiagaraSystem*> NiagaraSystems;
+	
 	UPROPERTY(EditAnywhere)
     USoundBase* Sound;
 

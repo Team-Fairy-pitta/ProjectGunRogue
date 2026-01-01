@@ -11,6 +11,7 @@
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "AbilitySystemComponent.h"
 #include "Windows/WindowsApplication.h"
+#include "GRAICharacter.h"
 
 AGRAICharacter::AGRAICharacter()
 {
@@ -60,6 +61,7 @@ void AGRAICharacter::BeginPlay()
 	Super::BeginPlay();
 
 	InitAbilitySystemComponent();
+	InitStatus();
 	NotifySpawnToGameMode();
 }
 
@@ -89,6 +91,18 @@ void AGRAICharacter::InitAbilitySystemComponent()
 
 			ASC->GetGameplayAttributeValueChangeDelegate(UGRHealthAttributeSet::GetHealthAttribute()).AddUObject(this, &ThisClass::OnHealthChanged);
 		}
+	}
+}
+
+void AGRAICharacter::InitStatus()
+{
+	if (ASC)
+	{
+		ASC->SetNumericAttributeBase(UGRHealthAttributeSet::GetMaxHealthAttribute(), InitMaxHealth);
+		ASC->SetNumericAttributeBase(UGRHealthAttributeSet::GetHealthAttribute(), InitMaxHealth);
+
+		ASC->SetNumericAttributeBase(UGRHealthAttributeSet::GetMaxShieldAttribute(), InitMaxShield);
+		ASC->SetNumericAttributeBase(UGRHealthAttributeSet::GetShieldAttribute(), InitMaxShield);
 	}
 }
 

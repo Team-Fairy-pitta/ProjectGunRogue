@@ -128,7 +128,8 @@ void UGRGameplayAbility_GiantBomb::PlaceBomb()
 		SpawnEffectNiagara,
 		SpawnEffectCascade,
 		SpawnEffectScale,
-		SpawnSound
+		SpawnSound,
+		SkillAttributeSet->GetFuseTime()
 	);
 
 	// 폭탄 스폰

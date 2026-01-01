@@ -38,7 +38,7 @@ public class GunRogue : ModuleRules
 
 
 		});
-
+		
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 

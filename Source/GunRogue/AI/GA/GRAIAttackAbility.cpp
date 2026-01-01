@@ -234,6 +234,42 @@ void UGRAIAttackAbility::CauseDamage(AActor* Target)
 	}
 }
 
+void UGRAIAttackAbility::ExecuteGameplayCueAtGround()
+{
+	AActor* Avatar = GetAvatarActorFromActorInfo();
+	if (!Avatar)
+	{
+		return;
+	}
+	
+	FVector Start = Avatar->GetActorLocation();
+	FVector End   = Start - FVector(0, 0, 500.f);
+
+	FHitResult Hit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(Avatar);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		Start,
+		End,
+		ECC_Visibility,
+		Params
+	);
+
+	if (!bHit)
+	{
+		return;
+	}
+	
+	FGameplayCueParameters CueParams;
+	CueParams.Location = Hit.ImpactPoint;
+	CueParams.Normal   = Hit.ImpactNormal;
+
+	FGameplayTag CueTag = FGameplayTag::RequestGameplayTag(GameplayCueTagName);
+	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(CueTag, CueParams);
+}
+
 void UGRAIAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
 {
 }

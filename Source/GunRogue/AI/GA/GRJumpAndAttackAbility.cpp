@@ -9,10 +9,10 @@
 #include "NavigationSystem.h"
 #include "AbilitySystemComponent.h"
 #include "Character/GRCharacter.h"
-#include "Engine/OverlapResult.h"
 
 UGRJumpAndAttackAbility::UGRJumpAndAttackAbility()
 {
+	GameplayCueTagName=FName("GameplayCue.AI.Boss.JumpAndAttack");
 }
 
 void UGRJumpAndAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -123,4 +123,5 @@ void UGRJumpAndAttackAbility::OnLanded()
 {
 	PlayAttackMontageAndWaitTask();
 	WaitAttackGameplayEventTask();
+	ExecuteGameplayCueAtGround();
 }
