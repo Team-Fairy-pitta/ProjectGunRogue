@@ -53,6 +53,7 @@ void UGRHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldBreakInvincibleDuration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, HealthKitMultiplier, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, GainHealthOnKill, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, StrenghtenShield, COND_None, REPNOTIFY_Always);
 }
 
 bool UGRHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
@@ -293,6 +294,9 @@ float UGRHealthAttributeSet::ApplyDamageAndReturnRealDealtAmount(float InDamage)
 	const float OldShield = GetShield();
 	if (OldShield > 0.0f)
 	{
+		// 강화 보호막: 보호막이 있을 때 받는 피해량 감소 적용
+		RemainDamage *= (GetStrenghtenShield());
+
 		if (RemainDamage >= OldShield)
 		{
 			// Shield 파괴 - 남은 데미지는 무효화
