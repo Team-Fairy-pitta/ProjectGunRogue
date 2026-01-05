@@ -88,6 +88,9 @@ void FGRWeaponHandle::ActivateWeapon()
 		WeaponDefinition->AbilitySet->GiveToAbilitySystem(CachedASC, &GrantedHandles);
 	}
 
+	WeaponInstance.ClearEffects();
+	WeaponInstance.ApplyAllEffects();
+
 	// 무기 장착 시 AttributeSet에 탄약 정보 로드 (UI 표시용)
 	UGRCombatAttributeSet* CombatSet = const_cast<UGRCombatAttributeSet*>(
 		CachedASC->GetSet<UGRCombatAttributeSet>()
@@ -101,9 +104,6 @@ void FGRWeaponHandle::ActivateWeapon()
 			WeaponInstance.GetCurrentAmmo(),
 			WeaponInstance.GetMaxAmmo());
 	}
-
-	WeaponInstance.ClearEffects();
-	WeaponInstance.ApplyAllEffects();
 
 	bIsActive = true;
 
