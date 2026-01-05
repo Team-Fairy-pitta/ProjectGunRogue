@@ -413,6 +413,8 @@ float UGRCombatAttributeSet::CalculateFinalSkillDamage(float SkillBaseDamage, fl
 
 void UGRCombatAttributeSet::UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAmmo)
 {
+	// [NOTE] Set을 하게되면 최대 탄창이 계속 증가하는 문제가 있음
+	// 우리 로직의 문제로 보이며, 아래 코드를 사용하지 않으면 간단하게 해결할 수 있음...
 	// SetMaxAmmo(static_cast<float>(InMaxAmmo));
 
 	const float ClampedCurrent = FMath::Clamp(static_cast<float>(InCurrentAmmo),0.0f,GetMaxAmmo()// 새 무기의 MaxAmmo
