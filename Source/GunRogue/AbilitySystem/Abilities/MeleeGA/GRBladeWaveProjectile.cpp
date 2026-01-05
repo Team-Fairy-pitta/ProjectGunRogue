@@ -52,9 +52,22 @@ void AGRBladeWaveProjectile::InitProjectile(float InDamage, float InWaveScale, b
 {
 	if (HasAuthority())
 	{
-		Damage = InDamage;
-		WaveScale = InWaveScale;
-		bPierce = bInPierce;
+		AGRCharacter* OwnerChar = Cast<AGRCharacter>(GetOwner());
+		if (OwnerChar)
+		{
+			UGRAbilitySystemComponent* SourceASC = Cast<UGRAbilitySystemComponent>(
+				UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwnerChar));
+
+			if (SourceASC)
+			{
+				const UGRSkillAttributeSet_MeleeSkill* SkillSet = SourceASC->GetSet<UGRSkillAttributeSet_MeleeSkill>();
+				if (SkillSet)
+				{
+					const float MultScale = SkillSet->GetBladeWave_BaseWaveScaleMultiplier();
+					WaveScale *= MultScale;
+				}
+			}
+		}
 
 		SetActorScale3D(FVector(WaveScale));
 		ForceNetUpdate();
@@ -111,7 +124,11 @@ void AGRBladeWaveProjectile::ComputeParametersOnServer()
 	}
 
 	Damage = SkillSet->GetBladeWave_BaseDamage();
-	WaveScale = SkillSet->GetBladeWave_BaseWaveScale();
+
+	const float BaseScale = SkillSet->GetBladeWave_BaseWaveScale();
+	const float MultScale = SkillSet->GetBladeWave_BaseWaveScaleMultiplier();
+
+	WaveScale = BaseScale * MultScale;
 }
 
 void AGRBladeWaveProjectile::OnOverlap(

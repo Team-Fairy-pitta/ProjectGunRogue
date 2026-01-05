@@ -70,17 +70,17 @@ public:
 	FGameplayAttributeData BladeWave_BaseFireInterval;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseFireInterval)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BladeWave_SlowFireIntervalMultiplier, Category = "Skill|BladeWave")
-	FGameplayAttributeData BladeWave_SlowFireIntervalMultiplier;
-	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_MeleeSkill, BladeWave_SlowFireIntervalMultiplier)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BladeWave_FireIntervalMultiplier, Category = "Skill|BladeWave")
+	FGameplayAttributeData BladeWave_FireIntervalMultiplier;
+	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_MeleeSkill, BladeWave_FireIntervalMultiplier)
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BladeWave_BaseWaveScale, Category = "Skill|BladeWave")
 	FGameplayAttributeData BladeWave_BaseWaveScale;
 	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseWaveScale)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BladeWave_SizeAndDamageUp_ScaleMultiplier, Category = "Skill|BladeWave")
-	FGameplayAttributeData BladeWave_SizeAndDamageUp_ScaleMultiplier;
-	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_MeleeSkill, BladeWave_SizeAndDamageUp_ScaleMultiplier)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BladeWave_BaseWaveScaleMultiplier, Category = "Skill|BladeWave")
+	FGameplayAttributeData BladeWave_BaseWaveScaleMultiplier;
+	ATTRIBUTE_ACCESSORS(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseWaveScaleMultiplier)
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -98,7 +98,7 @@ protected:
 	UFUNCTION() void OnRep_BladeWave_BaseDamage(const FGameplayAttributeData& OldValue);
 	UFUNCTION() void OnRep_BladeWave_DamageMultiplier(const FGameplayAttributeData& OldValue);
 	UFUNCTION() void OnRep_BladeWave_BaseFireInterval(const FGameplayAttributeData& OldValue);
-	UFUNCTION() void OnRep_BladeWave_SlowFireIntervalMultiplier(const FGameplayAttributeData& OldValue);
+	UFUNCTION() void OnRep_BladeWave_FireIntervalMultiplier(const FGameplayAttributeData& OldValue);
 	UFUNCTION() void OnRep_BladeWave_BaseWaveScale(const FGameplayAttributeData& OldValue);
-	UFUNCTION() void OnRep_BladeWave_SizeAndDamageUp_ScaleMultiplier(const FGameplayAttributeData& OldValue);
+	UFUNCTION() void OnRep_BladeWave_BaseWaveScaleMultiplier(const FGameplayAttributeData& OldValue);
 };
