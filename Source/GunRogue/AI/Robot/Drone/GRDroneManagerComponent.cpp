@@ -3,6 +3,7 @@
 
 #include "AI/Robot/Drone/GRDroneManagerComponent.h"
 #include "AI/Robot/Drone/GRDrone.h"
+#include "Net/UnrealNetwork.h"
 
 UGRDroneManagerComponent::UGRDroneManagerComponent()
 	:MaxDroneNum(5)
@@ -10,6 +11,15 @@ UGRDroneManagerComponent::UGRDroneManagerComponent()
 	,DroneClass(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	SetIsReplicatedByDefault(true);
+}
+
+void UGRDroneManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, SpawnedDrones);
 }
 
 void UGRDroneManagerComponent::SpawnDrone()
