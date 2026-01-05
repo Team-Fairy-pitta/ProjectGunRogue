@@ -57,9 +57,6 @@ protected:
 	void OnRep_WaveScale();
 
 private:
-	FGameplayTag Tag_SizeAndDamageUp;
-	FGameplayTag Tag_SlowPierceAndDamageUp;
-
 	TSet<TWeakObjectPtr<AActor>> HitActors;
 
 	void ComputeParametersOnServer();

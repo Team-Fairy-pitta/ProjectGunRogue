@@ -20,21 +20,15 @@ public:
 	UGRGameplayAbility_BladeWaveFire();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "BladeWave|Tags")
-	FGameplayTag Tag_BladeWaveMode;
-
-	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Tags")
-	FGameplayTag Tag_SlowPierceAndDamageUp;
-
-	UPROPERTY(EditDefaultsOnly, Category = "BladeMode|Tags")
-	FGameplayTag Tag_KillReduceSupportCooldown;
 
 	UPROPERTY(EditDefaultsOnly, Category = "BladeWave|Anim")
 	UAnimMontage* FireMontage = nullptr;
 
 	double LastFireTimeSeconds = -1.0;
 
-protected:
+	UPROPERTY(EditDefaultsOnly, Category = "BladeWave|Tags")
+	FGameplayTag Tag_BladeWaveMode;
+
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
