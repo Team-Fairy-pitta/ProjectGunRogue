@@ -561,7 +561,7 @@ FGRWeaponHandle* AGRPlayerState::GetActiveWeaponHandle()
 
 void AGRPlayerState::OnRep_WeaponDataUpdata()
 {
-	if (!HasAuthority() && WeaponSlots.IsValidIndex(CurrentWeaponSlot))
+	if (WeaponSlots.IsValidIndex(CurrentWeaponSlot))
 	{
 		FGRWeaponHandle& ActiveHandle = WeaponSlots[CurrentWeaponSlot];
 		if (ActiveHandle.IsEquipped() && ActiveHandle.IsActive())

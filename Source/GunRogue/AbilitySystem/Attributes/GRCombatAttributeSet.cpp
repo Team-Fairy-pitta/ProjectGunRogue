@@ -413,7 +413,7 @@ float UGRCombatAttributeSet::CalculateFinalSkillDamage(float SkillBaseDamage, fl
 
 void UGRCombatAttributeSet::UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAmmo)
 {
-	SetMaxAmmo(static_cast<float>(InMaxAmmo));
+	// SetMaxAmmo(static_cast<float>(InMaxAmmo));
 
 	const float ClampedCurrent = FMath::Clamp(static_cast<float>(InCurrentAmmo),0.0f,GetMaxAmmo()// 새 무기의 MaxAmmo
 	);
@@ -423,10 +423,10 @@ void UGRCombatAttributeSet::UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAm
 	const int32 MaxInt = InMaxAmmo;
 
 	// 델리게이트 브로드캐스트 (UI 업데이트)
-	OnAmmoChanged.Broadcast(ClampedCurrent, InMaxAmmo);
+	OnAmmoChanged.Broadcast(GetCurrentAmmo(), GetMaxAmmo());
 
-	UE_LOG(LogTemp, Verbose, TEXT("[CombatAttributeSet] Ammo display updated: %d / %d"),
-		InCurrentAmmo, InMaxAmmo);
+	UE_LOG(LogTemp, Verbose, TEXT("[CombatAttributeSet] Ammo display updated: %f / %f"),
+		GetCurrentAmmo(), GetMaxAmmo());
 }
 
 

@@ -306,7 +306,17 @@ int32 FGRWeaponInstance::GetRerollCost() const
 // 탄약 관련 구현
 int32 FGRWeaponInstance::GetMaxAmmo() const
 {
-	return WeaponDefinition ? WeaponDefinition->MaxAmmo : 30;
+	if (CachedASC)
+	{
+		const UGRCombatAttributeSet* CombatSet = CachedASC->GetSet<UGRCombatAttributeSet>();
+		if (CombatSet)
+		{
+			return CombatSet->GetMaxAmmo();
+		}
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("CANNOT FIND UGRCombatAttributeSet"));
+	return -1;
 }
 
 bool FGRWeaponInstance::CheckCanReload() const
