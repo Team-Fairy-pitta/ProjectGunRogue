@@ -68,8 +68,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AttributeSet|InitStatus")
 	float InitMaxShield;
 
+	bool bIsDead = false;
+
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
 	virtual void OnDead();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_OnDead();
+
+	void OnDead_ProcessAuth();
+	void OnDead_ProcessNormal();
 
 private:
 	void InitAbilitySystemComponent();
