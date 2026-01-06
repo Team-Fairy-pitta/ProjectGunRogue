@@ -5,10 +5,14 @@
 #include "Character/GRCharacter.h"
 #include "AI/Controller/GRBossLuwoAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 AGRBossRoomTrigger::AGRBossRoomTrigger()
 {
+	UPrimitiveComponent* Primitive = Cast<UPrimitiveComponent>(GetRootComponent());
+	if (Primitive)
+	{
+		Primitive->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Ignore);
+	}
 }
 
 void AGRBossRoomTrigger::BeginPlay()

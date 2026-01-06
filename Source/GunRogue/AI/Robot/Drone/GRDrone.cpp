@@ -235,24 +235,27 @@ bool AGRDrone::CanFireAtTarget(AActor* Target)
 		Params
 	);
 
-// #if WITH_EDITOR
-// 	FVector DebugEnd = bHit ? Hit.ImpactPoint : End;
-// 	
-// 	DrawDebugLine(
-// 	GetWorld(),
-// 	Start,
-// 	DebugEnd,
-// 	FColor::Yellow,
-// 	false,   
-// 	1.0f,    
-// 	0,
-// 	1.0f     
-// );
-// #endif
+ #if WITH_EDITOR
+ 	FVector DebugEnd = bHit ? Hit.ImpactPoint : End;
+ 	
+ 	DrawDebugLine(
+ 	GetWorld(),
+ 	Start,
+ 	DebugEnd,
+ 	FColor::Yellow,
+ 	false,   
+ 	1.0f,    
+ 	0,
+ 	1.0f     
+ );
+ #endif
 	
 	AActor* HitActor=Hit.GetActor();
 	if (HitActor)
 	{
+		//Debug
+		UE_LOG(LogTemp, Warning, TEXT("Drone Linetrace Hit Actor: %s"), *HitActor->GetName());
+		
 	   if (HitActor->IsA(AGRDroneProjectile::StaticClass()))
 	   {
 		   return true;
