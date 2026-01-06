@@ -327,6 +327,24 @@ void AGRDrone::Fire()
 		FireRot,
 		SpawnParams
 	);
+
+	//Impact
+	APawn* InstigatorPawn = GetInstigator();
+	if (InstigatorPawn)
+	{
+		APlayerState* PS = InstigatorPawn->GetPlayerState();
+		if (PS)
+		{
+			UAbilitySystemComponent* PlayerASC = PS->FindComponentByClass<UAbilitySystemComponent>();
+			if (PlayerASC)
+			{
+				FGameplayTag ImpactCueTag = FGameplayTag::RequestGameplayTag("GameplayCue.AI.Drone.Fire");
+				FGameplayCueParameters Params;
+				Params.Location = Mesh->GetSocketLocation(MuzzleSocketName);
+				PlayerASC->ExecuteGameplayCue(ImpactCueTag,Params);
+			}
+		}
+	}
 }
 
 void AGRDrone::DashToDirection()
