@@ -38,6 +38,7 @@ AGRDrone::AGRDrone()
 	DetectSphere->SetCollisionObjectType(ECC_WorldDynamic);
 	DetectSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	DetectSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	DetectSphere->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
 	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = AGRDroneAIController::StaticClass();
@@ -223,7 +224,6 @@ bool AGRDrone::CanFireAtTarget(AActor* Target)
 
 	FHitResult Hit;
 	FCollisionQueryParams Params;
-	Params.bTraceComplex = false;
 	Params.AddIgnoredActor(this);   
 	Params.AddIgnoredActor(GetInstigator());   
 
@@ -235,6 +235,21 @@ bool AGRDrone::CanFireAtTarget(AActor* Target)
 		Params
 	);
 
+// #if WITH_EDITOR
+// 	FVector DebugEnd = bHit ? Hit.ImpactPoint : End;
+// 	
+// 	DrawDebugLine(
+// 	GetWorld(),
+// 	Start,
+// 	DebugEnd,
+// 	FColor::Yellow,
+// 	false,   
+// 	1.0f,    
+// 	0,
+// 	1.0f     
+// );
+// #endif
+	
 	AActor* HitActor=Hit.GetActor();
 	if (HitActor)
 	{
@@ -243,27 +258,6 @@ bool AGRDrone::CanFireAtTarget(AActor* Target)
 		   return true;
 	   }
 	}
-	
-// #if ENABLE_DRAW_DEBUG
-// 	bool bCanDetect = false;
-// 	
-// 	if (bHit && Hit.GetActor() == Target)
-// 	{
-// 		bCanDetect = true;
-// 		
-// 		DrawDebugLine(
-// 			World,
-// 			Start,
-// 			End,
-// 			bCanDetect ? FColor::Red : FColor::Green,
-// 			false,
-// 			0.1f,
-// 			0,
-// 			1.5f
-// 		);
-// 	}
-// 	
-// #endif
 	
 	return bHit && Hit.GetActor() == Target;
 }

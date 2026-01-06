@@ -9,20 +9,13 @@
   <component name="ChangeListManager">
     <list default="true" id="189d8e3a-7c20-4c98-94b2-895d871fd1a8" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Config/DefaultGameplayTags.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultGameplayTags.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Animation/Montage/AM_BoulderToss.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Animation/Montage/AM_BoulderToss.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Animation/Montage/AM_FireLaser.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Animation/Montage/AM_FireLaser.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Animation/Montage/AM_GroundSmash.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Animation/Montage/AM_GroundSmash.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Animation/Montage/AM_GroundStrike.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Animation/Montage/AM_GroundStrike.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_Flying.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_Flying.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Mannequin/Character/Mesh/UE4_Mannequin_Skeleton.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Mannequin/Character/Mesh/UE4_Mannequin_Skeleton.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRLuwoAICharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRLuwoAICharacter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRAIAttackAbility.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRBoulderTossAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRBoulderTossAttackAbility.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRFireLaserAttackAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/GA/GRFireLaserAttackAbility.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRGameplayCueNotify_AIFlying.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRGameplayCueNotify_AIFlying.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRGameplayCueNotify_AIFlying.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRGameplayCueNotify_AIFlying.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/AICharacter/BP_Boss_Luwo_AICharacter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/AICharacter/BP_Boss_Luwo_AICharacter.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Drone/BP_Drone.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Drone/BP_Drone.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Drone/BP_DroneProjectile.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Drone/BP_DroneProjectile.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Drone/TestMap_Robot.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Drone/TestMap_Robot.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_FindRandomLocation.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/BT/GRBTTask_FindRandomLocation.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Robot/Drone/GRDrone.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Robot/Drone/GRDrone.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +55,106 @@
     <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="cidr-memory-view://3" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="cidr-memory-view://4" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Intermediate/Build/Win64/UnrealEditor/Inc/GunRogue/UHT/GRStreamingDoor.generated.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/GunRogue/AI/Character/GRAICharacter.h" root0="FORCE_HIGHLIGHTING" />
@@ -89,21 +181,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Uproject.GunRogue.executor&quot;: &quot;Debug&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/ai/boss-asset-sound&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Uproject.GunRogue.executor": "Debug",
+    "git-widget-placeholder": "bugfix/drone/attack-boss",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="GunRogue" type="Uproject" factoryName="rider.uproject">
       <configuration_1 setup="1">
@@ -287,6 +379,7 @@
       <workItem from="1767590179711" duration="16054000" />
       <workItem from="1767658041116" duration="799000" />
       <workItem from="1767660251657" duration="6242000" />
+      <workItem from="1767680835380" duration="11295000" />
     </task>
     <servers />
   </component>

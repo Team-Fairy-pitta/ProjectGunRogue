@@ -11,7 +11,6 @@
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "AbilitySystemComponent.h"
 #include "Windows/WindowsApplication.h"
-#include "GRAICharacter.h"
 
 AGRAICharacter::AGRAICharacter()
 {
