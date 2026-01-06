@@ -180,7 +180,10 @@ void UGRHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 				}
 			}
 
-			ShowDamageIndicator(RealDealtAmount, Causer, OwningASC->GetAvatarActor());
+			if (RealDealtAmount > 0)
+			{
+				ShowDamageIndicator(RealDealtAmount, Causer, OwningASC->GetAvatarActor());
+			}
 
 			if (GetHealth() <= 0)
 			{
