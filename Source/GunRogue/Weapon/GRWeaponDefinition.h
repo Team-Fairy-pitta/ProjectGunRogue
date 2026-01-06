@@ -165,9 +165,4 @@ public:
 	// 무기 옵션 풀
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Upgrade")
 	UGRWeaponOptionPool* OptionPool = nullptr;
-
-	// 탄창 크기 (최대 탄약)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ammo")
-	int32 MaxAmmo = 30;
-
 };

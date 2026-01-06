@@ -15,12 +15,12 @@ UGRSkillAttributeSet_MeleeSkill::UGRSkillAttributeSet_MeleeSkill()
 	InitRushSlash_KnockbackUpgradeMultiplier(1.0f); 
 
 	// ===== BladeWave =====
-	InitBladeWave_BaseDamage(100.0f);
+	InitBladeWave_BaseDamage(150.0f);
 	InitBladeWave_DamageMultiplier(1.0f);
-	InitBladeWave_BaseFireInterval(0.8f);
-	InitBladeWave_SlowFireIntervalMultiplier(1.6f);
+	InitBladeWave_BaseFireInterval(1.8f);
+	InitBladeWave_FireIntervalMultiplier(1.0f);
 	InitBladeWave_BaseWaveScale(1.0f);
-	InitBladeWave_SizeAndDamageUp_ScaleMultiplier(1.35f);
+	InitBladeWave_BaseWaveScaleMultiplier(1.0f);
 }
 
 void UGRSkillAttributeSet_MeleeSkill::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -40,9 +40,9 @@ void UGRSkillAttributeSet_MeleeSkill::GetLifetimeReplicatedProps(TArray<FLifetim
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseDamage, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_DamageMultiplier, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseFireInterval, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_SlowFireIntervalMultiplier, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_FireIntervalMultiplier, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseWaveScale, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_SizeAndDamageUp_ScaleMultiplier, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseWaveScaleMultiplier, COND_None, REPNOTIFY_Always);
 }
 
 void UGRSkillAttributeSet_MeleeSkill::OnRep_RushSlash_BaseDamage(const FGameplayAttributeData& OldValue)
@@ -94,15 +94,15 @@ void UGRSkillAttributeSet_MeleeSkill::OnRep_BladeWave_BaseFireInterval(const FGa
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseFireInterval, OldValue);
 }
-void UGRSkillAttributeSet_MeleeSkill::OnRep_BladeWave_SlowFireIntervalMultiplier(const FGameplayAttributeData& OldValue)
+void UGRSkillAttributeSet_MeleeSkill::OnRep_BladeWave_FireIntervalMultiplier(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_SlowFireIntervalMultiplier, OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_FireIntervalMultiplier, OldValue);
 }
 void UGRSkillAttributeSet_MeleeSkill::OnRep_BladeWave_BaseWaveScale(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseWaveScale, OldValue);
 }
-void UGRSkillAttributeSet_MeleeSkill::OnRep_BladeWave_SizeAndDamageUp_ScaleMultiplier(const FGameplayAttributeData& OldValue)
+void UGRSkillAttributeSet_MeleeSkill::OnRep_BladeWave_BaseWaveScaleMultiplier(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_SizeAndDamageUp_ScaleMultiplier, OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGRSkillAttributeSet_MeleeSkill, BladeWave_BaseWaveScaleMultiplier, OldValue);
 }

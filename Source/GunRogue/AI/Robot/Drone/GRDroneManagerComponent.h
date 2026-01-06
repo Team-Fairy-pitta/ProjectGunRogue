@@ -16,6 +16,7 @@ class GUNROGUE_API UGRDroneManagerComponent : public UActorComponent
 
 public:	
 	UGRDroneManagerComponent();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	const TArray<AGRDrone*>& GetDrones() const { return SpawnedDrones; }
 	void SpawnDrone();
 	void RemoveDrone(AGRDrone* Drone);
@@ -25,7 +26,7 @@ protected:
 	void UpdateDroneFormation();
 	
 protected:
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<AGRDrone*> SpawnedDrones;
 
 	UPROPERTY(EditAnywhere,Category="Drone")

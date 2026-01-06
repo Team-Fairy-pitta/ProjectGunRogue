@@ -7,43 +7,43 @@
 UGRCombatAttributeSet::UGRCombatAttributeSet()
 {
 	// 기본값 설정
-	WeaponDamage_Base = 10.0f;
-	WeaponDamage_Additive = 0.0f;
-	WeaponDamage_Multiplicative = 0.0f;
+	// 기본값 설정
+	InitWeaponDamage_Base(10.0f);
+	InitWeaponDamage_Additive(0.0f);
+	InitWeaponDamage_Multiplicative(0.0f);
 
-	WeaponCriticalMultiplier_Base = 2.0f;
-	WeaponCriticalMultiplier_Multiplicative = 0.0f;
-	WeaponCriticalMultiplier_Bonus = 0.0f;
-	WeaponNormalMultiplier_Multiplicative = 0.0f;
+	InitWeaponCriticalMultiplier_Base(2.0f);
+	InitWeaponCriticalMultiplier_Multiplicative(0.0f);
+	InitWeaponCriticalMultiplier_Bonus(0.0f);
+	InitWeaponNormalMultiplier_Multiplicative(0.0f);
 
-	FinalDamage_Additive = 0.0f;
-	FinalDamage_Multiplicative = 0.0f;
-	FinalDamage_Bonus = 0.0f;
-	DamageReduction = 0.0f;
-	IsCriticalHit = 0.0f;
+	InitFinalDamage_Additive(0.0f);
+	InitFinalDamage_Multiplicative(0.0f);
+	InitFinalDamage_Bonus(0.0f);
+	InitDamageReduction(0.0f);
+	InitIsCriticalHit(0.0f);
 
-	FireRate = 0.0f;
-	Accuracy = 1.0f;
-	Recoil = 1.0f;
-	SpreadRecoveryRate = 0.5f;
-	MaxSpread = 10.0f;
-	SpreadIncreasePerShot = 2.0f;
-	CurrentSpread = 0.0f;
-	ExplosionFalloff = 0.0f;
-	ExplosionRadius = 0.0f;
+	InitFireRate(0.0f);
+	InitAccuracy(1.0f);
+	InitRecoil(1.0f);
+	InitSpreadRecoveryRate(0.5f);
+	InitMaxSpread(10.0f);
+	InitSpreadIncreasePerShot(2.0f);
+	InitCurrentSpread(0.0f);
+	InitExplosionFalloff(0.0f);
+	InitExplosionRadius(0.0f);
 
-	CurrentAmmo = 0.0f;
-	MaxAmmo = 0.0f; /* 무기를 들고 있지 않을 때, 탄창의 크기를 0으로 한다. */
+	InitCurrentAmmo(0.0f);
+	InitMaxAmmo(0.0f); /* 무기를 들고 있지 않을 때, 탄창의 크기를 0으로 한다. */
 
-	ReloadRate = 1.0f;
+	InitReloadRate(1.0f);
 
-	SkillDamage_Base = 0.0f;
-	SkillDamage_Additive = 0.0f;
-	SkillDamage_Multiplicative = 0.0f;
-	SkillCooldownReduction = 0.0f;
+	InitSkillDamage_Base(0.0f);
+	InitSkillDamage_Additive(0.0f);
+	InitSkillDamage_Multiplicative(0.0f);
+	InitSkillCooldownReduction(0.0f);
 
-	BonusDamageVsDoT = 0.0f;
-
+	InitBonusDamageVsDoT(0.0f);
 }
 
 void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -76,8 +76,8 @@ void UGRCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ExplosionRadius, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ExplosionFalloff, COND_None, REPNOTIFY_Always);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentAmmo, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, CurrentAmmo, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, MaxAmmo, COND_None, REPNOTIFY_Always);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRCombatAttributeSet, ReloadRate, COND_None, REPNOTIFY_Always);
 
@@ -413,7 +413,9 @@ float UGRCombatAttributeSet::CalculateFinalSkillDamage(float SkillBaseDamage, fl
 
 void UGRCombatAttributeSet::UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAmmo)
 {
-	SetMaxAmmo(static_cast<float>(InMaxAmmo));
+	// [NOTE] Set을 하게되면 최대 탄창이 계속 증가하는 문제가 있음
+	// 우리 로직의 문제로 보이며, 아래 코드를 사용하지 않으면 간단하게 해결할 수 있음...
+	// SetMaxAmmo(static_cast<float>(InMaxAmmo));
 
 	const float ClampedCurrent = FMath::Clamp(static_cast<float>(InCurrentAmmo),0.0f,GetMaxAmmo()// 새 무기의 MaxAmmo
 	);
@@ -423,10 +425,10 @@ void UGRCombatAttributeSet::UpdateAmmoDisplay(int32 InCurrentAmmo, int32 InMaxAm
 	const int32 MaxInt = InMaxAmmo;
 
 	// 델리게이트 브로드캐스트 (UI 업데이트)
-	OnAmmoChanged.Broadcast(ClampedCurrent, InMaxAmmo);
+	OnAmmoChanged.Broadcast(GetCurrentAmmo(), GetMaxAmmo());
 
-	UE_LOG(LogTemp, Verbose, TEXT("[CombatAttributeSet] Ammo display updated: %d / %d"),
-		InCurrentAmmo, InMaxAmmo);
+	UE_LOG(LogTemp, Verbose, TEXT("[CombatAttributeSet] Ammo display updated: %f / %f"),
+		GetCurrentAmmo(), GetMaxAmmo());
 }
 
 

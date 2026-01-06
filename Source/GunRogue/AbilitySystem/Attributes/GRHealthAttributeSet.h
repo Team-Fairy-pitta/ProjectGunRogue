@@ -80,6 +80,14 @@ public:
 	FGameplayAttributeData HealthKitMultiplier;
 	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, HealthKitMultiplier);
 
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Health|Perk")
+	FGameplayAttributeData GainHealthOnKill; // 적 처치시 체력 회복량
+	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, GainHealthOnKill);
+
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Health|Perk")
+	FGameplayAttributeData StrenghtenShield; // 보호막이 있을 때 받는 피해 감소
+	ATTRIBUTE_ACCESSORS(UGRHealthAttributeSet, StrenghtenShield);
+
 	// ========== Meta Attributes (복제되지 않음) ==========
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health|Meta")
@@ -157,4 +165,6 @@ private:
 	void ApplyShieldRegenEffect(UAbilitySystemComponent* OwningASC);
 
 	void ShowDamageIndicator(float Damage, AActor* Attacker, AActor* Target);
+
+	void OnKillEnemy(AActor* Killer, AActor* Enemy);
 };

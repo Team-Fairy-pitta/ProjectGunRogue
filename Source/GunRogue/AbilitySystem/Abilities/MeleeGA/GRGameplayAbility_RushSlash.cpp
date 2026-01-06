@@ -15,10 +15,6 @@
 UGRGameplayAbility_RushSlash::UGRGameplayAbility_RushSlash()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
-	Tag_AmmoRestoreOnHit			= FGameplayTag::RequestGameplayTag(TEXT("Augment.RushSlash.AmmoRestore"));
-	Tag_IncreaseKnockbackAndDamage	= FGameplayTag::RequestGameplayTag(TEXT("Augment.RushSlash.IncreaseKnockback"));
-	Tag_PierceTargets				= FGameplayTag::RequestGameplayTag(TEXT("Augment.RushSlash.PierceTargets"));
 }
 
 const UGRSkillAttributeSet_MeleeSkill* UGRGameplayAbility_RushSlash::GetSkillSet() const
@@ -211,10 +207,6 @@ void UGRGameplayAbility_RushSlash::PerformHitCheck(const FGameplayAbilityActorIn
 
 	const float HitRadius = SkillSet->GetRushSlash_HitRadius();
 
-	const bool bHasAmmoRestoreAugment = GRASC->HasMatchingGameplayTag(Tag_AmmoRestoreOnHit);
-	const bool bHasKnockbackUpgrade = GRASC->HasMatchingGameplayTag(Tag_IncreaseKnockbackAndDamage);
-	const bool bHasPierceAugment = GRASC->HasMatchingGameplayTag(Tag_PierceTargets);
-
 	TArray<FHitResult> HitResults;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(Avatar);
@@ -231,7 +223,6 @@ void UGRGameplayAbility_RushSlash::PerformHitCheck(const FGameplayAbilityActorIn
 		QueryParams
 	);
 
-	bool bHitAtLeastOneNewTarget = false;
 	bool bShouldStopDash = false;
 
 	if (bAnyHit)
@@ -250,26 +241,16 @@ void UGRGameplayAbility_RushSlash::PerformHitCheck(const FGameplayAbilityActorIn
 			}
 
 			AlreadyHitActors.Add(HitActor);
-			bHitAtLeastOneNewTarget = true;
 
-			ApplyKnockbackToTarget(
-				HitActor,
-				Avatar->GetActorLocation(),
-				bHasPierceAugment,
-				bHasKnockbackUpgrade
-			);
+			ApplyKnockbackToTarget(HitActor, Avatar->GetActorLocation());
 
-			float FinalDamage = SkillSet->GetRushSlash_BaseDamage() * SkillSet->GetRushSlash_DamageMultiplier();
+			const float FinalDamage = SkillSet->GetRushSlash_BaseDamage() * SkillSet->GetRushSlash_DamageMultiplier();
+
 			ApplyDamageToTarget(HitActor, Hit, FinalDamage);
 
 			bShouldStopDash = true;
 			break;
 		}
-	}
-
-	if (bHasAmmoRestoreAugment && bHitAtLeastOneNewTarget)
-	{
-		ApplyAmmoRestore();
 	}
 
 	PreviousActorLocation = CurrentLocation;
@@ -285,15 +266,8 @@ void UGRGameplayAbility_RushSlash::PerformHitCheck(const FGameplayAbilityActorIn
 
 void UGRGameplayAbility_RushSlash::ApplyKnockbackToTarget(
 	AActor* TargetActor,
-	const FVector& DashStartLocation,
-	bool bIsPiercing,
-	bool bIsKnockbackUpgraded) const
+	const FVector& DashStartLocation) const
 {
-	if (bIsPiercing)
-	{
-		return;
-	}
-
 	ACharacter* TargetCharacter = Cast<ACharacter>(TargetActor);
 	if (!TargetCharacter)
 	{
@@ -306,44 +280,16 @@ void UGRGameplayAbility_RushSlash::ApplyKnockbackToTarget(
 		return;
 	}
 
-	float KnockbackStrength = SkillSet->GetRushSlash_KnockbackStrength();
-	float KnockbackUpward = SkillSet->GetRushSlash_KnockbackUpward();
+	const float Mult = SkillSet->GetRushSlash_KnockbackUpgradeMultiplier();
+	const float KnockbackStrength = SkillSet->GetRushSlash_KnockbackStrength() * Mult;
+	const float KnockbackUpward = SkillSet->GetRushSlash_KnockbackUpward() * Mult;
 
-	if (bIsKnockbackUpgraded)
-	{
-		const float Mult = SkillSet->GetRushSlash_KnockbackUpgradeMultiplier();
-		KnockbackStrength *= Mult;
-		KnockbackUpward *= Mult;
-	}
-
-	const FVector KnockbackDirection =
-		(TargetCharacter->GetActorLocation() - DashStartLocation).GetSafeNormal2D();
+	const FVector KnockbackDirection = (TargetCharacter->GetActorLocation() - DashStartLocation).GetSafeNormal2D();
 
 	TargetCharacter->LaunchCharacter(
 		KnockbackDirection * KnockbackStrength + FVector::UpVector * KnockbackUpward,
 		true,
 		true
-	);
-}
-
-void UGRGameplayAbility_RushSlash::ApplyAmmoRestore()
-{
-	if (!AmmoRestoreEffect)
-	{
-		return;
-	}
-
-	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(AmmoRestoreEffect, GetAbilityLevel());
-	if (!SpecHandle.IsValid())
-	{
-		return;
-	}
-
-	ApplyGameplayEffectSpecToOwner(
-		CurrentSpecHandle,
-		CurrentActorInfo,
-		CurrentActivationInfo,
-		SpecHandle
 	);
 }
 
@@ -375,6 +321,10 @@ void UGRGameplayAbility_RushSlash::ApplyDamageToTarget(AActor* TargetActor, cons
 		return;
 	}
 
+	if (TargetActor->IsA(AGRCharacter::StaticClass()))
+	{
+		return;
+	}
 	AActor* Avatar = GetAvatarActorFromActorInfo();
 	if (!Avatar || !Avatar->HasAuthority())
 	{

@@ -1,6 +1,8 @@
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "Player/Battle/GRBattlePlayerController.h"
+#include "Player/GRPlayerState.h"
+#include "Character/GRCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "GameplayTagContainer.h"
@@ -33,6 +35,8 @@ UGRHealthAttributeSet::UGRHealthAttributeSet()
 	InitGainShield(0.0f);
 
 	InitHealthKitMultiplier(1.0f);
+
+	InitGainHealthOnKill(0.0f);
 }
 
 void UGRHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -48,6 +52,8 @@ void UGRHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldRegenAmount, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, ShieldBreakInvincibleDuration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, HealthKitMultiplier, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, GainHealthOnKill, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGRHealthAttributeSet, StrenghtenShield, COND_None, REPNOTIFY_Always);
 }
 
 bool UGRHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
@@ -176,8 +182,10 @@ void UGRHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 
 			ShowDamageIndicator(RealDealtAmount, Causer, OwningASC->GetAvatarActor());
 
-			// TODO: 여기서 RealDealtAmount를 사용해 흡혈, 궁극기 게이지 등 구현 가능
-			// 예: GainUltimateGauge(RealDealtAmount);
+			if (GetHealth() <= 0)
+			{
+				OnKillEnemy(Causer, OwningASC->GetAvatarActor());
+			}
 		}
 	}
 
@@ -286,6 +294,9 @@ float UGRHealthAttributeSet::ApplyDamageAndReturnRealDealtAmount(float InDamage)
 	const float OldShield = GetShield();
 	if (OldShield > 0.0f)
 	{
+		// 강화 보호막: 보호막이 있을 때 받는 피해량 감소 적용
+		RemainDamage *= (GetStrenghtenShield());
+
 		if (RemainDamage >= OldShield)
 		{
 			// Shield 파괴 - 남은 데미지는 무효화
@@ -622,4 +633,23 @@ void UGRHealthAttributeSet::ShowDamageIndicator(float Damage, AActor* Attacker, 
 	}
 
 	BattlePlayerController->ClientRPC_ShowDamageIndicator(Damage, Target);
+}
+
+void UGRHealthAttributeSet::OnKillEnemy(AActor* Killer, AActor* Enemy)
+{
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(Killer);
+	if (!IsValid(GRCharacter))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[OnKill] Killer is NOT AGRCharacter"));
+		return;
+	}
+
+	AGRPlayerState* GRPlayerState = GRCharacter->GetPlayerState<AGRPlayerState>();
+	if (!IsValid(GRPlayerState))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[OnKill] GRPlayerState is NOT AGRPlayerState"));
+		return;
+	}
+
+	GRPlayerState->OnKillEnemy(Enemy);
 }

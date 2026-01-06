@@ -26,26 +26,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Damage")
 	TSubclassOf<UGRGameplayEffect> DamageEffect;
 
-	//Augment GE
-	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Augment")
-	TSubclassOf<UGRGameplayEffect> AmmoRestoreEffect;
-
-	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Augment")
-	TSubclassOf<UGRGameplayEffect> KnockbackEffect;
-
-	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Augment")
-	TSubclassOf<UGRGameplayEffect> PierceEffect;
-
-	//Augment Tags
-	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Tags")
-	FGameplayTag Tag_AmmoRestoreOnHit;
-
-	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Tags")
-	FGameplayTag Tag_IncreaseKnockbackAndDamage;
-
-	UPROPERTY(EditDefaultsOnly, Category = "RushSlash|Tags")
-	FGameplayTag Tag_PierceTargets;
-
 	//Task
 	UPROPERTY()
 	UAbilityTask_ApplyRootMotionConstantForce* DashTask = nullptr;
@@ -87,11 +67,8 @@ private:
 
 	void ApplyKnockbackToTarget(
 		AActor* TargetActor,
-		const FVector& DashStartLocation,
-		bool bIsPiercing,
-		bool bIsKnockbackUpgraded) const;
+		const FVector& DashStartLocation) const;
 
-	void ApplyAmmoRestore();
 	void ApplyDamageToTarget(AActor* TargetActor, const FHitResult& Hit, float Damage) const;
 
 	UFUNCTION()

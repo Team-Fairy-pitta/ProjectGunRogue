@@ -296,6 +296,9 @@ protected:
 #pragma endregion
 
 #pragma region Perk;
+public:
+	void OnKillEnemy(AActor* Enemy);
+
 protected:
 	virtual void InitPerkFromSave();
 	void InitPerkInfoRows();
@@ -317,6 +320,9 @@ protected:
 	TSubclassOf<UGameplayEffect> PerkGE;
 
 	TArray<FPerkEntry> PerkInfoRows;
+
+	float LastTime_GainHealthOnKill = -1.0f;
+	const float GainHealthOnKillCooldown = 1.0f; // 적 처치시 체력 회복 쿨다운
 
 #pragma endregion
 
