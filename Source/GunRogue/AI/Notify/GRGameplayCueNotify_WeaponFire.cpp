@@ -16,14 +16,20 @@ void  UGRGameplayCueNotify_WeaponFire::HandleGameplayCue(AActor* MyTarget, EGame
 {
 	if (EventType == EGameplayCueEvent::Executed)
 	{
-		if (Particle)
+		if (Particles.Num() > 0)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(
-				MyTarget->GetWorld(),
-				Particle,
-				Parameters.Location,
-				Parameters.Normal.Rotation()
-			);
+			for (UParticleSystem* Particle : Particles)
+			{
+				if (Particle)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(
+						MyTarget->GetWorld(),
+						Particle,
+						Parameters.Location,
+						Parameters.Normal.Rotation()
+					);
+				}
+			}
 		}
 
 		if (NiagaraSystems.Num() > 0)
@@ -41,14 +47,20 @@ void  UGRGameplayCueNotify_WeaponFire::HandleGameplayCue(AActor* MyTarget, EGame
 				}
 			}
 		}
-		
-		if (Sound)
+
+		if (Sounds.Num() > 0)
 		{
-			UGameplayStatics::PlaySoundAtLocation(
-				MyTarget->GetWorld(),
-				Sound,
-				Parameters.Location
-			);
+			for (USoundBase* Sound : Sounds)
+			{
+				if (Sound)
+				{
+					UGameplayStatics::PlaySoundAtLocation(
+						MyTarget->GetWorld(),
+						Sound,
+						Parameters.Location
+					);
+				}		
+			}
 		}
 
 		if (WeaponFireMontage)

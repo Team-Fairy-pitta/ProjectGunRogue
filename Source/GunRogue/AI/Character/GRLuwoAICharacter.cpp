@@ -3,11 +3,10 @@
 
 #include "AI/Character/GRLuwoAICharacter.h"
 #include "Components/CapsuleComponent.h"
-
 #include "GameModes/Level1/GRGameState_Level1.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 
 AGRLuwoAICharacter::AGRLuwoAICharacter()
 {
@@ -47,6 +46,8 @@ void AGRLuwoAICharacter::BeginPlay()
 		{
 			GS->SetCurrentBoss(this);
 		}
+
+		FlyingTag = FGameplayTag::RequestGameplayTag(TEXT("GameplayCue.AI.Boss.Flying"));
 	}
 	
 }
@@ -71,6 +72,44 @@ void AGRLuwoAICharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
 				GS->ClearCurrentBoss();
 			}
 		}
+	}
+}
+
+void AGRLuwoAICharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+	if (!ASC)
+	{
+		return;
+	}
+
+	if (!HasAuthority())
+	{
+		return;
+	}
+	
+	const EMovementMode CurrentMode = GetCharacterMovement()->MovementMode;
+
+	//Debug
+	UE_LOG(LogTemp, Warning,
+	TEXT("CurrentMode = %d"),
+	GetCharacterMovement()->MovementMode);
+	
+	if (CurrentMode == MOVE_Flying)
+	{
+		if (!ASC->HasMatchingGameplayTag(FlyingTag))
+		{
+			ASC->AddLooseGameplayTag(FlyingTag);
+
+			FGameplayCueParameters Params;
+			Params.SourceObject = this;
+			ASC->ExecuteGameplayCue(FlyingTag, Params);
+		}
+	}
+	else if (PrevMovementMode == MOVE_Flying)
+	{
+		ASC->RemoveLooseGameplayTag(FlyingTag);
 	}
 }
 

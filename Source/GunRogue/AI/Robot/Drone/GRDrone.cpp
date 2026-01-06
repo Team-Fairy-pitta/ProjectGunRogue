@@ -43,7 +43,6 @@ AGRDrone::AGRDrone()
 	AIControllerClass = AGRDroneAIController::StaticClass();
 	
 	bReplicates = true;
-	//SetReplicateMovement(true);
 }
 
 void AGRDrone::SetTargetOffset(AActor* Player,int32 Index,int TotalNum)
@@ -218,9 +217,8 @@ bool AGRDrone::CanFireAtTarget(AActor* Target)
 	{
 		return false;
 	}
-
-	//TODO: 시작 위치 (드론 총구 소켓)로 변경하기
-	const FVector Start = GetActorLocation();
+	
+	const FVector Start = Mesh->GetSocketLocation(MuzzleSocketName);
 	const FVector End   = Target->GetActorLocation();
 
 	FHitResult Hit;
@@ -240,40 +238,32 @@ bool AGRDrone::CanFireAtTarget(AActor* Target)
 	AActor* HitActor=Hit.GetActor();
 	if (HitActor)
 	{
-		//Debug
-		UE_LOG(LogTemp, Warning,
-	   TEXT("Hit Actor: %s | Comp: %s | ObjType: %d"),
-	   *Hit.GetActor()->GetName(),
-	   *Hit.GetComponent()->GetName(),
-	   (int32)Hit.GetComponent()->GetCollisionObjectType()
-		);
-
 	   if (HitActor->IsA(AGRDroneProjectile::StaticClass()))
 	   {
 		   return true;
 	   }
 	}
 	
-#if ENABLE_DRAW_DEBUG
-	bool bCanDetect = false;
-	
-	if (bHit && Hit.GetActor() == Target)
-	{
-		bCanDetect = true;
-		
-		DrawDebugLine(
-			World,
-			Start,
-			End,
-			bCanDetect ? FColor::Red : FColor::Green,
-			false,
-			0.1f,
-			0,
-			1.5f
-		);
-	}
-	
-#endif
+// #if ENABLE_DRAW_DEBUG
+// 	bool bCanDetect = false;
+// 	
+// 	if (bHit && Hit.GetActor() == Target)
+// 	{
+// 		bCanDetect = true;
+// 		
+// 		DrawDebugLine(
+// 			World,
+// 			Start,
+// 			End,
+// 			bCanDetect ? FColor::Red : FColor::Green,
+// 			false,
+// 			0.1f,
+// 			0,
+// 			1.5f
+// 		);
+// 	}
+// 	
+// #endif
 	
 	return bHit && Hit.GetActor() == Target;
 }
@@ -343,12 +333,6 @@ void AGRDrone::Fire()
 		FireRot,
 		SpawnParams
 	);
-
-	if (Bullet)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Drone Fire Bullet -> %s"),
-			*AITarget->GetName());
-	}
 }
 
 void AGRDrone::DashToDirection()

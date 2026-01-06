@@ -29,13 +29,13 @@ protected:
 	
 protected:
 	UPROPERTY(EditAnywhere)
-	UParticleSystem* Particle;
+	TArray<UParticleSystem*> Particles;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Effect")
 	TArray<UNiagaraSystem*> NiagaraSystems;
 	
 	UPROPERTY(EditAnywhere)
-    USoundBase* Sound;
+    TArray<USoundBase*> Sounds;
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* WeaponFireMontage;

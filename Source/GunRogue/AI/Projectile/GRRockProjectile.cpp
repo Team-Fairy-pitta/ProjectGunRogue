@@ -10,26 +10,31 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
 #include "AbilitySystemInterface.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AGRRockProjectile::AGRRockProjectile()
 	:DamageGEClass(nullptr)
-	,TorqueStrength(1000.0f)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
 	bReplicates = true;
-	SetReplicateMovement(true);
 	
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("GRAIProjectile"));
 	CollisionComponent->SetSimulatePhysics(false);
-	CollisionComponent->SetNotifyRigidBodyCollision(true);
-	CollisionComponent->SetIsReplicated(true);
 	RootComponent = CollisionComponent;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetupAttachment(RootComponent);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+	ProjectileMovement->SetUpdatedComponent(CollisionComponent);
+	ProjectileMovement->bRotationFollowsVelocity = true; 
+	ProjectileMovement->ProjectileGravityScale = 1.f;
+	ProjectileMovement->bInterpMovement = true;
+	ProjectileMovement->bInterpRotation = true;
 }
 
 void AGRRockProjectile::BeginPlay()
@@ -45,6 +50,13 @@ void AGRRockProjectile::BeginPlay()
 	}
 }
 
+void AGRRockProjectile::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AGRRockProjectile, ReplicatedLaunchVelocity);
+}
+
 void AGRRockProjectile::Throw(const FVector& LaunchVelocity)
 {
 	if(!HasAuthority())
@@ -52,14 +64,13 @@ void AGRRockProjectile::Throw(const FVector& LaunchVelocity)
 		return;
 	}
 	
-	if (CollisionComponent)
-	{
-		CollisionComponent->SetSimulatePhysics(true);
-		CollisionComponent->AddImpulse(LaunchVelocity, NAME_None, true);
+	ReplicatedLaunchVelocity = LaunchVelocity;
 
-		// Torque로 회전
-		FVector RotationAxis = FVector::CrossProduct(FVector::UpVector, LaunchVelocity.GetSafeNormal());
-		CollisionComponent->AddTorqueInRadians(RotationAxis * TorqueStrength, NAME_None, true);
+	if (ProjectileMovement)
+	{
+		ProjectileMovement->Velocity = LaunchVelocity;
+		ProjectileMovement->InitialSpeed = LaunchVelocity.Size();
+		ProjectileMovement->MaxSpeed = LaunchVelocity.Size();
 	}
 }
 
@@ -178,6 +189,16 @@ void AGRRockProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	}
 	
 	Destroy();
+}
+
+void AGRRockProjectile::OnRep_LaunchVelocity()
+{
+	if (ProjectileMovement)
+	{
+		ProjectileMovement->Velocity = ReplicatedLaunchVelocity;
+		ProjectileMovement->InitialSpeed = ReplicatedLaunchVelocity.Size();
+		ProjectileMovement->MaxSpeed = ReplicatedLaunchVelocity.Size();
+	}
 }
 
 
