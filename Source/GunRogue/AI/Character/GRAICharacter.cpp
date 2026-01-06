@@ -2,6 +2,7 @@
 
 
 #include "AI/Character/GRAICharacter.h"
+#include "AI/Controller/GRAIController.h"
 #include "Player/GRPlayerState.h"
 #include "Goods/GRGoodsActor.h"
 #include "Character/GRZLocationComponent.h"
@@ -10,8 +11,8 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "AbilitySystemComponent.h"
+#include "BrainComponent.h"
 #include "Windows/WindowsApplication.h"
-#include "GRAICharacter.h"
 
 AGRAICharacter::AGRAICharacter()
 {
@@ -134,8 +135,14 @@ void AGRAICharacter::MulticastRPC_OnDead_Implementation()
 
 void AGRAICharacter::OnDead_ProcessAuth()
 {
-	float BodyLifeSpan = 2.0f;
+	float BodyLifeSpan = 1.0f;
 	SetLifeSpan(BodyLifeSpan);
+
+	AGRAIController* AIController = GetController<AGRAIController>();
+	if (IsValid(AIController) && AIController->BrainComponent)
+	{
+		AIController->BrainComponent->Cleanup();
+	}
 }
 
 void AGRAICharacter::OnDead_ProcessNormal()
