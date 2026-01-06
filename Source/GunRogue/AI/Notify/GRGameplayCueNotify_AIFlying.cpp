@@ -8,9 +8,10 @@
 #include "Components/AudioComponent.h"
 
 AGRGameplayCueNotify_AIFlying::AGRGameplayCueNotify_AIFlying()
-	:AttachSocketName(FName("JetBack"))
 {
 	bAutoDestroyOnRemove = true;
+	AttachSocketNames.Add(FName("JetBack_L"));
+	AttachSocketNames.Add(FName("JetBack_R"));
 }
 
 bool AGRGameplayCueNotify_AIFlying::OnActive_Implementation(AActor* Target, const FGameplayCueParameters& Parameters)
@@ -28,22 +29,36 @@ bool AGRGameplayCueNotify_AIFlying::OnActive_Implementation(AActor* Target, cons
 	
 	if (JetFX)
 	{
-		JetFXComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
-			JetFX,
-			Mesh,
-			AttachSocketName,
-			FVector::ZeroVector,
-			FRotator::ZeroRotator,
-			EAttachLocation::SnapToTarget,
-			false);
+		FRotator JetRotation = FRotator(180.f, 0.f, 0.f);
+
+		for (FName AttachSocketName : AttachSocketNames)
+		{
+			UNiagaraComponent* FXComp =
+				UNiagaraFunctionLibrary::SpawnSystemAttached(
+					JetFX,
+					Mesh,
+					AttachSocketName,
+					FVector::ZeroVector,
+					JetRotation,
+					EAttachLocation::SnapToTarget,
+					false);
+			if (FXComp)
+			{
+				JetFXComponents.Add(FXComp);
+			}
+		}
 	}
 
 	if (JetSound)
 	{
-		JetAudioComponent = UGameplayStatics::SpawnSoundAttached(
-			JetSound,
-			Mesh,
-			AttachSocketName);
+		for (const FName& AttachSocketName : AttachSocketNames)
+		{
+			UAudioComponent* AudioComp =UGameplayStatics::SpawnSoundAttached(JetSound,Mesh,AttachSocketName);
+			if (AudioComp)
+			{
+				JetAudioComponents.Add(AudioComp);
+			}
+		}
 	}
 
 	return true;
@@ -51,15 +66,23 @@ bool AGRGameplayCueNotify_AIFlying::OnActive_Implementation(AActor* Target, cons
 
 bool AGRGameplayCueNotify_AIFlying::OnRemove_Implementation(AActor* Target, const FGameplayCueParameters& Parameters)
 {
-	if (JetFXComponent)
+	for (UNiagaraComponent* FXComp : JetFXComponents)
 	{
-		JetFXComponent->Deactivate();
+		if (FXComp)
+		{
+			FXComp->Deactivate();
+		}
 	}
+	JetFXComponents.Empty();
 
-	if (JetAudioComponent)
+	for (UAudioComponent* AudioComp : JetAudioComponents)
 	{
-		JetAudioComponent->Stop();
+		if (AudioComp)
+		{
+			AudioComp->Stop();
+		}
 	}
+	JetAudioComponents.Empty();
 
 	return true;
 }

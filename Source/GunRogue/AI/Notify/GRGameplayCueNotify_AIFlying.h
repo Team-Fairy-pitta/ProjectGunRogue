@@ -38,11 +38,11 @@ protected:
 	USoundBase* JetSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	FName AttachSocketName;
+	TArray<FName> AttachSocketNames;
 	
 	UPROPERTY()
-	TObjectPtr<UNiagaraComponent> JetFXComponent;
+	TArray<TObjectPtr<UNiagaraComponent>> JetFXComponents;
 
 	UPROPERTY()
-	TObjectPtr<UAudioComponent> JetAudioComponent;
+	TArray<TObjectPtr<UAudioComponent>> JetAudioComponents;
 };

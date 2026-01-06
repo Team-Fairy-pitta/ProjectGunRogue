@@ -270,6 +270,28 @@ void UGRAIAttackAbility::ExecuteGameplayCueAtGround()
 	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(CueTag, CueParams);
 }
 
+void UGRAIAttackAbility::ExecuteGameplayCueWhenStartFire()
+{
+	//Impact Cue
+	UAbilitySystemComponent* AIASC = GetAbilitySystemComponentFromActorInfo();
+	if (AIASC)
+	{
+		FGameplayTag FireCueTag = FGameplayTag::RequestGameplayTag(FireGameplayCueTagName);
+		FGameplayCueParameters Params;
+
+		AActor* AIActor = AIASC->GetAvatarActor();
+		if (AIActor)
+		{
+			ACharacter* AIChar = Cast<ACharacter>(AIActor);
+			if (AIChar)
+			{
+				Params.Location = AIChar ->GetMesh()->GetSocketLocation(ProjectileSocketName);
+			}
+		}
+		AIASC->ExecuteGameplayCue(FireCueTag,Params);
+	}
+}
+
 void UGRAIAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)
 {
 }

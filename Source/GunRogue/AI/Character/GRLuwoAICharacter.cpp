@@ -57,6 +57,8 @@ void AGRLuwoAICharacter::Landed(const FHitResult& Hit)
 	Super::Landed(Hit);
 
 	OnLandedEvent.Broadcast();
+
+	StopFlyingGC();
 }
 
 void AGRLuwoAICharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -79,37 +81,14 @@ void AGRLuwoAICharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, u
 {
 	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 
-	if (!ASC)
-	{
-		return;
-	}
-
 	if (!HasAuthority())
 	{
 		return;
 	}
 	
-	const EMovementMode CurrentMode = GetCharacterMovement()->MovementMode;
-
-	//Debug
-	UE_LOG(LogTemp, Warning,
-	TEXT("CurrentMode = %d"),
-	GetCharacterMovement()->MovementMode);
-	
-	if (CurrentMode == MOVE_Flying)
+	if (GetCharacterMovement()->IsFalling())
 	{
-		if (!ASC->HasMatchingGameplayTag(FlyingTag))
-		{
-			ASC->AddLooseGameplayTag(FlyingTag);
-
-			FGameplayCueParameters Params;
-			Params.SourceObject = this;
-			ASC->ExecuteGameplayCue(FlyingTag, Params);
-		}
-	}
-	else if (PrevMovementMode == MOVE_Flying)
-	{
-		ASC->RemoveLooseGameplayTag(FlyingTag);
+		StartFlyingGC();
 	}
 }
 
@@ -131,4 +110,29 @@ float AGRLuwoAICharacter::GetBossShield() const
 float AGRLuwoAICharacter::GetBossMaxShield() const
 {
 	return HealthAttributeSet->GetMaxShield();
+}
+
+void AGRLuwoAICharacter::StartFlyingGC()
+{
+	if (!ASC)
+	{
+		return;
+	}
+	
+	if (!ASC->HasMatchingGameplayTag(FlyingTag))
+	{
+		FGameplayCueParameters Params;
+		Params.SourceObject = this;
+		ASC->AddGameplayCue(FlyingTag, Params);
+	}
+}
+
+void AGRLuwoAICharacter::StopFlyingGC()
+{
+	if (!ASC)
+	{
+		return;
+	}
+	
+	ASC->RemoveGameplayCue(FlyingTag);
 }

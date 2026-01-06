@@ -26,6 +26,8 @@ public:
 	float GetBossMaxHealth() const;
 	float GetBossShield() const;
 	float GetBossMaxShield() const;
+	void StartFlyingGC();
+	void StopFlyingGC();
 	
 protected:
 	virtual void BeginPlay() override;
