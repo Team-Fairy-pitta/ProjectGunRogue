@@ -37,6 +37,7 @@ UGRHealthAttributeSet::UGRHealthAttributeSet()
 	InitHealthKitMultiplier(1.0f);
 
 	InitGainHealthOnKill(0.0f);
+	InitStrenghtenShield(1.0f); // 1.0 -> 받는 피해량이 100%, 그대로라는 의미
 }
 
 void UGRHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
