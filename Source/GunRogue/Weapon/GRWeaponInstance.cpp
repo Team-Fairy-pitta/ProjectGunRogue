@@ -12,6 +12,11 @@ FGRWeaponInstance::FGRWeaponInstance()
 	UpgradeLevel = 0;
 	CurrentAmmo = 0;
 	RerollCount = 0;
+
+	CachedTotalDamage = 0.0f;
+	CachedTotalWeakMultuplier = 0.0f;
+	CachedTotalFireRate = 0.0f;
+	CachedTotalMagazine = 0.0f;
 }
 
 FGRWeaponInstance::FGRWeaponInstance(const FGRWeaponInstance& Other)
