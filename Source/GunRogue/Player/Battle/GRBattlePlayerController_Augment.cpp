@@ -20,6 +20,7 @@ void AGRBattlePlayerController::ShowAugmentWidget()
 	}
 
 	FInputModeUIOnly Mode;
+	Mode.SetWidgetToFocus(AugmentWidgetInstance->GetCachedWidget());
 	SetInputMode(Mode);
 	bShowMouseCursor = true;
 }

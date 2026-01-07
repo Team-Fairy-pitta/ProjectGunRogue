@@ -19,6 +19,8 @@ void UGRAugmentHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	SetWidgetFocusable();
+
 	CreateAugmentSlot();
 
 	SetCharacterName();
@@ -245,4 +247,9 @@ void UGRAugmentHUDWidget::CreateAugmentSlot()
 		NewAugmentSlot->OnAugmentSlotHovered.AddDynamic(this, &UGRAugmentHUDWidget::ShowTooltip);
 		NewAugmentSlot->OnAugmentSlotUnhovered.AddDynamic(this, &UGRAugmentHUDWidget::HideTooltip);
 	}
+}
+
+void UGRAugmentHUDWidget::SetWidgetFocusable()
+{
+	SetIsFocusable(true);
 }
