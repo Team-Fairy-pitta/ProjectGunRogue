@@ -65,6 +65,7 @@ void AGRBossRoomTrigger::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherAc
 	int32 TotalPlayers = GetWorld()->GetNumPlayerControllers();
 	if (NumInRoom == TotalPlayers)
 	{
+		BossAI->InitBlackboardKey();
 		BB->SetValueAsBool(BossAI->IsBossModeKey,true);
 	}
 

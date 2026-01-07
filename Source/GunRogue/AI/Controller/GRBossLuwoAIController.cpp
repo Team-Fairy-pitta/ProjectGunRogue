@@ -27,20 +27,6 @@ void AGRBossLuwoAIController::RemovePlayerInBossRoom(AActor* Player)
 	PlayersInBossRoomArray.Remove(Player);
 }
 
-void AGRBossLuwoAIController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (BlackboardComp)
-	{
-		GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
-		{
-			InitBlackboardKey();
-		});
-	}
-}
-
-
 void AGRBossLuwoAIController::InitBlackboardKey()
 {
 	BlackboardComp->SetValueAsEnum(BossAttackRangeStateKey,static_cast<uint8>(EBossAttackRangeState::None));
@@ -70,5 +56,7 @@ void AGRBossLuwoAIController::InitBlackboardKey()
 		}
 	}
 
-	BlackboardComp->SetValueAsBool(IsBossModeKey, false);
+	//Debug
+	UE_LOG(LogTemp, Warning, TEXT("Found TargetPoint Count: %d"), FoundActors.Num());
 }
+
