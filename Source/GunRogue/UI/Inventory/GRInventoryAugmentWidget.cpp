@@ -3,8 +3,6 @@
 
 #include "UI/Inventory/GRInventoryAugmentWidget.h"
 
-#include <filesystem>
-
 #include "GRInventoryAugmentSlot.h"
 #include "UI/Augment/GRAugmentTooltipWidget.h"
 #include "UI/Augment/GRAugmentSlotWidget.h"
