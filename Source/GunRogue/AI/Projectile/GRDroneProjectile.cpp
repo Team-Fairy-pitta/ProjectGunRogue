@@ -20,7 +20,7 @@ AGRDroneProjectile::AGRDroneProjectile()
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(3.0f);
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CollisionComp->SetCollisionResponseToChannel(ECC_EngineTraceChannel3,ECR_Ignore);
+	CollisionComp->SetCollisionResponseToChannel(ECC_EngineTraceChannel2,ECR_Ignore);
 	RootComponent = CollisionComp;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));

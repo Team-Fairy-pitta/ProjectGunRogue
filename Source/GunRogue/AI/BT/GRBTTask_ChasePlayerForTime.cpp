@@ -107,12 +107,12 @@ void UGRBTTask_ChasePlayerForTime::TickTask(UBehaviorTreeComponent& OwnerComp, u
 		return;
 	}
 	
-	EPathFollowingStatus::Type Status = PFC->GetStatus();
-	if (Status == EPathFollowingStatus::Idle)
-	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-		return;
-	}
+	// EPathFollowingStatus::Type Status = PFC->GetStatus();
+	// if (Status == EPathFollowingStatus::Idle)
+	// {
+	// 	FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	// 	return;
+	// }
 
 	if (MyMemory->TimeElapsed >= ChaseDuration)
 	{
