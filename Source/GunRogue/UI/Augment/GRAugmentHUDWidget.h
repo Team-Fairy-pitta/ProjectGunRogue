@@ -50,5 +50,6 @@ public:
 	void HideTooltip(UGRAugmentSlotWidget* AugmentSlot);
 
 private:
+	void SetWidgetFocusable();
 	void CreateAugmentSlot();
 };

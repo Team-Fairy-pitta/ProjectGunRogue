@@ -139,23 +139,40 @@ AActor* UGRInteractionComponent::DoLineTrace(FVector& StartLocation, FVector& En
 	// ECC_GameTraceChannel4 = Interaction Channel
 	GetWorld()->LineTraceMultiByChannel(HitResults, StartLocation, EndLocation, ECC_GameTraceChannel4, Params);
 
-	float MinDistance = -1.0f;
-	AActor* ClosestActor = nullptr;
+	TArray<FTracedActor> TracedActors;
 	for (const FHitResult& HitResult : HitResults)
 	{
-		AActor* HitActor = HitResult.GetActor();
+		FTracedActor& Item = TracedActors.AddDefaulted_GetRef();
+		Item.Actor = HitResult.GetActor();
+		Item.Distance = HitResult.Distance;
+	}
+	TracedActors.Sort(); // Item.Distance 오름차순 정렬
+
+	for (const FTracedActor& Element : TracedActors)
+	{
+		AActor* HitActor = Element.Actor;
 		IGRInteractableActor* InteractableActor = Cast<IGRInteractableActor>(HitActor);
-		bool bCanInteract = InteractableActor && InteractableActor->CanInteract(GetOwner());
-		if (bCanInteract)
+
+		if (InteractableActor)
 		{
-			if (MinDistance < 0 || HitResult.Distance < MinDistance)
+			bool bCanInteractWith = InteractableActor->CanInteract(GetOwner());
+			if (bCanInteractWith)
 			{
-				MinDistance = HitResult.Distance;
-				ClosestActor = HitActor;
+				return HitActor;
+			}
+			else
+			{
+				// 상호 작용 가능한 Actor가 여러 개 겹쳐 있는 경우를 위한 로직
+				continue;
 			}
 		}
+		else
+		{
+			// 가장 가까운 Actor가 IGRInteractableActor가 아닌 경우.
+			return nullptr;
+		}
 	}
-	return ClosestActor;
+	return nullptr;
 }
 
 void UGRInteractionComponent::AddOutline(AActor* InActor)

@@ -30,6 +30,7 @@ protected:
 	void DetectByOverlapSphereMulti();
 	void CauseDamage(AActor* Target);
 	void ExecuteGameplayCueAtGround();
+	void ExecuteGameplayCueWhenStartFire();
 	
 	UFUNCTION()
 	virtual void OnAttackTriggerNotify(FGameplayEventData Payload);
@@ -63,4 +64,5 @@ protected:
 	float SphereRadius;
 
 	FName GameplayCueTagName;
+	FName FireGameplayCueTagName;
 };

@@ -5,6 +5,17 @@
 
 class UBoxComponent;
 
+struct FTracedActor
+{
+	AActor* Actor;
+	float Distance;
+
+	bool operator <(const FTracedActor& Right) const
+	{
+		return Distance < Right.Distance;
+	}
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GUNROGUE_API UGRInteractionComponent : public UActorComponent
 {

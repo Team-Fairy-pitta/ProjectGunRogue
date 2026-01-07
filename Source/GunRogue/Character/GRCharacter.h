@@ -65,7 +65,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> CameraComponent;
-	
+
 	// 장착된 무기 메시 헬퍼
 	UFUNCTION(BlueprintCallable, Category = "GRCharacter|Weapon")
 	USkeletalMeshComponent* GetEquippedWeaponMesh() const;

@@ -46,6 +46,15 @@ void UGRAIComboMeleeAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payl
 	{
 		AttackNextCombo();
 	}
+
+	//Impact Cue
+	UAbilitySystemComponent* AIASC = GetAbilitySystemComponentFromActorInfo();
+	if (AIASC)
+	{
+		FGameplayTag ImpactCueTag = FGameplayTag::RequestGameplayTag("GameplayCue.AI.Melee.Attack");
+		FGameplayCueParameters Params;
+		AIASC->ExecuteGameplayCue(ImpactCueTag,Params);
+	}
 }
 
 bool UGRAIComboMeleeAttackAbility::CanDetectBySweepMulti()

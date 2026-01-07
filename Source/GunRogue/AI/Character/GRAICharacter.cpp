@@ -2,6 +2,7 @@
 
 
 #include "AI/Character/GRAICharacter.h"
+#include "AI/Controller/GRAIController.h"
 #include "Player/GRPlayerState.h"
 #include "Goods/GRGoodsActor.h"
 #include "Character/GRZLocationComponent.h"
@@ -10,8 +11,8 @@
 #include "AbilitySystem/Attributes/GRCombatAttributeSet.h"
 #include "GameModes/Level1/GRGameMode_Level1.h"
 #include "AbilitySystemComponent.h"
+#include "BrainComponent.h"
 #include "Windows/WindowsApplication.h"
-#include "GRAICharacter.h"
 
 AGRAICharacter::AGRAICharacter()
 {
@@ -109,7 +110,7 @@ void AGRAICharacter::InitStatus()
 void AGRAICharacter::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	float Health = Data.NewValue;
-	if (Health <= 0)
+	if (Health <= 0 && bIsDead == false)
 	{
 		OnDead();
 	}
@@ -117,10 +118,54 @@ void AGRAICharacter::OnHealthChanged(const FOnAttributeChangeData& Data)
 
 void AGRAICharacter::OnDead()
 {
-	// [NOTE] TODO: 나중에 죽는 애니메이션 재생 등의 처리
-	// 지금은 간단하게 actor 제거
+	bIsDead = true;
+
 	DropGoods();
-	Destroy();
+	MulticastRPC_OnDead();
+}
+
+void AGRAICharacter::MulticastRPC_OnDead_Implementation()
+{
+	if (HasAuthority())
+	{
+		OnDead_ProcessAuth();
+	}
+	OnDead_ProcessNormal();
+}
+
+void AGRAICharacter::OnDead_ProcessAuth()
+{
+	float BodyLifeSpan = 1.0f;
+	SetLifeSpan(BodyLifeSpan);
+
+	AGRAIController* AIController = GetController<AGRAIController>();
+	if (IsValid(AIController) && AIController->BrainComponent)
+	{
+		AIController->BrainComponent->Cleanup();
+	}
+}
+
+void AGRAICharacter::OnDead_ProcessNormal()
+{
+	USkeletalMeshComponent* MeshComponent = GetMesh();
+	if (MeshComponent)
+	{
+		MeshComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
+		MeshComponent->SetSimulatePhysics(true);
+		MeshComponent->SetAllBodiesPhysicsBlendWeight(1.0f);
+		MeshComponent->SetCollisionProfileName(FName(TEXT("Ragdoll")));
+		MeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		MeshComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	}
+
+	if (ASC)
+	{
+		FGameplayTag ImpactCueTag = FGameplayTag::RequestGameplayTag("GameplayCue.AI.Explosion");
+		FGameplayCueParameters Params;
+		Params.Location = GetActorLocation();
+
+		ASC->ExecuteGameplayCue(ImpactCueTag, Params);
+	}
 }
 
 void AGRAICharacter::NotifySpawnToGameMode()

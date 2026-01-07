@@ -8,6 +8,8 @@
 #include "UI/Augment/GRAugmentSlotWidget.h"
 #include "Augment/GRAugmentSubsystem.h"
 #include "Augment/GRAugmentDefinition.h"
+#include "Character/GRCharacter.h"
+#include "Character/GRPawnData.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/TextBlock.h"
@@ -148,7 +150,25 @@ void UGRInventoryAugmentWidget::CreateAugmentSlot()
 		return;
 	}
 
-	FName CharacterType = TEXT("Bomb"); //테스트용 원래는 따로 CharacterType을 받아야함
+	ACharacter* Character = PC->GetCharacter();
+	if (!Character)
+	{
+		return;
+	}
+
+	AGRCharacter* GRCharacter = Cast<AGRCharacter>(Character);
+	if (!GRCharacter)
+	{
+		return;
+	}
+
+	if (!GRCharacter->GetPawnData())
+	{
+		return;
+	}
+
+	FName CharacterType = GRCharacter->GetPawnData()->CharacterID;
+	
 	TArray<UGRAugmentDefinition*> AugmentValue = AugmentSubsystem->GetAugmentValues(CharacterType);
 
 	for (UGRAugmentDefinition* Augment : AugmentValue)

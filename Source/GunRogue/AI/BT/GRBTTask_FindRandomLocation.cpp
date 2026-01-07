@@ -65,7 +65,7 @@ EBTNodeResult::Type UGRBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeCompo
 	}
 	if (!bFindRandomLocation)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("bFindRandomLocation == false"));
+		//UE_LOG(LogTemp, Warning, TEXT("bFindRandomLocation == false"));
 		BlackboardComp->SetValueAsVector(FindRandomLocationKey, RandomPoint);
 		BlackboardComp->SetValueAsVector(PatrolEndLocationKey, RandomPoint);
 	}

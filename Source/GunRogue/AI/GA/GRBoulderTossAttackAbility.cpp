@@ -7,10 +7,12 @@
 #include "AI/Controller/GRBossLuwoAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "AbilitySystemComponent.h"
 
 UGRBoulderTossAttackAbility::UGRBoulderTossAttackAbility()
 {
 	ProjectileSocketName = FName("SpawnRockLocation");
+	FireGameplayCueTagName = FName("GameplayCue.AI.Boss.ThrowFireball");
 }
 
 void UGRBoulderTossAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -103,5 +105,7 @@ void UGRBoulderTossAttackAbility::LaunchProjectile()
 	}
 	
 	Projectile=nullptr;
+
+	ExecuteGameplayCueWhenStartFire();
 }
 

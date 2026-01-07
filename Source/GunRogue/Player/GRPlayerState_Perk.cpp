@@ -216,6 +216,52 @@ void AGRPlayerState::ServerRPC_ApplyAllPerksToASC_Implementation(const TArray<FP
 	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
 
+void AGRPlayerState::OnKillEnemy(AActor* Enemy)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AGameState* GameState = GetWorld()->GetGameState<AGameState>();
+	if (!IsValid(GameState))
+	{
+		return;
+	}
+
+	float CurrentTime = GameState->GetServerWorldTimeSeconds();
+
+	bool bFirst = LastTime_GainHealthOnKill < 0.0f;
+	bool bShouldWaitCooldown = CurrentTime < LastTime_GainHealthOnKill + GainHealthOnKillCooldown;
+	if (!bFirst && bShouldWaitCooldown)
+	{
+		return;
+	}
+	LastTime_GainHealthOnKill = CurrentTime;
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC || !GainHealthKitGE)
+	{
+		return;
+	}
+
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GainHealthKitGE, 1.f, ASC->MakeEffectContext());
+	if (!SpecHandle.IsValid())
+	{
+		return;
+	}
+
+	FGameplayTag HealthTag = FGameplayTag::RequestGameplayTag(TEXT("Attribute.Data.GainHealing"));
+	float Amount = ASC->GetNumericAttribute(UGRHealthAttributeSet::GetGainHealthOnKillAttribute());
+
+	SpecHandle.Data->SetSetByCallerMagnitude(HealthTag, static_cast<float>(Amount));
+	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+}
+
 #pragma endregion
 
 // AI의 도움을 받아 생성한 PIE용 함수

@@ -114,6 +114,11 @@ public:
 	UPROPERTY()
 	int32 CurrentAmmo;
 
+	float GetCachedTotalDamage() const { return CachedTotalDamage; }
+	float GetCachedTotalWeakMultuplier() const { return CachedTotalWeakMultuplier; }
+	float GetCachedTotalFireRate() const { return CachedTotalFireRate; }
+	float GetCachedTotalMagazine() const { return CachedTotalMagazine; }
+
 protected:
 
 	UPROPERTY()
@@ -125,19 +130,19 @@ protected:
 	UPROPERTY()
 	int32 RerollCount;
 
-	UPROPERTY();
+	UPROPERTY()
 	int8 bIsValid;
 
-	UPROPERTY();
+	UPROPERTY()
 	float CachedTotalDamage;
 
-	UPROPERTY();
+	UPROPERTY()
 	float CachedTotalWeakMultuplier;
 
-	UPROPERTY();
+	UPROPERTY()
 	float CachedTotalFireRate;
 
-	UPROPERTY();
+	UPROPERTY()
 	float CachedTotalMagazine;
 
 	void UpdateCachedAttributes();

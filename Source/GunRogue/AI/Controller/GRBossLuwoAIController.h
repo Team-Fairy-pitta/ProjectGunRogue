@@ -34,10 +34,6 @@ public:
 	AGRBossLuwoAIController();
 	void AddPlayerInBossRoom(AActor* Player);
 	void RemovePlayerInBossRoom(AActor* Player);
-protected:
-	virtual void BeginPlay() override;
-
-private:
 	void InitBlackboardKey();
 	
 public:

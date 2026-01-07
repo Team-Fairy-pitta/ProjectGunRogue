@@ -38,12 +38,12 @@ AGRDrone::AGRDrone()
 	DetectSphere->SetCollisionObjectType(ECC_WorldDynamic);
 	DetectSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	DetectSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	DetectSphere->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
 	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = AGRDroneAIController::StaticClass();
 	
 	bReplicates = true;
-	//SetReplicateMovement(true);
 }
 
 void AGRDrone::SetTargetOffset(AActor* Player,int32 Index,int TotalNum)
@@ -218,14 +218,12 @@ bool AGRDrone::CanFireAtTarget(AActor* Target)
 	{
 		return false;
 	}
-
-	//TODO: 시작 위치 (드론 총구 소켓)로 변경하기
-	const FVector Start = GetActorLocation();
+	
+	const FVector Start = Mesh->GetSocketLocation(MuzzleSocketName);
 	const FVector End   = Target->GetActorLocation();
 
 	FHitResult Hit;
 	FCollisionQueryParams Params;
-	Params.bTraceComplex = false;
 	Params.AddIgnoredActor(this);   
 	Params.AddIgnoredActor(GetInstigator());   
 
@@ -237,43 +235,32 @@ bool AGRDrone::CanFireAtTarget(AActor* Target)
 		Params
 	);
 
+ #if WITH_EDITOR
+ 	FVector DebugEnd = bHit ? Hit.ImpactPoint : End;
+ 	
+ 	DrawDebugLine(
+ 	GetWorld(),
+ 	Start,
+ 	DebugEnd,
+ 	FColor::Yellow,
+ 	false,   
+ 	1.0f,    
+ 	0,
+ 	1.0f     
+ );
+ #endif
+	
 	AActor* HitActor=Hit.GetActor();
 	if (HitActor)
 	{
 		//Debug
-		UE_LOG(LogTemp, Warning,
-	   TEXT("Hit Actor: %s | Comp: %s | ObjType: %d"),
-	   *Hit.GetActor()->GetName(),
-	   *Hit.GetComponent()->GetName(),
-	   (int32)Hit.GetComponent()->GetCollisionObjectType()
-		);
-
+		UE_LOG(LogTemp, Warning, TEXT("Drone Linetrace Hit Actor: %s"), *HitActor->GetName());
+		
 	   if (HitActor->IsA(AGRDroneProjectile::StaticClass()))
 	   {
 		   return true;
 	   }
 	}
-	
-#if ENABLE_DRAW_DEBUG
-	bool bCanDetect = false;
-	
-	if (bHit && Hit.GetActor() == Target)
-	{
-		bCanDetect = true;
-		
-		DrawDebugLine(
-			World,
-			Start,
-			End,
-			bCanDetect ? FColor::Red : FColor::Green,
-			false,
-			0.1f,
-			0,
-			1.5f
-		);
-	}
-	
-#endif
 	
 	return bHit && Hit.GetActor() == Target;
 }
@@ -344,10 +331,22 @@ void AGRDrone::Fire()
 		SpawnParams
 	);
 
-	if (Bullet)
+	//Impact
+	APawn* InstigatorPawn = GetInstigator();
+	if (InstigatorPawn)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Drone Fire Bullet -> %s"),
-			*AITarget->GetName());
+		APlayerState* PS = InstigatorPawn->GetPlayerState();
+		if (PS)
+		{
+			UAbilitySystemComponent* PlayerASC = PS->FindComponentByClass<UAbilitySystemComponent>();
+			if (PlayerASC)
+			{
+				FGameplayTag ImpactCueTag = FGameplayTag::RequestGameplayTag("GameplayCue.AI.Drone.Fire");
+				FGameplayCueParameters Params;
+				Params.Location = Mesh->GetSocketLocation(MuzzleSocketName);
+				PlayerASC->ExecuteGameplayCue(ImpactCueTag,Params);
+			}
+		}
 	}
 }
 

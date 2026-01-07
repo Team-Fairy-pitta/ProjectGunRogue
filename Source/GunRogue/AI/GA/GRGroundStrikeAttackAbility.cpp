@@ -3,6 +3,7 @@
 
 #include "AI/GA/GRGroundStrikeAttackAbility.h"
 #include "AbilitySystemComponent.h"
+#include "AI/Character/GRLuwoAICharacter.h"
 
 UGRGroundStrikeAttackAbility::UGRGroundStrikeAttackAbility()
 {
@@ -19,6 +20,12 @@ void UGRGroundStrikeAttackAbility::ActivateAbility(const FGameplayAbilitySpecHan
 	{
 		PlayAttackMontageAndWaitTask();
 		WaitAttackGameplayEventTask();
+
+		AGRLuwoAICharacter* BossLuwo = Cast<AGRLuwoAICharacter>(GetAvatarActorFromActorInfo());
+		if (BossLuwo)
+		{
+			BossLuwo->StartFlyingGC();
+		}
 	}
 }
 
@@ -27,6 +34,12 @@ void UGRGroundStrikeAttackAbility::EndAbility(const FGameplayAbilitySpecHandle H
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	AGRLuwoAICharacter* BossLuwo = Cast<AGRLuwoAICharacter>(GetAvatarActorFromActorInfo());
+	if (BossLuwo)
+	{
+		BossLuwo->StopFlyingGC();
+	}
 }
 
 void UGRGroundStrikeAttackAbility::OnAttackTriggerNotify(FGameplayEventData Payload)

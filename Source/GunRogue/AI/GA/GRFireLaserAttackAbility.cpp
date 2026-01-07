@@ -10,6 +10,7 @@
 UGRFireLaserAttackAbility::UGRFireLaserAttackAbility()
 {
 	ProjectileSocketName = FName("SpawnLaserLocation");
+	FireGameplayCueTagName = FName("GameplayCue.AI.Boss.FireLaser");
 }
 
 void UGRFireLaserAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -85,5 +86,7 @@ void UGRFireLaserAttackAbility::LaunchProjectile()
 	AIProjectile->Launch(LaunchDirection);
 	
 	Projectile=nullptr;
+
+	ExecuteGameplayCueWhenStartFire();
 }
 

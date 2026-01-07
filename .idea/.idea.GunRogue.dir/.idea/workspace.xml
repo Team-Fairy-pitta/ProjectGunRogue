@@ -9,20 +9,10 @@
   <component name="ChangeListManager">
     <list default="true" id="189d8e3a-7c20-4c98-94b2-895d871fd1a8" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GunRogue.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_BossGroundStrike.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_BossGroundStrike.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_BossJumpAndAttack.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_BossJumpAndAttack.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_LaserImpact.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_LaserImpact.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_RockImpact.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/GC/GC_AI_RockImpact.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Projectile/BP_Projectile_Rock.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AI/Boss/Luwo/Projectile/BP_Projectile_Rock.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Blueprints/AbilitySystem/Sword/BladeWave/BP_BladeWaveProjectile__.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Character/Bomb/T_Bomb_Thumbnail.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Character/Robot/T_Robot_Thumbnail.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Character/Sword/T_Sword_Thumbnail.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/TestMap_AI_BossLuwo.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/GRTest/Content/TestAI/Boss/Luwo/TestMap_AI_BossLuwo.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRGameplayCueNotify_WeaponFire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRGameplayCueNotify_WeaponFire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRGameplayCueNotify_WeaponFire.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Notify/GRGameplayCueNotify_WeaponFire.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRRockProjectile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRRockProjectile.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRRockProjectile.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Projectile/GRRockProjectile.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GunRogue/Map/SFIndoor/SFIndoor_Boss.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GunRogue/Map/SFIndoor/SFIndoor_Boss.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRBossLuwoAIController.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRBossLuwoAIController.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRBossLuwoAIController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Controller/GRBossLuwoAIController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/GunRogue/AI/Trigger/GRBossRoomTrigger.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/GunRogue/AI/Trigger/GRBossRoomTrigger.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,6 +36,8 @@
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/AIModule/Classes/BehaviorTree/BTNode.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/AIModule/Classes/BrainComponent.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/AIModule/Private/AIController.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/Core/Public/Containers/Array.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/Core/Public/UObject/WeakObjectPtrTemplates.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/Engine/Classes/Engine/EngineTypes.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/Engine/Classes/Engine/ReplicatedState.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../../Program Files/Epic Games/UE_5.5/Engine/Source/Runtime/Engine/Classes/GameFramework/Actor.h" root0="FORCE_HIGHLIGHTING" />
@@ -68,7 +60,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;Uproject.GunRogue.executor&quot;: &quot;Debug&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/ai/boss-skill-gc&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;bugfix/drone/attack-boss&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -255,6 +247,14 @@
       <workItem from="1767146630960" duration="2760000" />
       <workItem from="1767150846772" duration="548000" />
       <workItem from="1767151443816" duration="2796000" />
+      <workItem from="1767164884076" duration="6410000" />
+      <workItem from="1767314259926" duration="13328000" />
+      <workItem from="1767590179711" duration="16054000" />
+      <workItem from="1767658041116" duration="799000" />
+      <workItem from="1767660251657" duration="6242000" />
+      <workItem from="1767680835380" duration="16250000" />
+      <workItem from="1767752904362" duration="2512000" />
+      <workItem from="1767756355949" duration="1041000" />
     </task>
     <servers />
   </component>
