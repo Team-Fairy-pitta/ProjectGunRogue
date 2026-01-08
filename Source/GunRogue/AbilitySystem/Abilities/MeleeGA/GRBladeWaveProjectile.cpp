@@ -123,7 +123,7 @@ void AGRBladeWaveProjectile::ComputeParametersOnServer()
 		return;
 	}
 
-	Damage = SkillSet->GetBladeWave_BaseDamage();
+	Damage = SkillSet->GetBladeWave_BaseDamage() * SkillSet->GetBladeWave_DamageMultiplier();
 
 	const float BaseScale = SkillSet->GetBladeWave_BaseWaveScale();
 	const float MultScale = SkillSet->GetBladeWave_BaseWaveScaleMultiplier();
