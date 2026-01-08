@@ -67,7 +67,7 @@ private:
 
 	void ApplyKnockbackToTarget(
 		AActor* TargetActor,
-		const FVector& DashStartLocation) const;
+		const FVector& DashStartLocation);
 
 	void ApplyDamageToTarget(AActor* TargetActor, const FHitResult& Hit, float Damage) const;
 

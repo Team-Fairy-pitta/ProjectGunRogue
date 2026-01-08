@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TimerManager.h"
 #include "Character/GRCharacter.h"
+#include "AI/Character/GRAICharacter.h"
 
 UGRGameplayAbility_RushSlash::UGRGameplayAbility_RushSlash()
 {
@@ -25,6 +26,7 @@ const UGRSkillAttributeSet_MeleeSkill* UGRGameplayAbility_RushSlash::GetSkillSet
 }
 
 bool UGRGameplayAbility_RushSlash::CanActivateAbility(
+
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayTagContainer* SourceTags,
@@ -207,16 +209,18 @@ void UGRGameplayAbility_RushSlash::PerformHitCheck(const FGameplayAbilityActorIn
 
 	const float HitRadius = SkillSet->GetRushSlash_HitRadius();
 
-	TArray<FHitResult> HitResults;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(Avatar);
-
 	const FVector CurrentLocation = Avatar->GetActorLocation();
+	const FVector TraceStart = PreviousActorLocation;
+	const FVector TraceEnd = CurrentLocation;
 
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(RushSlashHit), false, Avatar);
+	QueryParams.bReturnPhysicalMaterial = false;
+
+	TArray<FHitResult> HitResults;
 	const bool bAnyHit = GetWorld()->SweepMultiByChannel(
 		HitResults,
-		PreviousActorLocation,
-		CurrentLocation,
+		TraceStart,
+		TraceEnd,
 		FQuat::Identity,
 		HitChannel,
 		FCollisionShape::MakeSphere(HitRadius),
@@ -230,23 +234,18 @@ void UGRGameplayAbility_RushSlash::PerformHitCheck(const FGameplayAbilityActorIn
 		for (const FHitResult& Hit : HitResults)
 		{
 			AActor* HitActor = Hit.GetActor();
-			if (!HitActor || AlreadyHitActors.Contains(HitActor))
-			{
-				continue;
-			}
-
-			if (HitActor->IsA(AGRCharacter::StaticClass()))
+			AGRAICharacter* AITarget = Cast<AGRAICharacter>(HitActor);
+			if (!AITarget)
 			{
 				continue;
 			}
 
 			AlreadyHitActors.Add(HitActor);
 
-			ApplyKnockbackToTarget(HitActor, Avatar->GetActorLocation());
+			ApplyKnockbackToTarget(AITarget, Avatar->GetActorLocation());
 
 			const float FinalDamage = SkillSet->GetRushSlash_BaseDamage() * SkillSet->GetRushSlash_DamageMultiplier();
-
-			ApplyDamageToTarget(HitActor, Hit, FinalDamage);
+			ApplyDamageToTarget(AITarget, Hit, FinalDamage);
 
 			bShouldStopDash = true;
 			break;
@@ -266,7 +265,7 @@ void UGRGameplayAbility_RushSlash::PerformHitCheck(const FGameplayAbilityActorIn
 
 void UGRGameplayAbility_RushSlash::ApplyKnockbackToTarget(
 	AActor* TargetActor,
-	const FVector& DashStartLocation) const
+	const FVector& DashStartLocation)
 {
 	ACharacter* TargetCharacter = Cast<ACharacter>(TargetActor);
 	if (!TargetCharacter)
@@ -280,15 +279,123 @@ void UGRGameplayAbility_RushSlash::ApplyKnockbackToTarget(
 		return;
 	}
 
+	UCharacterMovementComponent* MoveComp = TargetCharacter->GetCharacterMovement();
+	if (!MoveComp)
+	{
+		return;
+	}
+
 	const float Mult = SkillSet->GetRushSlash_KnockbackUpgradeMultiplier();
 	const float KnockbackStrength = SkillSet->GetRushSlash_KnockbackStrength() * Mult;
 	const float KnockbackUpward = SkillSet->GetRushSlash_KnockbackUpward() * Mult;
 
 	const FVector KnockbackDirection = (TargetCharacter->GetActorLocation() - DashStartLocation).GetSafeNormal2D();
+	const FVector KnockbackVelocity = KnockbackDirection * KnockbackStrength + FVector::UpVector * KnockbackUpward;
 
-	TargetCharacter->LaunchCharacter(
-		KnockbackDirection * KnockbackStrength + FVector::UpVector * KnockbackUpward,
-		true,
+	const EMovementMode PrevMode = MoveComp->MovementMode;
+	const bool bWasMovementNone = (PrevMode == MOVE_None);
+
+	if (bWasMovementNone)
+	{
+		MoveComp->SetMovementMode(MOVE_Walking);
+	}
+
+	MoveComp->StopMovementImmediately();
+	MoveComp->AddImpulse(KnockbackVelocity, true);
+
+	if (!bWasMovementNone)
+	{
+		return;
+	}
+
+	UWorld* World = TargetCharacter->GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	TWeakObjectPtr<ACharacter> WeakTarget = TargetCharacter;
+
+	struct FRestoreState
+	{
+		bool bEnteredFalling = false;
+		float Elapsed = 0.f;
+		FTimerHandle Handle;
+	};
+
+	const TSharedPtr<FRestoreState> State = MakeShared<FRestoreState>();
+	const float PollInterval = 0.02f;
+	const float MaxHoldSeconds = 0.5f;
+
+	World->GetTimerManager().SetTimer(
+		State->Handle,
+		FTimerDelegate::CreateLambda([WeakTarget, PrevMode, World, State, PollInterval, MaxHoldSeconds]()
+			{
+				// 타이머 종료 + 이동모드 복구를 한 군데로 모음
+				auto RestoreAndStop = [World, State, PrevMode](UCharacterMovementComponent* CMC)
+					{
+						if (CMC)
+						{
+							CMC->SetMovementMode(PrevMode);
+						}
+						if (World)
+						{
+							World->GetTimerManager().ClearTimer(State->Handle);
+						}
+					};
+
+				if (!World)
+				{
+					return;
+				}
+
+				if (!WeakTarget.IsValid())
+				{
+					World->GetTimerManager().ClearTimer(State->Handle);
+					return;
+				}
+
+				UCharacterMovementComponent* CMC = WeakTarget->GetCharacterMovement();
+				if (!CMC)
+				{
+					World->GetTimerManager().ClearTimer(State->Handle);
+					return;
+				}
+
+				State->Elapsed += PollInterval;
+
+				// 1) 아직 Falling에 들어간 적이 없으면: Falling 진입 기다림
+				if (!State->bEnteredFalling)
+				{
+					if (CMC->IsFalling())
+					{
+						State->bEnteredFalling = true;
+						return;
+					}
+
+					// Falling이 안 생기는 케이스(수평 넉백 등) 대비: 상한으로 복구
+					if (State->Elapsed >= MaxHoldSeconds)
+					{
+						RestoreAndStop(CMC);
+					}
+					return;
+				}
+
+				// 2) Falling에 들어갔으면: 착지(= Falling 종료)까지 기다렸다가 복구
+				if (!CMC->IsFalling())
+				{
+					RestoreAndStop(CMC);
+					return;
+				}
+
+				// 3) 공중에서 너무 오래 머무르는 경우도 상한으로 복구
+				if (State->Elapsed >= MaxHoldSeconds)
+				{
+					RestoreAndStop(CMC);
+					return;
+				}
+			}),
+		PollInterval,
 		true
 	);
 }
@@ -330,6 +437,12 @@ void UGRGameplayAbility_RushSlash::ApplyDamageToTarget(AActor* TargetActor, cons
 	{
 		return;
 	}
+
+	if (!TargetActor->IsA(AGRAICharacter::StaticClass()))
+	{
+		return;
+	}
+
 
 	FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
 	EffectContext.AddSourceObject(Avatar);
